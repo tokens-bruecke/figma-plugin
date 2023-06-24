@@ -1,0 +1,31 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: var(--color-background);
+  height: 100%;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.description {
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0 0 30px 0;
+  line-height: 140%;
+  opacity: 0.6;
+}
+
+.input {
+  margin-bottom: 16px;
+}
+
+.logo {
+  height: 50px;
+  width: 115px;
+  margin-bottom: 20px;
+}

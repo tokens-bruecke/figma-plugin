@@ -1,0 +1,8 @@
+{
+  "name": "Plugin Boilerplate",
+  "id": "paste-your-plugin-id-here",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"]
+}
