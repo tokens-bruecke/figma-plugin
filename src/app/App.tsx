@@ -1,45 +1,41 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./app.module.scss";
 
-import logoImg from "./assets/logo.svg";
-import Input from "./components/Input";
-import Button from "./components/Button";
+import Select from "./components/Select";
 
 const App = () => {
-  const [oultineValue, setOutlineValue] = React.useState("4");
+  const [currentCaseTransform, setCurrentCaseTransform] = useState(
+    "default" as CaseTransform
+  );
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOutlineValue(e.target.value);
-  };
+  useEffect(() => {
+    // chrome.storage.sync.set({ currentCaseTransform });
 
-  const handleClick = () => {
     parent.postMessage(
       {
         pluginMessage: {
-          type: "add-outline",
-          value: oultineValue,
+          type: "set-case-transform",
+          currentCaseTransform,
         },
       },
       "*"
     );
-  };
+  }, [currentCaseTransform]);
 
   return (
     <section className={styles.wrap}>
-      <img src={logoImg} className={styles.logo} />
-      <h1 className={styles.title}>Figma React Boilerplate</h1>
-      <p className={styles.description}>
-        Select any element on the page and add an outline. This action will show
-        you how the plugin and Figma API connect to each other.
-      </p>
-      <Input
-        className={styles.input}
-        label="Outline width (px)"
-        type="number"
-        value={oultineValue}
-        onChange={handleInput}
-      />
-      <Button label="Add outline" onClick={handleClick} />
+      <section>
+        <h1>Settings</h1>
+
+        <hr />
+        <h2>Variables names transform</h2>
+        <Select
+          onChange={setCurrentCaseTransform}
+          options={["default", "camelCase", "snake_case", "kebab-case"]}
+        />
+
+        <hr />
+      </section>
     </section>
   );
 };

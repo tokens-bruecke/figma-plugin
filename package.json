@@ -1,5 +1,5 @@
 {
-  "name": "figma-plugin-boilerplate",
+  "name": "figma-variables-export",
   "version": "1.0.0",
   "license": "MIT",
   "author": {
@@ -15,7 +15,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@figma/plugin-typings": "^1.62.0",
+    "@figma/plugin-typings": "^1.68.0",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
     "css-loader": "^6.7.1",

@@ -1,0 +1,152 @@
+{
+  "Color": {
+    "$type": "color",
+    "background-body": {
+      "$value": "#233042"
+    },
+    "primary-body": {
+      "$value": "#354156"
+    },
+    "blue-light": {
+      "$value": "#30aab3"
+    },
+    "yellow": {
+      "$value": "#ffca30"
+    },
+    "red": {
+      "$value": "#fa3757"
+    },
+    "red-dark": {
+      "$value": "#e02045"
+    },
+    "green-dark": {
+      "$value": "#4d967b"
+    },
+    "background-primary": {
+      "$value": "#fcfcf4"
+    }
+  },
+  "Spacing": {
+    "$type": "dimension",
+    "small": {
+      "$value": "4px"
+    },
+    "medium": {
+      "$value": "8px"
+    },
+    "large": {
+      "$value": "12px"
+    },
+    "x-large": {
+      "$value": "20px"
+    }
+  },
+  "Duration": {
+    "$type": "duration",
+    "paused": {
+      "$value": "paused"
+    },
+    "slow": {
+      "$value": "3s"
+    },
+    "fast": {
+      "$value": "500ms"
+    }
+  },
+  "Easing": {
+    "$type": "easing",
+    "easeInSine": {
+      "$value": "cubic-bezier(0.12, 0, 0.39, 0)"
+    },
+    "easeOutSine": {
+      "$value": "cubic-bezier(0.61, 1, 0.88, 1)500ms"
+    }
+  },
+  "Radius": {
+    "$type": "string",
+    "circle": {
+      "$value": "50%"
+    },
+    "large": {
+      "$value": "8px"
+    },
+    "small": {
+      "$value": "2px"
+    }
+  },
+  "Opacity": {
+    "$type": "opacity",
+    "opacity-25": {
+      "$value": "0.25"
+    },
+    "opacity-50": {
+      "$value": "0.5"
+    },
+    "opacity-75": {
+      "$value": "0.75"
+    }
+  },
+  "Shadow": {
+    "$type": "shadow",
+    "level-1": {
+      "$value": "0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.20);"
+    },
+    "level-2": {
+      "$value": "0 3px 4px 0 rgba(0,0,0,0.14), 0 3px 3px -2px rgba(0,0,0,0.12), 0 1px 8px 0 rgba(0,0,0,0.20);"
+    },
+    "level-3": {
+      "$value": "0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.20)"
+    }
+  },
+  "Media Query": {
+    "$type": "dimension",
+    "max-width-mobile": {
+      "$value": "600px"
+    },
+    "max-width-tablet": {
+      "$value": "1024px"
+    }
+  },
+  "Font Family": {
+    "$type": "fontFamily",
+    "body": {
+      "$value": "Arial, Helvetica, sans-serif"
+    },
+    "headings": {
+      "$value": "Palatino Linotype, serif"
+    }
+  },
+  "Font Size": {
+    "$type": "dimension",
+    "caption": {
+      "$value": "12px"
+    },
+    "body": {
+      "$value": "16px"
+    },
+    "headings": {
+      "$value": "26px"
+    }
+  },
+  "Letter Spacing": {
+    "$type": "dimension",
+    "dense": {
+      "$value": "-1px"
+    },
+    "double": {
+      "$value": "2px"
+    }
+  },
+  "Line Height": {
+    "$type": "dimension",
+    "heading": {
+      "$value": "1.25"
+    },
+    "reset": {
+      "$value": "1"
+    },
+    "text": {
+      "$value": "1.5"
+    }
+  }
+}

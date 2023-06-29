@@ -1,6 +1,6 @@
 {
-  "name": "Plugin Boilerplate",
-  "id": "paste-your-plugin-id-here",
+  "name": "Variables Export",
+  "id": "1254538877056388290",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",

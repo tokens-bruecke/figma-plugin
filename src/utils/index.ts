@@ -1,0 +1,1 @@
+export { mergeVariablesAndCollections } from "./mergeVariablesAndCollections";
