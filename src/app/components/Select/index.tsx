@@ -1,23 +1,36 @@
 import React, { useState } from "react";
 
-const Select = ({ options, onChange }) => {
+interface SelectProps {
+  id: string;
+  label: string;
+  options: string[];
+  onChange: (option: string) => void;
+}
+
+const Select = (props: SelectProps) => {
   const [selectedOption, setSelectedOption] = useState("");
 
   const handleOptionChange = (event) => {
     const option = event.target.value;
     setSelectedOption(option);
-    onChange(option);
+    props.onChange(option);
   };
 
   return (
-    <select value={selectedOption} onChange={handleOptionChange}>
-      <option value={selectedOption}>Select an option</option>
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
+    <div>
+      <label htmlFor={props.id}>{props.label}</label>
+      <select
+        id={props.id}
+        value={selectedOption}
+        onChange={handleOptionChange}
+      >
+        {props.options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 };
 

@@ -40,7 +40,13 @@ type tokenType =
   | "fontSize"
   | "lineHeight"
   | "letterSpacing"
-  | "strokeStyle";
+  | "strokeStyle"
+  // default JSON types
+  | "string"
+  | "boolean"
+  | "object"
+  | "array"
+  | "null";
 
 type dimensionStringType = string | number;
 

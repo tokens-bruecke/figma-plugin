@@ -1,0 +1,208 @@
+/* colors.light.tokens.json */
+
+{
+  "keys": {
+    "on primary container": {
+      "$type": "color",
+      "$value": "{base.primary.10}"
+    },
+    "primary container": {
+      "$type": "color",
+      "$value": "{base.primary.90}"
+    },
+    "on primary": {
+      "$type": "color",
+      "$value": "{base.primary.10}"
+    },
+    "pimary": {
+      "$type": "color",
+      "$value": "{base.primary.50}"
+    }
+  },
+  "base": {
+    "neutral": {
+      "10": {
+        "$type": "color",
+        "$value": "#1f1f1f"
+      },
+      "20": {
+        "$type": "color",
+        "$value": "#373737"
+      },
+      "25": {
+        "$type": "color",
+        "$value": "#505050"
+      },
+      "35": {
+        "$type": "color",
+        "$value": "#686868"
+      }
+    },
+    "primary": {
+      "10": {
+        "$type": "color",
+        "$value": "#07412b"
+      },
+      "20": {
+        "$type": "color",
+        "$value": "#0c714c"
+      },
+      "30": {
+        "$type": "color",
+        "$value": "#11a26d"
+      },
+      "40": {
+        "$type": "color",
+        "$value": "#16d28d"
+      },
+      "50": {
+        "$type": "color",
+        "$value": "#36eaa9"
+      },
+      "60": {
+        "$type": "color",
+        "$value": "#5feeba"
+      },
+      "70": {
+        "$type": "color",
+        "$value": "#89f3cc"
+      },
+      "80": {
+        "$type": "color",
+        "$value": "#b4f7df"
+      },
+      "90": {
+        "$type": "color",
+        "$value": "#dffcf1"
+      }
+    }
+  }
+}
+
+
+/* colors.dark.tokens.json */
+
+{
+  "keys": {
+    "on primary container": {
+      "$type": "color",
+      "$value": "{base.primary.10}"
+    },
+    "primary container": {
+      "$type": "color",
+      "$value": "{base.primary.90}"
+    },
+    "on primary": {
+      "$type": "color",
+      "$value": "{base.primary.10}"
+    },
+    "pimary": {
+      "$type": "color",
+      "$value": "{base.primary.50}"
+    }
+  },
+  "base": {
+    "neutral": {
+      "10": {
+        "$type": "color",
+        "$value": "#949494"
+      },
+      "20": {
+        "$type": "color",
+        "$value": "#7b7b7b"
+      },
+      "25": {
+        "$type": "color",
+        "$value": "#6f6f6f"
+      },
+      "35": {
+        "$type": "color",
+        "$value": "#545454"
+      }
+    },
+    "primary": {
+      "10": {
+        "$type": "color",
+        "$value": "#092b1f"
+      },
+      "20": {
+        "$type": "color",
+        "$value": "#104c36"
+      },
+      "30": {
+        "$type": "color",
+        "$value": "#166c4d"
+      },
+      "40": {
+        "$type": "color",
+        "$value": "#1d8d64"
+      },
+      "50": {
+        "$type": "color",
+        "$value": "#24ae7b"
+      },
+      "60": {
+        "$type": "color",
+        "$value": "#29c98e"
+      },
+      "70": {
+        "$type": "color",
+        "$value": "#3cd79e"
+      },
+      "80": {
+        "$type": "color",
+        "$value": "#57ddac"
+      },
+      "90": {
+        "$type": "color",
+        "$value": "#72e2b9"
+      }
+    }
+  }
+}
+
+
+/* spacers.Mode 1.tokens.json */
+
+{
+  "4": {
+    "$type": "number",
+    "$value": 4
+  },
+  "8": {
+    "$type": "number",
+    "$value": 8
+  },
+  "12": {
+    "$type": "number",
+    "$value": 12
+  },
+  "16": {
+    "$type": "number",
+    "$value": 16
+  },
+  "24": {
+    "$type": "number",
+    "$value": 24
+  },
+  "32": {
+    "$type": "number",
+    "$value": 32
+  },
+  "40": {
+    "$type": "number",
+    "$value": 40
+  },
+  "52": {
+    "$type": "number",
+    "$value": 52
+  },
+  "64": {
+    "$type": "number",
+    "$value": 64
+  },
+  "76": {
+    "$type": "number",
+    "$value": 76
+  }
+}

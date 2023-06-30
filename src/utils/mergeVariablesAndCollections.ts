@@ -1,39 +1,18 @@
-type variableTypes = VariableResolvedDataType | VariableAlias["type"];
+import { normalizeValue } from "./normalizeValue";
+import { normilizeType } from "./normilizeType";
+
+// console.clear();
 
 interface CleanedVariable {
   name: string;
   value: string;
-  type: variableTypes;
+  type: tokenType;
   description: string;
 }
 
 interface CleanedVariableObject {
   [key: string]: CleanedVariable;
 }
-
-// const getVariableNameById = (id: string, variables: Variable[]) => {
-//   const variable = variables.find((variable) => variable.id === id);
-
-//   if (variable && variable.name) {
-//     const parts = variable.name.split("/");
-//     const aliasVariableName = `{${parts.join(".")}}`;
-
-//     return aliasVariableName;
-//   }
-
-//   return null; // Return null if no variable is found or no name is available
-// };
-
-// const ifValueIsAlias = (value: any, variables: Variable[]) => {
-//   // if it's an object, we assume it's an alias
-//   const variableName = getVariableNameById(value.id, variables);
-
-//   if (variableName) {
-//     return variableName;
-//   }
-
-//   return value;
-// };
 
 const convertVariablesToDictionary = (variables: CleanedVariableObject) => {
   const dictionary = {};
@@ -47,19 +26,15 @@ const convertVariablesToDictionary = (variables: CleanedVariableObject) => {
       if (!currentLevel[part]) {
         if (index === parts.length - 1) {
           currentLevel[part] = {
-            value: variable.value,
-            type: variable.type,
-            description: variable.description,
+            $value: variable.value,
+            $type: variable.type,
+            $description: variable.description,
           };
         } else {
           currentLevel[part] = {};
-          currentLevel = {
-            ...currentLevel[part],
-          };
         }
-      } else {
-        currentLevel = currentLevel[part];
       }
+      currentLevel = currentLevel[part];
     });
   });
 
@@ -70,40 +45,44 @@ export const mergeVariablesAndCollections = (
   variables: Variable[],
   collections: VariableCollection[]
 ) => {
-  let mergedVariables = {}; // Initialize the mergedVariables object
+  const mergedVariables = {};
 
   collections.forEach((collection) => {
-    let modes = {}; // Initialize the modes object for each collection
+    const modes = {};
 
     collection.modes.forEach((mode, index) => {
-      let variablesForMode = {}; // Initialize the variablesForMode object for each mode
-
-      // Loop through all variables
-      variables.forEach((variable) => {
+      const variablesForMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
         if (variableModeId === mode.modeId) {
-          const variableObject = {
+          const variableObject: CleanedVariable = {
             name: variable.name,
-            value: variable.valuesByMode[variableModeId],
-            type: variable.resolvedType,
+            value: normalizeValue(
+              variable.valuesByMode[variableModeId],
+              variable.resolvedType,
+              variables,
+              `${collection.name}.${mode.name}`
+            ),
+            type: normilizeType(variable.resolvedType),
             description: variable.description,
-          } as CleanedVariable;
+          };
 
-          variablesForMode[variable.name] = variableObject; // Add variable to variablesForMode using its name as the key
+          result[variable.name] = variableObject;
         }
-      });
 
-      // Check if there's only one mode
+        return result;
+      }, {});
+
+      // check amount of modes
       if (collection.modes.length === 1) {
-        modes = convertVariablesToDictionary(variablesForMode); // Assign variablesForMode directly to modes when there's only one mode
+        Object.assign(modes, convertVariablesToDictionary(variablesForMode));
       } else {
         modes[mode.name] = convertVariablesToDictionary(variablesForMode);
       }
     });
 
-    mergedVariables[collection.name] = modes; // Add modes to mergedVariables using collection name as the key
+    mergedVariables[collection.name] = modes;
   });
 
-  return mergedVariables; // Return the final mergedVariables object
+  return mergedVariables;
 };

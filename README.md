@@ -1,85 +1,52 @@
-# 🎨 React Boilerplate for Figma plugins ⚛️
+# VARIABLES EXPORT
 
-![preview](https://user-images.githubusercontent.com/18498712/222872587-28fb60ea-9282-48f4-8984-3e80a4b1b140.jpeg)
+## What plugin is doing?
 
-## ❓ What is this?
+It converts Figma variables into design-tokens JSON that are compatible with the latest [Design Tokens specification](https://design-tokens.github.io/community-group/format/).
 
-This is a boilerplate for creating a Figma plugin using React and Typescript.
+## Structuring
 
----
+Plugin first takes the collection name, then mode name and then variable name. For example, if you have a collection named `Colors`, mode named `Light` and variable named `Primary`, the plugin will generate the following JSON:
 
-## Supports
-
-- SASS (SCSS)
-- CSS/SASS/SCSS Modules
-- Typescript
-- Import SVG images
-
----
-
-## 📦 Latest packages versions
-
-- `@figma/plugin-typings`: 1.62.0
-- `react`: 18.2.0
-
----
-
-## Structure
-
-```
-├── src
-│   ├── app
-│   │   ├── assets
-│   │   ├── components
-│   │   ├── styles
-│   ├── controller
-│   ├── App.tsx
-│   ├── index.tsx
-│   ├── index.html
-├── manifest.json
-├── .prettierrc.yml
-├── declaration.d.ts
-├── tsconfig.json
-├── webpack.config.js
+```json
+{
+  "Colors": {
+    "Light": {
+      "Primary": "#000000"
+    }
+  }
+}
 ```
 
-### src/app
+Figma automatically merge groups and their names into a single name, e.g. `Base/Primary/10`. In this case, the plugin will generate the following JSON:
 
-This is where the main app is located. It is a React app that is rendered inside the Figma plugin.
+```json
+{
+  "Base": {
+    "Primary": {
+      "10": "#000000"
+    }
+  }
+}
+```
 
-### src/controller
+## Aliases
 
-This is where the Figma controller is located. It is a Typescript file that is used to communicate with the Figma API.
+All aliases are converted into the alias string format from the [Design Tokens specification](https://design-tokens.github.io/community-group/format/#aliases-references).
 
+## Types conversion
 
----
+| Figma type | Design Tokens type                                                                  |
+| ---------- | ----------------------------------------------------------------------------------- |
+| COLOR      | [color](https://design-tokens.github.io/community-group/format/#color)              |
+| BOOLEAN    | _boolean_ \*                                                                        |
+| FLOAT      | [dimension](https://design-tokens.github.io/community-group/format/#dimension) \*\* |
+| STRING     | _string_ \*                                                                         |
 
-## 🛠️ How to use
+\* native JSON types. The specification doesn't restrict the type of the value, so it could be any JSON type. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
 
-1. Clone this repo
-2. Run `yarn` or `npm install`
-3. Run `yarn dev` or `npm run dev`
-4. Go to Figma and add a new plugin (Plugins -> Development -> Import plugin from manifest…)
-5. Run the plugin
+\*\* currently figma supports only the `FLOAT` type for dimensions, that could be used only for `px` values. So, the plugin converts `FLOAT` values into `dimension` type with `px` unit.
 
----
-   
-## ⚙️ How to run
+## Design Tokens types
 
-In the project directory, you can run:
-- `yarn dev` or `npm run dev` to run the app in the development mode.
-- `yarn build` or `npm run build` to build the app for production to the `build` folder.
-
----
-
-## ❗ Important
-
-- run `yarn build` or `npm run build` before publishing the plugin to Figma. This will optimize the code and remove unnecessary files.
-- You'll need to restart plugin in Figma in order to see the changes during development.
-- Do not forget to replace the name and id of the plugin in the `manifest.json` file before publication.
-
----
- 
-## 📣 Feedback
-
-If you have any feedback, please reach out to me here in issues, or on [Twitter](https://twitter.com/PaveILaptev).
+In order to validate your JSON file, you can use TS types from this repo: [design-tokens-types](https://github.com/PavelLaptev/design-tokens-types).
