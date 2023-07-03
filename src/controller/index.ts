@@ -5,7 +5,7 @@ console.clear();
 
 // default plugin size
 const pluginFrameSize = {
-  width: 320,
+  width: 300,
   height: 670,
 };
 

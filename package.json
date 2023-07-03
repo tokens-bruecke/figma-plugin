@@ -1,5 +1,5 @@
 {
-  "name": "figma-variables-export",
+  "name": "token-bruecke",
   "version": "1.0.0",
   "license": "MIT",
   "author": {
@@ -11,14 +11,16 @@
     "dev": "webpack --mode=development --watch"
   },
   "dependencies": {
+    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui#cf56abdd70ffe0731e894c78a662aa04f9d81b41",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-figma-ui": "PavelLaptev/react-figma-ui"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.68.0",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
-    "css-loader": "^6.7.1",
+    "css-loader": "^6.8.1",
     "html-inline-css-webpack-plugin": "^1.11.1",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.7.2",
