@@ -1,5 +1,6 @@
 import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
+import { transformNameConvention } from "./transformNameConvention";
 
 // console.clear();
 
@@ -51,22 +52,34 @@ export const generateTokens = (
   const mergedVariables = {};
 
   collections.forEach((collection) => {
-    const modes = {};
-
-    console.log("collection", collection);
+    let modes = {};
+    const collectionName = transformNameConvention(
+      collection.name,
+      JSONSettingsConfig.namesTransform
+    );
 
     collection.modes.forEach((mode, index) => {
+      const modeName = transformNameConvention(
+        mode.name,
+        JSONSettingsConfig.namesTransform
+      );
+
       const variablesForMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
+        const variableName = transformNameConvention(
+          variable.name,
+          JSONSettingsConfig.namesTransform
+        );
+
         if (variableModeId === mode.modeId) {
           const variableObject: CleanedVariable = {
-            name: variable.name,
+            name: variableName,
             value: normalizeValue(
               variable.valuesByMode[variableModeId],
               variable.resolvedType,
               variables,
-              `${collection.name}.${mode.name}`
+              `${collectionName}.${modeName}`
             ),
             type: normilizeType(variable.resolvedType),
             description: variable.description,
@@ -76,7 +89,7 @@ export const generateTokens = (
             }),
           };
 
-          result[variable.name] = variableObject;
+          result[variableName] = variableObject;
         }
 
         return result;
@@ -86,11 +99,11 @@ export const generateTokens = (
       if (collection.modes.length === 1) {
         Object.assign(modes, convertVariablesToDictionary(variablesForMode));
       } else {
-        modes[mode.name] = convertVariablesToDictionary(variablesForMode);
+        modes[modeName] = convertVariablesToDictionary(variablesForMode);
       }
     });
 
-    mergedVariables[collection.name] = modes;
+    mergedVariables[collectionName] = modes;
   });
 
   return mergedVariables;
