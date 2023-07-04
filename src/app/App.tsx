@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./app.module.scss";
 
 import {
@@ -9,21 +9,110 @@ import {
   Button,
   Checkbox,
   Text,
+  Toggle,
 } from "pavelLaptev/react-figma-ui/ui";
 
 const App = () => {
-  const [nameTransformConfig, setNameTransformConfig] = useState({
-    convention: "default",
-    case: "default",
-  });
+  const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
+    namesTransform: "none",
+    includeStyles: [],
+    includeScopes: false,
+    splitFiles: false,
+  } as JSONSettingsConfigI);
+
+  //////////////////////
+  // HANDLE FUNCTIONS //
+  //////////////////////
+
+  const handleIncludeStylesChange = (value: stylesType, checked: boolean) => {
+    // console.log("handleIncludeStylesChange", value, checked);
+
+    if (checked) {
+      setJSONsettingsConfig({
+        ...JSONsettingsConfig,
+        includeStyles: [...JSONsettingsConfig.includeStyles, value],
+      });
+    }
+
+    if (!checked) {
+      setJSONsettingsConfig({
+        ...JSONsettingsConfig,
+        includeStyles: JSONsettingsConfig.includeStyles.filter(
+          (item) => item !== value
+        ),
+      });
+    }
+  };
+
+  const handleIncludeScopesChange = (checked: boolean) => {
+    // console.log("handleIncludeScopesChange", checked);
+
+    setJSONsettingsConfig({
+      ...JSONsettingsConfig,
+      includeScopes: checked,
+    });
+  };
+
+  const handleSplitFilesChange = (checked: boolean) => {
+    // console.log("handleSplitFilesChange", checked);
+
+    setJSONsettingsConfig({
+      ...JSONsettingsConfig,
+      splitFiles: checked,
+    });
+  };
 
   const handleShowOutput = () => {
     console.log("handleShowOutput");
   };
 
-  // useEffect(() => {
-  //   console.log("nameTransformConfig", nameTransformConfig);
-  // }, [nameTransformConfig]);
+  const handleConnectToServer = () => {
+    console.log("handleConnectToServer");
+  };
+
+  const handleDownloadJSON = () => {
+    // send command to figma controller
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "generateTokens",
+        },
+      },
+      "*"
+    );
+  };
+
+  /////////////////
+  // USE EFFECTS //
+  /////////////////
+
+  // pass changed to figma controller
+  useEffect(() => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "JSONSettingsConfig",
+          config: JSONsettingsConfig,
+        },
+      },
+      "*"
+    );
+  }, [JSONsettingsConfig]);
+
+  // Recieve tokens from figma controller
+  useEffect(() => {
+    window.onmessage = (event) => {
+      const { type, tokens } = event.data.pluginMessage;
+
+      if (type === "tokens") {
+        console.log("Recieve tokens from figma controller", tokens);
+      }
+    };
+  }, []);
+
+  /////////////////////
+  // RENDER FUNCTION //
+  /////////////////////
 
   return (
     <section className={styles.wrap}>
@@ -41,111 +130,15 @@ const App = () => {
       </Panel>
 
       <Panel>
-        <PanelHeader title="Include styles" isActive />
-
-        <Stack>
-          <Stack direction="row" hasLeftRightPadding={false}>
-            <Checkbox
-              id="text-styles"
-              onChange={() => {
-                console.log("onChange");
-              }}
-            >
-              <Text>Text</Text>
-            </Checkbox>
-            <Checkbox
-              id="color-styles"
-              onChange={() => {
-                console.log("onChange");
-              }}
-            >
-              <Text>Color</Text>
-            </Checkbox>
-          </Stack>
-          <Stack direction="row" hasLeftRightPadding={false}>
-            <Checkbox
-              id="effects-styles"
-              onChange={() => {
-                console.log("onChange");
-              }}
-            >
-              <Text>Effects</Text>
-            </Checkbox>
-            <Checkbox
-              id="grids-styles"
-              onChange={() => {
-                console.log("onChange");
-              }}
-            >
-              <Text>Grids</Text>
-            </Checkbox>
-          </Stack>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <PanelHeader title="Include variable features" isActive />
-
-        <Stack>
-          <Checkbox
-            id="scope-feature"
-            onChange={() => {
-              console.log("onChange");
-            }}
-          >
-            <Text>Scope</Text>
-          </Checkbox>
-          <Checkbox
-            id="hide-from-publishing"
-            onChange={() => {
-              console.log("onChange");
-            }}
-          >
-            <Text>Hide from publishing</Text>
-          </Checkbox>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <PanelHeader title="Names transformation" isActive />
         <Stack hasLeftRightPadding>
           <Dropdown
-            label="Case"
             value="none"
-            labelFlex={3}
-            onChange={(value) => {
-              setNameTransformConfig({
-                ...nameTransformConfig,
-                case: value,
-              });
-            }}
-            optionsSections={[
-              {
-                options: [
-                  {
-                    id: "none",
-                    label: "None",
-                  },
-                  {
-                    id: "uppercase",
-                    label: "Uppercase",
-                  },
-                  {
-                    id: "lowercase",
-                    label: "lowercase",
-                  },
-                ],
-              },
-            ]}
-          />
-          <Dropdown
-            label="Convention"
-            value="none"
-            labelFlex={3}
-            onChange={(value) => {
-              setNameTransformConfig({
-                ...nameTransformConfig,
-                convention: value,
+            label="Names transform"
+            labelFlex={5}
+            onChange={(value: nameConventionType) => {
+              setJSONsettingsConfig({
+                ...JSONsettingsConfig,
+                namesTransform: value,
               });
             }}
             optionsSections={[
@@ -171,17 +164,114 @@ const App = () => {
                     id: "kebab-case",
                     label: "kebab-case",
                   },
+                  {
+                    id: "UPPERCASE",
+                    label: "UPPERCASE",
+                  },
+                  {
+                    id: "lowercase",
+                    label: "lowercase",
+                  },
                 ],
               },
             ]}
           />
         </Stack>
       </Panel>
+
+      <Panel>
+        <PanelHeader title="Include styles" isActive />
+        <Stack>
+          <Stack direction="row" hasLeftRightPadding={false}>
+            <Checkbox
+              id="text-styles"
+              checked={JSONsettingsConfig.includeStyles.includes("text")}
+              className={styles.flex1}
+              onChange={(checked: boolean) => {
+                handleIncludeStylesChange("text", checked);
+              }}
+            >
+              <Text>Text</Text>
+            </Checkbox>
+            <Checkbox
+              id="color-styles"
+              checked={JSONsettingsConfig.includeStyles.includes("color")}
+              className={styles.flex1}
+              onChange={(checked: boolean) => {
+                handleIncludeStylesChange("color", checked);
+              }}
+            >
+              <Text>Color</Text>
+            </Checkbox>
+          </Stack>
+          <Stack direction="row" hasLeftRightPadding={false}>
+            <Checkbox
+              id="effects-styles"
+              checked={JSONsettingsConfig.includeStyles.includes("effects")}
+              className={styles.flex1}
+              onChange={(checked: boolean) => {
+                handleIncludeStylesChange("effects", checked);
+              }}
+            >
+              <Text>Effects</Text>
+            </Checkbox>
+            <Checkbox
+              id="grids-styles"
+              checked={JSONsettingsConfig.includeStyles.includes("grids")}
+              className={styles.flex1}
+              onChange={(checked: boolean) => {
+                handleIncludeStylesChange("grids", checked);
+              }}
+            >
+              <Text>Grids</Text>
+            </Checkbox>
+          </Stack>
+        </Stack>
+      </Panel>
+
+      <Panel>
+        <Stack>
+          <Toggle
+            id="scope-feature"
+            onChange={(checked: boolean) => {
+              handleIncludeScopesChange(checked);
+            }}
+          >
+            <Text>Include variable scopes</Text>
+          </Toggle>
+        </Stack>
+      </Panel>
+
+      <Panel>
+        <Stack hasLeftRightPadding>
+          <Toggle
+            id="split-files"
+            checked={JSONsettingsConfig.splitFiles}
+            onChange={handleSplitFilesChange}
+          >
+            <Text>Merge collections into single file</Text>
+          </Toggle>
+        </Stack>
+      </Panel>
+
+      <Panel>
+        <PanelHeader
+          title="Push to server"
+          onClick={handleConnectToServer}
+          iconButtons={[
+            {
+              icon: "plus",
+              onClick: handleConnectToServer,
+            },
+          ]}
+        />
+      </Panel>
+
       <Panel hasLeftRightPadding>
         <Stack hasLeftRightPadding hasTopBottomPadding>
           <Button
             label="Download JSON"
-            onClick={handleShowOutput}
+            onClick={handleDownloadJSON}
             fullWidth
             secondary
           />

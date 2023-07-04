@@ -1,4 +1,4 @@
-import { mergeVariablesAndCollections } from "../utils/mergeVariablesAndCollections";
+import { generateTokens } from "../utils/generateTokens";
 
 // clear console on reload
 console.clear();
@@ -12,27 +12,42 @@ const pluginFrameSize = {
 // show plugin UI
 figma.showUI(__html__, pluginFrameSize);
 
-const variableCollection =
-  figma.variables.getLocalVariableCollections() as VariableCollection[];
-const variables = figma.variables.getLocalVariables() as Variable[];
+let JSONSettingsConfig: JSONSettingsConfigI;
 
-console.log("variableCollection", variableCollection);
-console.log("variables", variables);
+const getTokens = async () => {
+  const variableCollection =
+    figma.variables.getLocalVariableCollections() as VariableCollection[];
+  const variables = figma.variables.getLocalVariables() as Variable[];
 
-const mergedVariables = mergeVariablesAndCollections(
-  variables,
-  variableCollection
-);
+  const mergedVariables = generateTokens(
+    variables,
+    variableCollection,
+    JSONSettingsConfig
+  );
 
-console.log(mergedVariables);
+  return mergedVariables;
+};
 
+// console.log(mergedVariables);
 // const JSONToTokens = variablesToTokens(variables);
-
 // console.log(JSONToTokens);
 
 // listen for messages from the UI
-// figma.ui.onmessage = async (msg) => {
-//   if (msg.type === "string-transform-config") {
-//     init();
-//   }
-// };
+figma.ui.onmessage = async (msg) => {
+  // get JSON settings config from UI and store it in a variable
+  if (msg.type === "JSONSettingsConfig") {
+    JSONSettingsConfig = msg.config;
+
+    console.log("JSONSettingsConfig", JSONSettingsConfig);
+  }
+
+  // generate tokens and send them to the UI
+  if (msg.type === "generateTokens") {
+    await getTokens().then((mergedVariables) => {
+      figma.ui.postMessage({
+        type: "tokens",
+        tokens: mergedVariables,
+      });
+    });
+  }
+};

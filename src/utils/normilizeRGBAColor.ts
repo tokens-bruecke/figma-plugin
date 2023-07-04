@@ -8,7 +8,7 @@ export const normilizeRGBAColor = (rgba: {
     r: Math.round(rgba.r * 255),
     g: Math.round(rgba.g * 255),
     b: Math.round(rgba.b * 255),
-    a: rgba.a.toFixed(2),
+    a: Number(rgba.a.toFixed(2)),
   };
 
   return normalizedRGBA;

@@ -8,6 +8,7 @@ interface CleanedVariable {
   value: string;
   type: tokenType;
   description: string;
+  scopes?: VariableScope[];
 }
 
 interface CleanedVariableObject {
@@ -29,6 +30,7 @@ const convertVariablesToDictionary = (variables: CleanedVariableObject) => {
             $value: variable.value,
             $type: variable.type,
             $description: variable.description,
+            ...(variable.scopes && { scopes: variable.scopes }),
           };
         } else {
           currentLevel[part] = {};
@@ -41,14 +43,17 @@ const convertVariablesToDictionary = (variables: CleanedVariableObject) => {
   return dictionary;
 };
 
-export const mergeVariablesAndCollections = (
+export const generateTokens = (
   variables: Variable[],
-  collections: VariableCollection[]
+  collections: VariableCollection[],
+  JSONSettingsConfig: JSONSettingsConfigI
 ) => {
   const mergedVariables = {};
 
   collections.forEach((collection) => {
     const modes = {};
+
+    console.log("collection", collection);
 
     collection.modes.forEach((mode, index) => {
       const variablesForMode = variables.reduce((result, variable) => {
@@ -65,6 +70,10 @@ export const mergeVariablesAndCollections = (
             ),
             type: normilizeType(variable.resolvedType),
             description: variable.description,
+            // add scopes if true
+            ...(JSONSettingsConfig.includeScopes && {
+              scopes: variable.scopes,
+            }),
           };
 
           result[variable.name] = variableObject;

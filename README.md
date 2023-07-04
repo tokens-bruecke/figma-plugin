@@ -52,3 +52,13 @@ Unlike design tokens, Figma variables now support only 4 types: `COLOR`, `BOOLEA
 ## Design Tokens types
 
 In order to validate your JSON file, you can use TS types from this repo: [design-tokens-types](https://github.com/PavelLaptev/design-tokens-types).
+
+## Settings
+
+### Names transform
+
+Allows you to transform
+
+## Scope
+
+Scope types https://www.figma.com/plugin-docs/api/VariableScope
