@@ -1,31 +1,47 @@
 export const transformNameConvention = (
-  name: string,
-  nameConvention: nameConventionType
+  inputString: string,
+  targetConvention: nameConventionType
 ) => {
-  switch (nameConvention) {
-    case "none":
-      return name;
+  switch (targetConvention) {
     case "PascalCase":
-      return name
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join("");
+      return inputString
+        .replace(/(?:^\w|[A-Z]|\b\w)/g, function (match) {
+          return match.toUpperCase();
+        })
+        .replace(/\s+|-|_/g, "");
+
     case "camelCase":
-      return name
-        .split("-")
-        .map((word, index) =>
-          index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-        )
-        .join("");
+      return inputString
+        .replace(/(?:^\w|[A-Z]|\b\w)/g, function (match, index) {
+          return index === 0 ? match.toLowerCase() : match.toUpperCase();
+        })
+        .replace(/\s+|-|_/g, "");
+
     case "snake_case":
-      return name.split("-").join("_");
+      return inputString.replace(/\s+|-/g, "_").toLowerCase();
+
     case "kebab-case":
-      return name;
+      return inputString.replace(/\s+|_/g, "-").toLowerCase();
+
+    case "COBOL-CASE":
+      return inputString.replace(/\s+|-|_/g, "-").toUpperCase();
+
+    case "MACRO_CASE":
+      return inputString.replace(/\s+|-|_/g, " ").toUpperCase();
+
+    case "Ada_Case":
+      return inputString.replace(/\s+|-|_/g, "_").toLowerCase();
+
     case "UPPERCASE":
-      return name.toUpperCase();
+      return inputString.toUpperCase();
+
     case "lowercase":
-      return name.toLowerCase();
+      return inputString.toLowerCase();
+
+    case "dot.notation":
+      return inputString.replace(/\s+|-|_/g, ".");
+
     default:
-      return name;
+      return inputString;
   }
 };

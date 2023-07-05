@@ -1,0 +1,16 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+.overlayStylesList {
+  position: absolute;
+  z-index: var(--z-index-2);
+  top: 0;
+  right: 0;
+}

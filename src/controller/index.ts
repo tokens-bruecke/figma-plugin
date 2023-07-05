@@ -14,6 +14,25 @@ figma.showUI(__html__, pluginFrameSize);
 
 let JSONSettingsConfig: JSONSettingsConfigI;
 
+// get all styles from the document
+// const getStyles = async () => {
+//   const styles = figma.getLocalPaintStyles();
+//   const textStyles = figma.getLocalTextStyles();
+//   const effectStyles = figma.getLocalEffectStyles();
+//   const gridStyles = figma.getLocalGridStyles();
+
+//   return {
+//     styles,
+//     textStyles,
+//     effectStyles,
+//     gridStyles,
+//   };
+// };
+
+// getStyles().then((styles) => {
+//   console.log("styles", styles);
+// });
+
 const getTokens = async () => {
   const variableCollection =
     figma.variables.getLocalVariableCollections() as VariableCollection[];

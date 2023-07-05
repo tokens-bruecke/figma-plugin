@@ -5,15 +5,24 @@ type nameConventionType =
   | "snake_case"
   | "kebab-case"
   | "UPPERCASE"
-  | "lowercase";
+  | "lowercase"
+  | "MACRO_CASE"
+  | "COBOL-CASE"
+  | "Cobol case"
+  | "Ada_Case"
+  | "dot.notation";
 
-type stylesType = "text" | "color" | "effects" | "grids";
+type stylesType = "text" | "effects" | "grids";
 
 type variableFeatureType = "scope" | "hidden";
 
 interface JSONSettingsConfigI {
   namesTransform: nameConventionType;
-  includeStyles: stylesType[];
+  includeStyles: {
+    type: stylesType;
+    name: string;
+    collection: string;
+  }[];
   includeScopes: boolean;
   splitFiles: boolean;
 }

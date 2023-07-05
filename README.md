@@ -62,3 +62,9 @@ Allows you to transform
 ## Scope
 
 Scope types https://www.figma.com/plugin-docs/api/VariableScope
+
+## Effects
+
+### Shadows
+
+Currently the specification supports only `drop-shadow` effect. But in order to support `inset` shadows, the `inset` property will be added to the `shadow` object.

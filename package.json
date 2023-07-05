@@ -11,7 +11,7 @@
     "dev": "webpack --mode=development --watch"
   },
   "dependencies": {
-    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui#dc349ba7824a2dc15059b03e3f32a7287b4da33f",
+    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui#40639a124efe5feac1db855a33b6aea2f838c77d",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-figma-ui": "PavelLaptev/react-figma-ui"
