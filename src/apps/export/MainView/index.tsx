@@ -14,16 +14,28 @@ import {
 } from "pavelLaptev/react-figma-ui/ui";
 
 type StyleListItemType = {
-  id: string;
+  id: stylesType;
   label: string;
   icon: JSX.Element;
 };
+
+interface MainViewProps {
+  JSONsettingsConfig: JSONSettingsConfigI;
+  setJSONsettingsConfig: React.Dispatch<
+    React.SetStateAction<JSONSettingsConfigI>
+  >;
+}
 
 const stylesList = [
   {
     id: "text",
     label: "Typography",
     icon: <Icon name="text" size="32" />,
+  },
+  {
+    id: "colors",
+    label: "Colors",
+    icon: <Icon name="color-styles" size="32" />,
   },
   {
     id: "grids",
@@ -37,19 +49,15 @@ const stylesList = [
   },
 ] as StyleListItemType[];
 
-export const ExportView = () => {
-  const stylesHeaderRef = React.useRef(null);
+export const MainView = (props: MainViewProps) => {
+  const { JSONsettingsConfig, setJSONsettingsConfig } = props;
 
+  const stylesHeaderRef = React.useRef(null);
   const [stylesOverlayList, setStylesOverlayList] = useState(
     stylesList as StyleListItemType[]
   );
+
   const [isShowOverlayListOpen, setIsShowOverlayListOpen] = useState(false);
-  const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
-    namesTransform: "none",
-    includeStyles: [],
-    includeScopes: false,
-    splitFiles: false,
-  } as JSONSettingsConfigI);
 
   //////////////////////
   // HANDLE FUNCTIONS //
@@ -151,6 +159,10 @@ export const ExportView = () => {
                   (item) => item.id !== id
                 );
 
+                const currentStyle = stylesList.find(
+                  (item) => item.id === id
+                ) as StyleListItemType;
+
                 setStylesOverlayList(newStylesList);
 
                 // add to config
@@ -159,8 +171,8 @@ export const ExportView = () => {
                   includeStyles: [
                     ...JSONsettingsConfig.includeStyles,
                     {
-                      type: id,
-                      name: stylesList.find((item) => item.id === id)?.label,
+                      id: currentStyle.id,
+                      label: currentStyle.label,
                       collection: null,
                     },
                   ],
@@ -192,9 +204,9 @@ export const ExportView = () => {
         setStylesOverlayList([
           ...stylesOverlayList,
           {
-            id: firstItem.type,
-            label: firstItem.name,
-            icon: stylesList.find((item) => item.id === firstItem.type)?.icon,
+            id: firstItem.id,
+            label: firstItem.label,
+            icon: stylesList.find((item) => item.id === firstItem.id)?.icon,
           },
         ]);
       },
@@ -314,12 +326,18 @@ export const ExportView = () => {
           }
           iconButtons={renderStylesAddButtons()}
         />
-        <Stack>
+        <Stack hasLeftRightPadding={false}>
           {JSONsettingsConfig.includeStyles.map((item, index) => {
             return (
-              <Stack direction="row" key={index} hasLeftRightPadding={false}>
-                {stylesList.find((style) => style.id === item.type)?.icon}
-                <Text>{item.name}</Text>
+              <Stack
+                direction="row"
+                key={index}
+                onClick={() => {
+                  console.log("click");
+                }}
+              >
+                {stylesList.find((style) => style.id === item.id)?.icon}
+                <Text>{item.label}</Text>
               </Stack>
             );
           })}

@@ -1,6 +1,6 @@
 // Require the necessary packages
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const InlineChunkHtmlPlugin = require("react-dev-utils/InlineChunkHtmlPlugin");
+const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HTMLInlineCSSWebpackPlugin =
   require("html-inline-css-webpack-plugin").default;
@@ -17,7 +17,7 @@ module.exports = (env, argv) => ({
 
   // Define the entry points for the webpack build
   entry: {
-    ui: "./src/app/index.tsx", // The entry point for your UI code
+    exportUI: "./src/apps/export/index.tsx", // The entry point for your UI code
     code: "./src/controller/index.ts", // The entry point for your plugin code
   },
 
@@ -61,14 +61,14 @@ module.exports = (env, argv) => ({
   plugins: [
     // Generate "ui.html" and inline "ui.js" into it
     new HtmlWebpackPlugin({
-      template: "./src/app/index.html",
-      filename: "ui.html",
-      chunks: ["ui"],
+      template: "./src/apps/index.html",
+      filename: "export-ui.html",
+      chunks: ["exportUI"],
       cache: false, // Disable caching to prevent issues with Figma plugin reloading
     }),
 
     // Inline the "ui.js" chunk into "ui.html"
-    new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/ui/]),
+    new HtmlInlineScriptPlugin(),
 
     // Extract the CSS into a separate file
     new MiniCssExtractPlugin(),

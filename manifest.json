@@ -3,6 +3,13 @@
   "id": "1254538877056388290",
   "api": "1.0.0",
   "main": "dist/code.js",
-  "ui": "dist/ui.html",
-  "editorType": ["figma"]
+  "editorType": ["figma"],
+  "menu": [
+    { "command": "export", "name": "Export" },
+    {
+      "command": "import",
+      "name": "Import"
+    }
+  ],
+  "ui": { "export": "dist/export-ui.html" }
 }

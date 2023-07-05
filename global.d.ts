@@ -12,15 +12,15 @@ type nameConventionType =
   | "Ada_Case"
   | "dot.notation";
 
-type stylesType = "text" | "effects" | "grids";
+type stylesType = "text" | "colors" | "effects" | "grids";
 
 type variableFeatureType = "scope" | "hidden";
 
 interface JSONSettingsConfigI {
   namesTransform: nameConventionType;
   includeStyles: {
-    type: stylesType;
-    name: string;
+    id: stylesType;
+    label: string;
     collection: string;
   }[];
   includeScopes: boolean;
