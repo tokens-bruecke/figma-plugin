@@ -6,7 +6,7 @@ console.clear();
 if (figma.command === "export") {
   figma.showUI(__uiFiles__["export"], {
     width: 300,
-    height: 500,
+    height: 700,
     themeColors: true,
   });
 
@@ -45,6 +45,23 @@ if (figma.command === "export") {
     return mergedVariables;
   };
 
+  const getVariableCollections = async () => {
+    const variableCollection =
+      figma.variables.getLocalVariableCollections() as VariableCollection[];
+
+    figma.ui.postMessage({
+      type: "setCollections",
+      data: variableCollection.map((collection) => {
+        return {
+          id: collection.id,
+          name: collection.name,
+        };
+      }),
+    });
+  };
+
+  // getVariableCollections();
+
   // console.log(mergedVariables);
   // const JSONToTokens = variablesToTokens(variables);
   // console.log(JSONToTokens);
@@ -66,6 +83,11 @@ if (figma.command === "export") {
           tokens: mergedVariables,
         });
       });
+    }
+
+    // get and set collections
+    if (msg.type === "getCollections") {
+      await getVariableCollections();
     }
   };
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import styles from "./styles.module.scss";
 
 import {
@@ -7,10 +7,11 @@ import {
   Dropdown,
   Stack,
   Button,
+  Input,
   Icon,
-  OverlayList,
   Text,
   Toggle,
+  ToggleRow,
 } from "pavelLaptev/react-figma-ui/ui";
 
 type StyleListItemType = {
@@ -24,6 +25,10 @@ interface MainViewProps {
   setJSONsettingsConfig: React.Dispatch<
     React.SetStateAction<JSONSettingsConfigI>
   >;
+  collections: {
+    id: string;
+    name: string;
+  }[];
 }
 
 const stylesList = [
@@ -53,11 +58,11 @@ export const MainView = (props: MainViewProps) => {
   const { JSONsettingsConfig, setJSONsettingsConfig } = props;
 
   const stylesHeaderRef = React.useRef(null);
-  const [stylesOverlayList, setStylesOverlayList] = useState(
-    stylesList as StyleListItemType[]
-  );
+  // const [stylesOverlayList, setStylesOverlayList] = useState(
+  //   stylesList as StyleListItemType[]
+  // );
 
-  const [isShowOverlayListOpen, setIsShowOverlayListOpen] = useState(false);
+  // const [isShowOverlayListOpen, setIsShowOverlayListOpen] = useState(false);
 
   //////////////////////
   // HANDLE FUNCTIONS //
@@ -83,11 +88,6 @@ export const MainView = (props: MainViewProps) => {
 
   const handleShowOutput = () => {
     console.log("handleShowOutput");
-  };
-
-  const handleShowStylesOverlayList = () => {
-    console.log("plus button");
-    setIsShowOverlayListOpen(!isShowOverlayListOpen);
   };
 
   const handleConnectToServer = () => {
@@ -138,89 +138,89 @@ export const MainView = (props: MainViewProps) => {
   // RENDER FUNCTIONS //
   //////////////////////
 
-  const renderStylesAddButtons = () => {
-    const plusButton = {
-      onClick: handleShowStylesOverlayList,
-      disabled: stylesOverlayList.length === 0,
-      children: (
-        <>
-          <Icon name="plus" size="32" />
+  // const renderStylesAddButtons = () => {
+  //   const plusButton = {
+  //     onClick: handleShowStylesOverlayList,
+  //     disabled: stylesOverlayList.length === 0,
+  //     children: (
+  //       <>
+  //         <Icon name="plus" size="32" />
 
-          {isShowOverlayListOpen && (
-            <OverlayList
-              className={styles.overlayStylesList}
-              blockPointerEventsFor={stylesHeaderRef.current}
-              onOutsideClick={() => {
-                setIsShowOverlayListOpen(false);
-              }}
-              onClick={(id: stylesType) => {
-                //remove from list
-                const newStylesList = stylesOverlayList.filter(
-                  (item) => item.id !== id
-                );
+  //         {isShowOverlayListOpen && (
+  //           <OverlayList
+  //             className={styles.overlayStylesList}
+  //             blockPointerEventsFor={stylesHeaderRef.current}
+  //             onOutsideClick={() => {
+  //               setIsShowOverlayListOpen(false);
+  //             }}
+  //             onClick={(id: stylesType) => {
+  //               //remove from list
+  //               const newStylesList = stylesOverlayList.filter(
+  //                 (item) => item.id !== id
+  //               );
 
-                const currentStyle = stylesList.find(
-                  (item) => item.id === id
-                ) as StyleListItemType;
+  //               const currentStyle = stylesList.find(
+  //                 (item) => item.id === id
+  //               ) as StyleListItemType;
 
-                setStylesOverlayList(newStylesList);
+  //               setStylesOverlayList(newStylesList);
 
-                // add to config
-                setJSONsettingsConfig({
-                  ...JSONsettingsConfig,
-                  includeStyles: [
-                    ...JSONsettingsConfig.includeStyles,
-                    {
-                      id: currentStyle.id,
-                      label: currentStyle.label,
-                      collection: null,
-                    },
-                  ],
-                });
-              }}
-              optionsSections={[
-                {
-                  options: stylesOverlayList,
-                },
-              ]}
-            />
-          )}
-        </>
-      ),
-    };
+  //               // add to config
+  //               setJSONsettingsConfig({
+  //                 ...JSONsettingsConfig,
+  //                 includeStyles: [
+  //                   ...JSONsettingsConfig.includeStyles,
+  //                   {
+  //                     id: currentStyle.id,
+  //                     label: currentStyle.label,
+  //                     collection: null,
+  //                   },
+  //                 ],
+  //               });
+  //             }}
+  //             optionsSections={[
+  //               {
+  //                 options: stylesOverlayList,
+  //               },
+  //             ]}
+  //           />
+  //         )}
+  //       </>
+  //     ),
+  //   };
 
-    const minusButton = {
-      onClick: () => {
-        // delete first item from config and add to list
-        const firstItem = JSONsettingsConfig.includeStyles[0];
+  //   const minusButton = {
+  //     onClick: () => {
+  //       // delete first item from config and add to list
+  //       const firstItem = JSONsettingsConfig.includeStyles[0];
 
-        setJSONsettingsConfig({
-          ...JSONsettingsConfig,
-          includeStyles: JSONsettingsConfig.includeStyles.filter(
-            (_, index) => index !== 0
-          ),
-        });
+  //       setJSONsettingsConfig({
+  //         ...JSONsettingsConfig,
+  //         includeStyles: JSONsettingsConfig.includeStyles.filter(
+  //           (_, index) => index !== 0
+  //         ),
+  //       });
 
-        setStylesOverlayList([
-          ...stylesOverlayList,
-          {
-            id: firstItem.id,
-            label: firstItem.label,
-            icon: stylesList.find((item) => item.id === firstItem.id)?.icon,
-          },
-        ]);
-      },
-      children: <Icon name="minus" size="32" />,
-    };
+  //       setStylesOverlayList([
+  //         ...stylesOverlayList,
+  //         {
+  //           id: firstItem.id,
+  //           label: firstItem.label,
+  //           icon: stylesList.find((item) => item.id === firstItem.id)?.icon,
+  //         },
+  //       ]);
+  //     },
+  //     children: <Icon name="minus" size="32" />,
+  //   };
 
-    if (JSONsettingsConfig.includeStyles.length <= 0) {
-      return [plusButton];
-    }
+  //   if (JSONsettingsConfig.includeStyles.length <= 0) {
+  //     return [plusButton];
+  //   }
 
-    if (JSONsettingsConfig.includeStyles.length >= 1) {
-      return [minusButton, plusButton];
-    }
-  };
+  //   if (JSONsettingsConfig.includeStyles.length >= 1) {
+  //     return [minusButton, plusButton];
+  //   }
+  // };
 
   /////////////////
   // MAIN RENDER //
@@ -316,29 +316,81 @@ export const MainView = (props: MainViewProps) => {
       </Panel>
 
       <Panel>
-        <PanelHeader
-          ref={stylesHeaderRef}
-          title="Include styles"
-          isActive={JSONsettingsConfig.includeStyles.length > 0}
-          onClick={
-            JSONsettingsConfig.includeStyles.length === 0 &&
-            handleShowStylesOverlayList
-          }
-          iconButtons={renderStylesAddButtons()}
-        />
+        <PanelHeader ref={stylesHeaderRef} title="Include styles" isActive />
+
         <Stack hasLeftRightPadding={false}>
-          {JSONsettingsConfig.includeStyles.map((item, index) => {
+          {stylesList.map((item, index) => {
+            const stylesList = JSONsettingsConfig.includeStyles;
+            const styleItem = stylesList[item.id];
+            const isIncluded = styleItem.isIncluded;
+
             return (
-              <Stack
-                direction="row"
-                key={index}
-                onClick={() => {
-                  console.log("click");
-                }}
-              >
-                {stylesList.find((style) => style.id === item.id)?.icon}
-                <Text>{item.label}</Text>
-              </Stack>
+              <div key={index}>
+                <ToggleRow
+                  key={item.id}
+                  id={item.id}
+                  label={item.label}
+                  checked={isIncluded}
+                  icon={item.icon}
+                  onChange={(checked: boolean) => {
+                    setJSONsettingsConfig({
+                      ...JSONsettingsConfig,
+                      includeStyles: {
+                        ...stylesList,
+                        [item.id]: {
+                          ...styleItem,
+                          isIncluded: checked,
+                        },
+                      },
+                    });
+                  }}
+                />
+                {isIncluded && (
+                  <Stack>
+                    <Input
+                      label="Custom name"
+                      labelFlex={5}
+                      hasOutline={false}
+                      value={styleItem.customName}
+                      onChange={(value: string) => {
+                        setJSONsettingsConfig({
+                          ...JSONsettingsConfig,
+                          includeStyles: {
+                            ...stylesList,
+                            [item.id]: {
+                              ...styleItem,
+                              customName: value,
+                            },
+                          },
+                        });
+                      }}
+                    />
+                    <Dropdown
+                      label="Add to collection"
+                      onChange={(value: string) => {
+                        setJSONsettingsConfig({
+                          ...JSONsettingsConfig,
+                          includeStyles: {
+                            ...stylesList,
+                            [item.id]: {
+                              ...styleItem,
+                              collection: value,
+                            },
+                          },
+                        });
+                      }}
+                      optionsSections={[
+                        {
+                          options: props.collections.map((collection) => ({
+                            id: collection.id,
+                            label: collection.name,
+                          })),
+                        },
+                      ]}
+                    />
+                  </Stack>
+                )}
+              </div>
             );
           })}
         </Stack>
