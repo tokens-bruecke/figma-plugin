@@ -68,3 +68,14 @@ Scope types https://www.figma.com/plugin-docs/api/VariableScope
 ### Shadows
 
 Currently the specification supports only `drop-shadow` effect. But in order to support `inset` shadows, the `inset` property will be added to the `shadow` object.
+
+### GRADIENTS
+
+Currect design tokens implementation doesnt' have a support for non-linear gradients, also it doesnt support the `angle` property.
+
+iisue: [https://github.com/design-tokens/community-group/issues/101](https://github.com/design-tokens/community-group/issues/101)
+
+## TODO:
+
+- Describe restrictions
+- Show current JSON implementation

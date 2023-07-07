@@ -12,28 +12,34 @@ type nameConventionType =
   | "Ada_Case"
   | "dot.notation";
 
+type colorModeType =
+  | "hex"
+  | "rgba-object"
+  | "rgba-css"
+  | "hsla-object"
+  | "hsla-css";
+
 type stylesType = "text" | "colors" | "effects" | "grids";
 
 type variableFeatureType = "scope" | "hidden";
 
 type JSONSettingsStyleType = {
   isIncluded: boolean;
-  label: string;
   customName: string;
-  collection: {
-    id: string;
-    name: string;
-  } | null;
+  collectionId: string | null;
 };
+
+interface IncludedStylesI {
+  colors: JSONSettingsStyleType;
+  text: JSONSettingsStyleType;
+  effects: JSONSettingsStyleType;
+  grids: JSONSettingsStyleType;
+}
 
 interface JSONSettingsConfigI {
   namesTransform: nameConventionType;
-  includeStyles: {
-    colors: JSONSettingsStyleType;
-    text: JSONSettingsStyleType;
-    effects: JSONSettingsStyleType;
-    grids: JSONSettingsStyleType;
-  };
+  includeStyles: IncludedStylesI;
   includeScopes: boolean;
   splitFiles: boolean;
+  colorMode: colorModeType;
 }

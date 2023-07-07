@@ -246,7 +246,6 @@ export const MainView = (props: MainViewProps) => {
           <Dropdown
             value="none"
             label="Names transform"
-            labelFlex={5}
             onChange={(value: nameConventionType) => {
               setJSONsettingsConfig({
                 ...JSONsettingsConfig,
@@ -316,6 +315,55 @@ export const MainView = (props: MainViewProps) => {
       </Panel>
 
       <Panel>
+        <Stack hasLeftRightPadding>
+          <Dropdown
+            label="Color mode"
+            value={JSONsettingsConfig.colorMode}
+            onChange={(value: colorModeType) => {
+              setJSONsettingsConfig({
+                ...JSONsettingsConfig,
+                colorMode: value,
+              });
+            }}
+            optionsSections={[
+              {
+                options: [
+                  {
+                    id: "hex",
+                    label: "HEX",
+                  },
+                ],
+              },
+              {
+                options: [
+                  {
+                    id: "rgba-object",
+                    label: "RGBA Object",
+                  },
+                  {
+                    id: "rgba-css",
+                    label: "RGBA CSS",
+                  },
+                ],
+              },
+              {
+                options: [
+                  {
+                    id: "hsla-object",
+                    label: "HSLA Object",
+                  },
+                  {
+                    id: "hsla-css",
+                    label: "HSLA CSS",
+                  },
+                ],
+              },
+            ]}
+          />
+        </Stack>
+      </Panel>
+
+      <Panel>
         <PanelHeader ref={stylesHeaderRef} title="Include styles" isActive />
 
         <Stack hasLeftRightPadding={false}>
@@ -324,8 +372,13 @@ export const MainView = (props: MainViewProps) => {
             const styleItem = stylesList[item.id];
             const isIncluded = styleItem.isIncluded;
 
+            const collectionOptions = props.collections.map((collection) => ({
+              id: collection.id,
+              label: collection.name,
+            }));
+
             return (
-              <div key={index}>
+              <div key={index} className={styles.toggleSection}>
                 <ToggleRow
                   key={item.id}
                   id={item.id}
@@ -345,11 +398,11 @@ export const MainView = (props: MainViewProps) => {
                     });
                   }}
                 />
+
                 {isIncluded && (
-                  <Stack>
+                  <Stack gap={4}>
                     <Input
                       label="Custom name"
-                      labelFlex={5}
                       hasOutline={false}
                       value={styleItem.customName}
                       onChange={(value: string) => {
@@ -381,10 +434,15 @@ export const MainView = (props: MainViewProps) => {
                       }}
                       optionsSections={[
                         {
-                          options: props.collections.map((collection) => ({
-                            id: collection.id,
-                            label: collection.name,
-                          })),
+                          options: [
+                            {
+                              id: null,
+                              label: "Keep it separate",
+                            },
+                          ],
+                        },
+                        {
+                          options: collectionOptions,
                         },
                       ]}
                     />

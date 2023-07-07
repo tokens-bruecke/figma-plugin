@@ -1,9 +1,10 @@
 import { getAliasVariableName } from "./getAliasVariableName";
-import { normilizeRGBAColor } from "./normilizeRGBAColor";
+import { convertRGBA } from "./convertRGBA";
 
 export const normalizeValue = (
   value: any,
   type: VariableResolvedDataType,
+  colorMode: colorModeType,
   variables: Variable[],
   collectionAndModePath: string
 ) => {
@@ -19,7 +20,7 @@ export const normalizeValue = (
   }
 
   if (type === "COLOR") {
-    return normilizeRGBAColor(value);
+    return convertRGBA(value, colorMode);
   }
 
   if (type === "FLOAT") {

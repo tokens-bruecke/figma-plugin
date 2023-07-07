@@ -1,58 +1,37 @@
+import { getAndConvertStyles } from "./getAndConvertStyles";
+
 import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
+
+import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
 import { transformNameConvention } from "./transformNameConvention";
 
 // console.clear();
 
 interface CleanedVariable {
-  name: string;
-  value: string;
-  type: tokenType;
-  description: string;
+  $value: string;
+  $type: tokenType;
+  $description: string;
   scopes?: VariableScope[];
 }
 
-interface CleanedVariableObject {
-  [key: string]: CleanedVariable;
-}
-
-const convertVariablesToDictionary = (variables: CleanedVariableObject) => {
-  const dictionary = {};
-
-  Object.keys(variables).forEach((key) => {
-    const variable = variables[key];
-    const parts = variable.name.split("/");
-    let currentLevel = dictionary;
-
-    parts.forEach((part, index) => {
-      if (!currentLevel[part]) {
-        if (index === parts.length - 1) {
-          currentLevel[part] = {
-            $value: variable.value,
-            $type: variable.type,
-            $description: variable.description,
-            ...(variable.scopes && { scopes: variable.scopes }),
-          };
-        } else {
-          currentLevel[part] = {};
-        }
-      }
-      currentLevel = currentLevel[part];
-    });
-  });
-
-  return dictionary;
-};
-
-export const generateTokens = (
+export const generateTokens = async (
   variables: Variable[],
   collections: VariableCollection[],
   JSONSettingsConfig: JSONSettingsConfigI
 ) => {
   const mergedVariables = {};
+  // Extract style tokens
+  const styleTokens = await getAndConvertStyles(
+    JSONSettingsConfig.includeStyles,
+    JSONSettingsConfig.colorMode
+  );
+
+  console.log("styleTokens", styleTokens);
 
   collections.forEach((collection) => {
     let modes = {};
+
     const collectionName = transformNameConvention(
       collection.name,
       JSONSettingsConfig.namesTransform
@@ -64,7 +43,7 @@ export const generateTokens = (
         JSONSettingsConfig.namesTransform
       );
 
-      const variablesForMode = variables.reduce((result, variable) => {
+      const variablesPerMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
         const variableName = transformNameConvention(
@@ -73,21 +52,22 @@ export const generateTokens = (
         );
 
         if (variableModeId === mode.modeId) {
-          const variableObject: CleanedVariable = {
-            name: variableName,
-            value: normalizeValue(
+          const variableObject = {
+            // name: variableName,
+            $value: normalizeValue(
               variable.valuesByMode[variableModeId],
               variable.resolvedType,
+              JSONSettingsConfig.colorMode,
               variables,
               `${collectionName}.${modeName}`
             ),
-            type: normilizeType(variable.resolvedType),
-            description: variable.description,
+            $type: normilizeType(variable.resolvedType),
+            $description: variable.description,
             // add scopes if true
             ...(JSONSettingsConfig.includeScopes && {
               scopes: variable.scopes,
             }),
-          };
+          } as CleanedVariable;
 
           result[variableName] = variableObject;
         }
@@ -95,11 +75,11 @@ export const generateTokens = (
         return result;
       }, {});
 
-      // check amount of modes
+      // check amount of modes and assign to "modes" or "modes[modeName]" variable
       if (collection.modes.length === 1) {
-        Object.assign(modes, convertVariablesToDictionary(variablesForMode));
+        Object.assign(modes, groupObjectNamesIntoCategories(variablesPerMode));
       } else {
-        modes[modeName] = convertVariablesToDictionary(variablesForMode);
+        modes[modeName] = groupObjectNamesIntoCategories(variablesPerMode);
       }
     });
 

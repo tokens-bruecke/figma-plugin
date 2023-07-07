@@ -70,6 +70,7 @@ if (figma.command === "export") {
   figma.ui.onmessage = async (msg) => {
     // get JSON settings config from UI and store it in a variable
     if (msg.type === "JSONSettingsConfig") {
+      // update JSONSettingsConfig
       JSONSettingsConfig = msg.config;
 
       console.log("JSONSettingsConfig", JSONSettingsConfig);
@@ -77,10 +78,10 @@ if (figma.command === "export") {
 
     // generate tokens and send them to the UI
     if (msg.type === "generateTokens") {
-      await getTokens().then((mergedVariables) => {
+      await getTokens().then((tokens) => {
         figma.ui.postMessage({
           type: "tokens",
-          tokens: mergedVariables,
+          tokens: tokens,
         });
       });
     }

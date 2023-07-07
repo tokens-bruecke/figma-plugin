@@ -9,29 +9,26 @@ const Container = () => {
     includeStyles: {
       colors: {
         isIncluded: false,
-        label: "Colors",
         customName: "Colors",
-        collection: null,
+        collectionId: null,
       },
       text: {
         isIncluded: false,
-        label: "Typography",
         customName: "Typography",
-        collection: null,
+        collectionId: null,
       },
       effects: {
         isIncluded: false,
-        label: "Effects",
         customName: "Effects",
-        collection: null,
+        collectionId: null,
       },
       grids: {
         isIncluded: false,
-        label: "Grids",
         customName: "Grids",
-        collection: null,
+        collectionId: null,
       },
     },
+    colorMode: "hex",
     includeScopes: false,
     splitFiles: false,
   } as JSONSettingsConfigI);
