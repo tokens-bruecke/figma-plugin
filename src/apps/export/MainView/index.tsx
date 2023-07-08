@@ -332,25 +332,9 @@ export const MainView = (props: MainViewProps) => {
                     id: "hex",
                     label: "HEX",
                   },
-                ],
-              },
-              {
-                options: [
-                  {
-                    id: "rgba-object",
-                    label: "RGBA Object",
-                  },
                   {
                     id: "rgba-css",
                     label: "RGBA CSS",
-                  },
-                ],
-              },
-              {
-                options: [
-                  {
-                    id: "hsla-object",
-                    label: "HSLA Object",
                   },
                   {
                     id: "hsla-css",
@@ -421,13 +405,14 @@ export const MainView = (props: MainViewProps) => {
                     <Dropdown
                       label="Add to collection"
                       onChange={(value: string) => {
+                        console.log("value collections", value);
                         setJSONsettingsConfig({
                           ...JSONsettingsConfig,
                           includeStyles: {
                             ...stylesList,
                             [item.id]: {
                               ...styleItem,
-                              collection: value,
+                              collectionId: value,
                             },
                           },
                         });

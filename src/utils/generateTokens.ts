@@ -1,5 +1,4 @@
-import { getAndConvertStyles } from "./getAndConvertStyles";
-
+import { getAliasVariableName } from "./getAliasVariableName";
 import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
 
@@ -8,26 +7,12 @@ import { transformNameConvention } from "./transformNameConvention";
 
 // console.clear();
 
-interface CleanedVariable {
-  $value: string;
-  $type: tokenType;
-  $description: string;
-  scopes?: VariableScope[];
-}
-
 export const generateTokens = async (
   variables: Variable[],
   collections: VariableCollection[],
   JSONSettingsConfig: JSONSettingsConfigI
 ) => {
   const mergedVariables = {};
-  // Extract style tokens
-  const styleTokens = await getAndConvertStyles(
-    JSONSettingsConfig.includeStyles,
-    JSONSettingsConfig.colorMode
-  );
-
-  console.log("styleTokens", styleTokens);
 
   collections.forEach((collection) => {
     let modes = {};
@@ -52,14 +37,17 @@ export const generateTokens = async (
         );
 
         if (variableModeId === mode.modeId) {
+          const aliasPath = getAliasVariableName(
+            `${collectionName}.${modeName}`,
+            variable.name
+          );
           const variableObject = {
-            // name: variableName,
             $value: normalizeValue(
               variable.valuesByMode[variableModeId],
               variable.resolvedType,
               JSONSettingsConfig.colorMode,
               variables,
-              `${collectionName}.${modeName}`
+              aliasPath
             ),
             $type: normilizeType(variable.resolvedType),
             $description: variable.description,
@@ -67,7 +55,12 @@ export const generateTokens = async (
             ...(JSONSettingsConfig.includeScopes && {
               scopes: variable.scopes,
             }),
-          } as CleanedVariable;
+            // add meta
+            $extensions: {
+              variableId: variable.id,
+              aliasPath: aliasPath,
+            },
+          } as TokenI;
 
           result[variableName] = variableObject;
         }

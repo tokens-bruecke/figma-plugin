@@ -1,3 +1,4 @@
+import { getAndConvertStyles } from "../utils/getAndConvertStyles";
 import { generateTokens } from "../utils/generateTokens";
 
 // clear console on reload
@@ -36,11 +37,19 @@ if (figma.command === "export") {
       figma.variables.getLocalVariableCollections() as VariableCollection[];
     const variables = figma.variables.getLocalVariables() as Variable[];
 
-    const mergedVariables = generateTokens(
+    const mergedVariables = await generateTokens(
       variables,
       variableCollection,
       JSONSettingsConfig
     );
+
+    // Extract style tokens
+    const styleTokens = await getAndConvertStyles(
+      JSONSettingsConfig.includeStyles,
+      JSONSettingsConfig.colorMode,
+      mergedVariables
+    );
+    console.log("styleTokens", styleTokens);
 
     return mergedVariables;
   };

@@ -23,11 +23,12 @@ interface GenericToken {
   $type: string;
   $value: string;
   $description?: string;
+  $extensions?: any;
 }
 
-type tokenDescription = string;
+type TokenDescriptionType = string;
 
-type tokenType =
+type TokenType =
   | "color"
   | "dimension"
   | "fontFamily"
@@ -48,9 +49,9 @@ type tokenType =
   | "array"
   | "null";
 
-type dimensionStringType = string | number;
+type DimensionStringType = string | number;
 
-type durationStringType = string;
+type DurationStringType = string;
 
 /**
  * TOKEN TYPES
@@ -64,7 +65,7 @@ type durationStringType = string;
 
 type ColorToken = GenericToken & {
   $type: "color";
-  $value: string; // Hex triplet/quartet including the preceding "#" character
+  $value: string | object; // Hex triplet/quartet including the preceding "#" character
 };
 
 /**
@@ -73,7 +74,7 @@ type ColorToken = GenericToken & {
 
 type DimensionToken = GenericToken & {
   $type: "dimension";
-  $value: dimensionStringType;
+  $value: DimensionStringType;
 };
 
 /**
@@ -119,7 +120,7 @@ type FontWeightToken = GenericToken & {
 
 type FontSizeToken = GenericToken & {
   $type: "fontSize";
-  $value: dimensionStringType;
+  $value: DimensionStringType;
 };
 
 /**
@@ -128,7 +129,7 @@ type FontSizeToken = GenericToken & {
 
 type LineHeightToken = GenericToken & {
   $type: "lineHeight";
-  $value: dimensionStringType;
+  $value: DimensionStringType;
 };
 
 /**
@@ -137,7 +138,7 @@ type LineHeightToken = GenericToken & {
 
 type LetterSpacingToken = GenericToken & {
   $type: "letterSpacing";
-  $value: dimensionStringType;
+  $value: DimensionStringType;
 };
 
 /**
@@ -146,7 +147,7 @@ type LetterSpacingToken = GenericToken & {
 
 type DurationToken = GenericToken & {
   $type: "duration";
-  $value: durationStringType; // Number followed by "ms" unit
+  $value: DurationStringType; // Number followed by "ms" unit
 };
 
 /**
@@ -220,16 +221,22 @@ interface TransitionToken {
  * Documentation: https://design-tokens.github.io/community-group/format/#gradient
  */
 
+type GradientTokenType = "linear" | "radial" | "angular" | "conic";
+
+interface GradientTokenStop {
+  color: ColorToken | string;
+  position: string;
+}
+
+interface GradientTokenValue {
+  type: GradientTokenType;
+  angle: string;
+  stops: GradientTokenStop[];
+}
+
 interface GradientToken {
   $type: "gradient";
-  $value: {
-    type: "linear" | "radial" | "angular" | "conic";
-    angle: number;
-    stops: {
-      position: number;
-      color: ColorToken | string;
-    }[];
-  };
+  $value: GradientTokenValue;
 }
 
 /**
@@ -256,9 +263,9 @@ interface TypographyToken {
   $value: {
     fontFamily: FontFamilyToken | string;
     fontSize: FontSizeToken | string;
-    lineHeight: LineHeightToken | dimensionStringType;
-    letterSpacing: LetterSpacingToken | dimensionStringType;
-    fontWeight: FontWeightToken | dimensionStringType;
+    lineHeight: LineHeightToken | DimensionStringType;
+    letterSpacing: LetterSpacingToken | DimensionStringType;
+    fontWeight: FontWeightToken | DimensionStringType;
   };
 }
 

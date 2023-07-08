@@ -1,12 +1,11 @@
-import { getAliasVariableName } from "./getAliasVariableName";
-import { convertRGBA } from "./convertRGBA";
+import { convertRGBA } from "./color/convertRGBA";
 
 export const normalizeValue = (
   value: any,
   type: VariableResolvedDataType,
   colorMode: colorModeType,
   variables: Variable[],
-  collectionAndModePath: string
+  aliasPath: string
 ) => {
   if (typeof value === "object") {
     if (value?.type === "VARIABLE_ALIAS") {
@@ -14,7 +13,7 @@ export const normalizeValue = (
         (variable) => variable.id === value.id
       ) as Variable;
       if (variable) {
-        return getAliasVariableName(collectionAndModePath, variable);
+        return aliasPath;
       }
     }
   }

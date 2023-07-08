@@ -1,7 +1,7 @@
 export const getAliasVariableName = (
   collectionAndModePath: string,
-  variable: Variable
+  variableName: string
 ) => {
-  const variableParts = variable.name.split("/");
+  const variableParts = variableName.split("/");
   return `{${collectionAndModePath}.${variableParts.join(".")}}`;
 };

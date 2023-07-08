@@ -23,6 +23,11 @@ const rgbaToHexA = (rgba: rgbaType) => {
 
 const rgbaToCss = (rgba: rgbaType) => {
   const { r, g, b, a } = rgba;
+
+  if (a === 1) {
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 };
 
@@ -73,12 +78,8 @@ export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
   switch (colorFormat) {
     case "hex":
       return rgbaToHexA(normalizedRGBA);
-    case "rgba-object":
-      return normalizedRGBA;
     case "rgba-css":
       return rgbaToCss(normalizedRGBA);
-    case "hsla-object":
-      return rgbaToHsla(normalizedRGBA);
     case "hsla-css":
       return hslaToCss(rgbaToHsla(normalizedRGBA));
   }

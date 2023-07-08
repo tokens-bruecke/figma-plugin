@@ -43,3 +43,21 @@ interface JSONSettingsConfigI {
   splitFiles: boolean;
   colorMode: colorModeType;
 }
+
+interface TokenI {
+  $value: string;
+  $type: tokenType;
+  $description: string;
+  scopes?: VariableScope[];
+  $extensions: {
+    variableId: string;
+    aliasPath: string;
+  };
+}
+
+// Extend Figmas PaintStyle interface
+interface PaintStyleExtended extends PaintStyle {
+  readonly boundVariables?: {
+    readonly paints: VariableAlias[];
+  };
+}
