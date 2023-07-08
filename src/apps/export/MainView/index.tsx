@@ -38,11 +38,6 @@ const stylesList = [
     icon: <Icon name="text" size="32" />,
   },
   {
-    id: "colors",
-    label: "Colors",
-    icon: <Icon name="color-styles" size="32" />,
-  },
-  {
     id: "grids",
     label: "Grids",
     icon: <Icon name="grid-styles" size="32" />,
@@ -332,13 +327,29 @@ export const MainView = (props: MainViewProps) => {
                     id: "hex",
                     label: "HEX",
                   },
+                ],
+              },
+              {
+                options: [
                   {
                     id: "rgba-css",
-                    label: "RGBA CSS",
+                    label: "RGB CSS",
                   },
                   {
+                    id: "rgba-object",
+                    label: "RGBA Object",
+                  },
+                ],
+              },
+              {
+                options: [
+                  {
                     id: "hsla-css",
-                    label: "HSLA CSS",
+                    label: "HSL CSS",
+                  },
+                  {
+                    id: "hsla-object",
+                    label: "HSL Object",
                   },
                 ],
               },

@@ -30,7 +30,6 @@ type JSONSettingsStyleType = {
 };
 
 interface IncludedStylesI {
-  colors: JSONSettingsStyleType;
   text: JSONSettingsStyleType;
   effects: JSONSettingsStyleType;
   grids: JSONSettingsStyleType;
@@ -46,7 +45,7 @@ interface JSONSettingsConfigI {
 
 interface TokenI {
   $value: string;
-  $type: tokenType;
+  $type: TokenType;
   $description: string;
   scopes?: VariableScope[];
   $extensions: {

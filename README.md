@@ -69,6 +69,10 @@ Scope types https://www.figma.com/plugin-docs/api/VariableScope
 
 Currently the specification supports only `drop-shadow` effect. But in order to support `inset` shadows, the `inset` property will be added to the `shadow` object.
 
+### WHY THERE IS NO SUPPORT FOR COLLORS?
+
+Because.
+
 ### GRADIENTS
 
 Currect design tokens implementation doesnt' have a support for non-linear gradients, also it doesnt support the `angle` property.

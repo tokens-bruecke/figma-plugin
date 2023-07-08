@@ -1,93 +1,66 @@
-import { convertRGBA } from "./color/convertRGBA";
-import { findByVariableId } from "./findByVariableId";
-import { convertFigmaLinearGradient } from "./color/convertFigmaLinearGradient";
 import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
+import { transformNameConvention } from "./transformNameConvention";
+
+import { getLineHeight } from "./text/getLineHeight";
+import { getLetterSpacing } from "./text/getLetterSpacing";
+import { getFontWeight } from "./text/getFontWeight";
 
 export const getAndConvertStyles = async (
   includedStyles: IncludedStylesI,
-  colorMode: colorModeType,
-  tokens: any
+  nameConvention: nameConventionType
 ) => {
+  const textStylesName = transformNameConvention(
+    includedStyles.text.customName,
+    nameConvention
+  );
+  const effectsStylesName = transformNameConvention(
+    includedStyles.effects.customName,
+    nameConvention
+  );
+  const gridsStylesName = transformNameConvention(
+    includedStyles.grids.customName,
+    nameConvention
+  );
+
   const styleTokens = {
-    [includedStyles.colors.customName]: {},
-    [includedStyles.text.customName]: {},
-    [includedStyles.effects.customName]: {},
-    [includedStyles.grids.customName]: {},
+    [textStylesName]: {},
+    [effectsStylesName]: {},
+    [gridsStylesName]: {},
   };
 
-  if (includedStyles.colors.isIncluded) {
-    const rawColorStyles = figma.getLocalPaintStyles() as PaintStyleExtended[];
+  if (includedStyles.text.isIncluded) {
+    const textStyles = figma.getLocalTextStyles();
 
-    const reducedRawColorStyles = rawColorStyles.reduce((newObj, style) => {
-      const paint = style.paints[0];
-      const paintType = paint.type;
-      const name = style.name;
-      const description = style.description;
+    console.log("textStyles", textStyles);
 
-      // HANDLE ONLY SOLID COLORS
-      if (paintType === "SOLID") {
-        const isStyleIsAlias = style.boundVariables?.paints;
-        // create partial token in order not to repeat the same code
-        const partialToken = {
-          $type: "color",
-          $description: description,
-          $extensions: {
-            variableId: style.id,
-          },
-        } as ColorToken;
+    const allTextStyles = textStyles.reduce((result, style) => {
+      const styleName = style.name;
 
-        if (isStyleIsAlias) {
-          const aliasVariable = findByVariableId(
-            tokens,
-            style.boundVariables.paints[0].id
-          ) as TokenI;
+      const styleObject = {
+        $value: {
+          fontFamily: style.fontName.family,
+          fontWeight: getFontWeight(style.fontName.style),
+          fontSize: `${style.fontSize}px`,
+          lineHeight: getLineHeight(style.lineHeight),
+          letterSpacing: getLetterSpacing(style.letterSpacing),
+        },
+        $type: "text",
+        $description: style.description,
+        $extensions: {
+          styleId: style.id,
+        },
+      };
 
-          newObj[name] = {
-            ...partialToken,
-            $value: aliasVariable.$extensions.aliasPath,
-          };
-        } else {
-          const color = convertRGBA(
-            {
-              ...paint.color,
-              a: paint.opacity,
-            },
-            colorMode
-          );
+      result[styleName] = styleObject;
 
-          newObj[name] = {
-            ...partialToken,
-            $value: color,
-          };
-        }
-      }
-
-      // HANDLE LINEAR GRADIENTS
-      if (paintType === "GRADIENT_LINEAR" || paintType === "GRADIENT_RADIAL") {
-        console.log("paintStyle", paint);
-        newObj[name] = {
-          $type: "gradient",
-          $description: description,
-          $value: convertFigmaLinearGradient(paint),
-        };
-      }
-
-      // if (paintType === "GRADIENT_RADIAL") {
-      //   console.log("paintStyle", paint);
-      // }
-
-      return newObj;
+      return result;
     }, {});
 
-    styleTokens[includedStyles.colors.customName] =
-      groupObjectNamesIntoCategories(reducedRawColorStyles);
+    console.log("allTextStyles", allTextStyles);
+
+    styleTokens[gridsStylesName] =
+      groupObjectNamesIntoCategories(allTextStyles);
   }
-
-  // if (includedStyles.effects.isIncluded) {
-  //   const rawEffectStyles = figma.getLocalEffectStyles() as EffectStyle[];
-
-  //   console.log("rawEffectStyles", rawEffectStyles);
-  // }
 
   return styleTokens;
 };

@@ -46,8 +46,7 @@ if (figma.command === "export") {
     // Extract style tokens
     const styleTokens = await getAndConvertStyles(
       JSONSettingsConfig.includeStyles,
-      JSONSettingsConfig.colorMode,
-      mergedVariables
+      JSONSettingsConfig.namesTransform
     );
     console.log("styleTokens", styleTokens);
 

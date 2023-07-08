@@ -80,7 +80,11 @@ export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
       return rgbaToHexA(normalizedRGBA);
     case "rgba-css":
       return rgbaToCss(normalizedRGBA);
+    case "rgba-object":
+      return normalizedRGBA;
     case "hsla-css":
       return hslaToCss(rgbaToHsla(normalizedRGBA));
+    case "hsla-object":
+      return rgbaToHsla(normalizedRGBA);
   }
 };
