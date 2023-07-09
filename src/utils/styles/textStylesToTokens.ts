@@ -1,11 +1,11 @@
-import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
-import { transformNameConvention } from "./transformNameConvention";
+import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
+import { transformNameConvention } from "../transformNameConvention";
 
-import { getLineHeight } from "./text/getLineHeight";
-import { getLetterSpacing } from "./text/getLetterSpacing";
-import { getFontWeight } from "./text/getFontWeight";
+import { getLineHeight } from "../text/getLineHeight";
+import { getLetterSpacing } from "../text/getLetterSpacing";
+import { getFontWeight } from "../text/getFontWeight";
 
-export const convertTextStylesToTokens = async (
+export const textStylesToTokens = async (
   customName: string,
   nameConvention: nameConventionType
 ) => {
@@ -32,7 +32,7 @@ export const convertTextStylesToTokens = async (
       $extensions: {
         styleId: style.id,
       },
-    } as TypographyToken;
+    } as TypographyTokenI;
 
     result[styleName] = styleObject;
 
@@ -41,9 +41,10 @@ export const convertTextStylesToTokens = async (
 
   // console.log("allTextStyles", allTextStyles);
 
-  textTokens[textStylesName] = groupObjectNamesIntoCategories(allTextStyles);
+  textTokens[textStylesName] = groupObjectNamesIntoCategories(
+    allTextStyles,
+    nameConvention
+  );
 
   return textTokens;
 };
-
-// #TODO: add support for multiple gradients in one style

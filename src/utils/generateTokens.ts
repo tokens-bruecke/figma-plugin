@@ -34,11 +34,6 @@ export const generateTokens = async (
       const variablesPerMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
-        const variableName = transformNameConvention(
-          variable.name,
-          JSONSettingsConfig.namesTransform
-        );
-
         if (variableModeId === mode.modeId) {
           const aliasPath = getAliasVariableName(
             `${collectionName}.${modeName}`,
@@ -63,9 +58,9 @@ export const generateTokens = async (
               variableId: variable.id,
               aliasPath: aliasPath,
             },
-          } as TokenI;
+          } as PluginTokenI;
 
-          result[variableName] = variableObject;
+          result[variable.name] = variableObject;
         }
 
         return result;
@@ -73,9 +68,18 @@ export const generateTokens = async (
 
       // check amount of modes and assign to "modes" or "modes[modeName]" variable
       if (collection.modes.length === 1) {
-        Object.assign(modes, groupObjectNamesIntoCategories(variablesPerMode));
+        Object.assign(
+          modes,
+          groupObjectNamesIntoCategories(
+            variablesPerMode,
+            JSONSettingsConfig.namesTransform
+          )
+        );
       } else {
-        modes[modeName] = groupObjectNamesIntoCategories(variablesPerMode);
+        modes[modeName] = groupObjectNamesIntoCategories(
+          variablesPerMode,
+          JSONSettingsConfig.namesTransform
+        );
       }
     });
 

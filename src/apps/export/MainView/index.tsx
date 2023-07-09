@@ -11,7 +11,6 @@ import {
   Icon,
   Text,
   Toggle,
-  ToggleRow,
 } from "pavelLaptev/react-figma-ui/ui";
 
 type StyleListItemType = {
@@ -361,15 +360,16 @@ export const MainView = (props: MainViewProps) => {
       <Panel>
         <PanelHeader ref={stylesHeaderRef} title="Include styles" isActive />
 
-        <Stack hasLeftRightPadding={false}>
+        <Stack hasLeftRightPadding={false} gap={2}>
           {stylesList.map((item, index) => {
             const stylesList = JSONsettingsConfig.includeStyles;
             const styleItem = stylesList[item.id];
             const isIncluded = styleItem.isIncluded;
 
             return (
-              <Stack key={index} direction="row">
+              <Stack key={index} direction="row" gap="var(--space-extra-small)">
                 <Input
+                  className={styles.styleNameInput}
                   id={`style-${item.id}`}
                   hasOutline={false}
                   value={styleItem.customName}

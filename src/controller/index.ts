@@ -1,4 +1,7 @@
-import { convertTextStylesToTokens } from "../utils/convertTextStylesToTokens";
+import { textStylesToTokens } from "../utils/styles/textStylesToTokens";
+import { gridStylesToTokens } from "../utils/styles/gridStylesToTokens";
+import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
+
 import { generateTokens } from "../utils/generateTokens";
 
 // clear console on reload
@@ -22,7 +25,7 @@ if (figma.command === "export") {
 
     // Extract text tokens
     if (JSONSettingsConfig.includeStyles.text.isIncluded) {
-      const textTokens = await convertTextStylesToTokens(
+      const textTokens = await textStylesToTokens(
         JSONSettingsConfig.includeStyles.text.customName,
         JSONSettingsConfig.namesTransform
       );
@@ -30,7 +33,26 @@ if (figma.command === "export") {
       styleTokens.push(textTokens);
     }
 
-    // console.log("styleTokens", styleTokens);
+    // Extract grid tokens
+    if (JSONSettingsConfig.includeStyles.grids.isIncluded) {
+      const gridTokens = await gridStylesToTokens(
+        JSONSettingsConfig.includeStyles.grids.customName,
+        JSONSettingsConfig.namesTransform
+      );
+
+      styleTokens.push(gridTokens);
+    }
+
+    // Extract effect tokens
+    if (JSONSettingsConfig.includeStyles.effects.isIncluded) {
+      const effectTokens = await effectStylesToTokens(
+        JSONSettingsConfig.includeStyles.effects.customName,
+        JSONSettingsConfig.namesTransform,
+        JSONSettingsConfig.colorMode
+      );
+
+      styleTokens.push(effectTokens);
+    }
 
     const mergedVariables = await generateTokens(
       variables,
@@ -56,12 +78,6 @@ if (figma.command === "export") {
       }),
     });
   };
-
-  // getVariableCollections();
-
-  // console.log(mergedVariables);
-  // const JSONToTokens = variablesToTokens(variables);
-  // console.log(JSONToTokens);
 
   // listen for messages from the UI
   figma.ui.onmessage = async (msg) => {

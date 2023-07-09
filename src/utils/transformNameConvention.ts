@@ -27,10 +27,15 @@ export const transformNameConvention = (
       return inputString.replace(/\s+|-|_/g, "-").toUpperCase();
 
     case "MACRO_CASE":
-      return inputString.replace(/\s+|-|_/g, " ").toUpperCase();
+      return inputString.replace(/\s+|-|_/g, "_").toUpperCase();
 
     case "Ada_Case":
-      return inputString.replace(/\s+|-|_/g, "_").toLowerCase();
+      // return inputString.replace(/\s+|-|_/g, "_").toLowerCase();
+      // make first letter uppercase and the rest lowercase and replace spaces with underscores
+      return inputString
+        .replace(/\s+|-|_/g, "_")
+        .toLowerCase()
+        .replace(/^(.)|\s+(.)/g, (c) => c.toUpperCase());
 
     case "UPPERCASE":
       return inputString.toUpperCase();

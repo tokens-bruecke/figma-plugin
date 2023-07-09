@@ -63,6 +63,8 @@ Allows you to transform
 
 Scope types https://www.figma.com/plugin-docs/api/VariableScope
 
+## Styles
+
 ## Effects
 
 ### Shadows
@@ -83,3 +85,9 @@ iisue: [https://github.com/design-tokens/community-group/issues/101](https://git
 
 - Describe restrictions
 - Show current JSON implementation
+
+## GRIDS
+
+If you have multiple grid layouts, the plugin will take only first two and treat the first one as `column` grid and the second one as `row` grid.
+
+Link to the grid token repo: here

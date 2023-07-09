@@ -14,21 +14,10 @@ type BorderStyle =
   | "outset"
   | "inset";
 
-/** GLOBAL TYPES
- *
- * There are most generic types.
- */
-
-interface GenericToken {
-  $type: string;
-  $value: string;
-  $description?: string;
-  $extensions?: any;
-}
-
 type TokenDescriptionType = string;
 
 type TokenType =
+  // simple token types
   | "color"
   | "dimension"
   | "fontFamily"
@@ -37,11 +26,19 @@ type TokenType =
   | "cubicBezier"
   | "number"
   | "shadow"
-  | "alias"
   | "fontSize"
   | "lineHeight"
   | "letterSpacing"
   | "strokeStyle"
+  // composite token types
+  | "border"
+  | "transition"
+  | "gradient"
+  | "typography"
+  // experemental token types
+  | "alias"
+  | "grid"
+  | "blur"
   // default JSON types
   | "string"
   | "boolean"
@@ -53,44 +50,53 @@ type DimensionStringType = string | number;
 
 type DurationStringType = string;
 
+type GradientTokenType = "linear" | "radial" | "angular" | "conic";
+
 /**
  * TOKEN TYPES
  *
  * There are all simple token types.
  */
 
+interface GenericTokenI {
+  $type: TokenType;
+  $value: any;
+  $description?: string;
+  $extensions?: any;
+}
+
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#color
  */
 
-type ColorToken = GenericToken & {
+interface ColorTokenI extends GenericTokenI {
   $type: "color";
-  $value: string | object; // Hex triplet/quartet including the preceding "#" character
-};
+  $value: string | object;
+}
 
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#dimension
  */
 
-type DimensionToken = GenericToken & {
+interface DimensionTokenI extends GenericTokenI {
   $type: "dimension";
   $value: DimensionStringType;
-};
+}
 
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#font-family
  */
 
-type FontFamilyToken = GenericToken & {
+interface FontFamilyTokenI extends GenericTokenI {
   $type: "fontFamily";
   $value: string | string[]; // Single font name or array of font names
-};
+}
 
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#font-weight
  */
 
-type FontWeightToken = GenericToken & {
+interface FontWeightTokenI extends GenericTokenI {
   $type: "fontWeight";
   $value:
     | number
@@ -112,61 +118,61 @@ type FontWeightToken = GenericToken & {
     | "heavy"
     | "extra-black"
     | "ultra-black";
-};
+}
 
 /**
  * Part of the composite token: https://design-tokens.github.io/community-group/format/#typography
  */
 
-type FontSizeToken = GenericToken & {
+interface FontSizeTokenI extends GenericTokenI {
   $type: "fontSize";
   $value: DimensionStringType;
-};
+}
 
 /**
  * Part of the composite token: https://design-tokens.github.io/community-group/format/#typography
  */
 
-type LineHeightToken = GenericToken & {
+interface LineHeightTokenI extends GenericTokenI {
   $type: "lineHeight";
   $value: DimensionStringType;
-};
+}
 
 /**
  * Part of the composite token: https://design-tokens.github.io/community-group/format/#typography
  */
 
-type LetterSpacingToken = GenericToken & {
+interface LetterSpacingTokenI extends GenericTokenI {
   $type: "letterSpacing";
   $value: DimensionStringType;
-};
+}
 
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#duration
  */
 
-type DurationToken = GenericToken & {
+interface DurationTokenI extends GenericTokenI {
   $type: "duration";
   $value: DurationStringType; // Number followed by "ms" unit
-};
+}
 
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#cubic-bezier
  */
 
-type CubicBezierToken = GenericToken & {
+interface CubicBezierTokenI extends GenericTokenI {
   $type: "cubicBezier";
   $value: [number, number, number, number]; // Array containing four numbers
-};
+}
 
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#number
  */
 
-type NumberToken = GenericToken & {
+interface NumberTokenI extends GenericTokenI {
   $type: "number";
   $value: number;
-};
+}
 
 /**
  * COMPOSITE TOKENS
@@ -178,7 +184,7 @@ type NumberToken = GenericToken & {
  * Documentation: https://design-tokens.github.io/community-group/format/#stroke-style
  */
 
-interface StrokeStyleToken extends Omit<GenericToken, "$value"> {
+interface StrokeStyleTokenI extends GenericTokenI {
   $type: "strokeStyle";
   $value:
     | BorderStyle
@@ -195,12 +201,12 @@ interface StrokeStyleToken extends Omit<GenericToken, "$value"> {
  * Documentation: https://design-tokens.github.io/community-group/format/#border
  */
 
-interface BorderToken {
+interface BorderTokenI extends GenericTokenI {
   $type: "border";
   $value: {
     color: string;
     width: string;
-    style: StrokeStyleToken;
+    style: StrokeStyleTokenI;
   };
 }
 
@@ -208,12 +214,12 @@ interface BorderToken {
  * Documentation: https://design-tokens.github.io/community-group/format/#transition
  */
 
-interface TransitionToken {
+interface TransitionTokenI extends GenericTokenI {
   $type: "transition";
   $value: {
-    duration: DurationToken | string;
-    delay: DurationToken | string;
-    timingFunction: CubicBezierToken | string;
+    duration: DurationTokenI | string;
+    delay: DurationTokenI | string;
+    timingFunction: CubicBezierTokenI | string;
   };
 }
 
@@ -221,36 +227,36 @@ interface TransitionToken {
  * Documentation: https://design-tokens.github.io/community-group/format/#gradient
  */
 
-type GradientTokenType = "linear" | "radial" | "angular" | "conic";
-
-interface GradientTokenStop {
-  color: ColorToken | string;
+interface GradientTokenStopI {
+  color: ColorTokenI | string;
   position: string;
 }
 
-interface GradientTokenValue {
+interface GradientTokenValueI {
   type: GradientTokenType;
   angle: string;
-  stops: GradientTokenStop[];
+  stops: GradientTokenStopI[];
 }
 
-interface GradientToken {
+interface GradientTokenI extends GenericTokenI {
   $type: "gradient";
-  $value: GradientTokenValue;
+  $value: GradientTokenValueI;
 }
 
 /**
  * Documentation: https://design-tokens.github.io/community-group/format/#shadow
+ * Issue: https://github.com/design-tokens/community-group/issues/100
  */
 
-interface ShadowToken extends Omit<GenericToken, "$value"> {
+interface ShadowTokenI extends GenericTokenI {
   $type: "shadow";
   $value: {
-    color: ColorToken | string;
-    offsetX: DimensionToken | string;
-    offsetY: DimensionToken | string;
-    blur: DimensionToken | string;
-    spread: DimensionToken | string;
+    inset: boolean; // is still in discussion
+    color: ColorTokenI | string;
+    offsetX: DimensionTokenI | string;
+    offsetY: DimensionTokenI | string;
+    blur: DimensionTokenI | string;
+    spread: DimensionTokenI | string;
   };
 }
 
@@ -258,14 +264,14 @@ interface ShadowToken extends Omit<GenericToken, "$value"> {
  * Documentation: https://design-tokens.github.io/community-group/format/#typography
  */
 
-interface TypographyToken {
+interface TypographyTokenI extends GenericTokenI {
   $type: "typography";
   $value: {
-    fontFamily: FontFamilyToken | string;
-    fontSize: FontSizeToken | string;
-    lineHeight: LineHeightToken | DimensionStringType;
-    letterSpacing: LetterSpacingToken | DimensionStringType;
-    fontWeight: FontWeightToken | DimensionStringType;
+    fontFamily: FontFamilyTokenI | string;
+    fontSize: FontSizeTokenI | string;
+    lineHeight: LineHeightTokenI | DimensionStringType;
+    letterSpacing: LetterSpacingTokenI | DimensionStringType;
+    fontWeight: FontWeightTokenI | DimensionStringType;
   };
 }
 
@@ -273,11 +279,44 @@ interface TypographyToken {
  * EXPEREMENTAL TOKEN TYPES
  *
  * There are all experemental token types. Which are not officially in the spec.
- *
+ */
+
+/**
+ * Alias token propoasal
  * issue: https://github.com/design-tokens/community-group/issues/214
  */
 
-type AliasToken = GenericToken & {
+interface AliasTokenI extends GenericTokenI {
   $type: "alias";
   $value: `{\${string}}`; // Name of the token to alias
-};
+}
+
+/**
+ * Grid token propoasal
+ */
+
+interface GridTokenI extends GenericTokenI {
+  $type: "grid";
+  $value: {
+    columnCount?: number;
+    columnGap?: DimensionStringType;
+    columnWidth?: DimensionStringType;
+    columnMargin?: DimensionStringType;
+    rowCount?: number;
+    rowGap?: DimensionStringType;
+    rowHeight?: DimensionStringType;
+    rowMargin?: DimensionStringType;
+  };
+}
+
+/**
+ * Blur token propoasal
+ */
+
+interface BlurTokenI extends GenericTokenI {
+  $type: "blur";
+  $value: {
+    role: "layer" | "background";
+    blur: DimensionStringType;
+  };
+}

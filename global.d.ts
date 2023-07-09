@@ -42,7 +42,7 @@ interface JSONSettingsConfigI {
   colorMode: colorModeType;
 }
 
-interface TokenI {
+interface PluginTokenI {
   $value: string;
   $type: TokenType;
   $description: string;
