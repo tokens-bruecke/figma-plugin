@@ -11,13 +11,11 @@
     "dev": "webpack --mode=development --watch"
   },
   "dependencies": {
-    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui#090a60736b99e301afbc219e28cb67584aa158e1",
+    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui#f16b1ffd1685e5ffb2627d5a160a5bae43d406db",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-figma-ui": "PavelLaptev/react-figma-ui"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@figma-plugin/helpers": "^0.15.2",
     "@figma/plugin-typings": "^1.70.0",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
@@ -25,9 +23,7 @@
     "html-inline-css-webpack-plugin": "^1.11.1",
     "html-inline-script-webpack-plugin": "^3.2.0",
     "html-webpack-plugin": "^5.5.0",
-    "mathjs": "^11.8.2",
     "mini-css-extract-plugin": "^2.7.2",
-    "ml-matrix": "^6.10.4",
     "prettier": "^2.7.1",
     "react-dev-utils": "^12.0.1",
     "sass": "^1.57.1",

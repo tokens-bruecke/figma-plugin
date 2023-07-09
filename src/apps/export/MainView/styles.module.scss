@@ -23,16 +23,3 @@
 // .toggleSectionDivider {
 //   padding: var(--space-extra-small) var(--space-small);
 // }
-
-.toggleSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-extra-small);
-  padding: var(--space-extra-small) 0;
-  border-bottom: 1px solid var(--figma-color-border);
-
-  &:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-}

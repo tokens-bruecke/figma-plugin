@@ -7,25 +7,17 @@ const Container = () => {
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
     namesTransform: "none",
     includeStyles: {
-      colors: {
-        isIncluded: false,
-        customName: "Colors",
-        collectionId: null,
-      },
       text: {
         isIncluded: false,
         customName: "Typography",
-        collectionId: null,
       },
       effects: {
         isIncluded: false,
         customName: "Effects",
-        collectionId: null,
       },
       grids: {
         isIncluded: false,
         customName: "Grids",
-        collectionId: null,
       },
     },
     colorMode: "hex",

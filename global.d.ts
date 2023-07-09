@@ -26,7 +26,6 @@ type variableFeatureType = "scope" | "hidden";
 type JSONSettingsStyleType = {
   isIncluded: boolean;
   customName: string;
-  collectionId: string | null;
 };
 
 interface IncludedStylesI {

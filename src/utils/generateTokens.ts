@@ -10,9 +10,12 @@ import { transformNameConvention } from "./transformNameConvention";
 export const generateTokens = async (
   variables: Variable[],
   collections: VariableCollection[],
+  styleTokens: any[],
   JSONSettingsConfig: JSONSettingsConfigI
 ) => {
   const mergedVariables = {};
+
+  console.log("styleTokens", styleTokens);
 
   collections.forEach((collection) => {
     let modes = {};
@@ -77,6 +80,11 @@ export const generateTokens = async (
     });
 
     mergedVariables[collectionName] = modes;
+
+    // assign style tokens to mergedVariables
+    styleTokens.forEach((styleToken) => {
+      Object.assign(mergedVariables, styleToken);
+    });
   });
 
   return mergedVariables;

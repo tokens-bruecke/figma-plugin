@@ -1,4 +1,4 @@
-import { getAndConvertStyles } from "../utils/getAndConvertStyles";
+import { convertTextStylesToTokens } from "../utils/convertTextStylesToTokens";
 import { generateTokens } from "../utils/generateTokens";
 
 // clear console on reload
@@ -13,42 +13,31 @@ if (figma.command === "export") {
 
   let JSONSettingsConfig: JSONSettingsConfigI;
 
-  // get all styles from the document
-  // const getStyles = async () => {
-  //   const styles = figma.getLocalPaintStyles();
-  //   const textStyles = figma.getLocalTextStyles();
-  //   const effectStyles = figma.getLocalEffectStyles();
-  //   const gridStyles = figma.getLocalGridStyles();
-
-  //   return {
-  //     styles,
-  //     textStyles,
-  //     effectStyles,
-  //     gridStyles,
-  //   };
-  // };
-
-  // getStyles().then((styles) => {
-  //   console.log("styles", styles);
-  // });
-
   const getTokens = async () => {
     const variableCollection =
       figma.variables.getLocalVariableCollections() as VariableCollection[];
     const variables = figma.variables.getLocalVariables() as Variable[];
 
+    let styleTokens = [];
+
+    // Extract text tokens
+    if (JSONSettingsConfig.includeStyles.text.isIncluded) {
+      const textTokens = await convertTextStylesToTokens(
+        JSONSettingsConfig.includeStyles.text.customName,
+        JSONSettingsConfig.namesTransform
+      );
+
+      styleTokens.push(textTokens);
+    }
+
+    // console.log("styleTokens", styleTokens);
+
     const mergedVariables = await generateTokens(
       variables,
       variableCollection,
+      styleTokens,
       JSONSettingsConfig
     );
-
-    // Extract style tokens
-    const styleTokens = await getAndConvertStyles(
-      JSONSettingsConfig.includeStyles,
-      JSONSettingsConfig.namesTransform
-    );
-    console.log("styleTokens", styleTokens);
 
     return mergedVariables;
   };

@@ -367,14 +367,43 @@ export const MainView = (props: MainViewProps) => {
             const styleItem = stylesList[item.id];
             const isIncluded = styleItem.isIncluded;
 
-            const collectionOptions = props.collections.map((collection) => ({
-              id: collection.id,
-              label: collection.name,
-            }));
-
             return (
-              <div key={index} className={styles.toggleSection}>
-                <ToggleRow
+              <Stack key={index} direction="row">
+                <Input
+                  id={`style-${item.id}`}
+                  hasOutline={false}
+                  value={styleItem.customName}
+                  leftIcon={item.icon}
+                  onChange={(value: string) => {
+                    setJSONsettingsConfig({
+                      ...JSONsettingsConfig,
+                      includeStyles: {
+                        ...stylesList,
+                        [item.id]: {
+                          ...styleItem,
+                          customName: value,
+                        },
+                      },
+                    });
+                  }}
+                />
+                <Toggle
+                  id={`toggle-${item.id}`}
+                  checked={isIncluded}
+                  onChange={(checked: boolean) => {
+                    setJSONsettingsConfig({
+                      ...JSONsettingsConfig,
+                      includeStyles: {
+                        ...stylesList,
+                        [item.id]: {
+                          ...styleItem,
+                          isIncluded: checked,
+                        },
+                      },
+                    });
+                  }}
+                />
+                {/* <ToggleRow
                   key={item.id}
                   id={item.id}
                   label={item.label}
@@ -413,38 +442,9 @@ export const MainView = (props: MainViewProps) => {
                         });
                       }}
                     />
-                    <Dropdown
-                      label="Add to collection"
-                      onChange={(value: string) => {
-                        console.log("value collections", value);
-                        setJSONsettingsConfig({
-                          ...JSONsettingsConfig,
-                          includeStyles: {
-                            ...stylesList,
-                            [item.id]: {
-                              ...styleItem,
-                              collectionId: value,
-                            },
-                          },
-                        });
-                      }}
-                      optionsSections={[
-                        {
-                          options: [
-                            {
-                              id: null,
-                              label: "Keep it separate",
-                            },
-                          ],
-                        },
-                        {
-                          options: collectionOptions,
-                        },
-                      ]}
-                    />
                   </Stack>
-                )}
-              </div>
+                )} */}
+              </Stack>
             );
           })}
         </Stack>
