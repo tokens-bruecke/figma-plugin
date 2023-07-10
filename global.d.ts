@@ -34,19 +34,43 @@ interface IncludedStylesI {
   grids: JSONSettingsStyleType;
 }
 
+interface JsonbinCredentialsI {
+  isEnabled: boolean;
+  id?: string;
+  name?: string;
+  secretKey?: string;
+}
+
 interface JSONSettingsConfigI {
   includeStyles: IncludedStylesI;
   includeScopes: boolean;
   splitFiles: boolean;
   colorMode: colorModeType;
   servers: {
-    jsonbin: {
-      id: string;
-      name: string;
-      secretKey: string;
-    };
+    jsonbin: JsonbinCredentialsI;
     github: {
-      enabled: boolean;
+      isEnabled: boolean;
+      repo: string;
+      branch: string;
+      token: string;
+      path: string;
+    };
+    gitlab: {
+      isEnabled: boolean;
+      repo: string;
+      branch: string;
+      token: string;
+      path: string;
+    };
+    bitbucket: {
+      isEnabled: boolean;
+      repo: string;
+      branch: string;
+      token: string;
+      path: string;
+    };
+    customURL: {
+      isEnabled: boolean;
       repo: string;
       branch: string;
       token: string;

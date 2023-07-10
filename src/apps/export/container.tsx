@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 
 import { MainView } from "./MainView";
-import { JSONbinView } from "./JSONbinView";
+import { ServerSettingsView } from "./ServerSettingsView";
 
 const Container = () => {
   const [currentView, setCurrentView] = useState("main");
-  const [avaliableCollections, setAvaliableCollections] = useState([]);
+  const [fileHasVariables, setFileHasVariables] = useState(false);
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
     includeStyles: {
       text: {
@@ -26,12 +26,34 @@ const Container = () => {
     splitFiles: false,
     servers: {
       jsonbin: {
+        isEnabled: false,
         id: "",
         name: "",
         secretKey: "",
       },
       github: {
-        enabled: false,
+        isEnabled: false,
+        repo: "",
+        branch: "",
+        token: "",
+        path: "",
+      },
+      gitlab: {
+        isEnabled: false,
+        repo: "",
+        branch: "",
+        token: "",
+        path: "",
+      },
+      bitbucket: {
+        isEnabled: false,
+        repo: "",
+        branch: "",
+        token: "",
+        path: "",
+      },
+      customURL: {
+        isEnabled: false,
         repo: "",
         branch: "",
         token: "",
@@ -56,31 +78,52 @@ const Container = () => {
 
   // Get all collections from Figma
   useEffect(() => {
-    parent.postMessage({ pluginMessage: { type: "getCollections" } }, "*");
+    parent.postMessage({ pluginMessage: { type: "checkForVariables" } }, "*");
 
     window.onmessage = (event) => {
-      const { type, data } = event.data.pluginMessage;
+      const { type, hasVariables, storageConfig } = event.data.pluginMessage;
 
-      if (type === "setCollections") {
-        setAvaliableCollections(data);
+      if (type === "checkForVariables") {
+        setFileHasVariables(hasVariables);
+      }
+
+      if (type === "storageConfig") {
+        console.log("storageConfig <<<<");
+
+        if (storageConfig) {
+          setJSONsettingsConfig(storageConfig);
+        }
       }
     };
   }, []);
+
+  // pass changed to figma controller
+  useEffect(() => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "JSONSettingsConfig",
+          config: JSONsettingsConfig,
+        },
+      },
+      "*"
+    );
+  }, [JSONsettingsConfig]);
 
   /////////////////////
   // RENDER FUNCTION //
   /////////////////////
 
-  if (avaliableCollections.length === 0) {
+  if (!fileHasVariables) {
     return <div>no varaibles in this file</div>;
   }
 
   if (currentView === "main") {
-    return <MainView {...commonProps} collections={avaliableCollections} />;
+    return <MainView {...commonProps} />;
   }
 
   if (currentView === "jsonbin") {
-    return <JSONbinView {...commonProps} />;
+    return <ServerSettingsView {...commonProps} />;
   }
 
   if (currentView === "github") {

@@ -1,3 +1,6 @@
+import { checkForVariables } from "../utils/controller/checkForVariables";
+import { getStorageConfig } from "../utils/controller/getStorageConfig";
+
 import { textStylesToTokens } from "../utils/styles/textStylesToTokens";
 import { gridStylesToTokens } from "../utils/styles/gridStylesToTokens";
 import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
@@ -6,6 +9,10 @@ import { generateTokens } from "../utils/generateTokens";
 
 // clear console on reload
 console.clear();
+
+const pluginConfigKey = "tokenbrücke-config";
+
+getStorageConfig(pluginConfigKey);
 
 if (figma.command === "export") {
   figma.showUI(__uiFiles__["export"], {
@@ -62,44 +69,35 @@ if (figma.command === "export") {
     return mergedVariables;
   };
 
-  const getVariableCollections = async () => {
-    const variableCollection =
-      figma.variables.getLocalVariableCollections() as VariableCollection[];
-
-    figma.ui.postMessage({
-      type: "setCollections",
-      data: variableCollection.map((collection) => {
-        return {
-          id: collection.id,
-          name: collection.name,
-        };
-      }),
-    });
-  };
-
   // listen for messages from the UI
   figma.ui.onmessage = async (msg) => {
+    await checkForVariables(msg.type);
+
     // get JSON settings config from UI and store it in a variable
     if (msg.type === "JSONSettingsConfig") {
       // update JSONSettingsConfig
       JSONSettingsConfig = msg.config;
 
-      console.log("JSONSettingsConfig", JSONSettingsConfig);
+      console.log("JSONSettingsConfig controller", JSONSettingsConfig);
+
+      // handle client storage
+      await figma.clientStorage.setAsync(
+        pluginConfigKey,
+        JSON.stringify(JSONSettingsConfig)
+      );
     }
 
     // generate tokens and send them to the UI
     if (msg.type === "generateTokens") {
-      await getTokens().then((tokens) => {
-        figma.ui.postMessage({
-          type: "tokens",
-          tokens: tokens,
+      if (msg.role === "preview") {
+        await getTokens().then((tokens) => {
+          figma.ui.postMessage({
+            type: "tokens",
+            role: "preview",
+            tokens: tokens,
+          });
         });
-      });
-    }
-
-    // get and set collections
-    if (msg.type === "getCollections") {
-      await getVariableCollections();
+      }
     }
   };
 }

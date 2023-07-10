@@ -2,15 +2,11 @@ import React, { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 
 import {
-  Panel,
   PanelHeader,
   Stack,
   Button,
   Input,
-  Icon,
   Text,
-  Toggle,
-  OverlayList,
 } from "pavelLaptev/react-figma-ui/ui";
 
 interface ViewProps {
@@ -36,7 +32,7 @@ const fields = [
   },
 ];
 
-export const JSONbinView = (props: ViewProps) => {
+export const ServerSettingsView = (props: ViewProps) => {
   const { JSONsettingsConfig, setJSONsettingsConfig, setCurrentView } = props;
   const [errorFields, setErrorFields] = useState([] as string[]);
 

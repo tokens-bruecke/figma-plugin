@@ -1530,9 +1530,9 @@ path-type@^4.0.0:
   resolved "https://registry.npmjs.org/path-type/-/path-type-4.0.0.tgz"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
-"pavelLaptev/react-figma-ui@git+https://git@github.com/PavelLaptev/react-figma-ui#19cca1ba5cf5bf7f657335d725ad3c1ba712b23e":
+"pavelLaptev/react-figma-ui@git+https://git@github.com/PavelLaptev/react-figma-ui#935d288d62a24da8d5dd2e1efcb12ea88f994d50":
   version "0.2.0"
-  resolved "git+https://git@github.com/PavelLaptev/react-figma-ui#19cca1ba5cf5bf7f657335d725ad3c1ba712b23e"
+  resolved "git+https://git@github.com/PavelLaptev/react-figma-ui#935d288d62a24da8d5dd2e1efcb12ea88f994d50"
 
 picocolors@^1.0.0:
   version "1.0.0"

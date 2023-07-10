@@ -9,10 +9,13 @@ import {
   Button,
   Input,
   Icon,
+  IconButton,
   Text,
   Toggle,
   OverlayList,
 } from "pavelLaptev/react-figma-ui/ui";
+
+import { pushToJSONBin } from "./../../../utils/servers/pushToJSONBin";
 
 type StyleListItemType = {
   id: stylesType;
@@ -26,10 +29,6 @@ interface ViewProps {
     React.SetStateAction<JSONSettingsConfigI>
   >;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
-  collections: {
-    id: string;
-    name: string;
-  }[];
 }
 
 const stylesList = [
@@ -53,17 +52,35 @@ const stylesList = [
 const serverList = [
   {
     id: "jsonbin",
-    label: "JSONbin",
+    label: "JSONBin",
+    iconName: "jsonbin",
   },
   {
     id: "github",
     label: "Github",
+    iconName: "github",
+  },
+  {
+    id: "gitlab",
+    label: "Gitlab",
+    iconName: "gitlab",
+  },
+  {
+    id: "bitbucket",
+    label: "Bitbucket",
+    iconName: "bitbucket",
+  },
+  {
+    id: "customURL",
+    label: "Custom URL",
+    iconName: "custom-url",
   },
 ];
 
 export const MainView = (props: ViewProps) => {
   const { JSONsettingsConfig, setJSONsettingsConfig } = props;
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
+  const [generatedTokens, setGeneratedTokens] = useState({} as any);
 
   const serversHeaderRef = React.useRef(null);
 
@@ -97,12 +114,13 @@ export const MainView = (props: ViewProps) => {
     setShowServersOverlayList(!showServersOverlayList);
   };
 
-  const handleDownloadJSON = () => {
+  const getTokensPreview = () => {
     // send command to figma controller
     parent.postMessage(
       {
         pluginMessage: {
           type: "generateTokens",
+          role: "preview",
         },
       },
       "*"
@@ -113,29 +131,40 @@ export const MainView = (props: ViewProps) => {
   // USE EFFECTS //
   /////////////////
 
-  // pass changed to figma controller
-  useEffect(() => {
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: "JSONSettingsConfig",
-          config: JSONsettingsConfig,
-        },
-      },
-      "*"
-    );
-  }, [JSONsettingsConfig]);
-
   // Recieve tokens from figma controller
   useEffect(() => {
     window.onmessage = (event) => {
-      const { type, tokens } = event.data.pluginMessage;
+      const { type, tokens, role } = event.data.pluginMessage;
 
       if (type === "tokens") {
-        console.log("Recieve tokens from figma controller", tokens);
+        if (role === "preview") {
+          setGeneratedTokens(tokens);
+        }
+
+        if (role === "push") {
+          pushToJSONBin(JSONsettingsConfig.servers.jsonbin, tokens);
+        }
       }
     };
   }, []);
+
+  //
+  // useEffect(() => {
+  //   console.log("generatedTokens", generatedTokens);
+  // }, [generatedTokens]);
+
+  //////////////////////
+  // RENDER VARIABLES //
+  //////////////////////
+
+  const isAnyServerEnabled = Object.keys(JSONsettingsConfig.servers).some(
+    (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
+  );
+  const dynamicServerList = serverList.filter((server) => {
+    if (!JSONsettingsConfig.servers[server.id].isEnabled) {
+      return server;
+    }
+  });
 
   /////////////////
   // MAIN RENDER //
@@ -208,7 +237,7 @@ export const MainView = (props: ViewProps) => {
       <Panel>
         <PanelHeader title="Include styles" isActive />
 
-        <Stack hasLeftRightPadding={false} gap={2}>
+        <Stack hasLeftRightPadding={false} hasTopBottomPadding gap={2}>
           {stylesList.map((item, index) => {
             const stylesList = JSONsettingsConfig.includeStyles;
             const styleItem = stylesList[item.id];
@@ -285,14 +314,13 @@ export const MainView = (props: ViewProps) => {
       <Panel>
         <PanelHeader
           ref={serversHeaderRef}
-          title="Push to server"
+          title="Connect server"
           onClick={handleShowServersOverlayList}
           iconButtons={[
             {
               children: (
                 <>
                   <Icon name="plus" size="32" />
-
                   {showServersOverlayList && (
                     <OverlayList
                       trigger={serversHeaderRef.current}
@@ -303,7 +331,7 @@ export const MainView = (props: ViewProps) => {
                       }}
                       optionsSections={[
                         {
-                          options: serverList,
+                          options: dynamicServerList,
                         },
                       ]}
                     />
@@ -314,13 +342,57 @@ export const MainView = (props: ViewProps) => {
             },
           ]}
         />
+
+        <Stack
+          hasLeftRightPadding
+          hasTopBottomPadding
+          gap={"var(--space-extra-small)"}
+        >
+          {Object.keys(JSONsettingsConfig.servers).map((serverId, index) => {
+            if (!JSONsettingsConfig.servers[serverId].isEnabled) {
+              return null;
+            }
+
+            const server = serverList.find(
+              (server) => server.id === serverId
+            ) as (typeof serverList)[0];
+
+            const handleNewView = () => {
+              props.setCurrentView(server.id);
+            };
+
+            return (
+              <Stack
+                className={styles.rowItem}
+                key={index}
+                hasLeftRightPadding={false}
+                direction="row"
+                // onClick={handleNewView}
+                gap={1}
+              >
+                <Icon name={server.id} size="32" />
+                <Text className={styles.rowItemText}>{server.label}</Text>
+                <IconButton
+                  onClick={handleNewView}
+                  children={<Icon name="kebab" size="32" />}
+                />
+              </Stack>
+            );
+          })}
+
+          {isAnyServerEnabled && (
+            <Stack hasTopBottomPadding>
+              <Button label="Push to server" onClick={() => {}} fullWidth />
+            </Stack>
+          )}
+        </Stack>
       </Panel>
 
       <Panel hasLeftRightPadding>
         <Stack hasLeftRightPadding hasTopBottomPadding>
           <Button
             label="Download JSON"
-            onClick={handleDownloadJSON}
+            onClick={getTokensPreview}
             fullWidth
             secondary
           />
