@@ -9,7 +9,7 @@ export const findByVariableId = (obj, variableId) => {
       } else {
         const result = findByVariableId(obj[key], variableId);
         if (result) {
-          return result as TokenI;
+          return result as PluginTokenI;
         }
       }
     }

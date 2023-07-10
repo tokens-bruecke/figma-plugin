@@ -3,7 +3,6 @@ import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
 
 import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
-import { transformNameConvention } from "./transformNameConvention";
 
 // console.clear();
 
@@ -20,16 +19,10 @@ export const generateTokens = async (
   collections.forEach((collection) => {
     let modes = {};
 
-    const collectionName = transformNameConvention(
-      collection.name,
-      JSONSettingsConfig.namesTransform
-    );
+    const collectionName = collection.name;
 
     collection.modes.forEach((mode, index) => {
-      const modeName = transformNameConvention(
-        mode.name,
-        JSONSettingsConfig.namesTransform
-      );
+      const modeName = mode.name;
 
       const variablesPerMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
@@ -68,18 +61,9 @@ export const generateTokens = async (
 
       // check amount of modes and assign to "modes" or "modes[modeName]" variable
       if (collection.modes.length === 1) {
-        Object.assign(
-          modes,
-          groupObjectNamesIntoCategories(
-            variablesPerMode,
-            JSONSettingsConfig.namesTransform
-          )
-        );
+        Object.assign(modes, groupObjectNamesIntoCategories(variablesPerMode));
       } else {
-        modes[modeName] = groupObjectNamesIntoCategories(
-          variablesPerMode,
-          JSONSettingsConfig.namesTransform
-        );
+        modes[modeName] = groupObjectNamesIntoCategories(variablesPerMode);
       }
     });
 

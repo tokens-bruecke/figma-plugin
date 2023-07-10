@@ -1,9 +1,4 @@
-import { transformNameConvention } from "./transformNameConvention";
-
-export const groupObjectNamesIntoCategories = (
-  inputObject: any,
-  nameConvention: nameConventionType
-) => {
+export const groupObjectNamesIntoCategories = (inputObject: any) => {
   const result = {};
 
   for (const key in inputObject) {
@@ -11,7 +6,7 @@ export const groupObjectNamesIntoCategories = (
     let current = result;
 
     for (let i = 0; i < parts.length; i++) {
-      const part = transformNameConvention(parts[i], nameConvention);
+      const part = parts[i];
 
       if (i === parts.length - 1) {
         current[part] = inputObject[key];
@@ -26,10 +21,7 @@ export const groupObjectNamesIntoCategories = (
 
   for (const prop in result) {
     if (typeof result[prop] === "object") {
-      result[prop] = groupObjectNamesIntoCategories(
-        result[prop],
-        nameConvention
-      );
+      result[prop] = groupObjectNamesIntoCategories(result[prop]);
     }
   }
 

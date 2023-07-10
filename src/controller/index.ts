@@ -26,8 +26,7 @@ if (figma.command === "export") {
     // Extract text tokens
     if (JSONSettingsConfig.includeStyles.text.isIncluded) {
       const textTokens = await textStylesToTokens(
-        JSONSettingsConfig.includeStyles.text.customName,
-        JSONSettingsConfig.namesTransform
+        JSONSettingsConfig.includeStyles.text.customName
       );
 
       styleTokens.push(textTokens);
@@ -36,8 +35,7 @@ if (figma.command === "export") {
     // Extract grid tokens
     if (JSONSettingsConfig.includeStyles.grids.isIncluded) {
       const gridTokens = await gridStylesToTokens(
-        JSONSettingsConfig.includeStyles.grids.customName,
-        JSONSettingsConfig.namesTransform
+        JSONSettingsConfig.includeStyles.grids.customName
       );
 
       styleTokens.push(gridTokens);
@@ -47,7 +45,7 @@ if (figma.command === "export") {
     if (JSONSettingsConfig.includeStyles.effects.isIncluded) {
       const effectTokens = await effectStylesToTokens(
         JSONSettingsConfig.includeStyles.effects.customName,
-        JSONSettingsConfig.namesTransform,
+
         JSONSettingsConfig.colorMode
       );
 

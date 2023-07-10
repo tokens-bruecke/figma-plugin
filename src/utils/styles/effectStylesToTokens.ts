@@ -1,15 +1,12 @@
 import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
 import { convertRGBA } from "../color/convertRGBA";
-import { transformNameConvention } from "../transformNameConvention";
 
 export const effectStylesToTokens = async (
   customName: string,
-  nameConvention: nameConventionType,
   colorMode: colorModeType
 ) => {
   let effectTokens = {};
 
-  const effectStylesName = transformNameConvention(customName, nameConvention);
   const effectStyles = figma.getLocalEffectStyles();
 
   console.log("effectStyles", effectStyles);
@@ -51,10 +48,7 @@ export const effectStylesToTokens = async (
 
   // console.log("allEffectStyles", allEffectStyles);
 
-  effectTokens[effectStylesName] = groupObjectNamesIntoCategories(
-    allEffectStyles,
-    nameConvention
-  );
+  effectTokens[customName] = groupObjectNamesIntoCategories(allEffectStyles);
 
   return effectTokens;
 };

@@ -1,13 +1,8 @@
 import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
-import { transformNameConvention } from "../transformNameConvention";
 
-export const gridStylesToTokens = async (
-  customName: string,
-  nameConvention: nameConventionType
-) => {
+export const gridStylesToTokens = async (customName: string) => {
   let textTokens = {};
 
-  const gridStylesName = transformNameConvention(customName, nameConvention);
   const gridStyles = figma.getLocalGridStyles();
 
   console.log("gridStyles", gridStyles);
@@ -39,10 +34,7 @@ export const gridStylesToTokens = async (
 
   // console.log("allTextStyles", allTextStyles);
 
-  textTokens[gridStylesName] = groupObjectNamesIntoCategories(
-    allGridStyles,
-    nameConvention
-  );
+  textTokens[customName] = groupObjectNamesIntoCategories(allGridStyles);
 
   return textTokens;
 };

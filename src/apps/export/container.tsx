@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 import { MainView } from "./MainView";
+import { JSONbinView } from "./JSONbinView";
 
 const Container = () => {
+  const [currentView, setCurrentView] = useState("main");
   const [avaliableCollections, setAvaliableCollections] = useState([]);
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
-    namesTransform: "none",
     includeStyles: {
       text: {
         isIncluded: false,
@@ -23,7 +24,27 @@ const Container = () => {
     colorMode: "hex",
     includeScopes: false,
     splitFiles: false,
+    servers: {
+      jsonbin: {
+        id: "",
+        name: "",
+        secretKey: "",
+      },
+      github: {
+        enabled: false,
+        repo: "",
+        branch: "",
+        token: "",
+        path: "",
+      },
+    },
   } as JSONSettingsConfigI);
+
+  const commonProps = {
+    JSONsettingsConfig,
+    setJSONsettingsConfig,
+    setCurrentView,
+  };
 
   //////////////////////
   // HANDLE FUNCTIONS //
@@ -54,13 +75,17 @@ const Container = () => {
     return <div>no varaibles in this file</div>;
   }
 
-  return (
-    <MainView
-      JSONsettingsConfig={JSONsettingsConfig}
-      setJSONsettingsConfig={setJSONsettingsConfig}
-      collections={avaliableCollections}
-    />
-  );
+  if (currentView === "main") {
+    return <MainView {...commonProps} collections={avaliableCollections} />;
+  }
+
+  if (currentView === "jsonbin") {
+    return <JSONbinView {...commonProps} />;
+  }
+
+  if (currentView === "github") {
+    return <div>github</div>;
+  }
 };
 
 export default Container;

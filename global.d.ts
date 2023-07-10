@@ -35,11 +35,24 @@ interface IncludedStylesI {
 }
 
 interface JSONSettingsConfigI {
-  namesTransform: nameConventionType;
   includeStyles: IncludedStylesI;
   includeScopes: boolean;
   splitFiles: boolean;
   colorMode: colorModeType;
+  servers: {
+    jsonbin: {
+      id: string;
+      name: string;
+      secretKey: string;
+    };
+    github: {
+      enabled: boolean;
+      repo: string;
+      branch: string;
+      token: string;
+      path: string;
+    };
+  };
 }
 
 interface PluginTokenI {

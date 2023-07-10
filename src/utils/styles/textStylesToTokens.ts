@@ -1,17 +1,12 @@
 import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
-import { transformNameConvention } from "../transformNameConvention";
 
 import { getLineHeight } from "../text/getLineHeight";
 import { getLetterSpacing } from "../text/getLetterSpacing";
 import { getFontWeight } from "../text/getFontWeight";
 
-export const textStylesToTokens = async (
-  customName: string,
-  nameConvention: nameConventionType
-) => {
+export const textStylesToTokens = async (customName: string) => {
   let textTokens = {};
 
-  const textStylesName = transformNameConvention(customName, nameConvention);
   const textStyles = figma.getLocalTextStyles();
 
   // console.log("textStyles", textStyles);
@@ -41,10 +36,7 @@ export const textStylesToTokens = async (
 
   // console.log("allTextStyles", allTextStyles);
 
-  textTokens[textStylesName] = groupObjectNamesIntoCategories(
-    allTextStyles,
-    nameConvention
-  );
+  textTokens[customName] = groupObjectNamesIntoCategories(allTextStyles);
 
   return textTokens;
 };

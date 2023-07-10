@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 
 import {
@@ -11,6 +11,7 @@ import {
   Icon,
   Text,
   Toggle,
+  OverlayList,
 } from "pavelLaptev/react-figma-ui/ui";
 
 type StyleListItemType = {
@@ -19,11 +20,12 @@ type StyleListItemType = {
   icon: JSX.Element;
 };
 
-interface MainViewProps {
+interface ViewProps {
   JSONsettingsConfig: JSONSettingsConfigI;
   setJSONsettingsConfig: React.Dispatch<
     React.SetStateAction<JSONSettingsConfigI>
   >;
+  setCurrentView: React.Dispatch<React.SetStateAction<string>>;
   collections: {
     id: string;
     name: string;
@@ -48,15 +50,22 @@ const stylesList = [
   },
 ] as StyleListItemType[];
 
-export const MainView = (props: MainViewProps) => {
+const serverList = [
+  {
+    id: "jsonbin",
+    label: "JSONbin",
+  },
+  {
+    id: "github",
+    label: "Github",
+  },
+];
+
+export const MainView = (props: ViewProps) => {
   const { JSONsettingsConfig, setJSONsettingsConfig } = props;
+  const [showServersOverlayList, setShowServersOverlayList] = useState(false);
 
-  const stylesHeaderRef = React.useRef(null);
-  // const [stylesOverlayList, setStylesOverlayList] = useState(
-  //   stylesList as StyleListItemType[]
-  // );
-
-  // const [isShowOverlayListOpen, setIsShowOverlayListOpen] = useState(false);
+  const serversHeaderRef = React.useRef(null);
 
   //////////////////////
   // HANDLE FUNCTIONS //
@@ -84,8 +93,8 @@ export const MainView = (props: MainViewProps) => {
     console.log("handleShowOutput");
   };
 
-  const handleConnectToServer = () => {
-    console.log("handleConnectToServer");
+  const handleShowServersOverlayList = () => {
+    setShowServersOverlayList(!showServersOverlayList);
   };
 
   const handleDownloadJSON = () => {
@@ -128,100 +137,12 @@ export const MainView = (props: MainViewProps) => {
     };
   }, []);
 
-  //////////////////////
-  // RENDER FUNCTIONS //
-  //////////////////////
-
-  // const renderStylesAddButtons = () => {
-  //   const plusButton = {
-  //     onClick: handleShowStylesOverlayList,
-  //     disabled: stylesOverlayList.length === 0,
-  //     children: (
-  //       <>
-  //         <Icon name="plus" size="32" />
-
-  //         {isShowOverlayListOpen && (
-  //           <OverlayList
-  //             className={styles.overlayStylesList}
-  //             blockPointerEventsFor={stylesHeaderRef.current}
-  //             onOutsideClick={() => {
-  //               setIsShowOverlayListOpen(false);
-  //             }}
-  //             onClick={(id: stylesType) => {
-  //               //remove from list
-  //               const newStylesList = stylesOverlayList.filter(
-  //                 (item) => item.id !== id
-  //               );
-
-  //               const currentStyle = stylesList.find(
-  //                 (item) => item.id === id
-  //               ) as StyleListItemType;
-
-  //               setStylesOverlayList(newStylesList);
-
-  //               // add to config
-  //               setJSONsettingsConfig({
-  //                 ...JSONsettingsConfig,
-  //                 includeStyles: [
-  //                   ...JSONsettingsConfig.includeStyles,
-  //                   {
-  //                     id: currentStyle.id,
-  //                     label: currentStyle.label,
-  //                     collection: null,
-  //                   },
-  //                 ],
-  //               });
-  //             }}
-  //             optionsSections={[
-  //               {
-  //                 options: stylesOverlayList,
-  //               },
-  //             ]}
-  //           />
-  //         )}
-  //       </>
-  //     ),
-  //   };
-
-  //   const minusButton = {
-  //     onClick: () => {
-  //       // delete first item from config and add to list
-  //       const firstItem = JSONsettingsConfig.includeStyles[0];
-
-  //       setJSONsettingsConfig({
-  //         ...JSONsettingsConfig,
-  //         includeStyles: JSONsettingsConfig.includeStyles.filter(
-  //           (_, index) => index !== 0
-  //         ),
-  //       });
-
-  //       setStylesOverlayList([
-  //         ...stylesOverlayList,
-  //         {
-  //           id: firstItem.id,
-  //           label: firstItem.label,
-  //           icon: stylesList.find((item) => item.id === firstItem.id)?.icon,
-  //         },
-  //       ]);
-  //     },
-  //     children: <Icon name="minus" size="32" />,
-  //   };
-
-  //   if (JSONsettingsConfig.includeStyles.length <= 0) {
-  //     return [plusButton];
-  //   }
-
-  //   if (JSONsettingsConfig.includeStyles.length >= 1) {
-  //     return [minusButton, plusButton];
-  //   }
-  // };
-
   /////////////////
   // MAIN RENDER //
   /////////////////
 
   return (
-    <section className={styles.wrap}>
+    <Stack className={styles.wrap} hasLeftRightPadding={false}>
       <Panel>
         <PanelHeader
           title="Show output"
@@ -233,79 +154,6 @@ export const MainView = (props: MainViewProps) => {
             },
           ]}
         />
-      </Panel>
-
-      <Panel>
-        <Stack hasLeftRightPadding>
-          <Dropdown
-            value="none"
-            label="Names transform"
-            onChange={(value: nameConventionType) => {
-              setJSONsettingsConfig({
-                ...JSONsettingsConfig,
-                namesTransform: value,
-              });
-            }}
-            optionsSections={[
-              {
-                options: [
-                  {
-                    id: "none",
-                    label: "None",
-                  },
-                ],
-              },
-              {
-                options: [
-                  {
-                    id: "camelCase",
-                    label: "camelCase",
-                  },
-                  {
-                    id: "snake_case",
-                    label: "snake_case",
-                  },
-                  {
-                    id: "kebab-case",
-                    label: "kebab-case",
-                  },
-                ],
-              },
-              {
-                options: [
-                  {
-                    id: "UPPERCASE",
-                    label: "UPPERCASE",
-                  },
-                  {
-                    id: "lowercase",
-                    label: "lowercase",
-                  },
-                ],
-              },
-              {
-                options: [
-                  {
-                    id: "COBOL-CASE",
-                    label: "COBOL-CASE",
-                  },
-                  {
-                    id: "MACRO_CASE",
-                    label: "MACRO_CASE",
-                  },
-                  {
-                    id: "Ada_Case",
-                    label: "Ada_Case",
-                  },
-                  {
-                    id: "dot.notation",
-                    label: "dot.notation",
-                  },
-                ],
-              },
-            ]}
-          />
-        </Stack>
       </Panel>
 
       <Panel>
@@ -358,7 +206,7 @@ export const MainView = (props: MainViewProps) => {
       </Panel>
 
       <Panel>
-        <PanelHeader ref={stylesHeaderRef} title="Include styles" isActive />
+        <PanelHeader title="Include styles" isActive />
 
         <Stack hasLeftRightPadding={false} gap={2}>
           {stylesList.map((item, index) => {
@@ -403,47 +251,6 @@ export const MainView = (props: MainViewProps) => {
                     });
                   }}
                 />
-                {/* <ToggleRow
-                  key={item.id}
-                  id={item.id}
-                  label={item.label}
-                  checked={isIncluded}
-                  icon={item.icon}
-                  onChange={(checked: boolean) => {
-                    setJSONsettingsConfig({
-                      ...JSONsettingsConfig,
-                      includeStyles: {
-                        ...stylesList,
-                        [item.id]: {
-                          ...styleItem,
-                          isIncluded: checked,
-                        },
-                      },
-                    });
-                  }}
-                />
-
-                {isIncluded && (
-                  <Stack gap={4}>
-                    <Input
-                      label="Custom name"
-                      hasOutline={false}
-                      value={styleItem.customName}
-                      onChange={(value: string) => {
-                        setJSONsettingsConfig({
-                          ...JSONsettingsConfig,
-                          includeStyles: {
-                            ...stylesList,
-                            [item.id]: {
-                              ...styleItem,
-                              customName: value,
-                            },
-                          },
-                        });
-                      }}
-                    />
-                  </Stack>
-                )} */}
               </Stack>
             );
           })}
@@ -477,12 +284,33 @@ export const MainView = (props: MainViewProps) => {
 
       <Panel>
         <PanelHeader
+          ref={serversHeaderRef}
           title="Push to server"
-          onClick={handleConnectToServer}
+          onClick={handleShowServersOverlayList}
           iconButtons={[
             {
-              children: <Icon name="plus" size="32" />,
-              onClick: handleConnectToServer,
+              children: (
+                <>
+                  <Icon name="plus" size="32" />
+
+                  {showServersOverlayList && (
+                    <OverlayList
+                      trigger={serversHeaderRef.current}
+                      className={styles.overlayServerList}
+                      onOutsideClick={handleShowServersOverlayList}
+                      onClick={(id: stylesType) => {
+                        props.setCurrentView(id);
+                      }}
+                      optionsSections={[
+                        {
+                          options: serverList,
+                        },
+                      ]}
+                    />
+                  )}
+                </>
+              ),
+              onClick: handleShowServersOverlayList,
             },
           ]}
         />
@@ -498,6 +326,6 @@ export const MainView = (props: MainViewProps) => {
           />
         </Stack>
       </Panel>
-    </section>
+    </Stack>
   );
 };
