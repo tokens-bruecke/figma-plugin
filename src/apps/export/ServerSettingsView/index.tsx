@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "./styles.module.scss";
 
 import {
@@ -28,7 +28,7 @@ const fields = [
   },
   {
     id: "id",
-    placeholder: "Bin ID (optional)",
+    placeholder: "Bin ID (for existing bin)",
   },
 ];
 

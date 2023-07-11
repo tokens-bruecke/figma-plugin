@@ -90,6 +90,13 @@ interface PluginTokenI {
   };
 }
 
+interface TokensMessageI {
+  type: "getTokens" | "setTokens";
+  tokens: any;
+  role: "preview" | "push";
+  server: "jsonbin" | "github" | "gitlab" | "bitbucket" | "customURL" | "none";
+}
+
 // Extend Figmas PaintStyle interface
 interface PaintStyleExtended extends PaintStyle {
   readonly boundVariables?: {

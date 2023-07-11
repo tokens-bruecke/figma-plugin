@@ -88,16 +88,15 @@ if (figma.command === "export") {
     }
 
     // generate tokens and send them to the UI
-    if (msg.type === "generateTokens") {
-      if (msg.role === "preview") {
-        await getTokens().then((tokens) => {
-          figma.ui.postMessage({
-            type: "tokens",
-            role: "preview",
-            tokens: tokens,
-          });
-        });
-      }
+    if (msg.type === "getTokens") {
+      await getTokens().then((tokens) => {
+        figma.ui.postMessage({
+          type: "setTokens",
+          tokens: tokens,
+          role: msg.role,
+          server: msg.server,
+        } as TokensMessageI);
+      });
     }
   };
 }

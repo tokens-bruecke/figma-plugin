@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+import { useDidUpdate } from "../../utils/hooks/useDidUpdate";
+
 import { MainView } from "./MainView";
 import { ServerSettingsView } from "./ServerSettingsView";
 
@@ -83,10 +85,12 @@ const Container = () => {
     window.onmessage = (event) => {
       const { type, hasVariables, storageConfig } = event.data.pluginMessage;
 
+      // check if file has variables
       if (type === "checkForVariables") {
         setFileHasVariables(hasVariables);
       }
 
+      // check storage on load
       if (type === "storageConfig") {
         console.log("storageConfig <<<<");
 
@@ -98,7 +102,7 @@ const Container = () => {
   }, []);
 
   // pass changed to figma controller
-  useEffect(() => {
+  useDidUpdate(() => {
     parent.postMessage(
       {
         pluginMessage: {

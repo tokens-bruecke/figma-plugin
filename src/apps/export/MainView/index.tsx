@@ -114,14 +114,32 @@ export const MainView = (props: ViewProps) => {
     setShowServersOverlayList(!showServersOverlayList);
   };
 
+  const handleServerView = (serverId: string) => {
+    props.setCurrentView(serverId);
+  };
+
   const getTokensPreview = () => {
     // send command to figma controller
     parent.postMessage(
       {
         pluginMessage: {
-          type: "generateTokens",
+          type: "getTokens",
           role: "preview",
-        },
+        } as TokensMessageI,
+      },
+      "*"
+    );
+  };
+
+  const getTokensForPush = () => {
+    // send command to figma controller
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "getTokens",
+          role: "push",
+          server: "jsonbin",
+        } as TokensMessageI,
       },
       "*"
     );
@@ -134,15 +152,20 @@ export const MainView = (props: ViewProps) => {
   // Recieve tokens from figma controller
   useEffect(() => {
     window.onmessage = (event) => {
-      const { type, tokens, role } = event.data.pluginMessage;
+      const { type, tokens, role } = event.data.pluginMessage as TokensMessageI;
 
-      if (type === "tokens") {
+      if (type === "setTokens") {
         if (role === "preview") {
+          console.log("tokens preview", tokens);
           setGeneratedTokens(tokens);
         }
 
         if (role === "push") {
-          pushToJSONBin(JSONsettingsConfig.servers.jsonbin, tokens);
+          pushToJSONBin(JSONsettingsConfig.servers.jsonbin, tokens).then(
+            (response) => {
+              console.log("response", response);
+            }
+          );
         }
       }
     };
@@ -326,9 +349,7 @@ export const MainView = (props: ViewProps) => {
                       trigger={serversHeaderRef.current}
                       className={styles.overlayServerList}
                       onOutsideClick={handleShowServersOverlayList}
-                      onClick={(id: stylesType) => {
-                        props.setCurrentView(id);
-                      }}
+                      onClick={handleServerView}
                       optionsSections={[
                         {
                           options: dynamicServerList,
@@ -367,7 +388,7 @@ export const MainView = (props: ViewProps) => {
                 key={index}
                 hasLeftRightPadding={false}
                 direction="row"
-                // onClick={handleNewView}
+                onClick={handleNewView}
                 gap={1}
               >
                 <Icon name={server.id} size="32" />
@@ -382,7 +403,11 @@ export const MainView = (props: ViewProps) => {
 
           {isAnyServerEnabled && (
             <Stack hasTopBottomPadding>
-              <Button label="Push to server" onClick={() => {}} fullWidth />
+              <Button
+                label="Push to server"
+                onClick={getTokensForPush}
+                fullWidth
+              />
             </Stack>
           )}
         </Stack>
