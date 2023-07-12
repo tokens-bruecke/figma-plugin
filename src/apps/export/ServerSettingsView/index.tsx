@@ -15,32 +15,103 @@ interface ViewProps {
     React.SetStateAction<JSONSettingsConfigI>
   >;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
+  server: ServerType;
 }
 
-const fields = [
-  {
-    id: "name",
-    placeholder: "Name",
+const viewsConfig = {
+  jsonbin: {
+    title: "JSONbin credentials",
+    description: (
+      <>To use JSONbin you need to create an account and get your secret</>
+    ),
+    isEnabled: false,
+    fields: [
+      {
+        id: "name",
+        placeholder: "Name",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "secretKey",
+        placeholder: "Access Key",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "id",
+        placeholder: "Bin ID (for existing bin)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+    ],
   },
-  {
-    id: "secretKey",
-    placeholder: "Access Key",
+  github: {
+    title: "Github credentials",
+    description: (
+      <>
+        To use Github you need to create a{" "}
+        <a
+          href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          personal access token
+        </a>
+        .
+      </>
+    ),
+    isEnabled: false,
+    fields: [
+      {
+        id: "repo",
+        placeholder: "Repo",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "branch",
+        placeholder: "Branch",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "token",
+        placeholder: "Token",
+        type: "input",
+        value: "",
+        required: true,
+      },
+    ],
   },
-  {
-    id: "id",
-    placeholder: "Bin ID (for existing bin)",
-  },
-];
+} as ViewsConfigI;
+
+interface LocalConfigI {
+  isEnabled: boolean;
+  [key: string]: string | boolean;
+}
 
 export const ServerSettingsView = (props: ViewProps) => {
   const { JSONsettingsConfig, setJSONsettingsConfig, setCurrentView } = props;
   const [errorFields, setErrorFields] = useState([] as string[]);
 
-  const [config, setConfig] = useState({
-    isEnabled: JSONsettingsConfig.servers.jsonbin.isEnabled,
-    id: JSONsettingsConfig.servers.jsonbin.id,
-    name: JSONsettingsConfig.servers.jsonbin.name,
-    secretKey: JSONsettingsConfig.servers.jsonbin.secretKey,
+  const [config, setConfig] = useState(
+    viewsConfig[props.server].fields.reduce((acc, field) => {
+      return {
+        ...acc,
+        isEnabled: JSONsettingsConfig.servers[props.server]["isEnabled"],
+        [field.id]: JSONsettingsConfig.servers[props.server][field.id],
+      };
+    }, {} as LocalConfigI)
+  );
+
+  const isFormValid = viewsConfig[props.server].fields.every((field) => {
+    return config[field.id] !== "" || !field.required;
   });
 
   /////////////////
@@ -51,7 +122,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     <Stack hasLeftRightPadding={false} hasTopBottomPadding>
       <Stack hasLeftRightPadding={false}>
         <PanelHeader
-          title="JSONbin credentials"
+          title={viewsConfig[props.server].title}
           isActive
           hasBackButton
           onClick={() => {
@@ -62,47 +133,44 @@ export const ServerSettingsView = (props: ViewProps) => {
       <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
         <Stack hasTopBottomPadding>
           <Text className={styles.description}>
-            To use JSONbin you need to create an account and get your secret
-            key. You can do it{" "}
-            <a
-              href="https://jsonbin.io/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              here
-            </a>
-            .
+            {viewsConfig[props.server].description}
           </Text>
         </Stack>
 
         <Stack gap="var(--space-extra-small)">
-          {fields.map((field) => {
+          {viewsConfig[props.server].fields.map((field) => {
+            const handleErrorsOnBlur = (value: string) => {
+              if (value === "" && field.required) {
+                setErrorFields((prevState) => {
+                  return [...prevState, field.id];
+                });
+              }
+            };
+
+            const clearErrorOnFocus = () => {
+              setErrorFields((prevState) => {
+                return prevState.filter((item) => item !== field.id);
+              });
+            };
+
+            const handleChange = (value: string) => {
+              setConfig((prevState) => {
+                return {
+                  ...prevState,
+                  [field.id]: value,
+                };
+              });
+            };
+
             return (
               <Input
                 key={field.id}
                 id={field.id}
                 placeholder={field.placeholder}
-                value={props.JSONsettingsConfig.servers.jsonbin[field.id]}
-                onChange={(value) => {
-                  setConfig((prevState) => {
-                    return {
-                      ...prevState,
-                      [field.id]: value,
-                    };
-                  });
-                }}
-                onBlur={(value) => {
-                  if (value === "" && field.id !== "id") {
-                    setErrorFields((prevState) => {
-                      return [...prevState, field.id];
-                    });
-                  }
-                }}
-                onFocus={() => {
-                  setErrorFields((prevState) => {
-                    return prevState.filter((item) => item !== field.id);
-                  });
-                }}
+                value={JSONsettingsConfig.servers[props.server][field.id] || ""}
+                onChange={handleChange}
+                onBlur={handleErrorsOnBlur}
+                onFocus={clearErrorOnFocus}
                 isInvalid={errorFields.includes(field.id)}
               />
             );
@@ -114,33 +182,34 @@ export const ServerSettingsView = (props: ViewProps) => {
             label="Save"
             fullWidth
             secondary
-            disabled={!config.name || !config.secretKey}
+            // disabled={!isFormValid}
             onClick={() => {
               // check if all fields are filled
-              const errorFields = fields.filter((field) => {
-                return config[field.id] === "" && field.id !== "id";
-              });
+              if (!isFormValid) {
+                setErrorFields(
+                  // add to array only fields that are empty
+                  viewsConfig[props.server].fields.reduce((acc, field) => {
+                    if (!config[field.id] && field.required) {
+                      return [...acc, field.id];
+                    }
 
-              if (errorFields.length > 0) {
-                setErrorFields(errorFields.map((field) => field.id));
+                    return acc;
+                  }, [] as ServerType[])
+                );
+
                 return;
               }
-
-              const newJSONBinConfig = {
-                isEnabled: true,
-                id: config.id,
-                name: config.name,
-                secretKey: config.secretKey,
-              };
-
-              setConfig(newJSONBinConfig);
 
               setJSONsettingsConfig((prevState) => {
                 return {
                   ...prevState,
                   servers: {
                     ...prevState.servers,
-                    jsonbin: newJSONBinConfig,
+                    [props.server]: {
+                      ...prevState.servers[props.server],
+                      ...config,
+                      isEnabled: true,
+                    },
                   },
                 };
               });
@@ -160,12 +229,17 @@ export const ServerSettingsView = (props: ViewProps) => {
                   ...prevState,
                   servers: {
                     ...prevState.servers,
-                    jsonbin: {
-                      isEnabled: false,
-                      id: "",
-                      name: "",
-                      secretKey: "",
-                    },
+
+                    // reset config
+                    [props.server]: viewsConfig[props.server].fields.reduce(
+                      (acc, field) => {
+                        return {
+                          ...acc,
+                          ["isEnabled"]: false,
+                          [field.id]: "",
+                        };
+                      }
+                    ),
                   },
                 };
               });

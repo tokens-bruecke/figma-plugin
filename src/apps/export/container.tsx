@@ -8,6 +8,7 @@ import { ServerSettingsView } from "./ServerSettingsView";
 const Container = () => {
   const [currentView, setCurrentView] = useState("main");
   const [fileHasVariables, setFileHasVariables] = useState(false);
+
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
     includeStyles: {
       text: {
@@ -127,11 +128,11 @@ const Container = () => {
   }
 
   if (currentView === "jsonbin") {
-    return <ServerSettingsView {...commonProps} />;
+    return <ServerSettingsView {...commonProps} server="jsonbin" />;
   }
 
   if (currentView === "github") {
-    return <div>github</div>;
+    return <ServerSettingsView {...commonProps} server="github" />;
   }
 };
 

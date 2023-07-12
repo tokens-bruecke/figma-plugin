@@ -90,11 +90,34 @@ interface PluginTokenI {
   };
 }
 
+type ServerType =
+  | "jsonbin"
+  | "github"
+  | "gitlab"
+  | "bitbucket"
+  | "customURL"
+  | "none";
+
+type ViewsConfigI = {
+  [K in ServerType]: {
+    title: string;
+    description: React.ReactNode;
+    isEnabled: boolean;
+    fields: {
+      readonly id: string;
+      readonly placeholder: string;
+      readonly type: string;
+      readonly required: boolean;
+      value: string;
+    }[];
+  };
+};
+
 interface TokensMessageI {
   type: "getTokens" | "setTokens";
   tokens: any;
   role: "preview" | "push";
-  server: "jsonbin" | "github" | "gitlab" | "bitbucket" | "customURL" | "none";
+  server: ServerType;
 }
 
 // Extend Figmas PaintStyle interface

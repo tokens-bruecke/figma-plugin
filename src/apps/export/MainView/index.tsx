@@ -16,6 +16,7 @@ import {
 } from "pavelLaptev/react-figma-ui/ui";
 
 import { pushToJSONBin } from "./../../../utils/servers/pushToJSONBin";
+import { pushToGithub } from "./../../../utils/servers/pushToGithub";
 
 type StyleListItemType = {
   id: stylesType;
@@ -138,7 +139,7 @@ export const MainView = (props: ViewProps) => {
         pluginMessage: {
           type: "getTokens",
           role: "push",
-          server: "jsonbin",
+          server: "github",
         } as TokensMessageI,
       },
       "*"
@@ -152,7 +153,8 @@ export const MainView = (props: ViewProps) => {
   // Recieve tokens from figma controller
   useEffect(() => {
     window.onmessage = (event) => {
-      const { type, tokens, role } = event.data.pluginMessage as TokensMessageI;
+      const { type, tokens, role, server } = event.data
+        .pluginMessage as TokensMessageI;
 
       if (type === "setTokens") {
         if (role === "preview") {
@@ -161,11 +163,15 @@ export const MainView = (props: ViewProps) => {
         }
 
         if (role === "push") {
-          pushToJSONBin(JSONsettingsConfig.servers.jsonbin, tokens).then(
-            (response) => {
+          if (server === "jsonbin") {
+            pushToJSONBin(JSONsettingsConfig.servers.jsonbin, tokens);
+          }
+
+          if (server === "github") {
+            pushToGithub(tokens).then((response) => {
               console.log("response", response);
-            }
-          );
+            });
+          }
         }
       }
     };
@@ -391,7 +397,7 @@ export const MainView = (props: ViewProps) => {
                 onClick={handleNewView}
                 gap={1}
               >
-                <Icon name={server.id} size="32" />
+                <Icon name={server.iconName} size="32" />
                 <Text className={styles.rowItemText}>{server.label}</Text>
                 <IconButton
                   onClick={handleNewView}
