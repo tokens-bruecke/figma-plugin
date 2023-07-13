@@ -91,3 +91,7 @@ iisue: [https://github.com/design-tokens/community-group/issues/101](https://git
 If you have multiple grid layouts, the plugin will take only first two and treat the first one as `column` grid and the second one as `row` grid.
 
 Link to the grid token repo: here
+
+# USE DTCG key format ($)
+
+Read more about DTCG [characters restrictions](https://design-tokens.github.io/community-group/format/#character-restrictions)

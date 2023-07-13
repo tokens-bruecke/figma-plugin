@@ -28,7 +28,7 @@ const viewsConfig = {
     fields: [
       {
         id: "name",
-        placeholder: "Name",
+        placeholder: "Bin name",
         type: "input",
         value: "",
         required: true,
@@ -67,25 +67,78 @@ const viewsConfig = {
     isEnabled: false,
     fields: [
       {
+        id: "token",
+        placeholder: "Personal access token",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "owner",
+        placeholder: "Owner",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
         id: "repo",
-        placeholder: "Repo",
+        placeholder: "Repo name",
         type: "input",
         value: "",
         required: true,
       },
       {
         id: "branch",
-        placeholder: "Branch",
+        placeholder: "Branch name",
         type: "input",
         value: "",
         required: true,
       },
       {
-        id: "token",
-        placeholder: "Token",
+        id: "fileName",
+        placeholder: "File name (e.g. styles.json)",
         type: "input",
         value: "",
         required: true,
+      },
+      {
+        id: "commitMessage",
+        placeholder: "Commit message (optional)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+    ],
+  },
+  customURL: {
+    title: "Custom URL",
+    description: (
+      <>
+        To use custom URL you need to create a server that will accept POST or
+        PUT requests with JSON body.
+      </>
+    ),
+    isEnabled: false,
+    fields: [
+      {
+        id: "url",
+        placeholder: "URL",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "method",
+        placeholder: "Method (POST or PUT)",
+        type: "input",
+        required: true,
+      },
+      {
+        id: "headers",
+        placeholder: "Headers (optional)",
+        type: "input",
+        value: "",
+        required: false,
       },
     ],
   },
@@ -109,6 +162,8 @@ export const ServerSettingsView = (props: ViewProps) => {
       };
     }, {} as LocalConfigI)
   );
+
+  // console.log("config state", config);
 
   const isFormValid = viewsConfig[props.server].fields.every((field) => {
     return config[field.id] !== "" || !field.required;
@@ -186,6 +241,7 @@ export const ServerSettingsView = (props: ViewProps) => {
             onClick={() => {
               // check if all fields are filled
               if (!isFormValid) {
+                console.log("not valid");
                 setErrorFields(
                   // add to array only fields that are empty
                   viewsConfig[props.server].fields.reduce((acc, field) => {
@@ -201,7 +257,9 @@ export const ServerSettingsView = (props: ViewProps) => {
               }
 
               setJSONsettingsConfig((prevState) => {
-                return {
+                console.log("prevState", prevState);
+
+                const updatedConfig = {
                   ...prevState,
                   servers: {
                     ...prevState.servers,
@@ -212,6 +270,10 @@ export const ServerSettingsView = (props: ViewProps) => {
                     },
                   },
                 };
+
+                console.log("updatedConfig", updatedConfig);
+
+                return updatedConfig;
               });
 
               setCurrentView("main");

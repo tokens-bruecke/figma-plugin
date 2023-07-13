@@ -15,6 +15,7 @@ export const gridStylesToTokens = async (customName: string) => {
     const rowGrid = firstTwoGrids[1];
 
     const styleObject = {
+      $type: "grid",
       $value: {
         columnCount: columnGrid?.count,
         columnGap: columnGrid?.gutterSize,

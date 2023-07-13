@@ -6,6 +6,7 @@ import { gridStylesToTokens } from "../utils/styles/gridStylesToTokens";
 import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
 
 import { generateTokens } from "../utils/generateTokens";
+import { removeDollarSign } from "../utils/removeDollarSign";
 
 // clear console on reload
 console.clear();
@@ -78,7 +79,7 @@ if (figma.command === "export") {
       // update JSONSettingsConfig
       JSONSettingsConfig = msg.config;
 
-      console.log("JSONSettingsConfig controller", JSONSettingsConfig);
+      console.log("updated JSONSettingsConfig received", JSONSettingsConfig);
 
       // handle client storage
       await figma.clientStorage.setAsync(
@@ -90,9 +91,12 @@ if (figma.command === "export") {
     // generate tokens and send them to the UI
     if (msg.type === "getTokens") {
       await getTokens().then((tokens) => {
+        const isDTCGKeys = JSONSettingsConfig.useDTCGKeys;
+        const updatedTokens = isDTCGKeys ? tokens : removeDollarSign(tokens);
+
         figma.ui.postMessage({
           type: "setTokens",
-          tokens: tokens,
+          tokens: updatedTokens,
           role: msg.role,
           server: msg.server,
         } as TokensMessageI);

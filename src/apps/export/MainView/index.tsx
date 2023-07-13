@@ -17,6 +17,7 @@ import {
 
 import { pushToJSONBin } from "./../../../utils/servers/pushToJSONBin";
 import { pushToGithub } from "./../../../utils/servers/pushToGithub";
+import { pushToCustomURL } from "./../../../utils/servers/pushToCustomURL";
 
 type StyleListItemType = {
   id: stylesType;
@@ -62,19 +63,9 @@ const serverList = [
     iconName: "github",
   },
   {
-    id: "gitlab",
-    label: "Gitlab",
-    iconName: "gitlab",
-  },
-  {
-    id: "bitbucket",
-    label: "Bitbucket",
-    iconName: "bitbucket",
-  },
-  {
     id: "customURL",
     label: "Custom URL",
-    iconName: "custom-url",
+    iconName: "custom-url-server",
   },
 ];
 
@@ -98,12 +89,12 @@ export const MainView = (props: ViewProps) => {
     });
   };
 
-  const handleSplitFilesChange = (checked: boolean) => {
+  const handleDTCGKeys = (checked: boolean) => {
     // console.log("handleSplitFilesChange", checked);
 
     setJSONsettingsConfig({
       ...JSONsettingsConfig,
-      splitFiles: checked,
+      useDTCGKeys: checked,
     });
   };
 
@@ -133,13 +124,17 @@ export const MainView = (props: ViewProps) => {
   };
 
   const getTokensForPush = () => {
+    const allEnebledServers = Object.keys(JSONsettingsConfig.servers).filter(
+      (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
+    );
+
     // send command to figma controller
     parent.postMessage(
       {
         pluginMessage: {
           type: "getTokens",
           role: "push",
-          server: "github",
+          server: allEnebledServers,
         } as TokensMessageI,
       },
       "*"
@@ -163,24 +158,24 @@ export const MainView = (props: ViewProps) => {
         }
 
         if (role === "push") {
-          if (server === "jsonbin") {
+          if (server.includes("jsonbin")) {
+            console.log("push to jsonbin");
             pushToJSONBin(JSONsettingsConfig.servers.jsonbin, tokens);
           }
 
-          if (server === "github") {
-            pushToGithub(tokens).then((response) => {
-              console.log("response", response);
-            });
+          if (server.includes("github")) {
+            console.log("push to github");
+            pushToGithub(JSONsettingsConfig.servers.github, tokens);
+          }
+
+          if (server.includes("customURL")) {
+            console.log("push to customURL");
+            pushToCustomURL(JSONsettingsConfig.servers.customURL, tokens);
           }
         }
       }
     };
   }, []);
-
-  //
-  // useEffect(() => {
-  //   console.log("generatedTokens", generatedTokens);
-  // }, [generatedTokens]);
 
   //////////////////////
   // RENDER VARIABLES //
@@ -268,8 +263,8 @@ export const MainView = (props: ViewProps) => {
 
         <Stack hasLeftRightPadding={false} hasTopBottomPadding gap={2}>
           {stylesList.map((item, index) => {
-            const stylesList = JSONsettingsConfig.includeStyles;
-            const styleItem = stylesList[item.id];
+            const configStylesList = JSONsettingsConfig.includeStyles;
+            const styleItem = configStylesList[item.id];
             const isIncluded = styleItem.isIncluded;
 
             return (
@@ -284,7 +279,7 @@ export const MainView = (props: ViewProps) => {
                     setJSONsettingsConfig({
                       ...JSONsettingsConfig,
                       includeStyles: {
-                        ...stylesList,
+                        ...configStylesList,
                         [item.id]: {
                           ...styleItem,
                           customName: value,
@@ -300,7 +295,7 @@ export const MainView = (props: ViewProps) => {
                     setJSONsettingsConfig({
                       ...JSONsettingsConfig,
                       includeStyles: {
-                        ...stylesList,
+                        ...configStylesList,
                         [item.id]: {
                           ...styleItem,
                           isIncluded: checked,
@@ -314,6 +309,45 @@ export const MainView = (props: ViewProps) => {
           })}
         </Stack>
       </Panel>
+
+      {Object.keys(JSONsettingsConfig.includeStyles).some((styleId) => {
+        return JSONsettingsConfig.includeStyles[styleId].isIncluded;
+      }) && (
+        <Panel>
+          <Stack hasLeftRightPadding>
+            <Dropdown
+              label="Add styles to"
+              value={JSONsettingsConfig.selectedCollection}
+              onChange={(value: string) => {
+                setJSONsettingsConfig({
+                  ...JSONsettingsConfig,
+                  selectedCollection: value,
+                });
+              }}
+              optionsSections={[
+                {
+                  options: [
+                    {
+                      id: "none",
+                      label: "Keep separate",
+                    },
+                  ],
+                },
+                {
+                  options: JSONsettingsConfig.variableCollections.map(
+                    (collection) => {
+                      return {
+                        id: collection,
+                        label: collection,
+                      };
+                    }
+                  ),
+                },
+              ]}
+            />
+          </Stack>
+        </Panel>
+      )}
 
       <Panel>
         <Stack>
@@ -331,11 +365,11 @@ export const MainView = (props: ViewProps) => {
       <Panel>
         <Stack hasLeftRightPadding>
           <Toggle
-            id="split-files"
-            checked={JSONsettingsConfig.splitFiles}
-            onChange={handleSplitFilesChange}
+            id="use-dtcg-key"
+            checked={JSONsettingsConfig.useDTCGKeys}
+            onChange={handleDTCGKeys}
           >
-            <Text>Merge collections into single file</Text>
+            <Text>Use DTCG keys format</Text>
           </Toggle>
         </Stack>
       </Panel>
@@ -370,56 +404,60 @@ export const MainView = (props: ViewProps) => {
           ]}
         />
 
-        <Stack
-          hasLeftRightPadding
-          hasTopBottomPadding
-          gap={"var(--space-extra-small)"}
-        >
-          {Object.keys(JSONsettingsConfig.servers).map((serverId, index) => {
-            if (!JSONsettingsConfig.servers[serverId].isEnabled) {
-              return null;
-            }
+        {isAnyServerEnabled && (
+          <Stack
+            hasLeftRightPadding
+            hasTopBottomPadding
+            gap="var(--space-small)"
+          >
+            <Stack hasLeftRightPadding={false} gap={4}>
+              {Object.keys(JSONsettingsConfig.servers).map(
+                (serverId, index) => {
+                  if (!JSONsettingsConfig.servers[serverId].isEnabled) {
+                    return null;
+                  }
 
-            const server = serverList.find(
-              (server) => server.id === serverId
-            ) as (typeof serverList)[0];
+                  const server = serverList.find(
+                    (server) => server.id === serverId
+                  ) as (typeof serverList)[0];
 
-            const handleNewView = () => {
-              props.setCurrentView(server.id);
-            };
+                  const handleNewView = () => {
+                    props.setCurrentView(server.id);
+                  };
 
-            return (
-              <Stack
-                className={styles.rowItem}
-                key={index}
-                hasLeftRightPadding={false}
-                direction="row"
-                onClick={handleNewView}
-                gap={1}
-              >
-                <Icon name={server.iconName} size="32" />
-                <Text className={styles.rowItemText}>{server.label}</Text>
-                <IconButton
-                  onClick={handleNewView}
-                  children={<Icon name="kebab" size="32" />}
-                />
-              </Stack>
-            );
-          })}
+                  return (
+                    <Stack
+                      className={styles.rowItem}
+                      key={index}
+                      hasLeftRightPadding={false}
+                      direction="row"
+                      onClick={handleNewView}
+                      gap={1}
+                    >
+                      <Icon name={server.iconName} size="32" />
+                      <Text className={styles.rowItemText}>{server.label}</Text>
+                      <IconButton
+                        onClick={handleNewView}
+                        children={<Icon name="kebab" size="32" />}
+                      />
+                    </Stack>
+                  );
+                }
+              )}
+            </Stack>
 
-          {isAnyServerEnabled && (
-            <Stack hasTopBottomPadding>
+            <Stack>
               <Button
                 label="Push to server"
                 onClick={getTokensForPush}
                 fullWidth
               />
             </Stack>
-          )}
-        </Stack>
+          </Stack>
+        )}
       </Panel>
 
-      <Panel hasLeftRightPadding>
+      <Stack hasTopBottomPadding>
         <Stack hasLeftRightPadding hasTopBottomPadding>
           <Button
             label="Download JSON"
@@ -428,7 +466,7 @@ export const MainView = (props: ViewProps) => {
             secondary
           />
         </Stack>
-      </Panel>
+      </Stack>
     </Stack>
   );
 };

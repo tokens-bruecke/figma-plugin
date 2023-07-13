@@ -12,14 +12,15 @@ export const generateTokens = async (
   styleTokens: any[],
   JSONSettingsConfig: JSONSettingsConfigI
 ) => {
-  const mergedVariables = {};
+  const colorMode = JSONSettingsConfig.colorMode;
 
-  console.log("styleTokens", styleTokens);
+  const mergedVariables = {};
 
   collections.forEach((collection) => {
     let modes = {};
 
     const collectionName = collection.name;
+    const isScopesIncluded = JSONSettingsConfig.includeScopes;
 
     collection.modes.forEach((mode, index) => {
       const modeName = mode.name;
@@ -29,21 +30,22 @@ export const generateTokens = async (
 
         if (variableModeId === mode.modeId) {
           const aliasPath = getAliasVariableName(
-            `${collectionName}.${modeName}`,
+            collectionName,
+            modeName,
             variable.name
           );
           const variableObject = {
             $value: normalizeValue(
               variable.valuesByMode[variableModeId],
               variable.resolvedType,
-              JSONSettingsConfig.colorMode,
+              colorMode,
               variables,
               aliasPath
             ),
             $type: normilizeType(variable.resolvedType),
             $description: variable.description,
             // add scopes if true
-            ...(JSONSettingsConfig.includeScopes && {
+            ...(isScopesIncluded && {
               scopes: variable.scopes,
             }),
             // add meta
@@ -71,7 +73,21 @@ export const generateTokens = async (
 
     // assign style tokens to mergedVariables
     styleTokens.forEach((styleToken) => {
-      Object.assign(mergedVariables, styleToken);
+      // Object.assign(mergedVariables, styleToken);
+
+      console.log(
+        "JSONSettingsConfig.selectedCollection",
+        JSONSettingsConfig.selectedCollection
+      );
+      // if selectedCollection is "separate" then merge styleTokens with mergedVariables
+      if (JSONSettingsConfig.selectedCollection === "none") {
+        Object.assign(mergedVariables, styleToken);
+      }
+
+      // if selectedCollection is a collection name then merge styleTokens with mergedVariables[collectionName]
+      if (JSONSettingsConfig.selectedCollection === collectionName) {
+        Object.assign(mergedVariables[collectionName], styleToken);
+      }
     });
   });
 

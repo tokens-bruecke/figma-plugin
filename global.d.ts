@@ -37,45 +37,38 @@ interface IncludedStylesI {
 interface JsonbinCredentialsI {
   isEnabled: boolean;
   id?: string;
-  name?: string;
-  secretKey?: string;
+  name: string;
+  secretKey: string;
+}
+
+interface GithubCredentialsI {
+  isEnabled: boolean;
+  token: string;
+  repo: string;
+  branch: string;
+  fileName: string;
+  owner: string;
+  commitMessage?: string;
+}
+
+interface CustomURLCredentialsI {
+  isEnabled: boolean;
+  url: string;
+  method: "POST" | "PUT";
+  headers: string;
 }
 
 interface JSONSettingsConfigI {
   includeStyles: IncludedStylesI;
   includeScopes: boolean;
-  splitFiles: boolean;
+  useDTCGKeys: boolean;
   colorMode: colorModeType;
+  variableCollections: string[];
+  selectedCollection: string;
   servers: {
     jsonbin: JsonbinCredentialsI;
-    github: {
-      isEnabled: boolean;
-      repo: string;
-      branch: string;
-      token: string;
-      path: string;
-    };
-    gitlab: {
-      isEnabled: boolean;
-      repo: string;
-      branch: string;
-      token: string;
-      path: string;
-    };
-    bitbucket: {
-      isEnabled: boolean;
-      repo: string;
-      branch: string;
-      token: string;
-      path: string;
-    };
-    customURL: {
-      isEnabled: boolean;
-      repo: string;
-      branch: string;
-      token: string;
-      path: string;
-    };
+    github: GithubCredentialsI;
+    customURL: CustomURLCredentialsI;
   };
 }
 
@@ -105,9 +98,10 @@ type ViewsConfigI = {
     isEnabled: boolean;
     fields: {
       readonly id: string;
-      readonly placeholder: string;
-      readonly type: string;
+      readonly type: "input" | "textarea" | "select";
       readonly required: boolean;
+      readonly placeholder?: string;
+      readonly options?: string[];
       value: string;
     }[];
   };
@@ -117,7 +111,7 @@ interface TokensMessageI {
   type: "getTokens" | "setTokens";
   tokens: any;
   role: "preview" | "push";
-  server: ServerType;
+  server: ServerType[];
 }
 
 // Extend Figmas PaintStyle interface

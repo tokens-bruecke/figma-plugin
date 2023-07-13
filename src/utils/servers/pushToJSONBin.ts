@@ -2,7 +2,7 @@ export const pushToJSONBin = async (
   credentials: JsonbinCredentialsI,
   tokens: any
 ) => {
-  console.log("JSONBin credentials", credentials);
+  // console.log("JSONBin credentials", credentials);
 
   let response;
 

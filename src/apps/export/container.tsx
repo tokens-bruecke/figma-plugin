@@ -7,6 +7,7 @@ import { ServerSettingsView } from "./ServerSettingsView";
 
 const Container = () => {
   const [currentView, setCurrentView] = useState("main");
+
   const [fileHasVariables, setFileHasVariables] = useState(false);
 
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
@@ -24,9 +25,11 @@ const Container = () => {
         customName: "Grids",
       },
     },
+    variableCollections: [],
+    selectedCollection: "none",
     colorMode: "hex",
     includeScopes: false,
-    splitFiles: false,
+    useDTCGKeys: false,
     servers: {
       jsonbin: {
         isEnabled: false,
@@ -36,31 +39,18 @@ const Container = () => {
       },
       github: {
         isEnabled: false,
+        token: "",
         repo: "",
         branch: "",
-        token: "",
-        path: "",
-      },
-      gitlab: {
-        isEnabled: false,
-        repo: "",
-        branch: "",
-        token: "",
-        path: "",
-      },
-      bitbucket: {
-        isEnabled: false,
-        repo: "",
-        branch: "",
-        token: "",
-        path: "",
+        fileName: "",
+        owner: "",
+        commitMessage: "",
       },
       customURL: {
         isEnabled: false,
-        repo: "",
-        branch: "",
-        token: "",
-        path: "",
+        url: "",
+        method: "POST",
+        headers: "",
       },
     },
   } as JSONSettingsConfigI);
@@ -84,11 +74,19 @@ const Container = () => {
     parent.postMessage({ pluginMessage: { type: "checkForVariables" } }, "*");
 
     window.onmessage = (event) => {
-      const { type, hasVariables, storageConfig } = event.data.pluginMessage;
+      const { type, hasVariables, variableCollections, storageConfig } =
+        event.data.pluginMessage;
 
       // check if file has variables
       if (type === "checkForVariables") {
         setFileHasVariables(hasVariables);
+
+        if (hasVariables) {
+          setJSONsettingsConfig((prev) => ({
+            ...prev,
+            variableCollections,
+          }));
+        }
       }
 
       // check storage on load
@@ -133,6 +131,10 @@ const Container = () => {
 
   if (currentView === "github") {
     return <ServerSettingsView {...commonProps} server="github" />;
+  }
+
+  if (currentView === "customURL") {
+    return <ServerSettingsView {...commonProps} server="customURL" />;
   }
 };
 

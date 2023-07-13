@@ -1,4 +1,7 @@
 export const getStorageConfig = async (key) => {
+  // clear storage for testing
+  // figma.clientStorage.setAsync(key, null);
+
   figma.clientStorage.getAsync(key).then((storageConfig) => {
     try {
       console.log("storageConfig", storageConfig);
