@@ -1,7 +1,12 @@
-.wrap {
+.container {
+  display: flex;
+  height: auto;
+}
+
+.settingView {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  width: 300px;
 }
 
 .flex1 {
@@ -26,4 +31,14 @@
 
 .rowItemText {
   flex: 1;
+}
+
+//
+
+.codePreview {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+  background-color: var(--figma-color-bg-desktopForeground);
+  border-left: 1px solid var(--figma-color-border);
 }

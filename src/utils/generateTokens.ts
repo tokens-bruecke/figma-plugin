@@ -73,12 +73,6 @@ export const generateTokens = async (
 
     // assign style tokens to mergedVariables
     styleTokens.forEach((styleToken) => {
-      // Object.assign(mergedVariables, styleToken);
-
-      console.log(
-        "JSONSettingsConfig.selectedCollection",
-        JSONSettingsConfig.selectedCollection
-      );
       // if selectedCollection is "separate" then merge styleTokens with mergedVariables
       if (JSONSettingsConfig.selectedCollection === "none") {
         Object.assign(mergedVariables, styleToken);

@@ -31,6 +31,8 @@ interface ViewProps {
     React.SetStateAction<JSONSettingsConfigI>
   >;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
+  isCodePreviewOpen: boolean;
+  setIsCodePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const stylesList = [
@@ -70,7 +72,12 @@ const serverList = [
 ];
 
 export const MainView = (props: ViewProps) => {
-  const { JSONsettingsConfig, setJSONsettingsConfig } = props;
+  const {
+    JSONsettingsConfig,
+    setJSONsettingsConfig,
+    isCodePreviewOpen,
+    setIsCodePreviewOpen,
+  } = props;
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
   const [generatedTokens, setGeneratedTokens] = useState({} as any);
 
@@ -99,7 +106,7 @@ export const MainView = (props: ViewProps) => {
   };
 
   const handleShowOutput = () => {
-    console.log("handleShowOutput");
+    setIsCodePreviewOpen(!isCodePreviewOpen);
   };
 
   const handleShowServersOverlayList = () => {
@@ -195,278 +202,288 @@ export const MainView = (props: ViewProps) => {
   /////////////////
 
   return (
-    <Stack className={styles.wrap} hasLeftRightPadding={false}>
-      <Panel>
-        <PanelHeader
-          title="Show output"
-          onClick={handleShowOutput}
-          iconButtons={[
-            {
-              children: <Icon name="sidebar" size="32" />,
-              onClick: handleShowOutput,
-            },
-          ]}
-        />
-      </Panel>
-
-      <Panel>
-        <Stack hasLeftRightPadding>
-          <Dropdown
-            label="Color mode"
-            value={JSONsettingsConfig.colorMode}
-            onChange={(value: colorModeType) => {
-              setJSONsettingsConfig({
-                ...JSONsettingsConfig,
-                colorMode: value,
-              });
-            }}
-            optionsSections={[
+    <div className={styles.container}>
+      <Stack className={styles.settingView} hasLeftRightPadding={false}>
+        <Panel>
+          <PanelHeader
+            title="Show output"
+            onClick={handleShowOutput}
+            iconButtons={[
               {
-                options: [
-                  {
-                    id: "hex",
-                    label: "HEX",
-                  },
-                ],
-              },
-              {
-                options: [
-                  {
-                    id: "rgba-css",
-                    label: "RGB CSS",
-                  },
-                  {
-                    id: "rgba-object",
-                    label: "RGBA Object",
-                  },
-                ],
-              },
-              {
-                options: [
-                  {
-                    id: "hsla-css",
-                    label: "HSL CSS",
-                  },
-                  {
-                    id: "hsla-object",
-                    label: "HSL Object",
-                  },
-                ],
+                children: <Icon name="sidebar" size="32" />,
+                onClick: handleShowOutput,
               },
             ]}
           />
-        </Stack>
-      </Panel>
+        </Panel>
 
-      <Panel>
-        <PanelHeader title="Include styles" isActive />
-
-        <Stack hasLeftRightPadding={false} hasTopBottomPadding gap={2}>
-          {stylesList.map((item, index) => {
-            const configStylesList = JSONsettingsConfig.includeStyles;
-            const styleItem = configStylesList[item.id];
-            const isIncluded = styleItem.isIncluded;
-
-            return (
-              <Stack key={index} direction="row" gap="var(--space-extra-small)">
-                <Input
-                  className={styles.styleNameInput}
-                  id={`style-${item.id}`}
-                  hasOutline={false}
-                  value={styleItem.customName}
-                  leftIcon={item.icon}
-                  onChange={(value: string) => {
-                    setJSONsettingsConfig({
-                      ...JSONsettingsConfig,
-                      includeStyles: {
-                        ...configStylesList,
-                        [item.id]: {
-                          ...styleItem,
-                          customName: value,
-                        },
-                      },
-                    });
-                  }}
-                />
-                <Toggle
-                  id={`toggle-${item.id}`}
-                  checked={isIncluded}
-                  onChange={(checked: boolean) => {
-                    setJSONsettingsConfig({
-                      ...JSONsettingsConfig,
-                      includeStyles: {
-                        ...configStylesList,
-                        [item.id]: {
-                          ...styleItem,
-                          isIncluded: checked,
-                        },
-                      },
-                    });
-                  }}
-                />
-              </Stack>
-            );
-          })}
-        </Stack>
-      </Panel>
-
-      {Object.keys(JSONsettingsConfig.includeStyles).some((styleId) => {
-        return JSONsettingsConfig.includeStyles[styleId].isIncluded;
-      }) && (
         <Panel>
           <Stack hasLeftRightPadding>
             <Dropdown
-              label="Add styles to"
-              value={JSONsettingsConfig.selectedCollection}
-              onChange={(value: string) => {
+              label="Color mode"
+              value={JSONsettingsConfig.colorMode}
+              onChange={(value: colorModeType) => {
                 setJSONsettingsConfig({
                   ...JSONsettingsConfig,
-                  selectedCollection: value,
+                  colorMode: value,
                 });
               }}
               optionsSections={[
                 {
                   options: [
                     {
-                      id: "none",
-                      label: "Keep separate",
+                      id: "hex",
+                      label: "HEX",
                     },
                   ],
                 },
                 {
-                  options: JSONsettingsConfig.variableCollections.map(
-                    (collection) => {
-                      return {
-                        id: collection,
-                        label: collection,
-                      };
-                    }
-                  ),
+                  options: [
+                    {
+                      id: "rgba-css",
+                      label: "RGB CSS",
+                    },
+                    {
+                      id: "rgba-object",
+                      label: "RGBA Object",
+                    },
+                  ],
+                },
+                {
+                  options: [
+                    {
+                      id: "hsla-css",
+                      label: "HSL CSS",
+                    },
+                    {
+                      id: "hsla-object",
+                      label: "HSL Object",
+                    },
+                  ],
                 },
               ]}
             />
           </Stack>
         </Panel>
-      )}
 
-      <Panel>
-        <Stack>
-          <Toggle
-            id="scope-feature"
-            onChange={(checked: boolean) => {
-              handleIncludeScopesChange(checked);
-            }}
-          >
-            <Text>Include variable scopes</Text>
-          </Toggle>
-        </Stack>
-      </Panel>
+        <Panel>
+          <PanelHeader title="Include styles" isActive />
 
-      <Panel>
-        <Stack hasLeftRightPadding>
-          <Toggle
-            id="use-dtcg-key"
-            checked={JSONsettingsConfig.useDTCGKeys}
-            onChange={handleDTCGKeys}
-          >
-            <Text>Use DTCG keys format</Text>
-          </Toggle>
-        </Stack>
-      </Panel>
+          <Stack hasLeftRightPadding={false} hasTopBottomPadding gap={2}>
+            {stylesList.map((item, index) => {
+              const configStylesList = JSONsettingsConfig.includeStyles;
+              const styleItem = configStylesList[item.id];
+              const isIncluded = styleItem.isIncluded;
 
-      <Panel>
-        <PanelHeader
-          ref={serversHeaderRef}
-          title="Connect server"
-          onClick={handleShowServersOverlayList}
-          iconButtons={[
-            {
-              children: (
-                <>
-                  <Icon name="plus" size="32" />
-                  {showServersOverlayList && (
-                    <OverlayList
-                      trigger={serversHeaderRef.current}
-                      className={styles.overlayServerList}
-                      onOutsideClick={handleShowServersOverlayList}
-                      onClick={handleServerView}
-                      optionsSections={[
-                        {
-                          options: dynamicServerList,
+              return (
+                <Stack
+                  key={index}
+                  direction="row"
+                  gap="var(--space-extra-small)"
+                >
+                  <Input
+                    className={styles.styleNameInput}
+                    id={`style-${item.id}`}
+                    hasOutline={false}
+                    value={styleItem.customName}
+                    leftIcon={item.icon}
+                    onChange={(value: string) => {
+                      setJSONsettingsConfig({
+                        ...JSONsettingsConfig,
+                        includeStyles: {
+                          ...configStylesList,
+                          [item.id]: {
+                            ...styleItem,
+                            customName: value,
+                          },
                         },
-                      ]}
-                    />
-                  )}
-                </>
-              ),
-              onClick: handleShowServersOverlayList,
-            },
-          ]}
-        />
+                      });
+                    }}
+                  />
+                  <Toggle
+                    id={`toggle-${item.id}`}
+                    checked={isIncluded}
+                    onChange={(checked: boolean) => {
+                      setJSONsettingsConfig({
+                        ...JSONsettingsConfig,
+                        includeStyles: {
+                          ...configStylesList,
+                          [item.id]: {
+                            ...styleItem,
+                            isIncluded: checked,
+                          },
+                        },
+                      });
+                    }}
+                  />
+                </Stack>
+              );
+            })}
+          </Stack>
+        </Panel>
 
-        {isAnyServerEnabled && (
-          <Stack
-            hasLeftRightPadding
-            hasTopBottomPadding
-            gap="var(--space-small)"
-          >
-            <Stack hasLeftRightPadding={false} gap={4}>
-              {Object.keys(JSONsettingsConfig.servers).map(
-                (serverId, index) => {
-                  if (!JSONsettingsConfig.servers[serverId].isEnabled) {
-                    return null;
-                  }
-
-                  const server = serverList.find(
-                    (server) => server.id === serverId
-                  ) as (typeof serverList)[0];
-
-                  const handleNewView = () => {
-                    props.setCurrentView(server.id);
-                  };
-
-                  return (
-                    <Stack
-                      className={styles.rowItem}
-                      key={index}
-                      hasLeftRightPadding={false}
-                      direction="row"
-                      onClick={handleNewView}
-                      gap={1}
-                    >
-                      <Icon name={server.iconName} size="32" />
-                      <Text className={styles.rowItemText}>{server.label}</Text>
-                      <IconButton
-                        onClick={handleNewView}
-                        children={<Icon name="kebab" size="32" />}
-                      />
-                    </Stack>
-                  );
-                }
-              )}
-            </Stack>
-
-            <Stack>
-              <Button
-                label="Push to server"
-                onClick={getTokensForPush}
-                fullWidth
+        {Object.keys(JSONsettingsConfig.includeStyles).some((styleId) => {
+          return JSONsettingsConfig.includeStyles[styleId].isIncluded;
+        }) && (
+          <Panel>
+            <Stack hasLeftRightPadding>
+              <Dropdown
+                label="Add styles to"
+                value={JSONsettingsConfig.selectedCollection}
+                onChange={(value: string) => {
+                  setJSONsettingsConfig({
+                    ...JSONsettingsConfig,
+                    selectedCollection: value,
+                  });
+                }}
+                optionsSections={[
+                  {
+                    options: [
+                      {
+                        id: "none",
+                        label: "Keep separate",
+                      },
+                    ],
+                  },
+                  {
+                    options: JSONsettingsConfig.variableCollections.map(
+                      (collection) => {
+                        return {
+                          id: collection,
+                          label: collection,
+                        };
+                      }
+                    ),
+                  },
+                ]}
               />
             </Stack>
-          </Stack>
+          </Panel>
         )}
-      </Panel>
 
-      <Stack hasTopBottomPadding>
-        <Stack hasLeftRightPadding hasTopBottomPadding>
-          <Button
-            label="Download JSON"
-            onClick={getTokensPreview}
-            fullWidth
-            secondary
+        <Panel>
+          <Stack>
+            <Toggle
+              id="scope-feature"
+              onChange={(checked: boolean) => {
+                handleIncludeScopesChange(checked);
+              }}
+            >
+              <Text>Include variable scopes</Text>
+            </Toggle>
+          </Stack>
+        </Panel>
+
+        <Panel>
+          <Stack hasLeftRightPadding>
+            <Toggle
+              id="use-dtcg-key"
+              checked={JSONsettingsConfig.useDTCGKeys}
+              onChange={handleDTCGKeys}
+            >
+              <Text>Use DTCG keys format</Text>
+            </Toggle>
+          </Stack>
+        </Panel>
+
+        <Panel>
+          <PanelHeader
+            ref={serversHeaderRef}
+            title="Connect server"
+            onClick={handleShowServersOverlayList}
+            iconButtons={[
+              {
+                children: (
+                  <>
+                    <Icon name="plus" size="32" />
+                    {showServersOverlayList && (
+                      <OverlayList
+                        trigger={serversHeaderRef.current}
+                        className={styles.overlayServerList}
+                        onOutsideClick={handleShowServersOverlayList}
+                        onClick={handleServerView}
+                        optionsSections={[
+                          {
+                            options: dynamicServerList,
+                          },
+                        ]}
+                      />
+                    )}
+                  </>
+                ),
+                onClick: handleShowServersOverlayList,
+              },
+            ]}
           />
+
+          {isAnyServerEnabled && (
+            <Stack
+              hasLeftRightPadding
+              hasTopBottomPadding
+              gap="var(--space-small)"
+            >
+              <Stack hasLeftRightPadding={false} gap={4}>
+                {Object.keys(JSONsettingsConfig.servers).map(
+                  (serverId, index) => {
+                    if (!JSONsettingsConfig.servers[serverId].isEnabled) {
+                      return null;
+                    }
+
+                    const server = serverList.find(
+                      (server) => server.id === serverId
+                    ) as (typeof serverList)[0];
+
+                    const handleNewView = () => {
+                      props.setCurrentView(server.id);
+                    };
+
+                    return (
+                      <Stack
+                        className={styles.rowItem}
+                        key={index}
+                        hasLeftRightPadding={false}
+                        direction="row"
+                        onClick={handleNewView}
+                        gap={1}
+                      >
+                        <Icon name={server.iconName} size="32" />
+                        <Text className={styles.rowItemText}>
+                          {server.label}
+                        </Text>
+                        <IconButton
+                          onClick={handleNewView}
+                          children={<Icon name="kebab" size="32" />}
+                        />
+                      </Stack>
+                    );
+                  }
+                )}
+              </Stack>
+
+              <Stack>
+                <Button
+                  label="Push to server"
+                  onClick={getTokensForPush}
+                  fullWidth
+                />
+              </Stack>
+            </Stack>
+          )}
+        </Panel>
+
+        <Stack hasTopBottomPadding>
+          <Stack hasLeftRightPadding hasTopBottomPadding>
+            <Button
+              label="Download JSON"
+              onClick={getTokensPreview}
+              fullWidth
+              secondary
+            />
+          </Stack>
         </Stack>
       </Stack>
-    </Stack>
+
+      {isCodePreviewOpen && <section className={styles.codePreview}></section>}
+    </div>
   );
 };

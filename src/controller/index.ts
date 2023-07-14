@@ -15,6 +15,14 @@ const pluginConfigKey = "tokenbrücke-config";
 
 getStorageConfig(pluginConfigKey);
 
+//
+let isCodePreviewOpen = false;
+const baseFrameWidth = 300;
+const frameWidthWithCodePreview = 800;
+const frameWidth = isCodePreviewOpen
+  ? frameWidthWithCodePreview
+  : baseFrameWidth;
+
 if (figma.command === "export") {
   figma.showUI(__uiFiles__["export"], {
     width: 300,
@@ -101,6 +109,18 @@ if (figma.command === "export") {
           server: msg.server,
         } as TokensMessageI);
       });
+    }
+
+    // change size of UI
+    if (msg.type === "resizeUIHeight") {
+      figma.ui.resize(frameWidth, msg.height);
+    }
+
+    if (msg.type === "openCodePreview") {
+      console.log("openCodePreview", msg.isCodePreviewOpen);
+
+      isCodePreviewOpen = msg.isCodePreviewOpen;
+      figma.ui.resize(frameWidthWithCodePreview, msg.height);
     }
   };
 }

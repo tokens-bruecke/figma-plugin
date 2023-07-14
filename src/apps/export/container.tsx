@@ -5,9 +5,15 @@ import { useDidUpdate } from "../../utils/hooks/useDidUpdate";
 import { MainView } from "./MainView";
 import { ServerSettingsView } from "./ServerSettingsView";
 
-const Container = () => {
-  const [currentView, setCurrentView] = useState("main");
+import styles from "./styles.module.scss";
 
+const Container = () => {
+  const wrapperRef = React.useRef(null);
+
+  const [frameHeight, setFrameHeight] = useState(0);
+  const [isCodePreviewOpen, setIsCodePreviewOpen] = useState(false);
+
+  const [currentView, setCurrentView] = useState("main");
   const [fileHasVariables, setFileHasVariables] = useState(false);
 
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
@@ -100,6 +106,34 @@ const Container = () => {
     };
   }, []);
 
+  // Check if the view was changed
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      const { height } = entries[0].contentRect;
+      setFrameHeight(height);
+
+      if (isCodePreviewOpen) return;
+
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: "resizeUIHeight",
+            height,
+          },
+        },
+        "*"
+      );
+    });
+
+    if (wrapperRef.current) {
+      resizeObserver.observe(wrapperRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [isCodePreviewOpen]);
+
   // pass changed to figma controller
   useDidUpdate(() => {
     parent.postMessage(
@@ -113,29 +147,59 @@ const Container = () => {
     );
   }, [JSONsettingsConfig]);
 
+  // handle code preview
+  useDidUpdate(() => {
+    if (isCodePreviewOpen) {
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: "openCodePreview",
+            isCodePreviewOpen,
+            height: frameHeight,
+          },
+        },
+        "*"
+      );
+    }
+  }, [isCodePreviewOpen]);
+
   /////////////////////
   // RENDER FUNCTION //
   /////////////////////
 
-  if (!fileHasVariables) {
-    return <div>no varaibles in this file</div>;
-  }
+  const renderView = () => {
+    if (!fileHasVariables) {
+      return <div>no varaibles in this file</div>;
+    }
 
-  if (currentView === "main") {
-    return <MainView {...commonProps} />;
-  }
+    if (currentView === "main") {
+      return (
+        <MainView
+          {...commonProps}
+          isCodePreviewOpen={isCodePreviewOpen}
+          setIsCodePreviewOpen={setIsCodePreviewOpen}
+        />
+      );
+    }
 
-  if (currentView === "jsonbin") {
-    return <ServerSettingsView {...commonProps} server="jsonbin" />;
-  }
+    if (currentView === "jsonbin") {
+      return <ServerSettingsView {...commonProps} server="jsonbin" />;
+    }
 
-  if (currentView === "github") {
-    return <ServerSettingsView {...commonProps} server="github" />;
-  }
+    if (currentView === "github") {
+      return <ServerSettingsView {...commonProps} server="github" />;
+    }
 
-  if (currentView === "customURL") {
-    return <ServerSettingsView {...commonProps} server="customURL" />;
-  }
+    if (currentView === "customURL") {
+      return <ServerSettingsView {...commonProps} server="customURL" />;
+    }
+  };
+
+  return (
+    <div ref={wrapperRef} className={styles.container}>
+      {renderView()}
+    </div>
+  );
 };
 
 export default Container;
