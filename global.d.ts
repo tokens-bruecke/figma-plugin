@@ -110,7 +110,7 @@ type ViewsConfigI = {
 interface TokensMessageI {
   type: "getTokens" | "setTokens";
   tokens: any;
-  role: "preview" | "push";
+  role: "preview" | "push" | "download";
   server: ServerType[];
 }
 

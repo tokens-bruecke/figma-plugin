@@ -19,6 +19,7 @@ import { pushToJSONBin } from "./../../../utils/servers/pushToJSONBin";
 import { pushToGithub } from "./../../../utils/servers/pushToGithub";
 import { pushToCustomURL } from "./../../../utils/servers/pushToCustomURL";
 
+import { downloadTokensFile } from "./../../../utils/downloadTokensFile";
 import { countTokens } from "./../../../utils/countTokens";
 
 type StyleListItemType = {
@@ -133,6 +134,19 @@ export const MainView = (props: ViewProps) => {
     );
   };
 
+  const getTokensForDownload = () => {
+    // send command to figma controller
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "getTokens",
+          role: "download",
+        } as TokensMessageI,
+      },
+      "*"
+    );
+  };
+
   const getTokensForPush = () => {
     const allEnebledServers = Object.keys(JSONsettingsConfig.servers).filter(
       (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
@@ -165,6 +179,11 @@ export const MainView = (props: ViewProps) => {
         if (role === "preview") {
           console.log("tokens preview", tokens);
           setGeneratedTokens(tokens);
+        }
+
+        if (role === "download") {
+          console.log("tokens download", tokens);
+          downloadTokensFile(tokens);
         }
 
         if (role === "push") {
@@ -516,7 +535,7 @@ export const MainView = (props: ViewProps) => {
           <Stack hasLeftRightPadding hasTopBottomPadding>
             <Button
               label="Download JSON"
-              onClick={getTokensPreview}
+              onClick={getTokensForDownload}
               fullWidth
               secondary
             />

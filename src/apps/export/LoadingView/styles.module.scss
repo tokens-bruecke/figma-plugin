@@ -1,0 +1,40 @@
+.loadingView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+  width: 100%;
+  gap: 12px;
+  padding: 20px 0 30px;
+
+  opacity: 0;
+  transform: translateY(10px);
+
+  animation: appear 0.3s ease-in-out forwards;
+  animation-delay: 0.1s;
+}
+
+.spinner {
+  animation: spinnerRotate 1s linear infinite;
+}
+
+@keyframes spinnerRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

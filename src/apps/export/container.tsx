@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 
 import { useDidUpdate } from "../../utils/hooks/useDidUpdate";
 
+import { LoadingView } from "./LoadingView";
+import { EmptyView } from "./EmptyView";
 import { MainView } from "./MainView";
 import { ServerSettingsView } from "./ServerSettingsView";
 
@@ -9,6 +11,8 @@ import styles from "./styles.module.scss";
 
 const Container = () => {
   const wrapperRef = React.useRef(null);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const [frameHeight, setFrameHeight] = useState(0);
   const [isCodePreviewOpen, setIsCodePreviewOpen] = useState(false);
@@ -86,6 +90,7 @@ const Container = () => {
       // check if file has variables
       if (type === "checkForVariables") {
         setFileHasVariables(hasVariables);
+        setIsLoading(false);
 
         if (hasVariables) {
           setJSONsettingsConfig((prev) => ({
@@ -168,8 +173,12 @@ const Container = () => {
   /////////////////////
 
   const renderView = () => {
+    if (isLoading) {
+      return <LoadingView />;
+    }
+
     if (!fileHasVariables) {
-      return <div>no varaibles in this file</div>;
+      return <EmptyView />;
     }
 
     if (currentView === "main") {

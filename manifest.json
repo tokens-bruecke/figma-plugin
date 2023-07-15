@@ -11,5 +11,5 @@
       "name": "Import"
     }
   ],
-  "ui": { "export": "dist/export-ui.html" }
+  "ui": { "export": "dist/export-ui.html", "import": "dist/import-ui.html" }
 }

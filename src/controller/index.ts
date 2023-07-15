@@ -11,22 +11,24 @@ import { removeDollarSign } from "../utils/removeDollarSign";
 // clear console on reload
 console.clear();
 
-const pluginConfigKey = "tokenbrücke-config";
-
-getStorageConfig(pluginConfigKey);
-
-//
-let isCodePreviewOpen = false;
 const baseFrameWidth = 300;
-const frameWidthWithCodePreview = 800;
-const frameWidth = isCodePreviewOpen
-  ? frameWidthWithCodePreview
-  : baseFrameWidth;
 
 if (figma.command === "export") {
+  const pluginConfigKey = "tokenbrücke-config";
+
+  getStorageConfig(pluginConfigKey);
+
+  //
+  let isCodePreviewOpen = false;
+
+  const frameWidthWithCodePreview = 800;
+  const frameWidth = isCodePreviewOpen
+    ? frameWidthWithCodePreview
+    : baseFrameWidth;
+
   figma.showUI(__uiFiles__["export"], {
     width: 300,
-    height: 700,
+    height: 0,
     themeColors: true,
   });
 
@@ -126,6 +128,16 @@ if (figma.command === "export") {
 }
 
 if (figma.command === "import") {
-  // show notification
-  figma.notify("Importing tokens from JSON file...");
+  figma.showUI(__uiFiles__["import"], {
+    width: 300,
+    height: 0,
+    themeColors: true,
+  });
+
+  figma.ui.onmessage = async (msg) => {
+    // change size of UI
+    if (msg.type === "resizeUIHeight") {
+      figma.ui.resize(baseFrameWidth, msg.height);
+    }
+  };
 }
