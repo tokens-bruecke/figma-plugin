@@ -5,7 +5,7 @@ export const gridStylesToTokens = async (customName: string) => {
 
   const gridStyles = figma.getLocalGridStyles();
 
-  console.log("gridStyles", gridStyles);
+  console.log("gridStyles length", gridStyles.length);
 
   const allGridStyles = gridStyles.reduce((result, style) => {
     const styleName = style.name;

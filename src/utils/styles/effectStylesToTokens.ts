@@ -9,7 +9,7 @@ export const effectStylesToTokens = async (
 
   const effectStyles = figma.getLocalEffectStyles();
 
-  console.log("effectStyles", effectStyles);
+  console.log("effectStyles length", effectStyles.length);
 
   const allEffectStyles = effectStyles.reduce((result, style) => {
     const styleName = style.name;

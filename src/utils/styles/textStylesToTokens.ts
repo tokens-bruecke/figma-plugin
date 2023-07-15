@@ -9,7 +9,7 @@ export const textStylesToTokens = async (customName: string) => {
 
   const textStyles = figma.getLocalTextStyles();
 
-  // console.log("textStyles", textStyles);
+  console.log("textStyles length", textStyles.length);
 
   const allTextStyles = textStyles.reduce((result, style) => {
     const styleName = style.name;

@@ -19,6 +19,8 @@ import { pushToJSONBin } from "./../../../utils/servers/pushToJSONBin";
 import { pushToGithub } from "./../../../utils/servers/pushToGithub";
 import { pushToCustomURL } from "./../../../utils/servers/pushToCustomURL";
 
+import { countTokens } from "./../../../utils/countTokens";
+
 type StyleListItemType = {
   id: stylesType;
   label: string;
@@ -107,6 +109,7 @@ export const MainView = (props: ViewProps) => {
 
   const handleShowOutput = () => {
     setIsCodePreviewOpen(!isCodePreviewOpen);
+    getTokensPreview();
   };
 
   const handleShowServersOverlayList = () => {
@@ -197,12 +200,47 @@ export const MainView = (props: ViewProps) => {
     }
   });
 
+  const getTokensStat = () => {
+    // get lines count
+    const codeLines = JSON.stringify(generatedTokens, null, 2).split(
+      "\n"
+    ).length;
+
+    // get groups count
+    const groupsCount = Object.keys(generatedTokens).reduce((acc, key) => {
+      const group = generatedTokens[key];
+      const groupKeys = Object.keys(group);
+
+      return acc + groupKeys.length;
+    }, 0);
+
+    const tokensCount = countTokens(generatedTokens);
+
+    // count size in bytes
+    const size = new TextEncoder().encode(
+      JSON.stringify(generatedTokens)
+    ).length;
+
+    return {
+      codeLines,
+      groupsCount,
+      tokensCount,
+      size,
+    };
+  };
+
+  const tokensStat = getTokensStat();
+
   /////////////////
   // MAIN RENDER //
   /////////////////
 
   return (
-    <div className={styles.container}>
+    <div
+      className={`${styles.container} ${
+        isCodePreviewOpen ? styles.codePreviewOpen : ""
+      }`}
+    >
       <Stack className={styles.settingView} hasLeftRightPadding={false}>
         <Panel>
           <PanelHeader
@@ -287,6 +325,9 @@ export const MainView = (props: ViewProps) => {
                     hasOutline={false}
                     value={styleItem.customName}
                     leftIcon={item.icon}
+                    // onBlur={() => {
+                    //   getTokensPreview();
+                    // }}
                     onChange={(value: string) => {
                       setJSONsettingsConfig({
                         ...JSONsettingsConfig,
@@ -483,7 +524,38 @@ export const MainView = (props: ViewProps) => {
         </Stack>
       </Stack>
 
-      {isCodePreviewOpen && <section className={styles.codePreview}></section>}
+      {isCodePreviewOpen && (
+        <section className={styles.codePreview}>
+          <section className={styles.previewToolbar}>
+            <button
+              className={`${styles.toolbarItem} ${styles.previewToolbarButton}`}
+              onClick={getTokensPreview}
+            >
+              <Icon name="refresh" size="16" />
+              <Text>Update</Text>
+            </button>
+
+            <div
+              className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}
+            >
+              <Text>
+                {tokensStat.tokensCount} tokens, {tokensStat.groupsCount}{" "}
+                groups, {tokensStat.codeLines} lines
+              </Text>
+            </div>
+
+            <div
+              className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}
+            >
+              <Text>{tokensStat.size / 1000} KB</Text>
+            </div>
+          </section>
+
+          <pre>
+            <code>{JSON.stringify(generatedTokens, null, 2)}</code>
+          </pre>
+        </section>
+      )}
     </div>
   );
 };

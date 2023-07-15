@@ -87,7 +87,7 @@ if (figma.command === "export") {
       // update JSONSettingsConfig
       JSONSettingsConfig = msg.config;
 
-      console.log("updated JSONSettingsConfig received", JSONSettingsConfig);
+      // console.log("updated JSONSettingsConfig received", JSONSettingsConfig);
 
       // handle client storage
       await figma.clientStorage.setAsync(
