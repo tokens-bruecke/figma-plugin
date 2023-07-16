@@ -8,10 +8,16 @@ import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
 import { generateTokens } from "../utils/generateTokens";
 import { removeDollarSign } from "../utils/removeDollarSign";
 
+import { config } from "../utils/config";
+
+import { importController } from "./importController";
+
 // clear console on reload
 console.clear();
 
-const baseFrameWidth = 300;
+////////////////////////
+// EXPORT TOKENS ///////
+////////////////////////
 
 if (figma.command === "export") {
   const pluginConfigKey = "tokenbrücke-config";
@@ -24,11 +30,11 @@ if (figma.command === "export") {
   const frameWidthWithCodePreview = 800;
   const frameWidth = isCodePreviewOpen
     ? frameWidthWithCodePreview
-    : baseFrameWidth;
+    : config.frameWidth;
 
   figma.showUI(__uiFiles__["export"], {
     width: 300,
-    height: 0,
+    height: 600,
     themeColors: true,
   });
 
@@ -127,17 +133,7 @@ if (figma.command === "export") {
   };
 }
 
-if (figma.command === "import") {
-  figma.showUI(__uiFiles__["import"], {
-    width: 300,
-    height: 0,
-    themeColors: true,
-  });
-
-  figma.ui.onmessage = async (msg) => {
-    // change size of UI
-    if (msg.type === "resizeUIHeight") {
-      figma.ui.resize(baseFrameWidth, msg.height);
-    }
-  };
-}
+////////////////////////
+// IMPORT TOKENS ///////
+////////////////////////
+importController();

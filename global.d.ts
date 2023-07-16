@@ -114,6 +114,13 @@ interface TokensMessageI {
   server: ServerType[];
 }
 
+interface MetaPropsI {
+  useDTCGKeys: boolean;
+  colorMode: colorModeType;
+  variableCollections: string[];
+  createdAt: string;
+}
+
 // Extend Figmas PaintStyle interface
 interface PaintStyleExtended extends PaintStyle {
   readonly boundVariables?: {

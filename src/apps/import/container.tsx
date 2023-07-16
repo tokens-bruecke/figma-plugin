@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-import { MainView } from "./MainView";
+import { InitialView } from "./InitialView";
+import { ImportView } from "./ImportView";
 
 import styles from "./styles.module.scss";
 
 const Container = () => {
   const wrapperRef = React.useRef(null);
+  const [fileData, setFileData] = useState(null);
+  const [currentView, setCurrentView] = useState("initial");
 
   //////////////////////
   // HANDLE FUNCTIONS //
@@ -45,7 +48,26 @@ const Container = () => {
   /////////////////////
 
   const renderView = () => {
-    return <MainView />;
+    if (currentView === "initial") {
+      return (
+        <InitialView
+          setFileData={setFileData}
+          setCurrentView={setCurrentView}
+        />
+      );
+    }
+
+    if (currentView === "import") {
+      return (
+        <ImportView
+          fileData={fileData}
+          setCurrentView={setCurrentView}
+          setFileData={setFileData}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (

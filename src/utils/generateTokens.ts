@@ -85,5 +85,13 @@ export const generateTokens = async (
     });
   });
 
+  // add meta to mergedVariables
+  mergedVariables["$meta"] = {
+    useDTCGKeys: JSONSettingsConfig.useDTCGKeys,
+    colorMode: JSONSettingsConfig.colorMode,
+    variableCollections: JSONSettingsConfig.variableCollections,
+    createdAt: new Date().toISOString(),
+  } as MetaPropsI;
+
   return mergedVariables;
 };
