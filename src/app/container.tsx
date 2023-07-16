@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
 
-import { useDidUpdate } from "../../utils/hooks/useDidUpdate";
+import { useDidUpdate } from "../utils/hooks/useDidUpdate";
 
 import { LoadingView } from "./LoadingView";
 import { EmptyView } from "./EmptyView";
-import { MainView } from "./MainView";
+import { SettingsView } from "./SettingsView";
 import { ServerSettingsView } from "./ServerSettingsView";
+
+import { CodePreviewView } from "./CodePreviewView";
 
 import styles from "./styles.module.scss";
 
 const Container = () => {
   const wrapperRef = React.useRef(null);
+
+  const [generatedTokens, setGeneratedTokens] = useState({});
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -181,32 +185,23 @@ const Container = () => {
       return <EmptyView />;
     }
 
-    if (currentView === "main") {
-      return (
-        <MainView
-          {...commonProps}
-          isCodePreviewOpen={isCodePreviewOpen}
-          setIsCodePreviewOpen={setIsCodePreviewOpen}
-        />
-      );
-    }
-
-    if (currentView === "jsonbin") {
-      return <ServerSettingsView {...commonProps} server="jsonbin" />;
-    }
-
-    if (currentView === "github") {
-      return <ServerSettingsView {...commonProps} server="github" />;
-    }
-
-    if (currentView === "customURL") {
-      return <ServerSettingsView {...commonProps} server="customURL" />;
-    }
+    return (
+      <SettingsView
+        {...commonProps}
+        isCodePreviewOpen={isCodePreviewOpen}
+        setIsCodePreviewOpen={setIsCodePreviewOpen}
+        setGeneratedTokens={setGeneratedTokens}
+        currentView={currentView}
+      />
+    );
   };
 
   return (
     <div ref={wrapperRef} className={styles.container}>
       {renderView()}
+      {isCodePreviewOpen && (
+        <CodePreviewView generatedTokens={generatedTokens} />
+      )}
     </div>
   );
 };

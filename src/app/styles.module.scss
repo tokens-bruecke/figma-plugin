@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  flex-direction: column;
+  overflow: hidden;
   height: auto;
 
   // hide the scrollbar

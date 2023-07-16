@@ -1,0 +1,52 @@
+.container {
+  display: flex;
+  height: auto;
+  overflow: hidden;
+}
+
+.settingView {
+  width: 300px;
+  min-width: 300px;
+  overflow-y: auto;
+
+  // hide the scrollbar
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.fitHighToFrame {
+  height: 100vh;
+}
+
+.dynamicContent {
+  flex: 1;
+}
+
+.styleNameInput {
+  width: 100%;
+}
+
+.overlayServerList {
+  position: absolute;
+  z-index: var(--z-index-2);
+  width: 130px;
+  bottom: 0;
+  right: 0;
+}
+
+.rowItem {
+  align-items: center;
+}
+
+.rowItemText {
+  flex: 1;
+}
+
+.about {
+  justify-content: space-between;
+
+  a {
+    color: var(--figma-color-text);
+  }
+}

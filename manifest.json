@@ -4,12 +4,5 @@
   "api": "1.0.0",
   "main": "dist/code.js",
   "editorType": ["figma"],
-  "menu": [
-    { "command": "export", "name": "Export" },
-    {
-      "command": "import",
-      "name": "Import"
-    }
-  ],
-  "ui": { "export": "dist/export-ui.html", "import": "dist/import-ui.html" }
+  "ui": "dist/ui.html"
 }

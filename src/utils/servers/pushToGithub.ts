@@ -20,7 +20,7 @@ export const pushToGithub = async (
   const ghUser = credentials.owner;
   const ghRepo = credentials.repo;
   const branch = credentials.branch;
-  const fileName = `${credentials.fileName}.tokens.json`;
+  const fileName = credentials.fileName;
   const commitMessage = credentials.commitMessage || "Update tokens";
   const fileContent = Buffer.from(JSON.stringify(tokens, null, 2)).toString(
     "base64"

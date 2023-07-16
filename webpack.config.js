@@ -17,8 +17,7 @@ module.exports = (env, argv) => ({
 
   // Define the entry points for the webpack build
   entry: {
-    exportUI: "./src/apps/export/index.tsx", // The entry point for your UI code
-    importUI: "./src/apps/import/index.tsx", // The entry point for your UI code
+    ui: "./src/app/index.tsx", // The entry point for your UI code
     code: "./src/controller/index.ts", // The entry point for your plugin code
   },
 
@@ -62,16 +61,9 @@ module.exports = (env, argv) => ({
   plugins: [
     // Generate "ui.html" and inline "ui.js" into it
     new HtmlWebpackPlugin({
-      template: "./src/apps/index.html",
-      filename: "export-ui.html",
-      chunks: ["exportUI"],
-      cache: false, // Disable caching to prevent issues with Figma plugin reloading
-    }),
-
-    new HtmlWebpackPlugin({
-      template: "./src/apps/index.html",
-      filename: "import-ui.html",
-      chunks: ["importUI"],
+      template: "./src/app/index.html",
+      filename: "ui.html",
+      chunks: ["ui"],
       cache: false, // Disable caching to prevent issues with Figma plugin reloading
     }),
 

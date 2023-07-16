@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@octokit/core": "^5.0.0",
-    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui#6828dcb5649cb83242eb166e384aeadc95f256e7",
+    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui#2a1f37cf8cc25d25ae49d53c2ecdac7ddb3c829b",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

@@ -3,6 +3,7 @@ import styles from "./styles.module.scss";
 
 import {
   PanelHeader,
+  Panel,
   Stack,
   Button,
   Input,
@@ -22,7 +23,21 @@ const viewsConfig = {
   jsonbin: {
     title: "JSONbin credentials",
     description: (
-      <>To use JSONbin you need to create an account and get your secret</>
+      <>
+        To use JSONbin you need to create{" "}
+        <a href="https://jsonbin.io/" target="_blank" rel="noopener noreferrer">
+          an account
+        </a>{" "}
+        and get your{" "}
+        <a
+          href="https://jsonbin.io/api-reference/access-keys/create"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          API key
+        </a>
+        .
+      </>
     ),
     isEnabled: false,
     fields: [
@@ -30,7 +45,7 @@ const viewsConfig = {
         id: "name",
         placeholder: "Bin name",
         type: "input",
-        value: "",
+        value: "design.tokens",
         required: true,
       },
       {
@@ -96,9 +111,9 @@ const viewsConfig = {
       },
       {
         id: "fileName",
-        placeholder: "File name (e.g. styles.json)",
+        placeholder: "File name",
         type: "input",
-        value: "",
+        value: "design.tokens.json",
         required: true,
       },
       {
@@ -174,7 +189,7 @@ export const ServerSettingsView = (props: ViewProps) => {
   /////////////////
 
   return (
-    <Stack hasLeftRightPadding={false} hasTopBottomPadding>
+    <Panel hasLeftRightPadding={false} hasTopBottomPadding bottomBorder={false}>
       <Stack hasLeftRightPadding={false}>
         <PanelHeader
           title={viewsConfig[props.server].title}
@@ -311,6 +326,6 @@ export const ServerSettingsView = (props: ViewProps) => {
           />
         </Stack>
       </Stack>
-    </Stack>
+    </Panel>
   );
 };
