@@ -1,0 +1,76 @@
+.toastContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  overflow: hidden;
+  width: 300px;
+  height: 100%;
+  pointer-events: none;
+}
+
+.toastWrapper {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-extra-small);
+  gap: var(--space-extra-small);
+  pointer-events: all;
+  overflow-y: auto;
+  max-height: 100%;
+  width: 100%;
+
+  // hide the scrollbar
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.toast {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: all;
+  padding: 16px;
+  user-select: text;
+  border-radius: var(--border-radius-2);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.close {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+}
+
+.message {
+  word-break: break-word;
+  hyphens: auto;
+  user-select: text;
+  pointer-events: all;
+}
+
+.success {
+  background: var(--figma-color-bg-success-tertiary);
+}
+
+.error {
+  background: var(--figma-color-bg-danger-tertiary);
+
+  .message {
+    color: var(--figma-color-text-danger-tertiary);
+  }
+}
+
+.info {
+  background: var(--figma-color-bg);
+}

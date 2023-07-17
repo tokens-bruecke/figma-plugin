@@ -4,5 +4,9 @@
   "api": "1.0.0",
   "main": "dist/code.js",
   "editorType": ["figma"],
-  "ui": "dist/ui.html"
+  "ui": "dist/ui.html",
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "There is a push method that uses a custom URL. This URL can be any"
+  }
 }

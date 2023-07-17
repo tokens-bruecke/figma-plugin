@@ -272,9 +272,7 @@ export const ServerSettingsView = (props: ViewProps) => {
               }
 
               setJSONsettingsConfig((prevState) => {
-                console.log("prevState", prevState);
-
-                const updatedConfig = {
+                return {
                   ...prevState,
                   servers: {
                     ...prevState.servers,
@@ -285,10 +283,6 @@ export const ServerSettingsView = (props: ViewProps) => {
                     },
                   },
                 };
-
-                console.log("updatedConfig", updatedConfig);
-
-                return updatedConfig;
               });
 
               setCurrentView("main");

@@ -3,19 +3,9 @@ import { Octokit } from "@octokit/core";
 
 export const pushToGithub = async (
   credentials: GithubCredentialsI,
-  tokens: any
+  tokens: any,
+  callback: (props: ToastIPropsI) => void
 ) => {
-  // push JSON to Github
-  // const ghToken =
-  //   "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";
-  // const ghUser = "PavelLaptev";
-  // const ghRepo = "test-repo";
-  // const branch = "main";
-  // const fileName = "tokens6.json";
-  // const commitMessage = "Update tokens.json";
-
-  // console.log("Github credentials", credentials);
-
   const ghToken = credentials.token;
   const ghUser = credentials.owner;
   const ghRepo = credentials.repo;
@@ -58,17 +48,41 @@ export const pushToGithub = async (
       }
     );
 
+    // handle status response
     console.log("File updated successfully:", response);
+    callback({
+      title: "Github: Updated successfully",
+      message: "Tokens on Github have been updated successfully",
+      options: {
+        type: "success",
+      },
+    });
   } catch (error) {
+    // handle status response
+    console.error("Error upating file:", error);
+    callback({
+      title: "Github: Error upating file",
+      message: `Error upating file: ${error.message}. The plugin will try to create the file instead.`,
+      options: {
+        type: "error",
+      },
+    });
+
     if (error.status === 404) {
       const response = await octokit.request(
         "PUT /repos/{owner}/{repo}/contents/{path}",
         commonPushParams
       );
 
+      // handle status response
       console.log("File created successfully:", response);
-    } else {
-      console.error("Error checking file existence:", error);
+      callback({
+        title: "Github: Created successfully",
+        message: "Tokens on Github have been created successfully",
+        options: {
+          type: "success",
+        },
+      });
     }
   }
 };

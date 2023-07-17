@@ -1,6 +1,7 @@
 export const pushToJSONBin = async (
   credentials: JsonbinCredentialsI,
-  tokens: any
+  tokens: any,
+  callback: (props: ToastIPropsI) => void
 ) => {
   // console.log("JSONBin credentials", credentials);
 
@@ -36,10 +37,28 @@ export const pushToJSONBin = async (
   if (response.ok) {
     const json = await response.json();
 
-    console.log("JSONBin response", json);
+    console.log("JSONBin success", json);
+
+    callback({
+      title: "JSONBin: Updated successfully",
+      message: "Tokens on JSONBin have been updated successfully",
+      options: {
+        type: "success",
+      },
+    });
 
     return json;
   }
 
-  throw new Error("Network response was not ok.");
+  // handle error
+  console.log("JSONBin error", response);
+  if (!response.ok) {
+    callback({
+      title: "JSONBin: Error pushing tokens",
+      message: `Error pushing tokens to JSONBin: ${response.statusText}`,
+      options: {
+        type: "error",
+      },
+    });
+  }
 };

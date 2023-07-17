@@ -4,7 +4,7 @@ export const getStorageConfig = async (key) => {
 
   figma.clientStorage.getAsync(key).then((storageConfig) => {
     try {
-      console.log("storageConfig", storageConfig);
+      console.log("storageConfig", JSON.parse(storageConfig));
 
       figma.ui.postMessage({
         type: "storageConfig",

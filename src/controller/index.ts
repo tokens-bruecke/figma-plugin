@@ -17,6 +17,9 @@ console.clear();
 // EXPORT TOKENS ///////
 ////////////////////////
 
+const figmaRoot = figma.root;
+console.log("figmaRoot", figmaRoot);
+
 const pluginConfigKey = "tokenbrücke-config";
 
 getStorageConfig(pluginConfigKey);

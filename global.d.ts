@@ -121,6 +121,16 @@ interface MetaPropsI {
   createdAt: string;
 }
 
+interface ToastIPropsI {
+  title: string;
+  message: string;
+  options: {
+    type?: "success" | "error" | "info";
+    timeout?: number;
+    onClose?: () => void;
+  };
+}
+
 // Extend Figmas PaintStyle interface
 interface PaintStyleExtended extends PaintStyle {
   readonly boundVariables?: {

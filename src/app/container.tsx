@@ -5,7 +5,6 @@ import { useDidUpdate } from "../utils/hooks/useDidUpdate";
 import { LoadingView } from "./LoadingView";
 import { EmptyView } from "./EmptyView";
 import { SettingsView } from "./SettingsView";
-import { ServerSettingsView } from "./ServerSettingsView";
 
 import { CodePreviewView } from "./CodePreviewView";
 

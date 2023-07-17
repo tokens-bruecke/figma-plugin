@@ -17,6 +17,7 @@ import {
 
 import { config } from "../../utils/config";
 
+import { Toast } from "../../components/Toast";
 import { ServerSettingsView } from "../ServerSettingsView";
 
 import { pushToJSONBin } from "../../utils/servers/pushToJSONBin";
@@ -80,6 +81,7 @@ const serverList = [
 ];
 
 export const SettingsView = (props: ViewProps) => {
+  const toastRef = React.useRef(null);
   const {
     JSONsettingsConfig,
     setJSONsettingsConfig,
@@ -89,6 +91,7 @@ export const SettingsView = (props: ViewProps) => {
     currentView,
     setCurrentView,
   } = props;
+  const [isPushing, setIsPushing] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
 
   const serversHeaderRef = React.useRef(null);
@@ -143,6 +146,15 @@ export const SettingsView = (props: ViewProps) => {
   };
 
   const getTokensForDownload = () => {
+    // toastRef.current.show({
+    //   title: "Connecting to Figma...",
+    //   message:
+    //     "[MultiplayerSession] connecting to wss://www.figma.com/api/multiplayer/AHP8BukjrOWK5c4Mq6cd SH?role=editor&tracking_session_id=g1Yjs9gxhU9no5Ix&version=81&recentReload=0&user-id=1090441672799451683&client_release=cd3f3f465bd8815c929a30209a068d1f22623988&file-load-streaming-compression=&send-file-directly=&snapshot-hash=f30b69edc1e895a74369668f767c0d190fbd2711&reconnect-key=7790ffcb20cf3103f046e2f6be1aa8995fa55ac1&reconnect-sequence-number=1815&initialFileVersion=35",
+    //   options: {
+    //     type: "error",
+    //   },
+    // });
+
     // send command to figma controller
     parent.postMessage(
       {
@@ -156,9 +168,13 @@ export const SettingsView = (props: ViewProps) => {
   };
 
   const getTokensForPush = () => {
+    setIsPushing(true);
+
     const allEnebledServers = Object.keys(JSONsettingsConfig.servers).filter(
       (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
     );
+
+    console.log("all enebled servers", allEnebledServers);
 
     // send command to figma controller
     parent.postMessage(
@@ -179,7 +195,7 @@ export const SettingsView = (props: ViewProps) => {
 
   // Recieve tokens from figma controller
   useEffect(() => {
-    window.onmessage = (event) => {
+    window.onmessage = async (event) => {
       const { type, tokens, role, server } = event.data
         .pluginMessage as TokensMessageI;
 
@@ -197,22 +213,48 @@ export const SettingsView = (props: ViewProps) => {
         if (role === "push") {
           if (server.includes("jsonbin")) {
             console.log("push to jsonbin");
-            pushToJSONBin(JSONsettingsConfig.servers.jsonbin, tokens);
+            await pushToJSONBin(
+              JSONsettingsConfig.servers.jsonbin,
+              tokens,
+              (params) => {
+                toastRef.current.show(params);
+              }
+            );
           }
 
           if (server.includes("github")) {
+            console.log("github config", JSONsettingsConfig.servers.github);
             console.log("push to github");
-            pushToGithub(JSONsettingsConfig.servers.github, tokens);
+            await pushToGithub(
+              JSONsettingsConfig.servers.github,
+              tokens,
+              (params) => {
+                toastRef.current.show(params);
+              }
+            );
           }
 
           if (server.includes("customURL")) {
             console.log("push to customURL");
-            pushToCustomURL(JSONsettingsConfig.servers.customURL, tokens);
+            await pushToCustomURL(JSONsettingsConfig.servers.customURL, tokens);
           }
+
+          setIsPushing(false);
+          console.log("push done");
         }
       }
     };
-  }, []);
+  }, [JSONsettingsConfig]);
+
+  //////////////
+  useEffect(() => {
+    // reset isPushing to false after 10 second
+    if (isPushing) {
+      setTimeout(() => {
+        setIsPushing(false);
+      }, 10000);
+    }
+  }, [isPushing]);
 
   //////////////////////
   // RENDER VARIABLES //
@@ -231,6 +273,11 @@ export const SettingsView = (props: ViewProps) => {
       return server;
     }
   });
+
+  //
+  useEffect(() => {
+    console.log("JSONsettingsConfig", JSONsettingsConfig);
+  }, [JSONsettingsConfig]);
 
   /////////////////
   // MAIN RENDER //
@@ -490,6 +537,7 @@ export const SettingsView = (props: ViewProps) => {
 
             <Stack>
               <Button
+                loading={isPushing}
                 label="Push to server"
                 onClick={getTokensForPush}
                 fullWidth
@@ -537,27 +585,30 @@ export const SettingsView = (props: ViewProps) => {
   };
 
   return (
-    <Stack
-      className={`${styles.settingView} ${
-        isCodePreviewOpen ? styles.fitHighToFrame : ""
-      }`}
-      hasLeftRightPadding={false}
-    >
-      <div className={styles.dynamicContent}>{selectRender()}</div>
-
-      <Panel
-        hasTopBottomPadding
-        hasLeftRightPadding
-        topBorder
-        bottomBorder={false}
+    <>
+      <Toast ref={toastRef} />
+      <Stack
+        className={`${styles.settingView} ${
+          isCodePreviewOpen ? styles.fitHighToFrame : ""
+        }`}
+        hasLeftRightPadding={false}
       >
-        <Stack hasTopBottomPadding direction="row" className={styles.about}>
-          <a href={config.docsLink} target="_blank">
-            <Text>Documentation</Text>
-          </a>
-          <Text>version 1.0.0</Text>
-        </Stack>
-      </Panel>
-    </Stack>
+        <div className={styles.dynamicContent}>{selectRender()}</div>
+
+        <Panel
+          hasTopBottomPadding
+          hasLeftRightPadding
+          topBorder
+          bottomBorder={false}
+        >
+          <Stack hasTopBottomPadding direction="row" className={styles.about}>
+            <a href={config.docsLink} target="_blank">
+              <Text>Documentation</Text>
+            </a>
+            <Text>version 1.0.0</Text>
+          </Stack>
+        </Panel>
+      </Stack>
+    </>
   );
 };
