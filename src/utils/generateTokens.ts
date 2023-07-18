@@ -21,6 +21,7 @@ export const generateTokens = async (
 
     const collectionName = collection.name;
     const isScopesIncluded = JSONSettingsConfig.includeScopes;
+    const modesAmount = collection.modes.length;
 
     collection.modes.forEach((mode, index) => {
       const modeName = mode.name;
@@ -32,6 +33,7 @@ export const generateTokens = async (
           const aliasPath = getAliasVariableName(
             collectionName,
             modeName,
+            modesAmount,
             variable.name
           );
           const variableObject = {
@@ -62,7 +64,7 @@ export const generateTokens = async (
       }, {});
 
       // check amount of modes and assign to "modes" or "modes[modeName]" variable
-      if (collection.modes.length === 1) {
+      if (modesAmount === 1) {
         Object.assign(modes, groupObjectNamesIntoCategories(variablesPerMode));
       } else {
         modes[modeName] = groupObjectNamesIntoCategories(variablesPerMode);

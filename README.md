@@ -95,3 +95,13 @@ Link to the grid token repo: here
 # USE DTCG key format ($)
 
 Read more about DTCG [characters restrictions](https://design-tokens.github.io/community-group/format/#character-restrictions)
+
+## CHANGELOG
+
+### 1.0.0
+
+- Initial release
+
+### 1.0.1
+
+- Fixed Aliases handling. Removed `mode` from the alias string if there is only one mode in the collection.

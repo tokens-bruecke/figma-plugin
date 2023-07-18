@@ -9,8 +9,14 @@
   overflow-y: scroll;
 
   pre {
+    overflow: auto;
     margin: 0;
     padding: 20px;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      display: none;
+    }
   }
 
   code {

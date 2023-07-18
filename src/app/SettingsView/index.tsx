@@ -605,7 +605,7 @@ export const SettingsView = (props: ViewProps) => {
             <a href={config.docsLink} target="_blank">
               <Text>Documentation</Text>
             </a>
-            <Text>version 1.0.0</Text>
+            <Text>version 1.0.1</Text>
           </Stack>
         </Panel>
       </Stack>

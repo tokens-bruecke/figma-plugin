@@ -18,13 +18,21 @@ export const gridStylesToTokens = async (customName: string) => {
       $type: "grid",
       $value: {
         columnCount: columnGrid?.count,
-        columnGap: columnGrid?.gutterSize,
-        columnWidth: columnGrid?.sectionSize,
-        columnMargin: columnGrid?.offset,
+        columnGap: columnGrid?.gutterSize
+          ? `${columnGrid?.gutterSize}px`
+          : undefined,
+        columnWidth: columnGrid?.sectionSize
+          ? `${columnGrid?.sectionSize}px`
+          : undefined,
+        columnMargin: columnGrid?.offset
+          ? `${columnGrid?.offset}px`
+          : undefined,
         rowCount: rowGrid?.count,
-        rowGap: rowGrid?.gutterSize,
-        rowHeight: rowGrid?.sectionSize,
-        rowMargin: rowGrid?.offset,
+        rowGap: rowGrid?.gutterSize ? `${rowGrid?.gutterSize}px` : undefined,
+        rowHeight: rowGrid?.sectionSize
+          ? `${rowGrid?.sectionSize}px`
+          : undefined,
+        rowMargin: rowGrid?.offset ? `${rowGrid?.offset}px` : undefined,
       },
     } as GridTokenI;
 
