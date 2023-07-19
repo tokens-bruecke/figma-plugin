@@ -1,12 +1,15 @@
 import { checkForVariables } from "../utils/controller/checkForVariables";
 import { getStorageConfig } from "../utils/controller/getStorageConfig";
 
-import { colorStylesToTokens } from "../utils/styles/colorStylesToTokens";
-import { textStylesToTokens } from "../utils/styles/textStylesToTokens";
-import { gridStylesToTokens } from "../utils/styles/gridStylesToTokens";
-import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
+import { stylesToTokens } from "../utils/styles/stylesToTokens";
+// import { colorStylesToTokens } from "../utils/styles/colorStylesToTokens";
+// import { textStylesToTokens } from "../utils/styles/textStylesToTokens";
+// import { gridStylesToTokens } from "../utils/styles/gridStylesToTokens";
+// import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
 
-import { generateTokens } from "../utils/generateTokens";
+import { variablesToTokens } from "../utils/variablesToTokens";
+import { mergeVaraiblsAndStyleTokens } from "../utils/mergeVaraiblsAndStyleTokens";
+
 import { removeDollarSign } from "../utils/removeDollarSign";
 
 import { config } from "../utils/config";
@@ -46,54 +49,27 @@ const getTokens = async () => {
     figma.variables.getLocalVariableCollections() as VariableCollection[];
   const variables = figma.variables.getLocalVariables() as Variable[];
 
-  let styleTokens = [];
-
-  // Extract color tokens
-  if (JSONSettingsConfig.includeStyles.colors.isIncluded) {
-    const colorTokens = await colorStylesToTokens(
-      JSONSettingsConfig.includeStyles.colors.customName,
-      JSONSettingsConfig.colorMode,
-      variables
-    );
-
-    styleTokens.push(colorTokens);
-  }
-
-  // Extract text tokens
-  if (JSONSettingsConfig.includeStyles.text.isIncluded) {
-    const textTokens = await textStylesToTokens(
-      JSONSettingsConfig.includeStyles.text.customName
-    );
-
-    styleTokens.push(textTokens);
-  }
-
-  // Extract grid tokens
-  if (JSONSettingsConfig.includeStyles.grids.isIncluded) {
-    const gridTokens = await gridStylesToTokens(
-      JSONSettingsConfig.includeStyles.grids.customName
-    );
-
-    styleTokens.push(gridTokens);
-  }
-
-  // Extract effect tokens
-  if (JSONSettingsConfig.includeStyles.effects.isIncluded) {
-    const effectTokens = await effectStylesToTokens(
-      JSONSettingsConfig.includeStyles.effects.customName,
-
-      JSONSettingsConfig.colorMode
-    );
-
-    styleTokens.push(effectTokens);
-  }
-
-  const mergedVariables = await generateTokens(
+  const variableTokens = await variablesToTokens(
     variables,
     variableCollection,
-    styleTokens,
     JSONSettingsConfig
   );
+
+  const styleTokens = await stylesToTokens(
+    JSONSettingsConfig.includeStyles,
+    JSONSettingsConfig.colorMode,
+    variableTokens
+  );
+
+  // console.log("styleTokens", styleTokens);
+
+  const mergedVariables = mergeVaraiblsAndStyleTokens(
+    variableTokens,
+    styleTokens,
+    JSONSettingsConfig.selectedCollection
+  );
+
+  // console.log("mergedVariables", mergedVariables);
 
   return mergedVariables;
 };

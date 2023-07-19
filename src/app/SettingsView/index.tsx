@@ -151,15 +151,6 @@ export const SettingsView = (props: ViewProps) => {
   };
 
   const getTokensForDownload = () => {
-    // toastRef.current.show({
-    //   title: "Connecting to Figma...",
-    //   message:
-    //     "[MultiplayerSession] connecting to wss://www.figma.com/api/multiplayer/AHP8BukjrOWK5c4Mq6cd SH?role=editor&tracking_session_id=g1Yjs9gxhU9no5Ix&version=81&recentReload=0&user-id=1090441672799451683&client_release=cd3f3f465bd8815c929a30209a068d1f22623988&file-load-streaming-compression=&send-file-directly=&snapshot-hash=f30b69edc1e895a74369668f767c0d190fbd2711&reconnect-key=7790ffcb20cf3103f046e2f6be1aa8995fa55ac1&reconnect-sequence-number=1815&initialFileVersion=35",
-    //   options: {
-    //     type: "error",
-    //   },
-    // });
-
     // send command to figma controller
     parent.postMessage(
       {
@@ -359,6 +350,8 @@ export const SettingsView = (props: ViewProps) => {
           {stylesList.map((item, index) => {
             const configStylesList = JSONsettingsConfig.includeStyles;
             const styleItem = configStylesList[item.id];
+
+            // check if style item is included
             const isIncluded = styleItem.isIncluded;
 
             return (

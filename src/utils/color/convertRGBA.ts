@@ -8,20 +8,25 @@ type rgbaType = {
 };
 
 const rgbaToHexA = (rgba: rgbaType) => {
-  // Ensure valid RGBA values
-  const r = Math.max(0, Math.min(255, rgba.r));
-  const g = Math.max(0, Math.min(255, rgba.g));
-  const b = Math.max(0, Math.min(255, rgba.b));
-  const a = Math.max(0, Math.min(1, rgba.a));
+  const { r, g, b, a } = rgba;
 
-  // Convert RGB to HEX
-  const hex = ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
-  const hexWithAlpha =
+  var outParts = [
+    r.toString(16),
+    g.toString(16),
+    b.toString(16),
     Math.round(a * 255)
       .toString(16)
-      .padStart(2, "0") + hex;
+      .substring(0, 2),
+  ];
 
-  return hexWithAlpha.length === 8 ? `#${hexWithAlpha}` : `#${hex}`;
+  // Pad single-digit output values
+  outParts.forEach(function (part, i) {
+    if (part.length === 1) {
+      outParts[i] = "0" + part;
+    }
+  });
+
+  return "#" + outParts.join("");
 };
 
 const rgbaToCss = (rgba: rgbaType) => {

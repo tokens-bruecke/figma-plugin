@@ -33,12 +33,12 @@ export const colorStylesToTokens = async (
       } as ColorTokenI;
 
       if (isStyleIsAlias) {
-        // const aliasVariable = findByVariableId(
-        //   tokens,
-        //   style.boundVariables.paints[0].id
-        // ) as PluginTokenI;
+        const aliasVariable = findByVariableId(
+          tokens,
+          style.boundVariables.paints[0].id
+        ) as PluginTokenI;
 
-        console.log("aliasVariable", aliasVariable);
+        // console.log("aliasVariable", aliasVariable);
 
         newObj[name] = {
           ...partialToken,
@@ -62,7 +62,7 @@ export const colorStylesToTokens = async (
 
     // HANDLE LINEAR GRADIENTS
     if (paintType === "GRADIENT_LINEAR" || paintType === "GRADIENT_RADIAL") {
-      console.log("paintStyle", paint);
+      // console.log("paintStyle", paint);
       newObj[name] = {
         $type: "gradient",
         $description: description,
@@ -82,6 +82,8 @@ export const colorStylesToTokens = async (
   colorStyles[customName] = groupObjectNamesIntoCategories(
     reducedRawColorStyles
   );
+
+  return colorStyles;
 };
 
 // #TODO: add support for multiple gradients in one style

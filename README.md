@@ -105,3 +105,9 @@ Read more about DTCG [characters restrictions](https://design-tokens.github.io/c
 ### 1.0.1
 
 - Fixed Aliases handling. Removed `mode` from the alias string if there is only one mode in the collection.
+
+### 1.0.2
+
+- Fixed RGBA to HEXA conversion
+- Added color styles support
+- Added basic support for linear and radial gradients

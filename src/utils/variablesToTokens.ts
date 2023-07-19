@@ -6,10 +6,9 @@ import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories
 
 // console.clear();
 
-export const generateTokens = async (
+export const variablesToTokens = async (
   variables: Variable[],
   collections: VariableCollection[],
-  styleTokens: any[],
   JSONSettingsConfig: JSONSettingsConfigI
 ) => {
   const colorMode = JSONSettingsConfig.colorMode;
@@ -72,19 +71,6 @@ export const generateTokens = async (
     });
 
     mergedVariables[collectionName] = modes;
-
-    // assign style tokens to mergedVariables
-    styleTokens.forEach((styleToken) => {
-      // if selectedCollection is "separate" then merge styleTokens with mergedVariables
-      if (JSONSettingsConfig.selectedCollection === "none") {
-        Object.assign(mergedVariables, styleToken);
-      }
-
-      // if selectedCollection is a collection name then merge styleTokens with mergedVariables[collectionName]
-      if (JSONSettingsConfig.selectedCollection === collectionName) {
-        Object.assign(mergedVariables[collectionName], styleToken);
-      }
-    });
   });
 
   // add meta to mergedVariables
