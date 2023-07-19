@@ -46,6 +46,11 @@ interface ViewProps {
 
 const stylesList = [
   {
+    id: "colors",
+    label: "Colors",
+    icon: <Icon name="color-styles" size="32" />,
+  },
+  {
     id: "text",
     label: "Typography",
     icon: <Icon name="text" size="32" />,

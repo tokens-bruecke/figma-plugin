@@ -1,6 +1,7 @@
 import { checkForVariables } from "../utils/controller/checkForVariables";
 import { getStorageConfig } from "../utils/controller/getStorageConfig";
 
+import { colorStylesToTokens } from "../utils/styles/colorStylesToTokens";
 import { textStylesToTokens } from "../utils/styles/textStylesToTokens";
 import { gridStylesToTokens } from "../utils/styles/gridStylesToTokens";
 import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
@@ -46,6 +47,17 @@ const getTokens = async () => {
   const variables = figma.variables.getLocalVariables() as Variable[];
 
   let styleTokens = [];
+
+  // Extract color tokens
+  if (JSONSettingsConfig.includeStyles.colors.isIncluded) {
+    const colorTokens = await colorStylesToTokens(
+      JSONSettingsConfig.includeStyles.colors.customName,
+      JSONSettingsConfig.colorMode,
+      variables
+    );
+
+    styleTokens.push(colorTokens);
+  }
 
   // Extract text tokens
   if (JSONSettingsConfig.includeStyles.text.isIncluded) {

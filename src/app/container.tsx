@@ -25,6 +25,10 @@ const Container = () => {
 
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
     includeStyles: {
+      colors: {
+        isIncluded: false,
+        customName: "Colors",
+      },
       text: {
         isIncluded: false,
         customName: "Typography",
