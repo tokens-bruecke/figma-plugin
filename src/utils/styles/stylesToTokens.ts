@@ -1,21 +1,9 @@
-import { colorStylesToTokens } from "./colorStylesToTokens";
 import { textStylesToTokens } from "./textStylesToTokens";
 import { gridStylesToTokens } from "./gridStylesToTokens";
 import { effectStylesToTokens } from "./effectStylesToTokens";
 
-export const stylesToTokens = async (includedStyles, colorMode, tokens) => {
+export const stylesToTokens = async (includedStyles, colorMode) => {
   let styleTokens = [];
-
-  // Extract color tokens
-  if (includedStyles.colors.isIncluded) {
-    const colorTokens = await colorStylesToTokens(
-      includedStyles.colors.customName,
-      colorMode,
-      tokens
-    );
-
-    styleTokens.push(colorTokens);
-  }
 
   // Extract text tokens
   if (includedStyles.text.isIncluded) {

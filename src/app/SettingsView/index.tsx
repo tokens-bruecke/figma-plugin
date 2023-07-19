@@ -46,11 +46,6 @@ interface ViewProps {
 
 const stylesList = [
   {
-    id: "colors",
-    label: "Colors",
-    icon: <Icon name="color-styles" size="32" />,
-  },
-  {
     id: "text",
     label: "Typography",
     icon: <Icon name="text" size="32" />,
@@ -203,7 +198,7 @@ export const SettingsView = (props: ViewProps) => {
 
         if (role === "download") {
           console.log("tokens download", tokens);
-          downloadTokensFile(tokens);
+          // downloadTokensFile(tokens);
         }
 
         if (role === "push") {
@@ -604,7 +599,7 @@ export const SettingsView = (props: ViewProps) => {
               <Text>Documentation</Text>
             </a>
             <a href={config.changelogLink} target="_blank">
-              <Text>v.1.0.1</Text>
+              <Text>v.1.0.3</Text>
             </a>
           </Stack>
         </Panel>

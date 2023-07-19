@@ -29,20 +29,23 @@ export const variablesToTokens = async (
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
         if (variableModeId === mode.modeId) {
-          const aliasPath = getAliasVariableName(
-            collectionName,
-            modeName,
-            modesAmount,
-            variable.name
-          );
+          const aliasPath = getAliasVariableName({
+            collectionName: collectionName,
+            modeName: modeName,
+            modesAmount: modesAmount,
+            variableName: variable.name,
+          });
+
           const variableObject = {
-            $value: normalizeValue(
-              variable.valuesByMode[variableModeId],
-              variable.resolvedType,
-              colorMode,
-              variables,
-              aliasPath
-            ),
+            $value: normalizeValue({
+              variableValue: variable.valuesByMode[variableModeId],
+              variableType: variable.resolvedType,
+              colorMode: colorMode,
+              variables: variables,
+              collectionName: collectionName,
+              modeName: modeName,
+              modesAmount: modesAmount,
+            }),
             $type: normilizeType(variable.resolvedType),
             $description: variable.description,
             // add scopes if true

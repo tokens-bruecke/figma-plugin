@@ -32,7 +32,7 @@ export const mergeVaraiblsAndStyleTokens = (
     });
   }
 
-  console.log("variableTokens", variableTokens);
+  // console.log("variableTokens", variableTokens);
 
   return variableTokens;
 };

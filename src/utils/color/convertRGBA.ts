@@ -19,6 +19,11 @@ const rgbaToHexA = (rgba: rgbaType) => {
       .substring(0, 2),
   ];
 
+  // if alpha channel is 1, don't include alpha in hex
+  if (a === 1) {
+    outParts.pop();
+  }
+
   // Pad single-digit output values
   outParts.forEach(function (part, i) {
     if (part.length === 1) {

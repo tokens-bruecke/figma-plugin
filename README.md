@@ -111,3 +111,8 @@ Read more about DTCG [characters restrictions](https://design-tokens.github.io/c
 - Fixed RGBA to HEXA conversion
 - Added color styles support
 - Added basic support for linear and radial gradients
+
+### 1.0.3
+
+- HEX color fixed
+- Alias variables fixed

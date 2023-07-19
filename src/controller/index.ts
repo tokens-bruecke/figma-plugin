@@ -37,7 +37,7 @@ const frameWidth = isCodePreviewOpen
   : config.frameWidth;
 
 figma.showUI(__html__, {
-  width: 300,
+  width: frameWidth,
   height: 600,
   themeColors: true,
 });
@@ -49,20 +49,22 @@ const getTokens = async () => {
     figma.variables.getLocalVariableCollections() as VariableCollection[];
   const variables = figma.variables.getLocalVariables() as Variable[];
 
+  // convert variables to tokens
   const variableTokens = await variablesToTokens(
     variables,
     variableCollection,
     JSONSettingsConfig
   );
 
+  // convert styles to tokens
   const styleTokens = await stylesToTokens(
     JSONSettingsConfig.includeStyles,
-    JSONSettingsConfig.colorMode,
-    variableTokens
+    JSONSettingsConfig.colorMode
   );
 
   // console.log("styleTokens", styleTokens);
 
+  // merge variables and styles
   const mergedVariables = mergeVaraiblsAndStyleTokens(
     variableTokens,
     styleTokens,

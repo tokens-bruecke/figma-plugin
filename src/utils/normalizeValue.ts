@@ -1,30 +1,54 @@
 import { convertRGBA } from "./color/convertRGBA";
+import { getAliasVariableName } from "./getAliasVariableName";
 
-export const normalizeValue = (
-  value: any,
-  type: VariableResolvedDataType,
-  colorMode: colorModeType,
-  variables: Variable[],
-  aliasPath: string
-) => {
-  if (typeof value === "object") {
-    if (value?.type === "VARIABLE_ALIAS") {
+interface PropsI {
+  variableValue: any;
+  variableType: VariableResolvedDataType;
+  colorMode: colorModeType;
+  variables: Variable[];
+  collectionName: string;
+  modeName: string;
+  modesAmount: number;
+}
+
+export const normalizeValue = (props: PropsI) => {
+  const {
+    variableValue,
+    variableType,
+    colorMode,
+    variables,
+    collectionName,
+    modeName,
+    modesAmount,
+  } = props;
+
+  if (typeof variableValue === "object") {
+    if (variableValue?.type === "VARIABLE_ALIAS") {
+      // console.log("VARIABLE_ALIAS", variableValue);
+      // console.log("variables", variables);
+
       const variable = variables.find(
-        (variable) => variable.id === value.id
+        (variable) => variable.id === variableValue.id
       ) as Variable;
-      if (variable) {
-        return aliasPath;
-      }
+
+      const aliasPath = getAliasVariableName({
+        collectionName: collectionName,
+        modeName: modeName,
+        modesAmount: modesAmount,
+        variableName: variable.name,
+      });
+
+      return aliasPath;
     }
   }
 
-  if (type === "COLOR") {
-    return convertRGBA(value, colorMode);
+  if (variableType === "COLOR") {
+    return convertRGBA(variableValue, colorMode);
   }
 
-  if (type === "FLOAT") {
-    return `${value}px`;
+  if (variableType === "FLOAT") {
+    return `${variableValue}px`;
   }
 
-  return value;
+  return variableValue;
 };

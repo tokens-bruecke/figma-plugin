@@ -1,9 +1,13 @@
-export const getAliasVariableName = (
-  collectionName: string,
-  modeName: string,
-  modesAmount: number,
-  variableName: string
-) => {
+interface PropsI {
+  collectionName: string;
+  modeName: string;
+  modesAmount: number;
+  variableName: string;
+}
+
+export const getAliasVariableName = (props: PropsI) => {
+  const { collectionName, modeName, modesAmount, variableName } = props;
+
   const parentPath =
     modesAmount === 1 ? collectionName : `${collectionName}.${modeName}`;
   const variableParts = variableName.split("/");
