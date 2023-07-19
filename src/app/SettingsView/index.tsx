@@ -198,7 +198,7 @@ export const SettingsView = (props: ViewProps) => {
 
         if (role === "download") {
           console.log("tokens download", tokens);
-          // downloadTokensFile(tokens);
+          downloadTokensFile(tokens);
         }
 
         if (role === "push") {
