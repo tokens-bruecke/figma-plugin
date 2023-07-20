@@ -1,30 +1,69 @@
-# VARIABLES EXPORT
+# TokensBrücke — Figma plugin
 
-## What plugin is doing?
+<a>
+<img src="./readme-assets/preview.webp" alt="preview" width="100%">
+</a>
 
-It converts Figma variables into design-tokens JSON that are compatible with the latest [Design Tokens specification](https://design-tokens.github.io/community-group/format/).
+## What is this plugin for?
+
+The plugin converts Figma variables into design-tokens JSON that are compatible with the latest [Design Tokens specification](https://design-tokens.github.io/community-group/format/).
+
+## Handling styles
+
+The plugin can support some styles and effects too. Until Figma will support all the styles and effects, the plugin will convert them into the corresponding design tokens types. But it's not a backward compatibility, it's a temporary solution until Figma will support all the styles and effects as variables.
+
+Supported styles:
+
+- Typography
+- Grids
+- Shadows (including `inset` shadows)
+- Blur (including `background` and `layer` blur)
+
+### Why there is no support for color styles?
+
+Despite the fact that color styles could be important for backward compatibility — the main goal of the plugin is to convert Figma variables into design tokens. Since Figma already has a support for color in variables, there is no need to convert also color styles into design tokens.
+
+### Gradients support
+
+Support for gradients is comming with the next major release.
+
+---
 
 ## Tokens structuring
 
-Plugin first takes the collection name, then mode name and then variable name. For example, if you have a collection named `Colors`, mode named `Light` and variable named `Primary`, the plugin will generate the following JSON:
+Plugin first takes the collection name, then mode name and then variable name (fig.1).
+
+![fig.1](readme-assets/fig1.webp)
+
+For example, if you have a collection named `Colors`, mode named `Light` and variable named `Primary`, the plugin will generate the following JSON:
 
 ```json
 {
-  "Colors": {
-    "Light": {
-      "Primary": "#000000"
+  "colors": {
+    "light": {
+      "primary": {
+        "10": {
+          "type": "color",
+          "value": "#000000"
+        }
+      }
     }
   }
 }
 ```
 
-Figma automatically merge groups and their names into a single name, e.g. `Base/Primary/10`. In this case, the plugin will generate the following JSON:
+![fig.1](readme-assets/fig2.webp)
+
+Figma automatically merge groups and their names into a single name, e.g. `Base/Primary/10` (fig.2). In this case, the plugin will generate the following JSON:
 
 ```json
 {
-  "Base": {
-    "Primary": {
-      "10": "#000000"
+  "base": {
+    "primary": {
+      "10": {
+        "type": "color",
+        "value": "#000000"
+      }
     }
   }
 }
@@ -34,7 +73,20 @@ Figma automatically merge groups and their names into a single name, e.g. `Base/
 
 All aliases are converted into the alias string format from the [Design Tokens specification](https://design-tokens.github.io/community-group/format/#aliases-references).
 
-## Types conversion
+```json
+{
+  "button": {
+    "background": {
+      "type": "color",
+      "value": "{colors.light.primary.10}"
+    }
+  }
+}
+```
+
+---
+
+## Variables types conversion
 
 Unlike design tokens, Figma variables now support only 4 types: `COLOR`, `BOOLEAN`, `FLOAT`, `STRING`. So, the plugin converts them into the corresponding types from the [Design Tokens specification](https://design-tokens.github.io/community-group/format/#types).
 
@@ -49,9 +101,17 @@ Unlike design tokens, Figma variables now support only 4 types: `COLOR`, `BOOLEA
 
 \*\* currently figma supports only the `FLOAT` type for dimensions, that could be used only for `px` values. So, the plugin converts `FLOAT` values into `dimension` type with `px` unit.
 
+---
+
 ## Design Tokens types
 
-In order to validate your JSON file, you can use TS types from this repo: [design-tokens-types](https://github.com/PavelLaptev/design-tokens-types).
+In order to validate types, the plugin uses the [Design Tokens types](https://github.com/PavelLaptev/tokens-bruecke/blob/main/token-types.d.ts).
+
+---
+
+## How to use
+
+---
 
 ## Settings
 
@@ -95,6 +155,14 @@ Link to the grid token repo: here
 # USE DTCG key format ($)
 
 Read more about DTCG [characters restrictions](https://design-tokens.github.io/community-group/format/#character-restrictions)
+
+---
+
+## CONTRIBUTION
+
+Comming soon.
+
+---
 
 ## CHANGELOG
 
