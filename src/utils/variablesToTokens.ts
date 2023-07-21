@@ -28,6 +28,8 @@ export const variablesToTokens = async (
       const variablesPerMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
+        // console.log("variable.scopes", variable.scopes);
+
         if (variableModeId === mode.modeId) {
           const aliasPath = getAliasVariableName({
             collectionName: collectionName,
@@ -65,6 +67,8 @@ export const variablesToTokens = async (
         return result;
       }, {});
 
+      // console.log("variablesPerMode", variablesPerMode);
+
       // check amount of modes and assign to "modes" or "modes[modeName]" variable
       if (modesAmount === 1) {
         Object.assign(modes, groupObjectNamesIntoCategories(variablesPerMode));
@@ -73,16 +77,10 @@ export const variablesToTokens = async (
       }
     });
 
+    console.log("modes", modes);
+
     mergedVariables[collectionName] = modes;
   });
-
-  // add meta to mergedVariables
-  mergedVariables["$meta"] = {
-    useDTCGKeys: JSONSettingsConfig.useDTCGKeys,
-    colorMode: JSONSettingsConfig.colorMode,
-    variableCollections: JSONSettingsConfig.variableCollections,
-    createdAt: new Date().toISOString(),
-  } as MetaPropsI;
 
   return mergedVariables;
 };

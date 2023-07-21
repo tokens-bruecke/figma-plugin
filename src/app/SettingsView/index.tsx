@@ -313,7 +313,7 @@ export const SettingsView = (props: ViewProps) => {
                 options: [
                   {
                     id: "rgba-css",
-                    label: "RGB CSS",
+                    label: "RGBA CSS",
                   },
                   {
                     id: "rgba-object",
@@ -325,11 +325,11 @@ export const SettingsView = (props: ViewProps) => {
                 options: [
                   {
                     id: "hsla-css",
-                    label: "HSL CSS",
+                    label: "HSLA CSS",
                   },
                   {
                     id: "hsla-object",
-                    label: "HSL Object",
+                    label: "HSLA Object",
                   },
                 ],
               },
@@ -599,7 +599,7 @@ export const SettingsView = (props: ViewProps) => {
               <Text>Documentation</Text>
             </a>
             <a href={config.changelogLink} target="_blank">
-              <Text>v.1.0.3</Text>
+              <Text>v.1.0.4</Text>
             </a>
           </Stack>
         </Panel>

@@ -62,14 +62,23 @@ const getTokens = async () => {
     JSONSettingsConfig.colorMode
   );
 
-  // console.log("styleTokens", styleTokens);
-
   // merge variables and styles
   const mergedVariables = mergeVaraiblsAndStyleTokens(
     variableTokens,
     styleTokens,
     JSONSettingsConfig.selectedCollection
   );
+
+  // add meta to mergedVariables
+  const metaData = {
+    useDTCGKeys: JSONSettingsConfig.useDTCGKeys,
+    colorMode: JSONSettingsConfig.colorMode,
+    variableCollections: JSONSettingsConfig.variableCollections,
+    createdAt: new Date().toISOString(),
+  } as MetaPropsI;
+
+  // add meta to mergedVariables
+  mergedVariables["$meta"] = metaData;
 
   // console.log("mergedVariables", mergedVariables);
 
