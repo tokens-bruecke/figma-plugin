@@ -39,6 +39,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Aliases handling](#aliases-handling)
   - [Variables types conversion](#variables-types-conversion)
   - [Design tokens types](#design-tokens-types)
+  - [Translation tools 🚧](#translation-tools-)
   - [Contribution 🚧](#contribution-)
   - [Changelog](#changelog)
 
@@ -373,6 +374,12 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 
 ---
 
+## Translation tools 🚧
+
+Comming soon.
+
+---
+
 ## Contribution 🚧
 
 Comming soon.
@@ -381,26 +388,26 @@ Comming soon.
 
 ## Changelog
 
-### 1.0.0
+**1.0.0**
 
 - Initial release
 
-### 1.0.1
+**1.0.1**
 
 - Fixed Aliases handling. Removed `mode` from the alias string if there is only one mode in the collection.
 
-### 1.0.2
+**1.0.2**
 
 - Fixed RGBA to HEXA conversion
 - Added color styles support
 - Added basic support for linear and radial gradients
 
-### 1.0.3
+**1.0.3**
 
 - HEX color fixed
 - Alias variables fixed
 
-### 1.0.4
+**1.0.4**
 
 - Fix scopes conversion
 - `$meta` info adding order fixed
