@@ -12,6 +12,36 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
 
 ## Table of contents
 
+- [TokensBrücke — Figma plugin](#tokensbrücke--figma-plugin)
+  - [What is this plugin for?](#what-is-this-plugin-for)
+  - [Table of contents](#table-of-contents)
+  - [How to use](#how-to-use)
+  - [General settings](#general-settings)
+    - [Color mode](#color-mode)
+    - [Include styles](#include-styles)
+    - [Add styles to](#add-styles-to)
+    - [Include variable scopes](#include-variable-scopes)
+    - [Use DTCG keys format](#use-dtcg-keys-format)
+  - [Connnect server](#connnect-server)
+    - [JSONBin](#jsonbin)
+    - [GitHub](#github)
+    - [Custom server](#custom-server)
+  - [Show output](#show-output)
+  - [Config autosaving](#config-autosaving)
+  - [Styles support](#styles-support)
+    - [Typography](#typography)
+    - [Grids](#grids)
+    - [Shadows](#shadows)
+    - [Blur](#blur)
+    - [Why there is no support for color styles?](#why-there-is-no-support-for-color-styles)
+    - [Gradients support 🚧](#gradients-support-)
+  - [Tokens structuring](#tokens-structuring)
+  - [Aliases handling](#aliases-handling)
+  - [Variables types conversion](#variables-types-conversion)
+  - [Design tokens types](#design-tokens-types)
+  - [Contribution 🚧](#contribution-)
+  - [Changelog](#changelog)
+
 ---
 
 ## How to use
