@@ -24,7 +24,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
 
 ---
 
-## Settings
+## General settings
 
 ### Color mode
 
@@ -48,6 +48,92 @@ Allows you to choose where to put styles in the generated JSON. By default, the 
 
 ### Include variable scopes
 
+Each Figma variable has a [scope property](https://www.figma.com/plugin-docs/api/VariableScope). The plugin allows you to include scopes into the generated JSON. It will be included as an array of strings without any transformations.
+
+```json
+{
+  "button": {
+    "background": {
+      "type": "color",
+      "value": "#000000",
+      "scopes": ["ALL_SCOPES"]
+    }
+  }
+}
+```
+
+### Use DTCG keys format
+
+Is `off` by default. Currently many design tokens tools doesn't support [DTCG keys format](https://design-tokens.github.io/community-group/format/#character-restrictions). All DTCG keys are prefixed with `$` symbol.
+
+```json
+// Without DTCG keys format
+{
+  "button": {
+    "background": {
+      "type": "color",
+      "value": "#000000"
+    }
+  }
+}
+
+// With DTCG keys format
+{
+  "button": {
+    "background": {
+      "$type": "color",
+      "$value": "#000000",
+    }
+  }
+}
+```
+
+---
+
+## Connnect server
+
+With this feature you can connect a server and push the generated JSON directly to it. At the moment the plugin supports [JSONBin](https://jsonbin.io), [GitHub](https://github.com) and custom servers.
+
+![fig.5](readme-assets/fig5.webp)
+
+If you connected multiple servers, the plugin will try to push the tokens to all of them one by one.
+In ordere to test if your credentials are valid you can make a test request by clicking the `Push to server` button (fig.6).
+
+![fig.6](readme-assets/fig6.webp)
+
+### [JSONBin](https://jsonbin.io)
+
+1. Open [JSONBin](https://jsonbin.io) and create an account.
+2. Generate a [new API key](https://jsonbin.io/api-reference/access-keys/create).
+3. If you want to use an existing bin, copy its ID. Otherwise jsut leave the ID field empty in the plugin settings.
+4. Add a name for the bin.
+
+![fig.7](readme-assets/fig7.webp)
+
+### [GitHub](https://github.com)
+
+1. You need to create a [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with `repo` scope.
+2. In the plugin settings paste the token into the `Token` field.
+3. Add an owner name, repository name and a branch name.
+4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
+5. You can also specify a commit message.
+
+![fig.8](readme-assets/fig8.webp)
+
+### Custom server
+
+There is a possibilty to connect a custom server. In order to do that you need to specify a URL, a method (by default it's `POST`) and headers.
+
+![fig.9](readme-assets/fig9.webp)
+
+---
+
+## Show output
+
+If you want to see the generated JSON, you can enable the `Show output` option. The plugin will show the JSON in the sidebar. The output doesn't update automatically, in order to optimize the performance. So, if you want to see the updated JSON, you need to click the `Update` button.
+
+![fig.10](readme-assets/fig10.webp)
+
 ---
 
 ## Config autosaving
@@ -67,11 +153,111 @@ Supported styles:
 - Shadows (including `inset` shadows)
 - Blur (including `background` and `layer` blur)
 
+### Typography
+
+```json
+"extralight": {
+  "type": "typography",
+  "value": {
+    "fontFamily": "Inter",
+    "fontWeight": 400,
+    "fontSize": "18px",
+    "lineHeight": "28px",
+    "letterSpacing": "0%"
+  },
+  "description": "",
+  "extensions": {
+    "styleId": "S:0ffe98ad785a13839980113831d5fbaf21724594,"
+  }
+}
+```
+
+### Grids
+
+In Figma you can add as many grids in the style as you want. But the plugin will take only first two grids and treat the first one as `column` grid and the second one as `row` grid.
+
+```json
+// Column grid
+"1024": {
+  "type": "grid",
+  "value": {
+    "columnCount": 12,
+    "columnGap": "20px",
+    "columnMargin": "40px"
+  }
+}
+
+// Row grid
+"1024": {
+  "type": "grid",
+  "value": {
+    "rowCount": 12,
+    "rowGap": "20px",
+    "rowMargin": "40px"
+  }
+}
+
+// Both grids
+"1024": {
+  "type": "grid",
+  "value": {
+    "columnCount": 12,
+    "columnGap": "20px",
+    "columnMargin": "40px",
+    "rowCount": 12,
+    "rowGap": "20px",
+    "rowMargin": "40px"
+  }
+}
+```
+
+### Shadows
+
+The plugin supports `drop-shadow` and `inner-shadow` effects. If the effect is `inner-shadow`, the plugin will set the `inset` property to `true`.
+
+```json
+"xl": {
+  "type": "shadow",
+  "value": {
+    "inset": false,
+    "color": "#0000000a",
+    "offsetX": "0px",
+    "offsetY": "10px",
+    "blur": "10px",
+    "spread": "-5px"
+  }
+}
+```
+
+### Blur
+
+The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON.
+
+```json
+// Background blur
+"sm": {
+  "type": "blur",
+  "value": {
+    "role": "background",
+    "blur": "4px"
+  }
+}
+
+// Layer blur
+"md": {
+  "type": "blur",
+  "value": {
+    "role": "layer",
+    "blur": "12px"
+  }
+}
+```
+
 ### Why there is no support for color styles?
 
 Despite the fact that color styles could be important for backward compatibility — the main goal of the plugin is to convert Figma variables into design tokens. Since Figma already has a support for color in variables, there is no need to convert also color styles into design tokens.
 
-### Gradients support
+### Gradients support 🚧
 
 Support for gradients is comming with the next major release.
 
@@ -151,64 +337,19 @@ Unlike design tokens, Figma variables now [support only 4 types](https://www.fig
 
 ---
 
-## Design Tokens types
+## Design tokens types
 
 In order to validate types, the plugin uses the [Design Tokens types](https://github.com/PavelLaptev/tokens-bruecke/blob/main/token-types.d.ts).
 
 ---
 
-## Settings
-
-### Names transform
-
-Allows you to transform
-
-## Scope
-
-Scope types https://www.figma.com/plugin-docs/api/VariableScope
-
-## Styles
-
-## Effects
-
-### Shadows
-
-Currently the specification supports only `drop-shadow` effect. But in order to support `inset` shadows, the `inset` property will be added to the `shadow` object.
-
-### WHY THERE IS NO SUPPORT FOR COLLORS?
-
-Because.
-
-### GRADIENTS
-
-Currect design tokens implementation doesnt' have a support for non-linear gradients, also it doesnt support the `angle` property.
-
-iisue: [https://github.com/design-tokens/community-group/issues/101](https://github.com/design-tokens/community-group/issues/101)
-
-## TODO:
-
-- Describe restrictions
-- Show current JSON implementation
-
-## GRIDS
-
-If you have multiple grid layouts, the plugin will take only first two and treat the first one as `column` grid and the second one as `row` grid.
-
-Link to the grid token repo: here
-
-# USE DTCG key format ($)
-
-Read more about DTCG [characters restrictions](https://design-tokens.github.io/community-group/format/#character-restrictions)
-
----
-
-## CONTRIBUTION
+## Contribution 🚧
 
 Comming soon.
 
 ---
 
-## CHANGELOG
+## Changelog
 
 ### 1.0.0
 
