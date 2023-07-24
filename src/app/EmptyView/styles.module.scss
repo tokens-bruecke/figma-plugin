@@ -5,7 +5,7 @@
   justify-content: center;
   height: 240px;
   width: 100%;
-  gap: 12px;
+  gap: 24px;
   padding: 20px 0 30px;
 
   transform: translateY(10px);
@@ -15,6 +15,12 @@
 
 .label {
   opacity: 0.6;
+}
+
+.group {
+  align-items: center;
+  width: 100%;
+  max-width: 200px;
 }
 
 @keyframes shaky {

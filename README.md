@@ -413,3 +413,7 @@ Comming soon.
 
 - Fix scopes conversion
 - `$meta` info adding order fixed
+
+**1.0.5**
+
+- Allowed to use plugin in files without variables

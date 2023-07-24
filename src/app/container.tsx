@@ -185,7 +185,7 @@ const Container = () => {
     }
 
     if (!fileHasVariables) {
-      return <EmptyView />;
+      return <EmptyView setFileHasVariables={setFileHasVariables} />;
     }
 
     return (
