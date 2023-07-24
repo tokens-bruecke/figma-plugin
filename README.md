@@ -22,7 +22,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Add styles to](#add-styles-to)
     - [Include variable scopes](#include-variable-scopes)
     - [Use DTCG keys format](#use-dtcg-keys-format)
-  - [Connnect server](#connnect-server)
+  - [Connect server](#connect-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
     - [Custom server](#custom-server)
@@ -70,6 +70,8 @@ Allows you to choose the color mode for the generated JSON. Default value is `HE
 ### Include styles
 
 Allows you to include styles into the generated JSON. See more about styles support in the [Styles support](#styles-support) section.
+
+There is an option to rename each style's group and give it a custom name for better organization.
 
 ### Add styles to
 
@@ -121,7 +123,7 @@ Is `off` by default. Currently many design tokens tools doesn't support [DTCG ke
 
 ---
 
-## Connnect server
+## Connect server
 
 With this feature you can connect a server and push the generated JSON directly to it. At the moment the plugin supports [JSONBin](https://jsonbin.io), [GitHub](https://github.com) and custom servers.
 
@@ -136,7 +138,7 @@ In ordere to test if your credentials are valid you can make a test request by c
 
 1. Open [JSONBin](https://jsonbin.io) and create an account.
 2. Generate a [new API key](https://jsonbin.io/api-reference/access-keys/create).
-3. If you want to use an existing bin, copy its ID. Otherwise jsut leave the ID field empty in the plugin settings.
+3. If you want to use an existing bin, copy its ID. Otherwise just leave the ID field empty in the plugin settings.
 4. Add a name for the bin.
 
 ![fig.7](readme-assets/fig7.webp)
@@ -319,7 +321,7 @@ For example, if you have a collection named `Colors`, mode named `Light` and var
 
 ![fig.1](readme-assets/fig2.webp)
 
-Figma automatically merge groups and their names into a single name, e.g. `Base/Primary/10` (fig.2). In this case, the plugin will generate the following JSON:
+Figma automatically merges groups and their names into a single name, e.g. `Base/Primary/10` (fig.2). In this case, the plugin will generate the following JSON:
 
 ```json
 {
