@@ -6,7 +6,8 @@ interface PropsI {
   variableType: VariableResolvedDataType;
   colorMode: colorModeType;
   variables: Variable[];
-  collectionName: string;
+  // collectionName: string;
+  collections: VariableCollection[];
   modeName: string;
   modesAmount: number;
 }
@@ -17,7 +18,7 @@ export const normalizeValue = (props: PropsI) => {
     variableType,
     colorMode,
     variables,
-    collectionName,
+    // collectionName,
     modeName,
     modesAmount,
   } = props;
@@ -30,6 +31,13 @@ export const normalizeValue = (props: PropsI) => {
       const variable = variables.find(
         (variable) => variable.id === variableValue.id
       ) as Variable;
+      const collectionId = variable.variableCollectionId;
+      const collectionName = props.collections.find(
+        (collection) => collection.id === collectionId
+      )?.name as string;
+
+      // console.log("collectionId", collectionId);
+      // console.log("collectionName", collectionName);
 
       const aliasPath = getAliasVariableName({
         collectionName: collectionName,

@@ -37,6 +37,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Gradients support 🚧](#gradients-support-)
   - [Tokens structuring](#tokens-structuring)
   - [Aliases handling](#aliases-handling)
+    - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
   - [Design tokens types](#design-tokens-types)
   - [Translation tools 🚧](#translation-tools-)
@@ -353,6 +354,12 @@ All aliases are converted into the alias string format from the [Design Tokens s
 
 ---
 
+### Handle modes
+
+If there is only one mode — the plugin wouldn't include it in a generated JSON.
+
+---
+
 ## Variables types conversion
 
 Unlike design tokens, Figma variables now [support only 4 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT` and `STRING`. So, the plugin converts them into the corresponding types from the [Design Tokens specification](https://design-tokens.github.io/community-group/format/#types).
@@ -417,3 +424,7 @@ Comming soon.
 **1.0.5**
 
 - Allowed to use plugin in files without variables
+
+**1.0.6**
+
+- [Reference tokens auto-referencing themselves in the exported JSON](https://github.com/PavelLaptev/tokens-bruecke/issues/1)
