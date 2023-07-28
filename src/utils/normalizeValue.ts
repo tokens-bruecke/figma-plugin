@@ -6,7 +6,6 @@ interface PropsI {
   variableType: VariableResolvedDataType;
   colorMode: colorModeType;
   variables: Variable[];
-  // collectionName: string;
   collections: VariableCollection[];
   modeName: string;
   modesAmount: number;
@@ -18,7 +17,6 @@ export const normalizeValue = (props: PropsI) => {
     variableType,
     colorMode,
     variables,
-    // collectionName,
     modeName,
     modesAmount,
   } = props;

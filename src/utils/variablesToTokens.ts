@@ -45,7 +45,6 @@ export const variablesToTokens = async (
               colorMode: colorMode,
               variables: variables,
               collections: collections,
-              // collectionName: collectionName,
               modeName: modeName,
               modesAmount: modesAmount,
             }),
