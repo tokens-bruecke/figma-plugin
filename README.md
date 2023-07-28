@@ -427,4 +427,12 @@ Comming soon.
 
 **1.0.6**
 
-- [Reference tokens auto-referencing themselves in the exported JSON](https://github.com/PavelLaptev/tokens-bruecke/issues/1)
+- WIP [Reference tokens auto-referencing themselves in the exported JSON](https://github.com/PavelLaptev/tokens-bruecke/issues/1)
+
+**1.0.7**
+
+- Code cleanup
+
+**1.0.8**
+
+- Fix for [Reference tokens auto-referencing themselves in the exported JSON](https://github.com/PavelLaptev/tokens-bruecke/issues/1)

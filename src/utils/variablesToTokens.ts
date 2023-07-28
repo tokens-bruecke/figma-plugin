@@ -12,8 +12,35 @@ export const variablesToTokens = async (
   JSONSettingsConfig: JSONSettingsConfigI
 ) => {
   const colorMode = JSONSettingsConfig.colorMode;
-
   const mergedVariables = {};
+
+  const allAliases = collections.reduce((result, collection) => {
+    const collectionName = collection.name;
+    const modesAmount = collection.modes.length;
+
+    collection.modes.forEach((mode, index) => {
+      const modeName = mode.name;
+
+      variables.forEach((variable) => {
+        const variableModeId = Object.keys(variable.valuesByMode)[index];
+
+        if (variableModeId === mode.modeId) {
+          const aliasPath = getAliasVariableName({
+            collectionName: collectionName,
+            modeName: modeName,
+            modesAmount: modesAmount,
+            variableName: variable.name,
+          });
+
+          result[variable.id] = aliasPath;
+        }
+
+        return result;
+      });
+    });
+
+    return result;
+  }, {});
 
   collections.forEach((collection) => {
     let modes = {};
@@ -28,25 +55,13 @@ export const variablesToTokens = async (
       const variablesPerMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
-        // console.log("variable.scopes", variable.scopes);
-
         if (variableModeId === mode.modeId) {
-          const aliasPath = getAliasVariableName({
-            collectionName: collectionName,
-            modeName: modeName,
-            modesAmount: modesAmount,
-            variableName: variable.name,
-          });
-
           const variableObject = {
             $value: normalizeValue({
               variableValue: variable.valuesByMode[variableModeId],
               variableType: variable.resolvedType,
               colorMode: colorMode,
-              variables: variables,
-              collections: collections,
-              modeName: modeName,
-              modesAmount: modesAmount,
+              allAliases: allAliases,
             }),
             $type: normilizeType(variable.resolvedType),
             $description: variable.description,
@@ -57,7 +72,7 @@ export const variablesToTokens = async (
             // add meta
             $extensions: {
               variableId: variable.id,
-              aliasPath: aliasPath,
+              aliasPath: allAliases[variable.id],
             },
           } as PluginTokenI;
 
@@ -67,8 +82,6 @@ export const variablesToTokens = async (
         return result;
       }, {});
 
-      // console.log("variablesPerMode", variablesPerMode);
-
       // check amount of modes and assign to "modes" or "modes[modeName]" variable
       if (modesAmount === 1) {
         Object.assign(modes, groupObjectNamesIntoCategories(variablesPerMode));
@@ -77,7 +90,7 @@ export const variablesToTokens = async (
       }
     });
 
-    console.log("modes", modes);
+    // console.log("modes", modes);
 
     mergedVariables[collectionName] = modes;
   });

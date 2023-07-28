@@ -1,50 +1,30 @@
 import { convertRGBA } from "./color/convertRGBA";
-import { getAliasVariableName } from "./getAliasVariableName";
 
 interface PropsI {
   variableValue: any;
   variableType: VariableResolvedDataType;
   colorMode: colorModeType;
-  variables: Variable[];
-  collections: VariableCollection[];
-  modeName: string;
-  modesAmount: number;
+  allAliases:
+    | {
+        [key: string]: string;
+      }[]
+    | {};
 }
 
 export const normalizeValue = (props: PropsI) => {
-  const {
-    variableValue,
-    variableType,
-    colorMode,
-    variables,
-    modeName,
-    modesAmount,
-  } = props;
+  const { variableValue, variableType, colorMode, allAliases } = props;
 
   if (typeof variableValue === "object") {
     if (variableValue?.type === "VARIABLE_ALIAS") {
       // console.log("VARIABLE_ALIAS", variableValue);
       // console.log("variables", variables);
 
-      const variable = variables.find(
-        (variable) => variable.id === variableValue.id
-      ) as Variable;
-      const collectionId = variable.variableCollectionId;
-      const collectionName = props.collections.find(
-        (collection) => collection.id === collectionId
-      )?.name as string;
+      const aliasVariableId = variableValue.id;
+      const aliasVariablePath = allAliases[aliasVariableId];
 
-      // console.log("collectionId", collectionId);
-      // console.log("collectionName", collectionName);
+      // console.log(variableValue, aliasVariablePath);
 
-      const aliasPath = getAliasVariableName({
-        collectionName: collectionName,
-        modeName: modeName,
-        modesAmount: modesAmount,
-        variableName: variable.name,
-      });
-
-      return aliasPath;
+      return aliasVariablePath;
     }
   }
 
