@@ -1,10 +1,12 @@
 export const getLineHeight = (lineHeight: LineHeight) => {
   if (lineHeight.unit === "PIXELS") {
-    return `${lineHeight.value}px`;
+    const roundedValue = Math.round(lineHeight.value);
+    return `${roundedValue}px`;
   }
 
   if (lineHeight.unit === "PERCENT") {
-    return `${lineHeight.value}%`;
+    const roundedValue = Math.round(lineHeight.value);
+    return `${roundedValue}%`;
   }
 
   if (lineHeight.unit === "AUTO") {

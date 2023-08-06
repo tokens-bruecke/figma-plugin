@@ -443,3 +443,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **1.0.8**
 
 - Fix for [Reference tokens auto-referencing themselves in the exported JSON](https://github.com/PavelLaptev/tokens-bruecke/issues/1)
+
+**1.0.9**
+
+- Fixed `line-height` value conversion. It wasn't rounded to the nearest integer.
