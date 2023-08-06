@@ -40,7 +40,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
   - [Design tokens types](#design-tokens-types)
-  - [Translation tools 🚧](#translation-tools-)
+  - [Style Dictionary support](#style-dictionary-support)
   - [Contribution 🚧](#contribution-)
   - [Feedback](#feedback)
   - [Changelog](#changelog)
@@ -384,9 +384,9 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 
 ---
 
-## Translation tools 🚧
+## Style Dictionary support
 
-Comming soon.
+There is a set of utils for [Style Dictionary](https://github.com/tokens-bruecke/sd-utils).
 
 ---
 
