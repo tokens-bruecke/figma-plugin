@@ -42,6 +42,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Design tokens types](#design-tokens-types)
   - [Translation tools 🚧](#translation-tools-)
   - [Contribution 🚧](#contribution-)
+  - [Feedback](#feedback)
   - [Changelog](#changelog)
 
 ---
@@ -392,6 +393,12 @@ Comming soon.
 ## Contribution 🚧
 
 Comming soon.
+
+---
+
+## Feedback
+
+If you have any questions or suggestions, feel free to [create an issue](https://github.com/tokens-bruecke/figma-plugin/issues)
 
 ---
 
