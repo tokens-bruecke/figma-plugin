@@ -11,6 +11,9 @@ interface CodePreviewViewProps {
 }
 
 export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
+  const [isButtonAnimated, setIsButtonAnimated] =
+    React.useState<boolean>(false);
+
   const getTokensPreview = () => {
     // send command to figma controller
     parent.postMessage(
@@ -22,6 +25,14 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
       },
       "*"
     );
+
+    // start animation
+    setIsButtonAnimated(true);
+
+    // stop animation
+    setTimeout(() => {
+      setIsButtonAnimated(false);
+    }, 500);
   };
 
   const getTokensStat = () => {
@@ -61,7 +72,9 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
     <section className={styles.codePreview}>
       <section className={styles.previewToolbar}>
         <button
-          className={`${styles.toolbarItem} ${styles.previewToolbarButton}`}
+          className={`${styles.toolbarItem} ${styles.previewToolbarButton} ${
+            isButtonAnimated ? styles.successUpdateAnimation : ""
+          }`}
           onClick={getTokensPreview}
         >
           <Icon name="refresh" size="16" />

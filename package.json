@@ -1,6 +1,6 @@
 {
   "name": "tokens-bruecke",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "license": "MIT",
   "author": {
     "name": "Pavel Laptev",
@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.70.0",
+    "@tokens-bruecke/tokens-types": "git+https://github.com/tokens-bruecke/token-types.git#1.2.0",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
     "buffer": "^6.0.3",

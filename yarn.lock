@@ -162,6 +162,10 @@
   dependencies:
     "@octokit/openapi-types" "^18.0.0"
 
+"@tokens-bruecke/tokens-types@git+https://github.com/tokens-bruecke/token-types.git#1.2.0":
+  version "1.2.0"
+  resolved "git+https://github.com/tokens-bruecke/token-types.git#bf5300c8e3127a068fe535d4b20ee96aa647c1a2"
+
 "@types/eslint-scope@^3.7.3":
   version "3.7.4"
   resolved "https://registry.npmjs.org/@types/eslint-scope/-/eslint-scope-3.7.4.tgz"

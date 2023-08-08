@@ -97,6 +97,21 @@
   }
 }
 
+.successUpdateAnimation {
+  animation: successUpdateAnimation 0.5s 1;
+}
+
+@keyframes successUpdateAnimation {
+  0% {
+    background-color: var(--figma-color-bg-success);
+    transform: scale(0.96);
+  }
+  100% {
+    background-color: var(--figma-color-bg-inverse);
+    transform: scale(1);
+  }
+}
+
 .previewToolbarStat {
   background-color: var(--figma-color-bg);
 }
