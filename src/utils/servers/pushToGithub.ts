@@ -69,20 +69,32 @@ export const pushToGithub = async (
     });
 
     if (error.status === 404) {
-      const response = await octokit.request(
-        "PUT /repos/{owner}/{repo}/contents/{path}",
-        commonPushParams
-      );
+      try {
+        const response = await octokit.request(
+          "PUT /repos/{owner}/{repo}/contents/{path}",
+          commonPushParams
+        );
 
-      // handle status response
-      console.log("File created successfully:", response);
-      callback({
-        title: "Github: Created successfully",
-        message: "Tokens on Github have been created successfully",
-        options: {
-          type: "success",
-        },
-      });
+        // handle status response
+        console.log("File created successfully:", response);
+        callback({
+          title: "Github: Created successfully",
+          message: "Tokens on Github have been created successfully",
+          options: {
+            type: "success",
+          },
+        });
+      } catch (error) {
+        // handle status response
+        console.error("Error creating file:", error);
+        callback({
+          title: "Github: Error creating file",
+          message: `Error creating file: ${error.message}.`,
+          options: {
+            type: "error",
+          },
+        });
+      }
     }
   }
 };
