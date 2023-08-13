@@ -599,7 +599,7 @@ export const SettingsView = (props: ViewProps) => {
               <Text>Documentation</Text>
             </a>
             <a href={config.changelogLink} target="_blank">
-              <Text>v.1.1.0</Text>
+              <Text>v.1.1.1</Text>
             </a>
           </Stack>
         </Panel>

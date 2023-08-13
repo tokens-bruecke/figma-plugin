@@ -452,3 +452,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 - `Update` button animation added
 - added token types as a separate package
+
+**1.1.1**
+
+- Updated errors handling for GitHub server
