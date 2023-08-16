@@ -75,6 +75,8 @@ Allows you to include styles into the generated JSON. See more about styles supp
 
 There is an option to rename each style's group and give it a custom name for better organization.
 
+![rename-styles](readme-assets/rename-styles.gif)
+
 ### Add styles to
 
 Allows you to choose where to put styles in the generated JSON. By default, the selected value is `Keep separate`. In this case styles will be added into the root of the JSON and will be treated as collections. There is also an option to add styles into the corresponding collection (fig.4).
