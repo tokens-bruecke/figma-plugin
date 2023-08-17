@@ -1,15 +1,27 @@
-interface PropsI {
-  collectionName: string;
-  modeName: string;
-  modesAmount: number;
-  variableName: string;
-}
+import { concatAliasVariableName } from "./concatAliasVariableName";
 
-export const getAliasVariableName = (props: PropsI) => {
-  const { collectionName, modeName, modesAmount, variableName } = props;
+export const getAliasVariableName = (variableId: string, modeName: string) => {
+  const variableObj = figma.variables.getVariableById(variableId) as Variable;
+  const collectionObj = figma.variables.getVariableCollectionById(
+    variableObj.variableCollectionId
+  ) as VariableCollection;
+  const modesAmount = collectionObj.modes.length;
 
-  const parentPath =
-    modesAmount === 1 ? collectionName : `${collectionName}.${modeName}`;
-  const variableParts = variableName.split("/");
-  return `{${parentPath}.${variableParts.join(".")}}`;
+  // console.log("variable Obj", variableObj);
+  // console.log("collection Obj", collectionObj);
+
+  const variableName = variableObj.name;
+  const collectionName = collectionObj.name;
+
+  const aliasName = concatAliasVariableName({
+    collectionName: collectionName,
+    modeName: modeName,
+    modesAmount: modesAmount,
+    variableName: variableName,
+  });
+
+  // console.log("aliasName", aliasName);
+  // console.log("// -------------------------- //");
+
+  return aliasName;
 };

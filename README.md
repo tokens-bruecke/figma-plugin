@@ -37,6 +37,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Gradients support 🚧](#gradients-support-)
   - [Tokens structuring](#tokens-structuring)
   - [Aliases handling](#aliases-handling)
+    - [Handle variables from another file](#handle-variables-from-another-file)
     - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
   - [Design tokens types](#design-tokens-types)
@@ -357,6 +358,29 @@ All aliases are converted into the alias string format from the [Design Tokens s
 
 ---
 
+### Handle variables from another file
+
+Imagine you have a library from another file with "base" variables. And you use this variables in your current file.
+
+The plugin will generate the alias name anyway, but it will be a path to the variable as if it was in the current file.
+
+```json
+{
+  "button": {
+    "background": {
+      "type": "color",
+      "value": "{colors.light.primary.10}"
+    }
+  }
+}
+```
+
+The plugin wouldn't include the variable into the generated JSON in order to avoid duplicates or conflicts with JSON files you can generate from another Figma files.
+
+So you will need to merge the file with the base variables from one file with another where you use them. Otherwise tools like Style Dictionary wouldn't be able to resolve the aliases.
+
+---
+
 ### Handle modes
 
 If there is only one mode — the plugin wouldn't include it in a generated JSON.
@@ -458,3 +482,9 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **1.1.1**
 
 - Updated errors handling for GitHub server
+
+**1.2.0**
+
+- Updated method to check `VARIABLE_ALIAS` in `normalizeValue` function
+- Handle aliases from another files
+- Removed the property `aliasPath` from `$extensions` object, since it's not needed anymore

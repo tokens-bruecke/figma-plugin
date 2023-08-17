@@ -1,4 +1,4 @@
-import { getAliasVariableName } from "./getAliasVariableName";
+// import { generateAliasName } from "./concatAliasVariableName";
 import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
 
@@ -14,33 +14,33 @@ export const variablesToTokens = async (
   const colorMode = JSONSettingsConfig.colorMode;
   const mergedVariables = {};
 
-  const allAliases = collections.reduce((result, collection) => {
-    const collectionName = collection.name;
-    const modesAmount = collection.modes.length;
+  // const allAliases = collections.reduce((result, collection) => {
+  //   const collectionName = collection.name;
+  //   const modesAmount = collection.modes.length;
 
-    collection.modes.forEach((mode, index) => {
-      const modeName = mode.name;
+  //   collection.modes.forEach((mode, index) => {
+  //     const modeName = mode.name;
 
-      variables.forEach((variable) => {
-        const variableModeId = Object.keys(variable.valuesByMode)[index];
+  //     variables.forEach((variable) => {
+  //       const variableModeId = Object.keys(variable.valuesByMode)[index];
 
-        if (variableModeId === mode.modeId) {
-          const aliasPath = getAliasVariableName({
-            collectionName: collectionName,
-            modeName: modeName,
-            modesAmount: modesAmount,
-            variableName: variable.name,
-          });
+  //       if (variableModeId === mode.modeId) {
+  //         const aliasPath = generateAliasName({
+  //           collectionName: collectionName,
+  //           modeName: modeName,
+  //           modesAmount: modesAmount,
+  //           variableName: variable.name,
+  //         });
 
-          result[variable.id] = aliasPath;
-        }
+  //         result[variable.id] = aliasPath;
+  //       }
 
-        return result;
-      });
-    });
+  //       return result;
+  //     });
+  //   });
 
-    return result;
-  }, {});
+  //   return result;
+  // }, {});
 
   collections.forEach((collection) => {
     let modes = {};
@@ -55,13 +55,16 @@ export const variablesToTokens = async (
       const variablesPerMode = variables.reduce((result, variable) => {
         const variableModeId = Object.keys(variable.valuesByMode)[index];
 
+        // console.log("variable", variable);
+
         if (variableModeId === mode.modeId) {
           const variableObject = {
             $value: normalizeValue({
-              variableValue: variable.valuesByMode[variableModeId],
+              modeName: modeName,
               variableType: variable.resolvedType,
+              variableValue: variable.valuesByMode[variableModeId],
               colorMode: colorMode,
-              allAliases: allAliases,
+              // allAliases: allAliases,
             }),
             $type: normilizeType(variable.resolvedType),
             $description: variable.description,
@@ -72,7 +75,6 @@ export const variablesToTokens = async (
             // add meta
             $extensions: {
               variableId: variable.id,
-              aliasPath: allAliases[variable.id],
             },
           } as PluginTokenI;
 
