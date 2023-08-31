@@ -8,7 +8,7 @@ import { stylesToTokens } from "../utils/styles/stylesToTokens";
 // import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
 
 import { variablesToTokens } from "../utils/variablesToTokens";
-import { mergeVaraiblsAndStyleTokens } from "../utils/mergeVaraiblsAndStyleTokens";
+import { mergeStylesIntoTokens } from "../utils/mergeStylesIntoTokens";
 
 import { removeDollarSign } from "../utils/removeDollarSign";
 
@@ -60,7 +60,7 @@ const getTokens = async () => {
   );
 
   // merge variables and styles
-  const mergedVariables = mergeVaraiblsAndStyleTokens(
+  const mergedVariables = mergeStylesIntoTokens(
     variableTokens,
     styleTokens,
     JSONSettingsConfig.selectedCollection

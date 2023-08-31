@@ -4,7 +4,7 @@ import { Octokit } from "@octokit/core";
 export const pushToGithub = async (
   credentials: GithubCredentialsI,
   tokens: any,
-  callback: (props: ToastIPropsI) => void
+  toastCallback: (props: ToastIPropsI) => void
 ) => {
   const ghToken = credentials.token;
   const ghUser = credentials.owner;
@@ -50,7 +50,7 @@ export const pushToGithub = async (
 
     // handle status response
     console.log("File updated successfully:", response);
-    callback({
+    toastCallback({
       title: "Github: Updated successfully",
       message: "Tokens on Github have been updated successfully",
       options: {
@@ -60,11 +60,11 @@ export const pushToGithub = async (
   } catch (error) {
     // handle status response
     console.error("Error upating file:", error);
-    callback({
+    toastCallback({
       title: "Github: Error upating file",
       message: `Error upating file: ${error.message}. The plugin will try to create the file instead.`,
       options: {
-        type: "error",
+        type: "warn",
       },
     });
 
@@ -77,7 +77,7 @@ export const pushToGithub = async (
 
         // handle status response
         console.log("File created successfully:", response);
-        callback({
+        toastCallback({
           title: "Github: Created successfully",
           message: "Tokens on Github have been created successfully",
           options: {
@@ -87,7 +87,7 @@ export const pushToGithub = async (
       } catch (error) {
         // handle status response
         console.error("Error creating file:", error);
-        callback({
+        toastCallback({
           title: "Github: Error creating file",
           message: `Error creating file: ${error.message}.`,
           options: {

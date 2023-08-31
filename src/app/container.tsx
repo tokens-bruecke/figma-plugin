@@ -63,6 +63,15 @@ const Container = () => {
         owner: "",
         commitMessage: "",
       },
+      gitlab: {
+        isEnabled: false,
+        token: "",
+        repo: "",
+        branch: "",
+        fileName: "",
+        owner: "",
+        commitMessage: "",
+      },
       customURL: {
         isEnabled: false,
         url: "",
@@ -109,8 +118,6 @@ const Container = () => {
 
       // check storage on load
       if (type === "storageConfig") {
-        console.log("storageConfig <<<<");
-
         if (storageConfig) {
           setJSONsettingsConfig(storageConfig);
         }

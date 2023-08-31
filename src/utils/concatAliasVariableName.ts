@@ -11,5 +11,5 @@ export const concatAliasVariableName = (props: PropsI) => {
   const parentPath =
     modesAmount === 1 ? collectionName : `${collectionName}.${modeName}`;
   const variableParts = variableName.split("/");
-  return `{${parentPath}.${variableParts.join(".")}}`;
+  return `{${parentPath}.${variableParts.join(".")}.value}`;
 };

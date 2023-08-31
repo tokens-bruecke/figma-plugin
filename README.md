@@ -488,3 +488,12 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 - Updated method to check `VARIABLE_ALIAS` in `normalizeValue` function
 - Handle aliases from another files
 - Removed the property `aliasPath` from `$extensions` object, since it's not needed anymore
+
+**1.3.0**
+
+- Functions names refactoring
+
+<!-- **1.3.1**
+
+- Added `warning` type to the `Toast` component
+- minor refactoring -->

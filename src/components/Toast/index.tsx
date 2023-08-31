@@ -57,7 +57,11 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
             onClick={() => handleClose(index)}
           >
             <Text fontWeight="bold" className={styles.title}>
-              {toast.options.type === "error" ? "⛔ ️ " : "🎉 ️ "}
+              {toast.options.type === "error"
+                ? "⛔️ "
+                : toast.options.type === "warn"
+                ? "⚠️ "
+                : "🎉 "}
               {toast.title}
             </Text>
 

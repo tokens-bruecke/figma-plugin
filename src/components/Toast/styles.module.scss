@@ -71,6 +71,14 @@
   }
 }
 
+.warn {
+  background: var(--figma-color-bg-warning-tertiary);
+
+  .message {
+    color: var(--figma-color-text-warning-tertiary);
+  }
+}
+
 .info {
   background: var(--figma-color-bg);
 }

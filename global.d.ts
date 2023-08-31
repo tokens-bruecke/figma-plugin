@@ -52,6 +52,16 @@ interface GithubCredentialsI {
   commitMessage?: string;
 }
 
+interface GitlabCredentialsI {
+  isEnabled: boolean;
+  owner: string;
+  repo: string;
+  branch: string;
+  fileName: string;
+  token: string;
+  commitMessage?: string;
+}
+
 interface CustomURLCredentialsI {
   isEnabled: boolean;
   url: string;
@@ -69,6 +79,7 @@ interface JSONSettingsConfigI {
   servers: {
     jsonbin: JsonbinCredentialsI;
     github: GithubCredentialsI;
+    gitlab: GitlabCredentialsI;
     customURL: CustomURLCredentialsI;
   };
 }
@@ -126,7 +137,7 @@ interface ToastIPropsI {
   title: string;
   message: string;
   options: {
-    type?: "success" | "error" | "info";
+    type?: "success" | "error" | "warn" | "info";
     timeout?: number;
     onClose?: () => void;
   };

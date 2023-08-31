@@ -68,7 +68,7 @@ const viewsConfig = {
     title: "Github credentials",
     description: (
       <>
-        To use Github you need to create a{" "}
+        In order to post on Github you need to have a{" "}
         <a
           href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
           target="_blank"
@@ -84,6 +84,67 @@ const viewsConfig = {
       {
         id: "token",
         placeholder: "Personal access token",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "owner",
+        placeholder: "Owner",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "repo",
+        placeholder: "Repo name",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "branch",
+        placeholder: "Branch name",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "fileName",
+        placeholder: "File name",
+        type: "input",
+        value: "design.tokens.json",
+        required: true,
+      },
+      {
+        id: "commitMessage",
+        placeholder: "Commit message (optional)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+    ],
+  },
+  gitlab: {
+    title: "Gitlab credentials",
+    description: (
+      <>
+        In order to post on Gitlab you need to have a{" "}
+        <a
+          href="https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          project access token
+        </a>
+        .
+      </>
+    ),
+    isEnabled: false,
+    fields: [
+      {
+        id: "token",
+        placeholder: "Project access token",
         type: "input",
         value: "",
         required: true,
@@ -170,10 +231,12 @@ export const ServerSettingsView = (props: ViewProps) => {
 
   const [config, setConfig] = useState(
     viewsConfig[props.server].fields.reduce((acc, field) => {
+      const serverSettings = JSONsettingsConfig.servers[props.server] || {}; // Ensure server settings exist
+
       return {
         ...acc,
-        isEnabled: JSONsettingsConfig.servers[props.server]["isEnabled"],
-        [field.id]: JSONsettingsConfig.servers[props.server][field.id],
+        isEnabled: serverSettings.isEnabled || false, // Provide a default value (false in this case)
+        [field.id]: serverSettings[field.id], // This may be undefined if the field does not exist in server settings
       };
     }, {} as LocalConfigI)
   );
@@ -187,6 +250,9 @@ export const ServerSettingsView = (props: ViewProps) => {
   /////////////////
   // MAIN RENDER //
   /////////////////
+
+  // console.log("props.server", props.server);
+  // console.log("viewsConfig[props.server]", viewsConfig[props.server]);
 
   return (
     <Panel hasLeftRightPadding={false} hasTopBottomPadding bottomBorder={false}>
@@ -209,6 +275,8 @@ export const ServerSettingsView = (props: ViewProps) => {
 
         <Stack gap="var(--space-extra-small)">
           {viewsConfig[props.server].fields.map((field) => {
+            // console.log("field", field);
+
             const handleErrorsOnBlur = (value: string) => {
               if (value === "" && field.required) {
                 setErrorFields((prevState) => {
@@ -237,7 +305,9 @@ export const ServerSettingsView = (props: ViewProps) => {
                 key={field.id}
                 id={field.id}
                 placeholder={field.placeholder}
-                value={JSONsettingsConfig.servers[props.server][field.id] || ""}
+                value={
+                  JSONsettingsConfig.servers[props.server]?.[field.id] || ""
+                }
                 onChange={handleChange}
                 onBlur={handleErrorsOnBlur}
                 onFocus={clearErrorOnFocus}
@@ -307,7 +377,9 @@ export const ServerSettingsView = (props: ViewProps) => {
                         return {
                           ...acc,
                           ["isEnabled"]: false,
-                          [field.id]: "",
+                          [field.id]: viewsConfig[props.server].fields.find(
+                            (item) => item.id === field.id
+                          )?.value,
                         };
                       }
                     ),

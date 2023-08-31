@@ -22,6 +22,7 @@ import { ServerSettingsView } from "../ServerSettingsView";
 
 import { pushToJSONBin } from "../../utils/servers/pushToJSONBin";
 import { pushToGithub } from "../../utils/servers/pushToGithub";
+import { pushToGitlab } from "../../utils/servers/pushToGitlab";
 import { pushToCustomURL } from "../../utils/servers/pushToCustomURL";
 
 import { downloadTokensFile } from "../../utils/downloadTokensFile";
@@ -72,6 +73,11 @@ const serverList = [
     id: "github",
     label: "Github",
     iconName: "github",
+  },
+  {
+    id: "gitlab",
+    label: "Gitlab",
+    iconName: "gitlab",
   },
   {
     id: "customURL",
@@ -129,7 +135,7 @@ export const SettingsView = (props: ViewProps) => {
 
   const handleServerView = (serverId: string) => {
     props.setCurrentView(serverId);
-    // setIsCodePreviewOpen(false);
+    // console.log("serverId", serverId);
   };
 
   const getTokensPreview = () => {
@@ -214,10 +220,21 @@ export const SettingsView = (props: ViewProps) => {
           }
 
           if (server.includes("github")) {
-            console.log("github config", JSONsettingsConfig.servers.github);
+            // console.log("github config", JSONsettingsConfig.servers.github);
             console.log("push to github");
             await pushToGithub(
               JSONsettingsConfig.servers.github,
+              tokens,
+              (params) => {
+                toastRef.current.show(params);
+              }
+            );
+          }
+
+          if (server.includes("gitlab")) {
+            console.log("push to gitlab");
+            await pushToGitlab(
+              JSONsettingsConfig.servers.gitlab,
               tokens,
               (params) => {
                 toastRef.current.show(params);
@@ -260,7 +277,7 @@ export const SettingsView = (props: ViewProps) => {
   );
 
   const dynamicServerList = serverList.filter((server) => {
-    if (!JSONsettingsConfig.servers[server.id].isEnabled) {
+    if (!JSONsettingsConfig.servers[server.id]?.isEnabled) {
       return server;
     }
   });
@@ -540,6 +557,13 @@ export const SettingsView = (props: ViewProps) => {
         )}
       </Panel>
 
+      {/* <Button
+        label="Push to Gitlab"
+        onClick={() => {
+          pushToGitlab();
+        }}
+      /> */}
+
       <Panel hasLeftRightPadding bottomBorder={false}>
         <Stack hasLeftRightPadding hasTopBottomPadding>
           <Button
@@ -552,6 +576,10 @@ export const SettingsView = (props: ViewProps) => {
       </Panel>
     </>
   );
+
+  // Select which view to render
+  // based on currentView state
+
   const commonProps = {
     JSONsettingsConfig,
     setJSONsettingsConfig,
@@ -559,7 +587,6 @@ export const SettingsView = (props: ViewProps) => {
   };
 
   const selectRender = () => {
-    // currentView
     if (currentView === "main") {
       return mainView;
     }
@@ -570,6 +597,10 @@ export const SettingsView = (props: ViewProps) => {
 
     if (currentView === "github") {
       return <ServerSettingsView {...commonProps} server="github" />;
+    }
+
+    if (currentView === "gitlab") {
+      return <ServerSettingsView {...commonProps} server="gitlab" />;
     }
 
     if (currentView === "customURL") {
@@ -599,7 +630,7 @@ export const SettingsView = (props: ViewProps) => {
               <Text>Documentation</Text>
             </a>
             <a href={config.changelogLink} target="_blank">
-              <Text>v.1.2.0</Text>
+              <Text>v.1.3.0</Text>
             </a>
           </Stack>
         </Panel>
