@@ -60,13 +60,6 @@ export const pushToGithub = async (
   } catch (error) {
     // handle status response
     console.error("Error upating file:", error);
-    toastCallback({
-      title: "Github: Error upating file",
-      message: `Error upating file: ${error.message}. The plugin will try to create the file instead.`,
-      options: {
-        type: "warn",
-      },
-    });
 
     if (error.status === 404) {
       try {
@@ -95,6 +88,14 @@ export const pushToGithub = async (
           },
         });
       }
+    } else {
+      toastCallback({
+        title: "Github: An error occurred",
+        message: error.message,
+        options: {
+          type: "error",
+        },
+      });
     }
   }
 };

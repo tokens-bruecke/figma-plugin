@@ -1,7 +1,12 @@
 import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
+import { getTokenKeyName } from "../getTokenKeyName";
 
-export const gridStylesToTokens = async (customName: string) => {
+export const gridStylesToTokens = async (
+  customName: string,
+  isDTCGForamt: boolean
+) => {
   let textTokens = {};
+  const keyNames = getTokenKeyName(isDTCGForamt);
 
   const gridStyles = figma.getLocalGridStyles();
 
@@ -15,8 +20,8 @@ export const gridStylesToTokens = async (customName: string) => {
     const rowGrid = firstTwoGrids[1];
 
     const styleObject = {
-      $type: "grid",
-      $value: {
+      [keyNames.type]: "grid",
+      [keyNames.value]: {
         columnCount: columnGrid?.count,
         columnGap: columnGrid?.gutterSize
           ? `${columnGrid?.gutterSize}px`
@@ -34,7 +39,7 @@ export const gridStylesToTokens = async (customName: string) => {
           : undefined,
         rowMargin: rowGrid?.offset ? `${rowGrid?.offset}px` : undefined,
       },
-    } as GridTokenI;
+    } as unknown as GridTokenI;
 
     result[styleName] = styleObject;
 

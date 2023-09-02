@@ -2,15 +2,11 @@ import { checkForVariables } from "../utils/controller/checkForVariables";
 import { getStorageConfig } from "../utils/controller/getStorageConfig";
 
 import { stylesToTokens } from "../utils/styles/stylesToTokens";
-// import { colorStylesToTokens } from "../utils/styles/colorStylesToTokens";
-// import { textStylesToTokens } from "../utils/styles/textStylesToTokens";
-// import { gridStylesToTokens } from "../utils/styles/gridStylesToTokens";
-// import { effectStylesToTokens } from "../utils/styles/effectStylesToTokens";
 
 import { variablesToTokens } from "../utils/variablesToTokens";
 import { mergeStylesIntoTokens } from "../utils/mergeStylesIntoTokens";
 
-import { removeDollarSign } from "../utils/removeDollarSign";
+// import { removeDollarSign } from "../utils/removeDollarSign";
 
 import { config } from "../utils/config";
 
@@ -54,10 +50,11 @@ const getTokens = async () => {
   );
 
   // convert styles to tokens
-  const styleTokens = await stylesToTokens(
-    JSONSettingsConfig.includeStyles,
-    JSONSettingsConfig.colorMode
-  );
+  const styleTokens = await stylesToTokens({
+    includedStyles: JSONSettingsConfig.includedStyles,
+    colorMode: JSONSettingsConfig.colorMode,
+    isDTCGForamt: JSONSettingsConfig.useDTCGKeys,
+  });
 
   // merge variables and styles
   const mergedVariables = mergeStylesIntoTokens(
@@ -103,12 +100,9 @@ figma.ui.onmessage = async (msg) => {
   // generate tokens and send them to the UI
   if (msg.type === "getTokens") {
     await getTokens().then((tokens) => {
-      const isDTCGKeys = JSONSettingsConfig.useDTCGKeys;
-      const updatedTokens = isDTCGKeys ? tokens : removeDollarSign(tokens);
-
       figma.ui.postMessage({
         type: "setTokens",
-        tokens: updatedTokens,
+        tokens: tokens,
         role: msg.role,
         server: msg.server,
       } as TokensMessageI);

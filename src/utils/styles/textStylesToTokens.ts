@@ -3,9 +3,14 @@ import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategorie
 import { getLineHeight } from "../text/getLineHeight";
 import { getLetterSpacing } from "../text/getLetterSpacing";
 import { getFontWeight } from "../text/getFontWeight";
+import { getTokenKeyName } from "../getTokenKeyName";
 
-export const textStylesToTokens = async (customName: string) => {
+export const textStylesToTokens = async (
+  customName: string,
+  isDTCGForamt: boolean
+) => {
   let textTokens = {};
+  const keyNames = getTokenKeyName(isDTCGForamt);
 
   const textStyles = figma.getLocalTextStyles();
 
@@ -15,19 +20,19 @@ export const textStylesToTokens = async (customName: string) => {
     const styleName = style.name;
 
     const styleObject = {
-      $value: {
+      [keyNames.type]: "typography",
+      [keyNames.value]: {
         fontFamily: style.fontName.family,
         fontWeight: getFontWeight(style.fontName.style),
         fontSize: `${style.fontSize}px`,
         lineHeight: getLineHeight(style.lineHeight),
         letterSpacing: getLetterSpacing(style.letterSpacing),
       },
-      $type: "typography",
-      $description: style.description,
+      [keyNames.description]: style.description,
       $extensions: {
         styleId: style.id,
       },
-    } as TypographyTokenI;
+    } as unknown as TypographyTokenI;
 
     result[styleName] = styleObject;
 

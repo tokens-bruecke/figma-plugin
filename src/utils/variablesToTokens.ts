@@ -1,6 +1,6 @@
-// import { generateAliasName } from "./concatAliasVariableName";
 import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
+import { getTokenKeyName } from "./getTokenKeyName";
 
 import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
 
@@ -12,35 +12,9 @@ export const variablesToTokens = async (
   JSONSettingsConfig: JSONSettingsConfigI
 ) => {
   const colorMode = JSONSettingsConfig.colorMode;
+  const isDTCGForamt = JSONSettingsConfig.useDTCGKeys;
+  const keyNames = getTokenKeyName(isDTCGForamt);
   const mergedVariables = {};
-
-  // const allAliases = collections.reduce((result, collection) => {
-  //   const collectionName = collection.name;
-  //   const modesAmount = collection.modes.length;
-
-  //   collection.modes.forEach((mode, index) => {
-  //     const modeName = mode.name;
-
-  //     variables.forEach((variable) => {
-  //       const variableModeId = Object.keys(variable.valuesByMode)[index];
-
-  //       if (variableModeId === mode.modeId) {
-  //         const aliasPath = generateAliasName({
-  //           collectionName: collectionName,
-  //           modeName: modeName,
-  //           modesAmount: modesAmount,
-  //           variableName: variable.name,
-  //         });
-
-  //         result[variable.id] = aliasPath;
-  //       }
-
-  //       return result;
-  //     });
-  //   });
-
-  //   return result;
-  // }, {});
 
   collections.forEach((collection) => {
     let modes = {};
@@ -59,15 +33,15 @@ export const variablesToTokens = async (
 
         if (variableModeId === mode.modeId) {
           const variableObject = {
-            $value: normalizeValue({
+            [keyNames.type]: normilizeType(variable.resolvedType),
+            [keyNames.value]: normalizeValue({
               modeName: modeName,
               variableType: variable.resolvedType,
               variableValue: variable.valuesByMode[variableModeId],
               colorMode: colorMode,
-              // allAliases: allAliases,
+              isDTCGForamt: isDTCGForamt,
             }),
-            $type: normilizeType(variable.resolvedType),
-            $description: variable.description,
+            [keyNames.description]: variable.description,
             // add scopes if true
             ...(isScopesIncluded && {
               scopes: variable.scopes,

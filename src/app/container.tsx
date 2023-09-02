@@ -24,7 +24,7 @@ const Container = () => {
   const [fileHasVariables, setFileHasVariables] = useState(false);
 
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
-    includeStyles: {
+    includedStyles: {
       colors: {
         isIncluded: false,
         customName: "Colors",

@@ -1,11 +1,14 @@
 import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
 import { convertRGBA } from "../color/convertRGBA";
+import { getTokenKeyName } from "../getTokenKeyName";
 
 export const effectStylesToTokens = async (
   customName: string,
-  colorMode: colorModeType
+  colorMode: colorModeType,
+  isDTCGForamt: boolean
 ) => {
   let effectTokens = {};
+  const keyNames = getTokenKeyName(isDTCGForamt);
 
   const effectStyles = figma.getLocalEffectStyles();
 
@@ -17,8 +20,8 @@ export const effectStylesToTokens = async (
 
     if (effect.type === "DROP_SHADOW" || effect.type === "INNER_SHADOW") {
       const styleObject = {
-        $type: "shadow",
-        $value: {
+        [keyNames.type]: "shadow",
+        [keyNames.value]: {
           inset: effect.type === "INNER_SHADOW",
           color: convertRGBA(effect.color, colorMode),
           offsetX: `${effect.offset.x}px`,
@@ -26,7 +29,7 @@ export const effectStylesToTokens = async (
           blur: `${effect.radius}px`,
           spread: `${effect.spread}px`,
         },
-      } as ShadowTokenI;
+      } as unknown as ShadowTokenI;
 
       result[styleName] = styleObject;
     }

@@ -6,10 +6,12 @@ interface PropsI {
   variableValue: any;
   variableType: VariableResolvedDataType;
   colorMode: colorModeType;
+  isDTCGForamt: boolean;
 }
 
 export const normalizeValue = (props: PropsI) => {
-  const { modeName, variableValue, variableType, colorMode } = props;
+  const { modeName, variableValue, variableType, colorMode, isDTCGForamt } =
+    props;
 
   // console.log("variableValue", variableValue);
 
@@ -17,7 +19,11 @@ export const normalizeValue = (props: PropsI) => {
     // console.log("VARIABLE_ALIAS", variableValue);
     // console.log("variables", variables);
 
-    const aliasVariableName = getAliasVariableName(variableValue.id, modeName);
+    const aliasVariableName = getAliasVariableName(
+      variableValue.id,
+      modeName,
+      isDTCGForamt
+    );
 
     return aliasVariableName;
   }

@@ -360,7 +360,7 @@ export const SettingsView = (props: ViewProps) => {
 
         <Stack hasLeftRightPadding={false} hasTopBottomPadding gap={2}>
           {stylesList.map((item, index) => {
-            const configStylesList = JSONsettingsConfig.includeStyles;
+            const configStylesList = JSONsettingsConfig.includedStyles;
             const styleItem = configStylesList[item.id];
 
             // check if style item is included
@@ -380,7 +380,7 @@ export const SettingsView = (props: ViewProps) => {
                   onChange={(value: string) => {
                     setJSONsettingsConfig({
                       ...JSONsettingsConfig,
-                      includeStyles: {
+                      includedStyles: {
                         ...configStylesList,
                         [item.id]: {
                           ...styleItem,
@@ -396,7 +396,7 @@ export const SettingsView = (props: ViewProps) => {
                   onChange={(checked: boolean) => {
                     setJSONsettingsConfig({
                       ...JSONsettingsConfig,
-                      includeStyles: {
+                      includedStyles: {
                         ...configStylesList,
                         [item.id]: {
                           ...styleItem,
@@ -412,8 +412,8 @@ export const SettingsView = (props: ViewProps) => {
         </Stack>
       </Panel>
 
-      {Object.keys(JSONsettingsConfig.includeStyles).some((styleId) => {
-        return JSONsettingsConfig.includeStyles[styleId].isIncluded;
+      {Object.keys(JSONsettingsConfig.includedStyles).some((styleId) => {
+        return JSONsettingsConfig.includedStyles[styleId].isIncluded;
       }) && (
         <Panel>
           <Stack hasLeftRightPadding>

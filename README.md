@@ -493,7 +493,13 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 - Functions names refactoring
 
-<!-- **1.3.1**
+<!-- **1.4.0**
 
 - Added `warning` type to the `Toast` component
-- minor refactoring -->
+- structure refactoring -->
+
+- code refactoring
+- updated `Github` errors handling
+- added `value` to all aliases at the end of the path. Also support for `DTCG` keys format added
+- added storage versioning
+- updated DTCG fromat switching

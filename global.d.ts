@@ -70,7 +70,7 @@ interface CustomURLCredentialsI {
 }
 
 interface JSONSettingsConfigI {
-  includeStyles: IncludedStylesI;
+  includedStyles: IncludedStylesI;
   includeScopes: boolean;
   useDTCGKeys: boolean;
   colorMode: colorModeType;
