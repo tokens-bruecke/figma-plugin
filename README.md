@@ -503,5 +503,5 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 - updated `Github` errors handling
 - added `value` to all aliases at the end of the path. Also support for `DTCG` keys format added
 - added storage versioning
-- updated DTCG fromat switching
+- updated DTCG format switching
 - added `Copy` button for the tokens preview
