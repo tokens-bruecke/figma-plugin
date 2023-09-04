@@ -25,6 +25,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Connect server](#connect-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
+    - [GitLab](#gitlab)
     - [Custom server](#custom-server)
   - [Show output](#show-output)
   - [Config autosaving](#config-autosaving)
@@ -151,12 +152,21 @@ In ordere to test if your credentials are valid you can make a test request by c
 ### [GitHub](https://github.com)
 
 1. You need to create a [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with `repo` scope.
-2. In the plugin settings paste the token into the `Token` field.
+2. In the plugin settings paste the token into the `Personal access token` field.
 3. Add an owner name, repository name and a branch name.
-4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
+4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
 5. You can also specify a commit message.
 
 ![fig.8](readme-assets/fig8.webp)
+
+### [GitLab](https://gitlab.com)
+
+1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope.
+2. In the plugin settings paste the token into the `Project access token` field.
+3. Add an owner name, repository name and a branch name.
+4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`. 5. You can also specify a commit message.
+
+![fig.11](readme-assets/fig11.webp)
 
 ### Custom server
 
