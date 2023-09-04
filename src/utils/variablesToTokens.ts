@@ -14,6 +14,7 @@ export const variablesToTokens = async (
   const colorMode = JSONSettingsConfig.colorMode;
   const isDTCGForamt = JSONSettingsConfig.useDTCGKeys;
   const keyNames = getTokenKeyName(isDTCGForamt);
+
   const mergedVariables = {};
 
   collections.forEach((collection) => {

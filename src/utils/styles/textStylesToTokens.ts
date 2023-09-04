@@ -9,12 +9,12 @@ export const textStylesToTokens = async (
   customName: string,
   isDTCGForamt: boolean
 ) => {
-  let textTokens = {};
   const keyNames = getTokenKeyName(isDTCGForamt);
-
   const textStyles = figma.getLocalTextStyles();
 
   console.log("textStyles length", textStyles.length);
+
+  let textTokens = {};
 
   const allTextStyles = textStyles.reduce((result, style) => {
     const styleName = style.name;

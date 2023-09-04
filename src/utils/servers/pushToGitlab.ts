@@ -34,8 +34,8 @@ export const pushToGitlab = async (
     } catch (error) {
       console.error("Error:", error);
       toastCallback({
-        title: "Gitlab: Error upating file",
-        message: `Error upating file: ${error.message}`,
+        title: "Gitlab: An error occured",
+        message: `Error: ${error.message}`,
         options: {
           type: "error",
         },
@@ -47,31 +47,44 @@ export const pushToGitlab = async (
 
   const data = await gitlabRequest("POST");
 
-  if (data.message === "A file with this name already exists") {
-    console.warn("File already exists, updating");
+  console.log("Gitlab response", data);
 
-    await gitlabRequest("PUT");
+  if (data.message) {
+    if (data.message === "A file with this name already exists") {
+      console.warn("File already exists, updating");
 
-    console.log("File updated successfully");
+      await gitlabRequest("PUT");
+
+      console.log("File updated successfully");
+      toastCallback({
+        title: "Gitlab: Updated successfully",
+        message: "Tokens on Gitlab have been updated successfully",
+        options: {
+          type: "success",
+        },
+      });
+
+      return;
+    }
+
+    console.error("Error:", data.message);
     toastCallback({
-      title: "Gitlab: Updated successfully",
-      message: "Tokens on Gitlab have been updated successfully",
+      title: "Gitlab: An error occured",
+      message: `Error: ${data.message}`,
+      options: {
+        type: "error",
+      },
+    });
+  } else {
+    // handle status response
+    // if file doesn't exist, create it
+    console.log("File created successfully");
+    toastCallback({
+      title: "Gitlab: Created successfully",
+      message: "Tokens on Gitlab have been created successfully",
       options: {
         type: "success",
       },
     });
-
-    return;
   }
-
-  // handle status response
-  // if file doesn't exist, create it
-  console.log("File created successfully");
-  toastCallback({
-    title: "Gitlab: Created successfully",
-    message: "Tokens on Gitlab have been created successfully",
-    options: {
-      type: "success",
-    },
-  });
 };

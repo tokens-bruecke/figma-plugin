@@ -5,12 +5,12 @@ export const gridStylesToTokens = async (
   customName: string,
   isDTCGForamt: boolean
 ) => {
-  let textTokens = {};
   const keyNames = getTokenKeyName(isDTCGForamt);
-
   const gridStyles = figma.getLocalGridStyles();
 
   console.log("gridStyles length", gridStyles.length);
+
+  let textTokens = {};
 
   const allGridStyles = gridStyles.reduce((result, style) => {
     const styleName = style.name;

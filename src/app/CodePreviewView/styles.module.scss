@@ -12,6 +12,7 @@
     overflow: auto;
     margin: 0;
     padding: 20px;
+    margin-bottom: 30px;
 
     &::-webkit-scrollbar {
       width: 0;
@@ -112,6 +113,11 @@
   }
 }
 
-.previewToolbarStat {
+.previewToolbarStat,
+.previewToolbarSecondButton {
   background-color: var(--figma-color-bg);
+}
+
+.previewToolbarSecondButton {
+  margin-right: 10px;
 }

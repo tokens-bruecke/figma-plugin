@@ -350,11 +350,13 @@ All aliases are converted into the alias string format from the [Design Tokens s
   "button": {
     "background": {
       "type": "color",
-      "value": "{colors.light.primary.10}"
+      "value": "{colors.light.primary.10.value}"
     }
   }
 }
 ```
+
+Depending on the format — `DTCG` or not — the plugin will add `$value` or `value` to the end of the alias path.
 
 ---
 
@@ -493,13 +495,13 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 - Functions names refactoring
 
-<!-- **1.4.0**
+**1.4.0**
 
 - Added `warning` type to the `Toast` component
-- structure refactoring -->
-
+- structure refactoring
 - code refactoring
 - updated `Github` errors handling
 - added `value` to all aliases at the end of the path. Also support for `DTCG` keys format added
 - added storage versioning
 - updated DTCG fromat switching
+- added `Copy` button for the tokens preview

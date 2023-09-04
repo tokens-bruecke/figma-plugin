@@ -2,7 +2,7 @@ import React from "react";
 
 import styles from "./styles.module.scss";
 
-import { countTokens } from "../../utils/countTokens";
+import { getTokensStat } from "../../utils/getTokensStat";
 
 import { Text, Icon } from "pavelLaptev/react-figma-ui/ui";
 
@@ -10,9 +10,13 @@ interface CodePreviewViewProps {
   generatedTokens: any;
 }
 
+const copy = require("clipboard-copy");
+
 export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
-  const [isButtonAnimated, setIsButtonAnimated] =
+  const [isUpdateButtonAnimated, setIsUpdateButtonAnimated] =
     React.useState<boolean>(false);
+  const [tokensStat, setTokensStat] = React.useState<any>(null);
+  const [isCodeCopied, setIsCodeCopied] = React.useState<boolean>(false);
 
   const getTokensPreview = () => {
     // send command to figma controller
@@ -27,58 +31,53 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
     );
 
     // start animation
-    setIsButtonAnimated(true);
+    setIsUpdateButtonAnimated(true);
 
     // stop animation
     setTimeout(() => {
-      setIsButtonAnimated(false);
+      setIsUpdateButtonAnimated(false);
     }, 500);
   };
 
-  const getTokensStat = () => {
-    // get lines count
-    const codeLines = JSON.stringify(generatedTokens, null, 2).split(
-      "\n"
-    ).length;
+  const copyCode = () => {
+    // copy code to clipboard
+    copy(JSON.stringify(generatedTokens, null, 2));
+    setIsCodeCopied(true);
 
-    console.log("codeLines", codeLines);
-
-    // get groups count
-    const groupsCount = Object.keys(generatedTokens).reduce((acc, key) => {
-      const group = generatedTokens[key];
-      const groupKeys = Object.keys(group);
-
-      return acc + groupKeys.length;
-    }, 0);
-
-    const tokensCount = countTokens(generatedTokens);
-
-    // count size in bytes
-    const size = new TextEncoder().encode(
-      JSON.stringify(generatedTokens)
-    ).length;
-
-    return {
-      codeLines,
-      groupsCount,
-      tokensCount,
-      size,
-    };
+    // stop animation
+    setTimeout(() => {
+      setIsCodeCopied(false);
+    }, 2000);
   };
 
-  const tokensStat = getTokensStat();
+  React.useEffect(() => {
+    if (generatedTokens) {
+      setTokensStat(getTokensStat(generatedTokens));
+    }
+  }, [generatedTokens]);
+
+  if (!tokensStat || !generatedTokens) {
+    return null;
+  }
 
   return (
     <section className={styles.codePreview}>
       <section className={styles.previewToolbar}>
         <button
           className={`${styles.toolbarItem} ${styles.previewToolbarButton} ${
-            isButtonAnimated ? styles.successUpdateAnimation : ""
+            isUpdateButtonAnimated ? styles.successUpdateAnimation : ""
           }`}
           onClick={getTokensPreview}
         >
           <Icon name="refresh" size="16" />
           <Text>Update</Text>
+        </button>
+
+        <button
+          className={`${styles.toolbarItem} ${styles.previewToolbarSecondButton}`}
+          onClick={copyCode}
+        >
+          <Text>{isCodeCopied ? "Copied!" : "Copy"}</Text>
         </button>
 
         <div className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}>

@@ -7,12 +7,12 @@ export const effectStylesToTokens = async (
   colorMode: colorModeType,
   isDTCGForamt: boolean
 ) => {
-  let effectTokens = {};
   const keyNames = getTokenKeyName(isDTCGForamt);
-
   const effectStyles = figma.getLocalEffectStyles();
 
   console.log("effectStyles length", effectStyles.length);
+
+  let effectTokens = {};
 
   const allEffectStyles = effectStyles.reduce((result, style) => {
     const styleName = style.name;
