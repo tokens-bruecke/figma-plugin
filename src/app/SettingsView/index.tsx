@@ -22,6 +22,7 @@ import { ServerSettingsView } from "../ServerSettingsView";
 
 import { pushToJSONBin } from "../../utils/servers/pushToJSONBin";
 import { pushToGithub } from "../../utils/servers/pushToGithub";
+import { githubPullRequest } from "../../utils/servers/githubPullRequest";
 import { pushToGitlab } from "../../utils/servers/pushToGitlab";
 import { pushToCustomURL } from "../../utils/servers/pushToCustomURL";
 
@@ -72,6 +73,11 @@ const serverList = [
   {
     id: "github",
     label: "Github",
+    iconName: "github",
+  },
+  {
+    id: "githubPullRequest",
+    label: "Github PR",
     iconName: "github",
   },
   {
@@ -167,11 +173,11 @@ export const SettingsView = (props: ViewProps) => {
   const getTokensForPush = () => {
     setIsPushing(true);
 
-    const allEnebledServers = Object.keys(JSONsettingsConfig.servers).filter(
+    const allEnabledServers = Object.keys(JSONsettingsConfig.servers).filter(
       (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
     );
 
-    console.log("all enebled servers", allEnebledServers);
+    console.log("all enebled servers", allEnabledServers);
 
     // send command to figma controller
     parent.postMessage(
@@ -179,7 +185,7 @@ export const SettingsView = (props: ViewProps) => {
         pluginMessage: {
           type: "getTokens",
           role: "push",
-          server: allEnebledServers,
+          server: allEnabledServers,
         } as TokensMessageI,
       },
       "*"
@@ -190,7 +196,7 @@ export const SettingsView = (props: ViewProps) => {
   // USE EFFECTS //
   /////////////////
 
-  // Recieve tokens from figma controller
+  // Receive tokens from figma controller
   useEffect(() => {
     window.onmessage = async (event) => {
       const { type, tokens, role, server } = event.data
@@ -224,6 +230,17 @@ export const SettingsView = (props: ViewProps) => {
             console.log("push to github");
             await pushToGithub(
               JSONsettingsConfig.servers.github,
+              tokens,
+              (params) => {
+                toastRef.current.show(params);
+              }
+            );
+          }
+
+          if (server.includes("githubPullRequest")) {
+            console.log("create github pull request");
+            await githubPullRequest(
+              JSONsettingsConfig.servers.githubPullRequest,
               tokens,
               (params) => {
                 toastRef.current.show(params);
@@ -601,6 +618,10 @@ export const SettingsView = (props: ViewProps) => {
 
     if (currentView === "gitlab") {
       return <ServerSettingsView {...commonProps} server="gitlab" />;
+    }
+
+    if (currentView === "githubPullRequest") {
+      return <ServerSettingsView {...commonProps} server="githubPullRequest" />;
     }
 
     if (currentView === "customURL") {
