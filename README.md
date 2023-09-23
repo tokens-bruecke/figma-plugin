@@ -525,3 +525,9 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 - added storage versioning
 - updated DTCG format switching
 - added `Copy` button for the tokens preview
+
+**1.5.0**
+
+- Added `GitHub PR` option to the `Push to server` feature
+- `Connect server` renamed to `Push to server`
+- _Thanks for contribution to @distolma_
