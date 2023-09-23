@@ -496,7 +496,7 @@ export const SettingsView = (props: ViewProps) => {
       <Panel>
         <PanelHeader
           ref={serversHeaderRef}
-          title="Connect server"
+          title="Push to server"
           onClick={handleShowServersOverlayList}
           iconButtons={[
             {

@@ -22,9 +22,10 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Add styles to](#add-styles-to)
     - [Include variable scopes](#include-variable-scopes)
     - [Use DTCG keys format](#use-dtcg-keys-format)
-  - [Connect server](#connect-server)
+  - [Push to server](#push-to-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
+    - [GitHub PR](#github-pr)
     - [GitLab](#gitlab)
     - [Custom server](#custom-server)
   - [Show output](#show-output)
@@ -129,7 +130,7 @@ Is `off` by default. Currently many design tokens tools doesn't support [DTCG ke
 
 ---
 
-## Connect server
+## Push to server
 
 With this feature you can connect a server and push the generated JSON directly to it. At the moment the plugin supports [JSONBin](https://jsonbin.io), [GitHub](https://github.com) and custom servers.
 
@@ -158,6 +159,15 @@ In ordere to test if your credentials are valid you can make a test request by c
 5. You can also specify a commit message.
 
 ![fig.8](readme-assets/fig8.webp)
+
+### [GitHub PR](https://github.com)
+
+All the steps are the same as for the [GitHub](#github) server, except the last two.
+
+- **PR title**. You can specify a title for the PR. If you leave it empty, the plugin will use `chore(tokens): update tokens` as a default title.
+- **PR body**. You can specify a body for the PR. If you leave it empty, the plugin won't add any body to the PR.
+
+![fig.12](readme-assets/fig12.webp)
 
 ### [GitLab](https://gitlab.com)
 
