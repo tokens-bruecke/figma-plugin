@@ -125,6 +125,88 @@ const viewsConfig = {
       },
     ],
   },
+  githubPullRequest: {
+    title: "Github credentials",
+    description: (
+      <>
+        In order to post on Github you need to have a{" "}
+        <a
+          href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          personal access token
+        </a>
+        .
+      </>
+    ),
+    isEnabled: false,
+    fields: [
+      {
+        id: "token",
+        placeholder: "Personal access token",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "owner",
+        placeholder: "Owner",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "repo",
+        placeholder: "Repo name",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "baseBranch",
+        placeholder: "Base branch",
+        type: "input",
+        value: "",
+        required: true,
+      },
+      {
+        id: "branch",
+        placeholder: "Branch name (optional)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+      {
+        id: "fileName",
+        placeholder: "File name",
+        type: "input",
+        value: "design.tokens.json",
+        required: true,
+      },
+      {
+        id: "commitMessage",
+        placeholder: "Commit message (optional)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+      {
+        id: "pullRequestTitle",
+        placeholder: "PR title (optional)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+      {
+        id: "pullRequestBody",
+        placeholder: "PR body (optional)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+    ],
+  },
   gitlab: {
     title: "Gitlab credentials",
     description: (

@@ -63,6 +63,15 @@ const Container = () => {
         owner: "",
         commitMessage: "",
       },
+      githubPullRequest: {
+        isEnabled: false,
+        token: "",
+        repo: "",
+        branch: "",
+        fileName: "",
+        owner: "",
+        commitMessage: "",
+      },
       gitlab: {
         isEnabled: false,
         token: "",

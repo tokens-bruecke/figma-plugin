@@ -52,6 +52,19 @@ interface GithubCredentialsI {
   commitMessage?: string;
 }
 
+interface GithubPullRequestCredentialsI {
+  isEnabled: boolean;
+  token: string;
+  repo: string;
+  baseBranch: string;
+  branch: string;
+  fileName: string;
+  owner: string;
+  commitMessage?: string;
+  pullRequestTitle?: string;
+  pullRequestBody?: string;
+}
+
 interface GitlabCredentialsI {
   isEnabled: boolean;
   owner: string;
@@ -79,6 +92,7 @@ interface JSONSettingsConfigI {
   servers: {
     jsonbin: JsonbinCredentialsI;
     github: GithubCredentialsI;
+    githubPullRequest: GithubPullRequestCredentialsI;
     gitlab: GitlabCredentialsI;
     customURL: CustomURLCredentialsI;
   };
@@ -98,6 +112,7 @@ interface PluginTokenI {
 type ServerType =
   | "jsonbin"
   | "github"
+  | "githubPullRequest"
   | "gitlab"
   | "bitbucket"
   | "customURL"
