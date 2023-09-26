@@ -130,6 +130,15 @@ export const SettingsView = (props: ViewProps) => {
     });
   };
 
+  const handleIncludeValueAliasString = (checked: boolean) => {
+    // console.log("handleSplitFilesChange", checked);
+
+    setJSONsettingsConfig({
+      ...JSONsettingsConfig,
+      includeValueAliasString: checked,
+    });
+  };
+
   const handleShowOutput = () => {
     setIsCodePreviewOpen(!isCodePreviewOpen);
     getTokensPreview();
@@ -301,7 +310,7 @@ export const SettingsView = (props: ViewProps) => {
 
   //
   useEffect(() => {
-    console.log("JSONsettingsConfig", JSONsettingsConfig);
+    console.log("JSONsettingsConfig Settings View >>>>", JSONsettingsConfig);
   }, [JSONsettingsConfig]);
 
   /////////////////
@@ -391,9 +400,6 @@ export const SettingsView = (props: ViewProps) => {
                   hasOutline={false}
                   value={styleItem.customName}
                   leftIcon={item.icon}
-                  // onBlur={() => {
-                  //   getTokensPreview();
-                  // }}
                   onChange={(value: string) => {
                     setJSONsettingsConfig({
                       ...JSONsettingsConfig,
@@ -489,6 +495,21 @@ export const SettingsView = (props: ViewProps) => {
             onChange={handleDTCGKeys}
           >
             <Text>Use DTCG keys format</Text>
+          </Toggle>
+        </Stack>
+      </Panel>
+
+      <Panel>
+        <Stack hasLeftRightPadding>
+          <Toggle
+            id="include-value-alias-string"
+            checked={JSONsettingsConfig.includeValueAliasString}
+            onChange={handleIncludeValueAliasString}
+          >
+            <Text>
+              Include <span className={styles.codeLine}>.value</span> string for
+              aliases
+            </Text>
           </Toggle>
         </Stack>
       </Panel>
@@ -651,7 +672,7 @@ export const SettingsView = (props: ViewProps) => {
               <Text>Documentation</Text>
             </a>
             <a href={config.changelogLink} target="_blank">
-              <Text>v.1.5.0</Text>
+              <Text>v.1.6.0</Text>
             </a>
           </Stack>
         </Panel>

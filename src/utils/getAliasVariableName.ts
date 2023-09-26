@@ -3,7 +3,8 @@ import { getTokenKeyName } from "./getTokenKeyName";
 export const getAliasVariableName = (
   variableId: string,
   modeName: string,
-  isDTCGForamt: boolean
+  isDTCGForamt: boolean,
+  includeValueAliasString: boolean
 ) => {
   const variableObj = figma.variables.getVariableById(variableId) as Variable;
   const collectionObj = figma.variables.getVariableCollectionById(
@@ -15,11 +16,14 @@ export const getAliasVariableName = (
   const collectionName = collectionObj.name;
 
   const valueKey = getTokenKeyName(isDTCGForamt).value;
+  const isValueKeyIncluded = includeValueAliasString ? `.${valueKey}` : "";
 
   const parentPath =
     modesAmount === 1 ? collectionName : `${collectionName}.${modeName}`;
   const variableParts = variableName.split("/");
-  const aliasName = `{${parentPath}.${variableParts.join(".")}.${valueKey}}`;
+  const aliasName = `{${parentPath}.${variableParts.join(
+    "."
+  )}${isValueKeyIncluded}}`;
 
   return aliasName;
 };

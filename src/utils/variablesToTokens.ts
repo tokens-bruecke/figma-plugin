@@ -13,6 +13,7 @@ export const variablesToTokens = async (
 ) => {
   const colorMode = JSONSettingsConfig.colorMode;
   const isDTCGForamt = JSONSettingsConfig.useDTCGKeys;
+  const includeValueAliasString = JSONSettingsConfig.includeValueAliasString;
   const keyNames = getTokenKeyName(isDTCGForamt);
 
   const mergedVariables = {};
@@ -39,8 +40,9 @@ export const variablesToTokens = async (
               modeName: modeName,
               variableType: variable.resolvedType,
               variableValue: variable.valuesByMode[variableModeId],
-              colorMode: colorMode,
-              isDTCGForamt: isDTCGForamt,
+              colorMode,
+              isDTCGForamt,
+              includeValueAliasString,
             }),
             [keyNames.description]: variable.description,
             // add scopes if true

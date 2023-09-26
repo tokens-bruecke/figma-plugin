@@ -50,3 +50,15 @@
     color: var(--figma-color-text);
   }
 }
+
+.codeLine {
+  display: inline-block;
+  // font-weight: 500;
+  // font-size: 12px;
+  background-color: var(--figma-color-bg-pressed);
+  outline: 1px solid var(--figma-color-bg-disabled);
+  font-style: italic;
+  padding: 0 4px;
+  margin: 0 2px;
+  border-radius: 3px;
+}

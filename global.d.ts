@@ -86,6 +86,7 @@ interface JSONSettingsConfigI {
   includedStyles: IncludedStylesI;
   includeScopes: boolean;
   useDTCGKeys: boolean;
+  includeValueAliasString: boolean;
   colorMode: colorModeType;
   variableCollections: string[];
   selectedCollection: string;

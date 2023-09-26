@@ -22,6 +22,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Add styles to](#add-styles-to)
     - [Include variable scopes](#include-variable-scopes)
     - [Use DTCG keys format](#use-dtcg-keys-format)
+    - [Include `.value` string for aliases](#include-value-string-for-aliases)
   - [Push to server](#push-to-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
@@ -39,6 +40,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Gradients support 🚧](#gradients-support-)
   - [Tokens structuring](#tokens-structuring)
   - [Aliases handling](#aliases-handling)
+    - [Include `.value` string for aliases](#include-value-string-for-aliases-1)
     - [Handle variables from another file](#handle-variables-from-another-file)
     - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
@@ -127,6 +129,36 @@ Is `off` by default. Currently many design tokens tools doesn't support [DTCG ke
   }
 }
 ```
+
+### Include `.value` string for aliases
+
+Is `off` by default. Allows you to include `.value` string to the end of the path for aliases. It will be added to the alias string.
+
+```json
+{
+  "button": {
+    "background": {
+      "type": "color",
+      "value": "{colors.light.primary.10.value}"
+    }
+  }
+}
+```
+
+If the format is `DTCG`:
+
+```json
+{
+  "button": {
+    "background": {
+      "$type": "color",
+      "$value": "{colors.light.primary.10.$value}"
+    }
+  }
+}
+```
+
+![fig.13](readme-assets/fig13.webp)
 
 ---
 
@@ -370,13 +402,15 @@ All aliases are converted into the alias string format from the [Design Tokens s
   "button": {
     "background": {
       "type": "color",
-      "value": "{colors.light.primary.10.value}"
+      "value": "{colors.light.primary.10}"
     }
   }
 }
 ```
 
-Depending on the format — `DTCG` or not — the plugin will add `$value` or `value` to the end of the alias path.
+### Include `.value` string for aliases
+
+You can switch on the `Include .value string for aliases` option in [the plugin settings](#include-value-string-for-aliases).
 
 ---
 
@@ -531,3 +565,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 - Added `GitHub PR` option to the `Push to server` feature
 - `Connect server` renamed to `Push to server`
 - _Thanks for contribution to @distolma_
+
+**1.6.0**
+
+- `value` string for aliases is now optional
