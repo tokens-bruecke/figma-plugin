@@ -3,6 +3,7 @@ import { convertRGBA } from "./color/convertRGBA";
 
 interface PropsI {
   modeName: string;
+  modesAmount: number;
   variableValue: any;
   variableType: VariableResolvedDataType;
   colorMode: colorModeType;
@@ -13,6 +14,7 @@ interface PropsI {
 export const normalizeValue = (props: PropsI) => {
   const {
     modeName,
+    modesAmount,
     variableValue,
     variableType,
     colorMode,
@@ -29,6 +31,7 @@ export const normalizeValue = (props: PropsI) => {
     const aliasVariableName = getAliasVariableName(
       variableValue.id,
       modeName,
+      modesAmount,
       isDTCGForamt,
       includeValueAliasString
     );

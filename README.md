@@ -569,3 +569,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **1.6.0**
 
 - `value` string for aliases is now optional
+
+**1.6.1**
+
+- Fixed the issue with the wrong `value` string for aliases when multiple mode variable was applied to one mode variable. [Ticket here](https://github.com/tokens-bruecke/figma-plugin/issues/7)

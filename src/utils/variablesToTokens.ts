@@ -37,7 +37,8 @@ export const variablesToTokens = async (
           const variableObject = {
             [keyNames.type]: normilizeType(variable.resolvedType),
             [keyNames.value]: normalizeValue({
-              modeName: modeName,
+              modeName,
+              modesAmount,
               variableType: variable.resolvedType,
               variableValue: variable.valuesByMode[variableModeId],
               colorMode,
