@@ -105,11 +105,13 @@ interface PluginTokenI {
   $description: string;
   scopes?: VariableScope[];
   $extensions: {
-    variableId: string;
     mode: Object;
-    collection: {
-      id: string;
-      name: string;
+    figma: {
+      variableId: string;
+      collection: {
+        id: string;
+        name: string;
+      };
     };
   };
 }

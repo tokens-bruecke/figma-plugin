@@ -45,8 +45,6 @@ export const variablesToTokens = async (
 
     const getValue = (modeIndex: number) =>
       normalizeValue({
-        modeName: "",
-        modesAmount: modesAmount,
         variableType: variable.resolvedType,
         variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
         colorMode,
@@ -65,6 +63,8 @@ export const variablesToTokens = async (
       })
     );
 
+    const filteredModesValues = modesAmount === 1 ? {} : modesValues;
+
     const variableObject = {
       [keyNames.type]: normilizeType(variable.resolvedType),
       [keyNames.value]: defaultValue,
@@ -75,13 +75,15 @@ export const variablesToTokens = async (
       }),
       // add meta
       $extensions: {
-        variableId: variable.id,
-        modes: modesValues,
-        collection: collectionObject,
+        mode: filteredModesValues,
+        figma: {
+          variableId: variable.id,
+          collection: collectionObject,
+        },
       },
-    };
+    } as PluginTokenI;
 
-    console.log("variableObject", variableObject);
+    // console.log("variableObject", variableObject);
 
     // place variable into collection
     emptyCollection = emptyCollection.map((collection) => {
