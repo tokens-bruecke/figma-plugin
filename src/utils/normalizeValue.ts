@@ -26,7 +26,6 @@ export const normalizeValue = (props: PropsI) => {
 
   if (variableValue?.type === "VARIABLE_ALIAS") {
     // console.log("VARIABLE_ALIAS", variableValue);
-    // console.log("variables", variables);
 
     const aliasVariableName = getAliasVariableName(
       variableValue.id,

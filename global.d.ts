@@ -106,7 +106,11 @@ interface PluginTokenI {
   scopes?: VariableScope[];
   $extensions: {
     variableId: string;
-    aliasPath: string;
+    mode: Object;
+    collection: {
+      id: string;
+      name: string;
+    };
   };
 }
 
