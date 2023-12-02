@@ -15,6 +15,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
 - [TokensBrücke — Figma plugin](#tokensbrücke--figma-plugin)
   - [What is this plugin for?](#what-is-this-plugin-for)
   - [Table of contents](#table-of-contents)
+  - [New version 2.0.0](#new-version-200)
   - [How to use](#how-to-use)
   - [General settings](#general-settings)
     - [Color mode](#color-mode)
@@ -38,7 +39,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Blur](#blur)
     - [Why there is no support for color styles?](#why-there-is-no-support-for-color-styles)
     - [Gradients support 🚧](#gradients-support-)
-  - [Tokens structuring](#tokens-structuring)
+  - [Tokens structure](#tokens-structure)
   - [Aliases handling](#aliases-handling)
     - [Include `.value` string for aliases](#include-value-string-for-aliases-1)
     - [Handle variables from another file](#handle-variables-from-another-file)
@@ -51,6 +52,13 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Changelog](#changelog)
 
 ---
+
+## New version 2.0.0
+
+In the new version of the plugin all mode variables moved into the `$extensions` / `modes` object.
+This is how `Cobalt` work with multiple modes. Check it here — [cobalt-ui.pages.dev/guides/modes#with-modes](https://cobalt-ui.pages.dev/guides/modes#with-modes)
+
+You can download and install previos version `1.6.1` here — [github.com/tokens-bruecke/figma-plugin/files/13536853/build.zip](https://github.com/tokens-bruecke/figma-plugin/files/13536853/build.zip)
 
 ## How to use
 
@@ -353,30 +361,33 @@ Support for gradients is comming with the next major release.
 
 ---
 
-## Tokens structuring
+## Tokens structure
 
-Plugin first takes the collection name, then mode name and then variable name (fig.1).
+Plugin first takes the `collection` name, then the `group` and then the `variable` name (fig.1).
+Mode variables will be wrapped under the `$extensions` objects
 
 ![fig.1](readme-assets/fig1.webp)
 
-For example, if you have a collection named `Colors`, mode named `Light` and variable named `Primary`, the plugin will generate the following JSON:
+For example, if you have a collection named `clr-theme`, mode named `light` and variable named `dark`, the plugin will generate the following JSON:
 
 ```json
-{
-  "colors": {
-    "light": {
-      "primary": {
-        "10": {
-          "type": "color",
-          "value": "#000000"
-        }
+"clr-theme": {
+  "container-outline/mid": {
+    "type": "color",
+    "value": "{clr-core.ntrl.40}",
+    "description": "",
+    "$extensions": {
+      "mode": {
+        "light": "{clr-core.ntrl.40}",
+        "dark": "{clr-core.ntrl.55}"
       }
     }
   }
 }
+,
 ```
 
-![fig.1](readme-assets/fig2.webp)
+![fig.2](readme-assets/fig2.webp)
 
 Figma automatically merges groups and their names into a single name, e.g. `Base/Primary/10` (fig.2). In this case, the plugin will generate the following JSON:
 
@@ -402,7 +413,7 @@ All aliases are converted into the alias string format from the [Design Tokens s
   "button": {
     "background": {
       "type": "color",
-      "value": "{colors.light.primary.10}"
+      "value": "{colors.primary.10}"
     }
   }
 }
@@ -425,7 +436,7 @@ The plugin will generate the alias name anyway, but it will be a path to the var
   "button": {
     "background": {
       "type": "color",
-      "value": "{colors.light.primary.10}"
+      "value": "{colors.primary.10}"
     }
   }
 }
@@ -440,6 +451,9 @@ So you will need to merge the file with the base variables from one file with an
 ### Handle modes
 
 If there is only one mode — the plugin wouldn't include it in a generated JSON.
+If there are multiple modes, the plugin will place them under the `$extensions` objects.
+
+It follows the same pattern as used by [Cobalt](https://cobalt-ui.pages.dev/guides/modes#with-modes)
 
 ---
 
@@ -569,3 +583,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **1.6.0**
 
 - `value` string for aliases is now optional
+
+**2.0.0**
+
+- tokens structure was changed. All modes now moved from variable names into `$extensions/modes` object. In order to make it work with [Cobalt](https://cobalt-ui.pages.dev/guides/modes#with-modes). For morre details see this issue — [Multiple collection and modes](https://github.com/tokens-bruecke/figma-plugin/issues/7). Previous implementation didn't work correctly with multiple modes and aliasees.

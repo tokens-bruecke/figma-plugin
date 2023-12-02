@@ -2,8 +2,6 @@ import { getTokenKeyName } from "./getTokenKeyName";
 
 export const getAliasVariableName = (
   variableId: string,
-  modeName: string,
-  modesAmount: number,
   isDTCGForamt: boolean,
   includeValueAliasString: boolean
 ) => {
@@ -16,17 +14,15 @@ export const getAliasVariableName = (
   const variableName = variableObj.name;
   const collectionName = collectionObj.name;
 
-  console.log("collectionObj", collectionObj);
-  console.log("modeName", modeName);
+  // console.log("collectionObj", collectionObj);
+  // console.log("modeName", modeName);
   // console.log("modesAmount", modesAmount);
 
   const valueKey = getTokenKeyName(isDTCGForamt).value;
   const isValueKeyIncluded = includeValueAliasString ? `.${valueKey}` : "";
 
-  const parentPath =
-    modesAmount === 1 ? collectionName : `${collectionName}.${modeName}`;
   const variableParts = variableName.split("/");
-  const aliasName = `{${parentPath}.${variableParts.join(
+  const aliasName = `{${collectionName}.${variableParts.join(
     "."
   )}${isValueKeyIncluded}}`;
 
