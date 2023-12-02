@@ -111,6 +111,7 @@ interface PluginTokenI {
       collection: {
         id: string;
         name: string;
+        defaultModeId: string;
       };
     };
   };

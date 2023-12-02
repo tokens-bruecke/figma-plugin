@@ -2,8 +2,6 @@ import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
 import { getTokenKeyName } from "./getTokenKeyName";
 
-import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
-
 // console.clear();
 
 export const variablesToTokens = async (
@@ -23,20 +21,26 @@ export const variablesToTokens = async (
     };
   });
 
-  console.log("variables", variables);
+  // console.log("variables", variables);
+  console.log("collections", collections);
 
   variables.forEach((variable) => {
-    console.log("variable", variable);
+    // console.log("variable", variable);
     // get collection object
     const collectionId = variable.variableCollectionId;
     const collectionName = collections.find(
       (collection) => collection.id === collectionId
     ).name;
+    const collectionDefaultModeId = collections.find(
+      (collection) => collection.id === collectionId
+    ).defaultModeId;
     const collectionObject = {
       id: collectionId,
       name: collectionName,
+      defaultModeId: collectionDefaultModeId,
     };
 
+    // console.log("collectionObject", collectionObj
     // console.log("collection", collectionObject);
 
     // get values by mode
@@ -52,7 +56,11 @@ export const variablesToTokens = async (
         includeValueAliasString,
       });
 
-    const defaultValue = getValue(0);
+    const defaultValue = getValue(
+      Object.keys(modes).indexOf(collectionDefaultModeId)
+    );
+
+    // console.log("defaultValue", defaultValue);
 
     const modesValues = Object.fromEntries(
       Object.keys(modes).map((modeId, index) => {
@@ -103,82 +111,7 @@ export const variablesToTokens = async (
     };
   }, {});
 
-  console.log("mergedVariables", mergedVariables);
-
-  // collections.forEach((collection) => {
-  //   let modes = {};
-
-  //   const collectionName = collection.name;
-  //   const isScopesIncluded = JSONSettingsConfig.includeScopes;
-  //   const modesAmount = collection.modes.length;
-
-  //   const newTokens = variables.reduce((result, variable) => {
-  //     const modeValues = variable.valuesByMode;
-
-  //     console.log("modeValues", modeValues);
-
-  //     result[variable.name] = {
-  //       [keyNames.type]: normilizeType(variable.resolvedType),
-
-  //       [keyNames.description]: variable.description,
-  //     };
-
-  //     return result;
-  //   });
-
-  //   console.log("newTokens", newTokens);
-
-  //   // collection.modes.forEach((mode, index) => {
-  //   //   const modeName = mode.name;
-
-  //   //   const variablesPerMode = variables.reduce((result, variable) => {
-  //   //     // console.log("variable", variable);
-  //   //     // console.log("result", result);
-  //   //     //   const variableModeId = Object.keys(variable.valuesByMode)[index];
-
-  //   //     //   if (variableModeId === mode.modeId) {
-  //   //     //     const normilisedVariable = normalizeValue({
-  //   //     //       modeName,
-  //   //     //       modesAmount,
-  //   //     //       variableType: variable.resolvedType,
-  //   //     //       variableValue: variable.valuesByMode[variableModeId],
-  //   //     //       colorMode,
-  //   //     //       isDTCGForamt,
-  //   //     //       includeValueAliasString,
-  //   //     //     });
-
-  //   //     //     const variableObject = {
-  //   //     //       [keyNames.type]: normilizeType(variable.resolvedType),
-  //   //     //       [keyNames.value]: normilisedVariable,
-  //   //     //       [keyNames.description]: variable.description,
-  //   //     //       // add scopes if true
-  //   //     //       ...(isScopesIncluded && {
-  //   //     //         scopes: variable.scopes,
-  //   //     //       }),
-  //   //     //       // add meta
-  //   //     //       $extensions: {
-  //   //     //         variableId: variable.id,
-  //   //     //       },
-  //   //     //     } as PluginTokenI;
-
-  //   //     //     result[variable.name] = variableObject;
-  //   //     //   }
-
-  //   //     return result;
-  //   //   }, {});
-
-  //   //   // check amount of modes and assign to "modes" or "modes[modeName]" variable
-  //   //   if (modesAmount === 1) {
-  //   //     Object.assign(modes, groupObjectNamesIntoCategories(variablesPerMode));
-  //   //   } else {
-  //   //     // modes[modeName] = groupObjectNamesIntoCategories(variablesPerMode);
-  //   //   }
-  //   // });
-
-  //   // console.log("modes", modes);
-
-  //   mergedVariables[collectionName] = modes;
-  // });
+  // console.log("mergedVariables", mergedVariables);
 
   return mergedVariables;
 };
