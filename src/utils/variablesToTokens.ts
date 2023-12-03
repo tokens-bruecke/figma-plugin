@@ -2,6 +2,8 @@ import { normalizeValue } from "./normalizeValue";
 import { normilizeType } from "./normilizeType";
 import { getTokenKeyName } from "./getTokenKeyName";
 
+import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
+
 // console.clear();
 
 export const variablesToTokens = async (
@@ -111,7 +113,5 @@ export const variablesToTokens = async (
     };
   }, {});
 
-  // console.log("mergedVariables", mergedVariables);
-
-  return mergedVariables;
+  return groupObjectNamesIntoCategories(mergedVariables);
 };
