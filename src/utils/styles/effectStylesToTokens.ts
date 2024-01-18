@@ -16,36 +16,35 @@ export const effectStylesToTokens = async (
 
   const allEffectStyles = effectStyles.reduce((result, style) => {
     const styleName = style.name;
-    const effect = style.effects[0];
-
-    if (effect.type === "DROP_SHADOW" || effect.type === "INNER_SHADOW") {
-      const styleObject = {
-        [keyNames.type]: "shadow",
-        [keyNames.value]: {
-          inset: effect.type === "INNER_SHADOW",
-          color: convertRGBA(effect.color, colorMode),
-          offsetX: `${effect.offset.x}px`,
-          offsetY: `${effect.offset.y}px`,
-          blur: `${effect.radius}px`,
-          spread: `${effect.spread}px`,
-        },
-      } as unknown as ShadowTokenI;
-
-      result[styleName] = styleObject;
-    }
-
-    if (effect.type === "LAYER_BLUR" || effect.type === "BACKGROUND_BLUR") {
-      const styleObject = {
-        $type: "blur",
-        $value: {
-          role: effect.type === "LAYER_BLUR" ? "layer" : "background",
-          blur: `${effect.radius}px`,
-        },
-      } as BlurTokenI;
-
-      result[styleName] = styleObject;
-    }
-
+    
+    style.effects.forEach(effect => {
+        if (effect.type === "DROP_SHADOW" || effect.type === "INNER_SHADOW") {
+          result[styleName] = result[styleName] ?? [];
+          const styleObject = {
+            [keyNames.type]: "shadow",
+            [keyNames.value]: {
+              inset: effect.type === "INNER_SHADOW",
+              color: convertRGBA(effect.color, colorMode),
+              offsetX: `${effect.offset.x}px`,
+              offsetY: `${effect.offset.y}px`,
+              blur: `${effect.radius}px`,
+              spread: `${effect.spread}px`,
+            },
+          } as unknown as ShadowTokenI;
+          result[styleName].push(styleObject);
+        }
+      
+        if (effect.type === "LAYER_BLUR" || effect.type === "BACKGROUND_BLUR") {
+          const styleObject = {
+            $type: "blur",
+            $value: {
+              role: effect.type === "LAYER_BLUR" ? "layer" : "background",
+              blur: `${effect.radius}px`,
+            },
+          } as BlurTokenI;
+          result[styleName] = styleObject;
+        }
+    });
     return result;
   }, {});
 
