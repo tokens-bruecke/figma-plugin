@@ -37,6 +37,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Grids](#grids)
     - [Shadows](#shadows)
     - [Blur](#blur)
+    - [Multiple `Shadow` and `Blur` styles support](#multiple-shadow-and-blur-styles-support)
     - [Why there is no support for color styles?](#why-there-is-no-support-for-color-styles)
     - [Gradients support 🚧](#gradients-support-)
   - [Tokens structure](#tokens-structure)
@@ -351,6 +352,42 @@ The plugin supports `background` and `layer` blur effects. In order to distingui
 }
 ```
 
+### Multiple `Shadow` and `Blur` styles support
+
+If the style has multiple `Shadow` or `Blur` styles, the plugin will add them into the array.
+
+```json
+"new-sh": {
+  "$type": "shadow",
+  "$value": [
+    {
+      "inset": false,
+      "color": "#e4505040",
+      "offsetX": "0px",
+      "offsetY": "4px",
+      "blur": "54px",
+      "spread": "0px"
+    },
+    {
+      "inset": false,
+      "color": "#5b75ff40",
+      "offsetX": "0px",
+      "offsetY": "4px",
+      "blur": "24px",
+      "spread": "0px"
+    },
+    {
+      "inset": false,
+      "color": "#00000040",
+      "offsetX": "0px",
+      "offsetY": "4px",
+      "blur": "4px",
+      "spread": "0px"
+    }
+  ]
+}
+```
+
 ### Why there is no support for color styles?
 
 Despite the fact that color styles could be important for backward compatibility — the main goal of the plugin is to convert Figma variables into design tokens. Since Figma already has a support for color in variables, there is no need to convert also color styles into design tokens.
@@ -587,3 +624,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.0.0**
 
 - tokens structure was changed. All modes now moved from variable names into `$extensions/modes` object. In order to make it work with [Cobalt](https://cobalt-ui.pages.dev/guides/modes#with-modes). For morre details see this issue — [Multiple collection and modes](https://github.com/tokens-bruecke/figma-plugin/issues/7). Previous implementation didn't work correctly with multiple modes and aliasees.
+
+**2.1.0**
+
+- Multiple `Shadow` and `Blur` styles support added. [Link to the PR](https://github.com/tokens-bruecke/figma-plugin/issues/11)
