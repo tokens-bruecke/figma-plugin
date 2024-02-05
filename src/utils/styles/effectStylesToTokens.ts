@@ -2,6 +2,20 @@ import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategorie
 import { convertRGBA } from "../color/convertRGBA";
 import { getTokenKeyName } from "../getTokenKeyName";
 
+const wrapShadowObject = (
+  shadowEffect: DropShadowEffect | InnerShadowEffect,
+  colorMode: colorModeType
+) => {
+  return {
+    inset: shadowEffect.type === "INNER_SHADOW",
+    color: convertRGBA(shadowEffect.color, colorMode),
+    offsetX: `${shadowEffect.offset.x}px`,
+    offsetY: `${shadowEffect.offset.y}px`,
+    blur: `${shadowEffect.radius}px`,
+    spread: `${shadowEffect.spread}px`,
+  };
+};
+
 export const effectStylesToTokens = async (
   customName: string,
   colorMode: colorModeType,
@@ -16,33 +30,35 @@ export const effectStylesToTokens = async (
 
   const allEffectStyles = effectStyles.reduce((result, style) => {
     const styleName = style.name;
-    const effect = style.effects[0];
+    const effectType = style.effects[0].type;
 
-    if (effect.type === "DROP_SHADOW" || effect.type === "INNER_SHADOW") {
+    console.log(styleName, style.effects);
+
+    if (effectType === "DROP_SHADOW" || effectType === "INNER_SHADOW") {
       const styleObject = {
         [keyNames.type]: "shadow",
-        [keyNames.value]: {
-          inset: effect.type === "INNER_SHADOW",
-          color: convertRGBA(effect.color, colorMode),
-          offsetX: `${effect.offset.x}px`,
-          offsetY: `${effect.offset.y}px`,
-          blur: `${effect.radius}px`,
-          spread: `${effect.spread}px`,
-        },
+        [keyNames.value]:
+          style.effects.length === 1
+            ? wrapShadowObject(style.effects[0], colorMode)
+            : style.effects.map((effect) =>
+                wrapShadowObject(
+                  effect as DropShadowEffect | InnerShadowEffect,
+                  colorMode
+                )
+              ),
       } as unknown as ShadowTokenI;
-
       result[styleName] = styleObject;
     }
 
-    if (effect.type === "LAYER_BLUR" || effect.type === "BACKGROUND_BLUR") {
+    if (effectType === "LAYER_BLUR" || effectType === "BACKGROUND_BLUR") {
+      const effect = style.effects[0];
       const styleObject = {
         $type: "blur",
         $value: {
-          role: effect.type === "LAYER_BLUR" ? "layer" : "background",
+          role: effectType === "LAYER_BLUR" ? "layer" : "background",
           blur: `${effect.radius}px`,
         },
       } as BlurTokenI;
-
       result[styleName] = styleObject;
     }
 
