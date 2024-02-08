@@ -72,7 +72,9 @@ const getTokens = async () => {
   } as MetaPropsI;
 
   // add meta to mergedVariables
-  mergedVariables["$meta"] = metaData;
+  mergedVariables["$extensions"] = {
+    "figma-plugin.tokens-bruecke": metaData,
+  };
 
   // console.log("mergedVariables", mergedVariables);
 
