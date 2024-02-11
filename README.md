@@ -628,3 +628,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.1.0**
 
 - Multiple `Shadow` and `Blur` styles support added. [Link to the PR](https://github.com/tokens-bruecke/figma-plugin/issues/11)
+
+**2.1.1**
+
+- `$meta` tag moved to `$extensions` object. See issue — [$meta is not valid DTCG](https://github.com/tokens-bruecke/figma-plugin/issues/13)
