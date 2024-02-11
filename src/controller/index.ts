@@ -72,7 +72,9 @@ const getTokens = async () => {
   } as MetaPropsI;
 
   // add meta to mergedVariables
-  mergedVariables["$meta"] = metaData;
+  mergedVariables["$extensions"] = {
+    "tokens-bruecke-meta": metaData,
+  };
 
   // console.log("mergedVariables", mergedVariables);
 
