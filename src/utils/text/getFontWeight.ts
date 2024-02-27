@@ -1,7 +1,7 @@
 export const getFontWeight = (fontWeight: string) => {
   const inputFontWeight = fontWeight.toLowerCase();
 
-  const weightMapping = {
+  const weights = {
     100 : ["thin", "hairline", "100"],
     200 : ["extra-light", "extraLight", "ultra-light", "ultraLight", "200"],
     300 : ["light", "300"],
@@ -13,5 +13,5 @@ export const getFontWeight = (fontWeight: string) => {
     900 : ["black", "heavy", "900"],
     950 : ["extra-black", "ultra-black", "extraBlack", "ultraBlack", "950"]
   }
-  return Object.keys(weightMapping).find(weight => weightMapping[weight].includes(inputFontWeight)) || 400;
+  return Object.keys(weights).find(weight => weights[weight].includes(inputFontWeight)) || 400;
 };
