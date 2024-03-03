@@ -632,3 +632,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.1.1**
 
 - `$meta` tag moved to `$extensions` object. See issue — [$meta is not valid DTCG](https://github.com/tokens-bruecke/figma-plugin/issues/13)
+
+**2.1.2**
+
+- Updated the function to generate text styles. Related PR — [Update textStylesToTokens.ts ](https://github.com/tokens-bruecke/figma-plugin/pull/19)
