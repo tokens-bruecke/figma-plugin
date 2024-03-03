@@ -27,6 +27,8 @@ export const textStylesToTokens = async (
         fontSize: `${style.fontSize}px`,
         lineHeight: getLineHeight(style.lineHeight),
         letterSpacing: getLetterSpacing(style.letterSpacing),
+        textDecoration: style.textDecoration,
+        textCase: style.textCase
       },
       [keyNames.description]: style.description,
       $extensions: {
