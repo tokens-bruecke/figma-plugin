@@ -636,3 +636,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.1.2**
 
 - Updated the function to generate text styles. Related PR — [Update textStylesToTokens.ts ](https://github.com/tokens-bruecke/figma-plugin/pull/19)
+
+**2.1.3**
+
+- Fixed font weights to be numbers. Related PR — [Font weights fix - output as numbers (DTCG format)](https://github.com/tokens-bruecke/figma-plugin/pull/22)
