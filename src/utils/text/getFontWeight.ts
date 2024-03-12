@@ -13,5 +13,5 @@ export const getFontWeight = (fontWeight: string) => {
     900 : ["black", "heavy", "900"],
     950 : ["extra-black", "ultra-black", "extraBlack", "ultraBlack", "950"]
   }
-  return Object.keys(weights).find(weight => weights[weight].includes(inputFontWeight)) || 400;
+  return Number(Object.keys(weights).find(weight => weights[weight].includes(inputFontWeight))) || 400;
 };
