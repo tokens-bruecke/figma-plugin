@@ -13,4 +13,4 @@ function getFontWeight(fontWeight){
     950 : ["extrablack", "ultrablack", "950"]
   }
   return Number(Object.keys(weights).find(weight => weights[weight].includes(inputFontWeight))) || 400;
-}
+};
