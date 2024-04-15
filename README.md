@@ -641,6 +641,6 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 - Fixed font weights to be numbers. Related PR — [Font weights fix - output as numbers (DTCG format)](https://github.com/tokens-bruecke/figma-plugin/pull/22)
 
-**2.1.4**
+**2.1.4 and 2.1.5**
 
 - Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). Thanks to @JeroenRoodIHS
