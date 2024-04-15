@@ -643,4 +643,4 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 **2.1.4**
 
-- Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). THanks to @JeroenRoodIHS
+- Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). Thanks to @JeroenRoodIHS
