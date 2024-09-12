@@ -43,7 +43,8 @@ export const stylesToTokens = async (props: iProps) => {
     const effectTokens = await effectStylesToTokens(
       includedStyles.effects.customName,
       colorMode,
-      isDTCGForamt
+      isDTCGForamt,
+      includeValueAliasString
     );
 
     styleTokens.push(effectTokens);

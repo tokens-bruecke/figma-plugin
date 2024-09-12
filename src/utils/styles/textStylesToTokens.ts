@@ -4,8 +4,7 @@ import { getLineHeight } from "../text/getLineHeight";
 import { getLetterSpacing } from "../text/getLetterSpacing";
 import { getFontWeight } from "../text/getFontWeight";
 import { getTokenKeyName } from "../getTokenKeyName";
-// import {normalizeValue} from "../normalizeValue";
-import {getAliasVariableName} from "../getAliasVariableName";
+import { getAliasVariableName } from "../getAliasVariableName";
 
 
 export const textStylesToTokens = async (
@@ -16,17 +15,19 @@ export const textStylesToTokens = async (
   const keyNames = getTokenKeyName(isDTCGForamt);
   const textStyles = figma.getLocalTextStyles();
 
+  console.log("textStyles", textStyles);
+
   let textTokens = {};
 
   const allTextStyles = textStyles.reduce((result, style) => {
 
-    let aliasNames = {} as TextStyle["boundVariables"];
+    let aliasVariables = {} as TextStyle["boundVariables"];
     const boundVariables = style.boundVariables;
 
     if (boundVariables) {
       Object.keys(boundVariables).forEach((key: VariableBindableTextField) => {
-        aliasNames = {
-          ...aliasNames,
+        aliasVariables = {
+          ...aliasVariables,
           [key]: getAliasVariableName(
             boundVariables[key].id,
             isDTCGForamt,
@@ -39,11 +40,11 @@ export const textStylesToTokens = async (
     const styleObject = {
       [keyNames.type]: "typography",
       [keyNames.value]: {
-        fontFamily: aliasNames.fontFamily || style.fontName.family,
-        fontWeight: aliasNames.fontWeight || getFontWeight(style.fontName.style),
-        fontSize: aliasNames.fontSize || `${style.fontSize}px`,
-        lineHeight: aliasNames.lineHeight || getLineHeight(style.lineHeight),
-        letterSpacing: aliasNames.letterSpacing || getLetterSpacing(style.letterSpacing),
+        fontFamily: aliasVariables.fontFamily || style.fontName.family,
+        fontWeight: aliasVariables.fontWeight || getFontWeight(style.fontName.style),
+        fontSize: aliasVariables.fontSize || `${style.fontSize}px`,
+        lineHeight: aliasVariables.lineHeight || getLineHeight(style.lineHeight),
+        letterSpacing: aliasVariables.letterSpacing || getLetterSpacing(style.letterSpacing),
         textDecoration: style.textDecoration,
         textCase: style.textCase
       },

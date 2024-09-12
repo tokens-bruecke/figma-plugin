@@ -8,7 +8,7 @@ export const gridStylesToTokens = async (
   const keyNames = getTokenKeyName(isDTCGForamt);
   const gridStyles = figma.getLocalGridStyles();
 
-  console.log("gridStyles length", gridStyles.length);
+  console.log("gridStyles", gridStyles);
 
   let textTokens = {};
 

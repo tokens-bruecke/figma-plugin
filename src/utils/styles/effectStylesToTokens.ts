@@ -1,30 +1,49 @@
 import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
 import { convertRGBA } from "../color/convertRGBA";
 import { getTokenKeyName } from "../getTokenKeyName";
+import { getAliasVariableName } from "../getAliasVariableName";
 
 const wrapShadowObject = (
   shadowEffect: DropShadowEffect | InnerShadowEffect,
-  colorMode: colorModeType
+  colorMode: colorModeType,
+  isDTCGForamt: boolean,
+  includeValueAliasString: boolean
 ) => {
+  const effectBoundVariables = shadowEffect.boundVariables;
+
+  const getAlias = (key: string) => {
+    if (effectBoundVariables && effectBoundVariables[key]) {
+      return getAliasVariableName(
+        effectBoundVariables[key].id,
+        isDTCGForamt,
+        includeValueAliasString
+      );
+    }
+    return null;
+  }
+
+  console.log("shadowEffect", shadowEffect);
   return {
     inset: shadowEffect.type === "INNER_SHADOW",
     color: convertRGBA(shadowEffect.color, colorMode),
-    offsetX: `${shadowEffect.offset.x}px`,
-    offsetY: `${shadowEffect.offset.y}px`,
-    blur: `${shadowEffect.radius}px`,
-    spread: `${shadowEffect.spread}px`,
+    offsetX: getAlias("offsetX") || `${shadowEffect.offset.x}px`,
+    offsetY: getAlias("offsetY") || `${shadowEffect.offset.y}px`,
+    blur: getAlias("blur") || `${shadowEffect.radius}px`,
+    spread: getAlias("spread") || `${shadowEffect.spread}px`,
   };
 };
 
 export const effectStylesToTokens = async (
   customName: string,
   colorMode: colorModeType,
-  isDTCGForamt: boolean
+  isDTCGForamt: boolean,
+  includeValueAliasString: boolean
 ) => {
   const keyNames = getTokenKeyName(isDTCGForamt);
   const effectStyles = figma.getLocalEffectStyles();
 
-  console.log("effectStyles length", effectStyles.length);
+
+  // console.log("effectStyles", effectStyles);
 
   let effectTokens = {};
 
@@ -32,31 +51,38 @@ export const effectStylesToTokens = async (
     const styleName = style.name;
     const effectType = style.effects[0].type;
 
-    console.log(styleName, style.effects);
-
     if (effectType === "DROP_SHADOW" || effectType === "INNER_SHADOW") {
       const styleObject = {
         [keyNames.type]: "shadow",
         [keyNames.value]:
-          style.effects.length === 1
-            ? wrapShadowObject(style.effects[0], colorMode)
-            : style.effects.map((effect) =>
-                wrapShadowObject(
-                  effect as DropShadowEffect | InnerShadowEffect,
-                  colorMode
-                )
-              ),
+          style.effects.map((effect) =>
+            wrapShadowObject(
+              effect as DropShadowEffect | InnerShadowEffect,
+              colorMode, isDTCGForamt, includeValueAliasString
+            )
+          ),
       } as unknown as ShadowTokenI;
       result[styleName] = styleObject;
     }
 
     if (effectType === "LAYER_BLUR" || effectType === "BACKGROUND_BLUR") {
       const effect = style.effects[0];
+      const aliasRef = effect.boundVariables?.radius;
+      let aliasVariable = null;
+
+      if (aliasRef) {
+        aliasVariable = getAliasVariableName(
+          aliasRef.id,
+          isDTCGForamt,
+          includeValueAliasString
+        )
+      };
+
       const styleObject = {
         $type: "blur",
         $value: {
           role: effectType === "LAYER_BLUR" ? "layer" : "background",
-          blur: `${effect.radius}px`,
+          blur: aliasVariable || `${effect.radius}px`,
         },
       } as BlurTokenI;
       result[styleName] = styleObject;
