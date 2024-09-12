@@ -644,3 +644,8 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.1.4 and 2.1.5**
 
 - Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). Thanks to @JeroenRoodIHS
+
+**2.2.0**
+
+- Added aliases handling for typography styles — [Related issue](https://github.com/tokens-bruecke/figma-plugin/issues/24)
+- Added aliases handling for effects
