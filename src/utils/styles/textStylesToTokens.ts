@@ -45,6 +45,8 @@ export const textStylesToTokens = async (
         fontSize: aliasVariables.fontSize || `${style.fontSize}px`,
         lineHeight: aliasVariables.lineHeight || getLineHeight(style.lineHeight),
         letterSpacing: aliasVariables.letterSpacing || getLetterSpacing(style.letterSpacing),
+        paragraphSpacing: aliasVariables.paragraphSpacing || `${style.paragraphSpacing}`,
+        paragraphIndent: aliasVariables.paragraphIndent || `${style.paragraphIndent}`,
         textDecoration: style.textDecoration,
         textCase: style.textCase
       },

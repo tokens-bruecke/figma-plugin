@@ -649,3 +649,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 - Added aliases handling for typography styles — [Related issue](https://github.com/tokens-bruecke/figma-plugin/issues/24)
 - Added aliases handling for effects
+
+**2.2.1**
+
+- Added `paragraphSpacing` and `paragraphIndent` to the typography styles
