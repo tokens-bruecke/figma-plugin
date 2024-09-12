@@ -54,6 +54,7 @@ const getTokens = async () => {
     includedStyles: JSONSettingsConfig.includedStyles,
     colorMode: JSONSettingsConfig.colorMode,
     isDTCGForamt: JSONSettingsConfig.useDTCGKeys,
+    includeValueAliasString: JSONSettingsConfig.includeValueAliasString,
   });
 
   // merge variables and styles

@@ -6,10 +6,11 @@ interface iProps {
   includedStyles: IncludedStylesI;
   colorMode: colorModeType;
   isDTCGForamt: boolean;
+  includeValueAliasString: boolean;
 }
 
 export const stylesToTokens = async (props: iProps) => {
-  const { includedStyles, colorMode, isDTCGForamt } = props;
+  const { includedStyles, colorMode, isDTCGForamt, includeValueAliasString } = props;
   let styleTokens = [];
 
   if (!includedStyles) {
@@ -20,7 +21,8 @@ export const stylesToTokens = async (props: iProps) => {
   if (includedStyles.text.isIncluded) {
     const textTokens = await textStylesToTokens(
       includedStyles.text.customName,
-      isDTCGForamt
+      isDTCGForamt,
+      includeValueAliasString
     );
 
     styleTokens.push(textTokens);

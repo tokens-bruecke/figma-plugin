@@ -1,8 +1,6 @@
 export function getFontWeight(fontWeight) {
   const formattedWeight = fontWeight.toLowerCase().replaceAll(/[-_.\s]/gi, "");
 
-  console.log("formattedWeight", formattedWeight);
-
   const weights = {
     100: ["thin", "hairline", "100"],
     200: ["extralight", "ultralight", "200"],
