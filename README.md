@@ -57,7 +57,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
 ## New version 2.0.0
 
 In the new version of the plugin all mode variables moved into the `$extensions` / `modes` object.
-This is how `Cobalt` work with multiple modes. Check it here — [cobalt-ui.pages.dev/guides/modes#with-modes](https://cobalt-ui.pages.dev/guides/modes#with-modes)
+This is how Terrazzo (formerly “Cobalt UI”) works with multiple modes. Check it here — [https://terrazzo.app/docs/](https://terrazzo.app/docs/)
 
 You can download and install previos version `1.6.1` here — [github.com/tokens-bruecke/figma-plugin/files/13536853/build.zip](https://github.com/tokens-bruecke/figma-plugin/files/13536853/build.zip)
 
