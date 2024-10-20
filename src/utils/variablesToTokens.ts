@@ -87,6 +87,7 @@ export const variablesToTokens = async (
       $extensions: {
         mode: filteredModesValues,
         figma: {
+          codeSyntax: variable.codeSyntax,
           variableId: variable.id,
           collection: collectionObject,
         },

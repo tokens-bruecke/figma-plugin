@@ -5,7 +5,6 @@ export const getTokensStat = (tokens) => {
   const codeLines = JSON.stringify(tokens, null, 2).split("\n").length;
 
   console.log("codeLines", codeLines);
-
   // get groups count
   const groupsCount = Object.keys(tokens).reduce((acc, key) => {
     const group = tokens[key];
