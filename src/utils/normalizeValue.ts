@@ -4,15 +4,18 @@ import { convertRGBA } from "./color/convertRGBA";
 interface PropsI {
   variableValue: any;
   variableType: VariableResolvedDataType;
+  variableScope: VariableScope[];
   colorMode: colorModeType;
   isDTCGForamt: boolean;
   includeValueAliasString: boolean;
+
 }
 
 export const normalizeValue = (props: PropsI) => {
   const {
     variableValue,
     variableType,
+    variableScope,
     colorMode,
     isDTCGForamt,
     includeValueAliasString,
@@ -37,7 +40,11 @@ export const normalizeValue = (props: PropsI) => {
   }
 
   if (variableType === "FLOAT") {
-    return `${variableValue}px`;
+    if (variableScope.length === 1 && variableScope[0] === "FONT_WEIGHT") {
+      return `${variableValue}`;
+    } else {
+      return `${variableValue}px`
+    }
   }
 
   return variableValue;

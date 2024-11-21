@@ -653,3 +653,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.2.1**
 
 - Added `paragraphSpacing` and `paragraphIndent` to the typography styles
+
+**2.2.2**
+
+- Do not convert the value to PX units if the variable scope is `FONT_WEIGHT`

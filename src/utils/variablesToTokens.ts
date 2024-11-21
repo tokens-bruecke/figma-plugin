@@ -53,6 +53,7 @@ export const variablesToTokens = async (
       normalizeValue({
         variableType: variable.resolvedType,
         variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
+        variableScope: variable.scopes,
         colorMode,
         isDTCGForamt,
         includeValueAliasString,
@@ -76,7 +77,7 @@ export const variablesToTokens = async (
     const filteredModesValues = modesAmount === 1 ? {} : modesValues;
 
     const variableObject = {
-      [keyNames.type]: normilizeType(variable.resolvedType),
+      [keyNames.type]: normilizeType(variable.resolvedType, variable.scopes),
       [keyNames.value]: defaultValue,
       [keyNames.description]: variable.description,
       // add scopes if true

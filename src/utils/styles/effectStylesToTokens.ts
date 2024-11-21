@@ -22,7 +22,7 @@ const wrapShadowObject = (
     return null;
   }
 
-  console.log("shadowEffect", shadowEffect);
+  // console.log("shadowEffect", shadowEffect);
   return {
     inset: shadowEffect.type === "INNER_SHADOW",
     color: convertRGBA(shadowEffect.color, colorMode),
