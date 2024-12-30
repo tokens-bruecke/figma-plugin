@@ -108,6 +108,11 @@ interface PluginTokenI {
     mode: Object;
     figma: {
       variableId: string;
+      codeSyntax: {
+        WEB?: string;
+        iOS?: string;
+        ANDROID?: string;
+      };
       collection: {
         id: string;
         name: string;
