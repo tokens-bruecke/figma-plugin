@@ -672,3 +672,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.2.3**
 
 - Convert `OPACITY` scope to valid value using this formula `value / 100`.
+
+**2.3.0**
+
+- Added `codeSyntax` property to variables. See this PR — [include variable's "codeSyntax" property in exported token json](https://github.com/tokens-bruecke/figma-plugin/pull/28)
