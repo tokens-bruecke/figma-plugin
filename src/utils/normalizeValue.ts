@@ -42,6 +42,8 @@ export const normalizeValue = (props: PropsI) => {
   if (variableType === "FLOAT") {
     if (variableScope.length === 1 && variableScope[0] === "FONT_WEIGHT") {
       return `${variableValue}`;
+    } else if (variableScope.length === 1 && variableScope[0] === "OPACITY") {
+      return Number(variableValue) / 100;
     } else {
       return `${variableValue}px`
     }

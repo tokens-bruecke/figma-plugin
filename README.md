@@ -47,6 +47,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
   - [Design tokens types](#design-tokens-types)
+  - [Scopes lemitations](#scopes-lemitations)
   - [Style Dictionary support](#style-dictionary-support)
   - [Contribution 🚧](#contribution-)
   - [Feedback](#feedback)
@@ -517,6 +518,15 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 
 ---
 
+## Scopes lemitations
+
+In order to convert `FONT-WEIGHT` and `OPACITY` types into valid values you should specify thme as scopes in the Figma variables. The plugin will read the first scope and convert it into the valid value. If there are multiple scopes, the plugin will take the first one.
+
+- `FONT_WEIGHT` scope will be converted into `string` type.
+- `OPACITY` scope will be converted into `number` type.
+ 
+---
+
 ## Style Dictionary support
 
 There is a set of utils for [Style Dictionary](https://github.com/tokens-bruecke/sd-utils).
@@ -657,3 +667,8 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.2.2**
 
 - Do not convert the value to PX units if the variable scope is `FONT_WEIGHT`
+
+
+**2.2.3**
+
+- Convert `OPACITY` scope to valid value using this formula `value / 100`.

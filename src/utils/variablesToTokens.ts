@@ -105,7 +105,7 @@ export const variablesToTokens = async (
     });
   });
 
-  console.log("emptyCollection", emptyCollection);
+  // console.log("emptyCollection", emptyCollection);
 
   const mergedVariables = emptyCollection.reduce((result, collection) => {
     return {

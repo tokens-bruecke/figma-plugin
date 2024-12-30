@@ -3,8 +3,12 @@ export const normilizeType = (type: VariableResolvedDataType, variableScopes: Va
     case "COLOR":
       return "color";
     case "FLOAT":
-      if (variableScopes.length === 1 && variableScopes[0] === "FONT_WEIGHT") {
-        return "string";
+      if (variableScopes.length === 1 ) {
+        if (variableScopes[0] === "FONT_WEIGHT") {
+          return "string";
+        } else if (variableScopes[0] === "OPACITY") {
+          return "number";
+        }
       } else {
         return "dimension";
       }
@@ -12,7 +16,6 @@ export const normilizeType = (type: VariableResolvedDataType, variableScopes: Va
       return "string";
     case "BOOLEAN":
       return "boolean";
-
     default:
       return "string";
   }
