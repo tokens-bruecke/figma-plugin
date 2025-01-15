@@ -9,9 +9,8 @@ export const normilizeType = (type: VariableResolvedDataType, variableScopes: Va
         } else if (variableScopes[0] === "OPACITY") {
           return "number";
         }
-      } else {
-        return "dimension";
       }
+      return "dimension";
     case "STRING":
       return "string";
     case "BOOLEAN":
