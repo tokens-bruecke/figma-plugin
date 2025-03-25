@@ -1,16 +1,14 @@
 import { textStylesToTokens } from "./textStylesToTokens";
 import { gridStylesToTokens } from "./gridStylesToTokens";
 import { effectStylesToTokens } from "./effectStylesToTokens";
+import { IResolver } from "../../resolvers/resolver";
 
-interface iProps {
-  includedStyles: IncludedStylesI;
-  colorMode: colorModeType;
-  isDTCGForamt: boolean;
-  includeValueAliasString: boolean;
-}
-
-export const stylesToTokens = async (props: iProps) => {
-  const { includedStyles, colorMode, isDTCGForamt, includeValueAliasString } = props;
+export const stylesToTokens = async (
+  props: ExportSettingsI,
+  resolver: IResolver
+) => {
+  const { includedStyles, colorMode, useDTCGKeys, includeValueAliasString } =
+    props;
   let styleTokens = [];
 
   if (!includedStyles) {
@@ -21,8 +19,9 @@ export const stylesToTokens = async (props: iProps) => {
   if (includedStyles.text.isIncluded) {
     const textTokens = await textStylesToTokens(
       includedStyles.text.customName,
-      isDTCGForamt,
-      includeValueAliasString
+      useDTCGKeys,
+      includeValueAliasString,
+      resolver
     );
 
     styleTokens.push(textTokens);
@@ -32,7 +31,8 @@ export const stylesToTokens = async (props: iProps) => {
   if (includedStyles.grids.isIncluded) {
     const gridTokens = await gridStylesToTokens(
       includedStyles.grids.customName,
-      isDTCGForamt
+      useDTCGKeys,
+      resolver
     );
 
     styleTokens.push(gridTokens);
@@ -43,8 +43,9 @@ export const stylesToTokens = async (props: iProps) => {
     const effectTokens = await effectStylesToTokens(
       includedStyles.effects.customName,
       colorMode,
-      isDTCGForamt,
-      includeValueAliasString
+      useDTCGKeys,
+      includeValueAliasString,
+      resolver
     );
 
     styleTokens.push(effectTokens);

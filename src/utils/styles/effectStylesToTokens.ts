@@ -2,12 +2,14 @@ import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategorie
 import { convertRGBA } from "../color/convertRGBA";
 import { getTokenKeyName } from "../getTokenKeyName";
 import { getAliasVariableName } from "../getAliasVariableName";
+import { IResolver } from "../../resolvers/resolver";
 
 const wrapShadowObject = (
   shadowEffect: DropShadowEffect | InnerShadowEffect,
   colorMode: colorModeType,
   isDTCGForamt: boolean,
-  includeValueAliasString: boolean
+  includeValueAliasString: boolean,
+  resolver: IResolver
 ) => {
   const effectBoundVariables = shadowEffect.boundVariables;
 
@@ -16,11 +18,12 @@ const wrapShadowObject = (
       return getAliasVariableName(
         effectBoundVariables[key].id,
         isDTCGForamt,
-        includeValueAliasString
+        includeValueAliasString,
+        resolver
       );
     }
     return null;
-  }
+  };
 
   // console.log("shadowEffect", shadowEffect);
   return {
@@ -37,11 +40,11 @@ export const effectStylesToTokens = async (
   customName: string,
   colorMode: colorModeType,
   isDTCGForamt: boolean,
-  includeValueAliasString: boolean
+  includeValueAliasString: boolean,
+  resolver: IResolver
 ) => {
   const keyNames = getTokenKeyName(isDTCGForamt);
-  const effectStyles = figma.getLocalEffectStyles();
-
+  const effectStyles = await resolver.getLocalEffectStyles();
 
   // console.log("effectStyles", effectStyles);
 
@@ -54,13 +57,15 @@ export const effectStylesToTokens = async (
     if (effectType === "DROP_SHADOW" || effectType === "INNER_SHADOW") {
       const styleObject = {
         [keyNames.type]: "shadow",
-        [keyNames.value]:
-          style.effects.map((effect) =>
-            wrapShadowObject(
-              effect as DropShadowEffect | InnerShadowEffect,
-              colorMode, isDTCGForamt, includeValueAliasString
-            )
-          ),
+        [keyNames.value]: style.effects.map((effect) =>
+          wrapShadowObject(
+            effect as DropShadowEffect | InnerShadowEffect,
+            colorMode,
+            isDTCGForamt,
+            includeValueAliasString,
+            resolver
+          )
+        ),
       } as unknown as ShadowTokenI;
       result[styleName] = styleObject;
     }
@@ -74,9 +79,10 @@ export const effectStylesToTokens = async (
         aliasVariable = getAliasVariableName(
           aliasRef.id,
           isDTCGForamt,
-          includeValueAliasString
-        )
-      };
+          includeValueAliasString,
+          resolver
+        );
+      }
 
       const styleObject = {
         $type: "blur",

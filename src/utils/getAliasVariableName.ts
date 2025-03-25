@@ -1,12 +1,18 @@
 import { getTokenKeyName } from "./getTokenKeyName";
+import { IResolver } from "../resolvers/resolver";
 
 export const getAliasVariableName = (
   variableId: string,
   isDTCGForamt: boolean,
-  includeValueAliasString: boolean
+  includeValueAliasString: boolean,
+  resolver: IResolver
 ) => {
-  const variableObj = figma.variables.getVariableById(variableId) as Variable;
-  const collectionObj = figma.variables.getVariableCollectionById(
+  const variableObj = resolver.getVariableById(variableId) as Variable;
+  if (!variableObj) {
+    console.log("cannot find variable", variableId);
+    return "#missing#";
+  }
+  const collectionObj = resolver.getVariableCollectionById(
     variableObj.variableCollectionId
   ) as VariableCollection;
   // const modesAmount = collectionObj.modes.length;

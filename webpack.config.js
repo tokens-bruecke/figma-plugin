@@ -53,7 +53,7 @@ module.exports = (env, argv) => ({
   // Define the output file(s)
   output: {
     filename: "[name].js", // Use the name of the entry point as the output filename
-    path: path.resolve(__dirname, "dist"), // Compile into a folder called "dist"
+    path: path.resolve(__dirname, "dist/plugin"), // Compile into a folder called "dist"
     publicPath: "", // Set the public path for the output files (empty string means relative path)
   },
 

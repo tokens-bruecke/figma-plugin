@@ -2,9 +2,9 @@
   "name": "TokensBrücke",
   "id": "1254538877056388290",
   "api": "1.0.0",
-  "main": "dist/code.js",
+  "main": "dist/plugin/code.js",
   "editorType": ["figma"],
-  "ui": "dist/ui.html",
+  "ui": "dist/plugin/ui.html",
   "networkAccess": {
     "allowedDomains": ["*"],
     "reasoning": "There is a push method that uses a custom URL. This URL can be any"

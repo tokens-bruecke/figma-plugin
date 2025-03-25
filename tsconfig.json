@@ -14,10 +14,15 @@
       "dom"
     ],
     "jsx": "react",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@figma",
-      "./node_modules/@tokens-bruecke"
-    ]
-  }
+    // "typeRoots": [
+    //   "./node_modules/@types",
+    //   "./node_modules/@figma",
+    //   "./node_modules/@tokens-bruecke",
+    //   "./node_modules/@figma/rest-api-spec"
+    // ]
+  },
+  "include": [
+    "src/**/*",
+    "*.d.ts"
+  ]
 }

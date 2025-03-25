@@ -5,14 +5,16 @@ import { getLetterSpacing } from "../text/getLetterSpacing";
 import { getFontStyleAndWeight } from "../text/getFontStyleAndWeight";
 import { getTokenKeyName } from "../getTokenKeyName";
 import { getAliasVariableName } from "../getAliasVariableName";
+import { IResolver } from "../../resolvers/resolver";
 
 export const textStylesToTokens = async (
   customName: string,
   isDTCGForamt: boolean,
-  includeValueAliasString: boolean
+  includeValueAliasString: boolean,
+  resolver: IResolver
 ) => {
   const keyNames = getTokenKeyName(isDTCGForamt);
-  const textStyles = figma.getLocalTextStyles();
+  const textStyles = await resolver.getLocalTextStyles();
 
   console.log("textStyles", textStyles);
 
@@ -29,7 +31,8 @@ export const textStylesToTokens = async (
           [key]: getAliasVariableName(
             boundVariables[key].id,
             isDTCGForamt,
-            includeValueAliasString
+            includeValueAliasString,
+            resolver
           ),
         };
       });

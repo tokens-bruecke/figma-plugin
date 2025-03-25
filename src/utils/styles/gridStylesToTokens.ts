@@ -1,12 +1,14 @@
 import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
 import { getTokenKeyName } from "../getTokenKeyName";
+import { IResolver } from "../../resolvers/resolver";
 
 export const gridStylesToTokens = async (
   customName: string,
-  isDTCGForamt: boolean
+  isDTCGForamt: boolean,
+  resolver: IResolver
 ) => {
   const keyNames = getTokenKeyName(isDTCGForamt);
-  const gridStyles = figma.getLocalGridStyles();
+  const gridStyles = await resolver.getLocalGridStyles();
 
   console.log("gridStyles", gridStyles);
 
