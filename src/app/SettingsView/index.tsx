@@ -442,11 +442,11 @@ export const SettingsView = (props: ViewProps) => {
           <Stack hasLeftRightPadding>
             <Dropdown
               label="Add styles to"
-              value={JSONsettingsConfig.selectedCollection}
+              value={JSONsettingsConfig.storeStyleInCollection}
               onChange={(value: string) => {
                 setJSONsettingsConfig({
                   ...JSONsettingsConfig,
-                  selectedCollection: value,
+                  storeStyleInCollection: value,
                 });
               }}
               optionsSections={[

@@ -54,16 +54,18 @@ figma.ui.onmessage = async (msg) => {
 
   // generate tokens and send them to the UI
   if (msg.type === "getTokens") {
-    await getTokens(JSONSettingsConfig, new PluginAPIResolver()).then(
-      (tokens) => {
-        figma.ui.postMessage({
-          type: "setTokens",
-          tokens: tokens,
-          role: msg.role,
-          server: msg.server,
-        } as TokensMessageI);
-      }
-    );
+    await getTokens(
+      new PluginAPIResolver(),
+      JSONSettingsConfig,
+      JSONSettingsConfig
+    ).then((tokens) => {
+      figma.ui.postMessage({
+        type: "setTokens",
+        tokens: tokens,
+        role: msg.role,
+        server: msg.server,
+      } as TokensMessageI);
+    });
   }
 
   // change size of UI

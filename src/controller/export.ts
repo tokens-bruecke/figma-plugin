@@ -5,8 +5,9 @@ import { mergeStylesIntoTokens } from "../utils/mergeStylesIntoTokens";
 import { IResolver } from "../resolvers/resolver";
 
 export const getTokens = async (
+  resolver: IResolver,
   config: ExportSettingsI,
-  resolver: IResolver
+  state?: PluginStateI
 ) => {
   const variableCollection = await resolver.getLocalVariableCollections();
   const variables = await resolver.getLocalVariables();
@@ -26,14 +27,14 @@ export const getTokens = async (
   const mergedVariables = mergeStylesIntoTokens(
     variableTokens,
     styleTokens,
-    config.selectedCollection
+    config.storeStyleInCollection
   );
 
   // add meta to mergedVariables
   const metaData = {
     useDTCGKeys: config.useDTCGKeys,
     colorMode: config.colorMode,
-    variableCollections: config.variableCollections,
+    variableCollections: state?.variableCollections,
     createdAt: new Date().toISOString(),
   } as MetaPropsI;
 

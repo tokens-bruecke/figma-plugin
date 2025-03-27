@@ -24,6 +24,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Include variable scopes](#include-variable-scopes)
     - [Use DTCG keys format](#use-dtcg-keys-format)
     - [Include `.value` string for aliases](#include-value-string-for-aliases)
+  - [Use as cli tool](#use-as-cli-tool)
   - [Push to server](#push-to-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
@@ -169,6 +170,66 @@ If the format is `DTCG`:
 ```
 
 ![fig.13](readme-assets/fig13.webp)
+
+---
+
+## Use as cli tool
+
+> [!WARNING]  
+> ⚠️ You need a Figma Enterprise plan to use the Figma REST API for variables.
+
+### Installation
+
+To install the CLI globally, run:
+
+```bash
+pnpm add -g tokens-bruecke
+#or npm install -g tokens-bruecke
+```
+
+This will make the `tokens-bruecke` command available globally on your system.
+
+### Usage
+
+After installation, you can run the CLI tool using:
+
+```bash
+tokens-bruecke [options]
+```
+
+For example:
+
+```bash
+tokens-bruecke --api-key $FIGMA_TOKEN --file-key $FIGMA_FILE --config config.json --output out/tokens.json
+```
+
+This will fetch figma variables and export them in `out/tokens.json`
+
+### Options
+
+Same options than the plugin are available throught the usage of a json file.
+
+### CLI Configuration File
+
+You can use a JSON configuration file to specify the export options for the CLI.
+
+```json
+{
+  "includedStyles": {
+    "colors": { "isIncluded": true, "customName": "colors" },
+    "text": { "isIncluded": true, "customName": "typography" },
+    "effects": { "isIncluded": false, "customName": "effects" },
+    "grids": { "isIncluded": false, "customName": "grids" }
+  },
+  "includeScopes": true,
+  "useDTCGKeys": false,
+  "includeValueAliasString": true,
+  "colorMode": "hex", // "hex"  | "rgba-object"  | "rgba-css"  | "hsla-object"  | "hsla-css";
+  "storeStyleInCollection": "none" // Name of one of your collection or "none" to keep them separated
+}
+```
+
+Save this JSON file and pass it to the CLI using the `--config` option:
 
 ---
 
@@ -524,7 +585,7 @@ In order to convert `FONT-WEIGHT` and `OPACITY` types into valid values you shou
 
 - `FONT_WEIGHT` scope will be converted into `string` type.
 - `OPACITY` scope will be converted into `number` type.
- 
+
 ---
 
 ## Style Dictionary support
@@ -667,7 +728,6 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.2.2**
 
 - Do not convert the value to PX units if the variable scope is `FONT_WEIGHT`
-
 
 **2.2.3**
 

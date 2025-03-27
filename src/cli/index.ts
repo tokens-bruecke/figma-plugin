@@ -24,8 +24,7 @@ const defaultConfig: ExportSettingsI = {
       customName: "Grids",
     },
   },
-  variableCollections: [],
-  selectedCollection: "none",
+  storeStyleInCollection: "none",
   colorMode: "hex",
   includeScopes: false,
   includeValueAliasString: false,
@@ -79,7 +78,7 @@ const options = {
 
 async function exportFigmaTokens() {
   const resolver = new RestAPIResolver(argv.fileKey, argv.apiKey);
-  const tokens = await getTokens(options, resolver);
+  const tokens = await getTokens(resolver, options);
   try {
     writeFileSync(argv.output, JSON.stringify(tokens, null, 2), "utf-8");
     console.log("Tokens successfully written to", argv.output);

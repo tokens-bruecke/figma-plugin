@@ -92,8 +92,7 @@ interface ExportSettingsI {
   useDTCGKeys: boolean;
   includeValueAliasString: boolean;
   colorMode: colorModeType;
-  variableCollections: string[];
-  selectedCollection: string;
+  storeStyleInCollection: string;
 }
 
 interface ServerSettingsI {
@@ -103,10 +102,14 @@ interface ServerSettingsI {
   gitlab: GitlabCredentialsI;
   customURL: CustomURLCredentialsI;
 }
-
-type JSONSettingsConfigI = ExportSettingsI & {
-  servers: ServerSettingsI;
+type PluginStateI = {
+  variableCollections: string[];
 };
+
+type JSONSettingsConfigI = ExportSettingsI &
+  PluginStateI & {
+    servers: ServerSettingsI;
+  };
 
 interface PluginTokenI {
   $value: string;
@@ -166,7 +169,7 @@ interface TokensMessageI {
 interface MetaPropsI {
   useDTCGKeys: boolean;
   colorMode: colorModeType;
-  variableCollections: string[];
+  variableCollections: string[] | undefined;
   createdAt: string;
 }
 

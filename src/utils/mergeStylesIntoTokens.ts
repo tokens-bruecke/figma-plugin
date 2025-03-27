@@ -1,19 +1,17 @@
 export const mergeStylesIntoTokens = (
   variableTokens: any,
   styleTokens: any,
-  selectedCollection: string
+  storeStyleInCollection: string
 ) => {
-  if (selectedCollection === "none") {
+  if (!storeStyleInCollection || storeStyleInCollection === "none") {
     // Object.assign(variableTokens, styleTokens);
     styleTokens.forEach((styleToken) => {
       Object.assign(variableTokens, styleToken);
     });
-  }
-
-  if (selectedCollection !== "none") {
-    // Object.assign(variableTokens[selectedCollection], styleTokens);
+  } else {
+    // Object.assign(variableTokens[storeStyleInCollection], styleTokens);
     styleTokens.forEach((styleToken) => {
-      Object.assign(variableTokens[selectedCollection], styleToken);
+      Object.assign(variableTokens[storeStyleInCollection], styleToken);
     });
   }
 

@@ -43,7 +43,7 @@ const Container = () => {
       },
     },
     variableCollections: [],
-    selectedCollection: "none",
+    storeStyleInCollection: "none",
     colorMode: "hex",
     includeScopes: false,
     useDTCGKeys: false,
