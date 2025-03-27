@@ -1,15 +1,11 @@
 {
     "includedStyles": {
-        "colors": {
-            "isIncluded": true,
-            "customName": "colors"
-        },
         "text": {
             "isIncluded": true,
             "customName": "typography"
         },
         "effects": {
-            "isIncluded": false,
+            "isIncluded": true,
             "customName": "effects"
         },
         "grids": {

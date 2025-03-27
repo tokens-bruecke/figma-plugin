@@ -216,7 +216,6 @@ You can use a JSON configuration file to specify the export options for the CLI.
 ```json
 {
   "includedStyles": {
-    "colors": { "isIncluded": true, "customName": "colors" },
     "text": { "isIncluded": true, "customName": "typography" },
     "effects": { "isIncluded": false, "customName": "effects" },
     "grids": { "isIncluded": false, "customName": "grids" }

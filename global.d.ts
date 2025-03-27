@@ -32,7 +32,6 @@ type JSONSettingsStyleType = {
 };
 
 interface IncludedStylesI {
-  colors: JSONSettingsStyleType;
   text: JSONSettingsStyleType;
   effects: JSONSettingsStyleType;
   grids: JSONSettingsStyleType;

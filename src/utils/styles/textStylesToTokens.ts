@@ -16,7 +16,7 @@ export const textStylesToTokens = async (
   const keyNames = getTokenKeyName(isDTCGForamt);
   const textStyles = await resolver.getLocalTextStyles();
 
-  console.log("textStyles", textStyles);
+  // console.log("textStyles", textStyles);
 
   let textTokens = {};
 

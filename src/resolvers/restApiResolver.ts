@@ -1,4 +1,4 @@
-import { type LocalVariable } from "@figma/rest-api-spec";
+import { TextNode, type LocalVariable } from "@figma/rest-api-spec";
 import { IResolver } from "./resolver";
 import { Api } from "figma-api";
 
@@ -20,6 +20,7 @@ export class RestAPIResolver implements IResolver {
   async fetchLocalVariables(): Promise<void> {
     if (!this.variables) {
       if (!this.fetchLocalVariablesPromise) {
+        console.log("⌛ Fetching local variables");
         this.fetchLocalVariablesPromise = this.api
           .getLocalVariables({ file_key: this.fileKey })
           .then((response) => {
@@ -36,6 +37,11 @@ export class RestAPIResolver implements IResolver {
                   !collection.remote && !collection.hiddenFromPublishing
               )
             ) as Record<string, VariableCollection>;
+            console.log(
+              "✅ Found %d local variables in %d collections",
+              Object.keys(this.variables).length,
+              Object.keys(this.variableCollections).length
+            );
           })
           .catch((error) => {
             throw error;
@@ -47,6 +53,8 @@ export class RestAPIResolver implements IResolver {
 
   async fetchFileStyles(): Promise<void> {
     if (this.styles.length === 0) {
+      // Fetch file styles only if they are not already fetched
+      console.log("⌛ Fetching file styles");
       const styles = await this.api.getFileStyles({
         file_key: this.fileKey,
       });
@@ -56,7 +64,19 @@ export class RestAPIResolver implements IResolver {
 
   async getLocalEffectStyles(): Promise<EffectStyle[]> {
     await this.fetchFileStyles();
-    return this.styles.filter((style) => style.style_type === "EFFECT");
+    console.log("⌛ Fetching text styles");
+    const ids = this.styles
+      .filter((style) => style.style_type === "EFFECT")
+      .map((style) => style.node_id);
+    const r = await this.api.getFileNodes(
+      { file_key: this.fileKey },
+      { ids: ids.join(",") }
+    );
+    const effectStyles = Object.values(r.nodes)
+      .map((node) => node.document as unknown as RectangleNode)
+      .map(this.rectangleNodeToEffectStyle);
+    console.log("✅ Found %d effect styles", effectStyles.length);
+    return effectStyles;
   }
 
   async getLocalVariableCollections(): Promise<VariableCollection[]> {
@@ -76,7 +96,19 @@ export class RestAPIResolver implements IResolver {
 
   async getLocalTextStyles(): Promise<TextStyle[]> {
     await this.fetchFileStyles();
-    return this.styles.filter((style) => style.style_type === "TEXT");
+    console.log("⌛ Fetching text styles");
+    const ids = this.styles
+      .filter((style) => style.style_type === "TEXT")
+      .map((style) => style.node_id);
+    const r = await this.api.getFileNodes(
+      { file_key: this.fileKey },
+      { ids: ids.join(",") }
+    );
+    const textStyles = Object.values(r.nodes)
+      .map((node) => node.document as TextNode)
+      .map(this.textNodeToStyle);
+    console.log("✅ Found %d text styles", textStyles.length);
+    return textStyles;
   }
 
   getVariableById(variableId: string): Variable {
@@ -86,5 +118,49 @@ export class RestAPIResolver implements IResolver {
 
   getVariableCollectionById(id: string): VariableCollection {
     return this.variableCollections[id];
+  }
+
+  rectangleNodeToEffectStyle(node: RectangleNode): EffectStyle {
+    return {
+      type: "EFFECT",
+      id: node.id,
+      name: node.name,
+      effects: node.effects,
+      remote: false,
+      key: node.id,
+      description: "",
+    } as unknown as EffectStyle;
+  }
+
+  textNodeToStyle(node: TextNode): TextStyle {
+    return {
+      type: "TEXT",
+      id: node.id,
+      remote: false,
+      key: node.id,
+      name: node.name,
+      fontName: {
+        family: node.style.fontFamily,
+        style: node.style.fontStyle,
+      },
+      fontSize: node.style.fontSize,
+      fontWeight: node.style.fontWeight,
+      textDecoration: node.style.textDecoration,
+      textCase: node.style.textCase,
+      paragraphIndent: node.style.paragraphIndent ?? 0,
+      paragraphSpacing: node.style.paragraphSpacing ?? 0,
+      listSpacing: node.style.listSpacing,
+      hangingList: false, //not in API ?
+      hangingPunctuation: false, //not in API ?
+      leadingTrim: "NONE", //not in API ?
+      letterSpacing: { value: node.style.letterSpacing, unit: "PIXELS" },
+      lineHeight: {
+        value:
+          node.style.lineHeightUnit == "PIXELS"
+            ? node.style.lineHeightPx
+            : node.style.lineHeightPercentFontSize,
+        unit: node.style.lineHeightUnit == "PIXELS" ? "PIXELS" : "PERCENT",
+      },
+    } as unknown as TextStyle;
   }
 }

@@ -14,11 +14,11 @@ export class PluginAPIResolver implements IResolver {
   }
 
   async getLocalGridStyles(): Promise<GridStyle[]> {
-    return figma.getLocalGridStyles();
+    return figma.getLocalGridStylesAsync();
   }
 
   async getLocalTextStyles(): Promise<TextStyle[]> {
-    return figma.getLocalTextStyles();
+    return figma.getLocalTextStylesAsync();
   }
 
   getVariableById(variableId: string): Variable {

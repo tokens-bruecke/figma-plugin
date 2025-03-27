@@ -7,10 +7,6 @@ import { getTokens } from "../controller/export";
 
 const defaultConfig: ExportSettingsI = {
   includedStyles: {
-    colors: {
-      isIncluded: false,
-      customName: "Colors",
-    },
     text: {
       isIncluded: false,
       customName: "Typography",
@@ -81,9 +77,9 @@ async function exportFigmaTokens() {
   const tokens = await getTokens(resolver, options);
   try {
     writeFileSync(argv.output, JSON.stringify(tokens, null, 2), "utf-8");
-    console.log("Tokens successfully written to", argv.output);
+    console.log("✨ Tokens successfully written to", argv.output);
   } catch (error) {
-    console.error("Error writing to output file:", error);
+    console.error("🔴 Error writing to output file:", error);
     process.exit(1);
   }
 }
