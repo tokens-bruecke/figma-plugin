@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "outDir": "dist",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "experimentalDecorators": true,
     "removeComments": true,
     "noImplicitAny": false,
     "moduleResolution": "node",
+    "noEmit": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
       "es2021",
@@ -21,8 +21,14 @@
     //   "./node_modules/@figma/rest-api-spec"
     // ]
   },
-  "include": [
-    "src/**/*",
-    "*.d.ts"
-  ]
+  "include": [],
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.plugin.json"
+    },
+    {
+      "path": "./tsconfig.cli.json"
+    }
+  ],
 }

@@ -7,12 +7,16 @@
     "url": "https://pavellaptev.github.io"
   },
   "scripts": {
-    "build:cli": "tsc src/cli.ts --outDir dist/cli",
+    "build:cli": "tsc src/cli.ts --skipLibCheck --outDir bin",
     "build:plugin": "webpack --mode=production",
     "build": "npm run build:cli && npm run build:plugin",
     "dev": "webpack --mode=development --watch"
   },
   "module": "true",
+  "main": "./bin/cli.js",
+  "bin": {
+    "tokens-bruecke": "./bin/cli.js"
+  },
   "dependencies": {
     "@octokit/core": "^5.0.0",
     "clipboard-copy": "^4.0.1",

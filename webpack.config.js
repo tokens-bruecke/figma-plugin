@@ -25,7 +25,16 @@ module.exports = (env, argv) => ({
   module: {
     rules: [
       // Convert TypeScript code to JavaScript
-      { test: /\.tsx?$/, use: "ts-loader", exclude: /node_modules/ },
+      {
+        test: /\.tsx?$/,
+        use: {
+          loader: "ts-loader",
+          options: {
+            configFile: "tsconfig.plugin.json"
+          }
+        },
+        exclude: /node_modules/
+      },
 
       // Allows you to use "<%= require('./file.svg') %>" in your HTML code to get a data URI
       {
