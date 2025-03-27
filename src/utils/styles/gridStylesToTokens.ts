@@ -10,7 +10,7 @@ export const gridStylesToTokens = async (
   const keyNames = getTokenKeyName(isDTCGForamt);
   const gridStyles = await resolver.getLocalGridStyles();
 
-  console.log("gridStyles", gridStyles);
+  // console.log("gridStyles", gridStyles);
 
   let textTokens = {};
 

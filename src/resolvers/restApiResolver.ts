@@ -91,7 +91,19 @@ export class RestAPIResolver implements IResolver {
 
   async getLocalGridStyles(): Promise<GridStyle[]> {
     await this.fetchFileStyles();
-    return this.styles.filter((style) => style.style_type === "GRID");
+    console.log("⌛ Fetching grid styles");
+    const ids = this.styles
+      .filter((style) => style.style_type === "GRID")
+      .map((style) => style.node_id);
+    const r = await this.api.getFileNodes(
+      { file_key: this.fileKey },
+      { ids: ids.join(",") }
+    );
+    const gridStyles = Object.values(r.nodes)
+      .map((node) => node.document as unknown as FrameNode)
+      .map(this.frameNodeToGrid);
+    console.log("✅ Found %d grid styles", gridStyles.length);
+    return gridStyles;
   }
 
   async getLocalTextStyles(): Promise<TextStyle[]> {
@@ -129,7 +141,25 @@ export class RestAPIResolver implements IResolver {
       remote: false,
       key: node.id,
       description: "",
+      documentationLinks: [],
+      consumers: [],
+      boundVariables: node.boundVariables,
     } as unknown as EffectStyle;
+  }
+
+  frameNodeToGrid(node: FrameNode): GridStyle {
+    return {
+      type: "GRID",
+      id: node.id,
+      name: node.name,
+      layoutGrids: node.layoutGrids,
+      remote: false,
+      key: node.id,
+      description: "",
+      documentationLinks: [],
+      consumers: [],
+      boundVariables: node.boundVariables,
+    } as unknown as GridStyle;
   }
 
   textNodeToStyle(node: TextNode): TextStyle {
@@ -139,6 +169,9 @@ export class RestAPIResolver implements IResolver {
       remote: false,
       key: node.id,
       name: node.name,
+      documentationLinks: [],
+      consumers: [],
+      boundVariables: node.boundVariables,
       fontName: {
         family: node.style.fontFamily,
         style: node.style.fontStyle,
