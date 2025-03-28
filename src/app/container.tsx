@@ -75,6 +75,7 @@ const Container = () => {
       },
       gitlab: {
         isEnabled: false,
+        host: "",
         token: "",
         repo: "",
         branch: "",
