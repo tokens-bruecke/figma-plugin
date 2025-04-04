@@ -2,8 +2,8 @@
 
 import yargs from "yargs";
 import { readFileSync, writeFileSync } from "fs";
-import { RestAPIResolver } from "../resolvers/restApiResolver";
-import { getTokens } from "../controller/export";
+import { RestAPIResolver } from "./restApiResolver";
+import { getTokens } from "../common/export";
 
 const defaultConfig: ExportSettingsI = {
   includedStyles: {

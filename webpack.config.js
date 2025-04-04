@@ -18,7 +18,7 @@ module.exports = (env, argv) => ({
   // Define the entry points for the webpack build
   entry: {
     ui: "./src/app/index.tsx", // The entry point for your UI code
-    code: "./src/controller/index.ts", // The entry point for your plugin code
+    code: "./src/app/controller/index.ts", // The entry point for your plugin code
   },
 
   // Define the rules for how different types of files should be handled

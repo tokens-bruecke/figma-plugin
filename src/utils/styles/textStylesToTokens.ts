@@ -5,7 +5,7 @@ import { getLetterSpacing } from "../text/getLetterSpacing";
 import { getFontStyleAndWeight } from "../text/getFontStyleAndWeight";
 import { getTokenKeyName } from "../getTokenKeyName";
 import { getAliasVariableName } from "../getAliasVariableName";
-import { IResolver } from "../../resolvers/resolver";
+import { IResolver } from "../../common/resolver";
 
 export const textStylesToTokens = async (
   customName: string,

@@ -2,7 +2,7 @@ import { stylesToTokens } from "../utils/styles/stylesToTokens";
 
 import { variablesToTokens } from "../utils/variablesToTokens";
 import { mergeStylesIntoTokens } from "../utils/mergeStylesIntoTokens";
-import { IResolver } from "../resolvers/resolver";
+import { IResolver } from "./resolver";
 
 export const getTokens = async (
   resolver: IResolver,

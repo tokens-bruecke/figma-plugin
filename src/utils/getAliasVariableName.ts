@@ -1,5 +1,5 @@
 import { getTokenKeyName } from "./getTokenKeyName";
-import { IResolver } from "../resolvers/resolver";
+import { IResolver } from "../common/resolver";
 
 export const getAliasVariableName = (
   variableId: string,

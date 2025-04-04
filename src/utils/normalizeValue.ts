@@ -1,6 +1,6 @@
 import { getAliasVariableName } from "./getAliasVariableName";
 import { convertRGBA } from "./color/convertRGBA";
-import { IResolver } from "../resolvers/resolver";
+import { IResolver } from "../common/resolver";
 
 interface PropsI {
   variableValue: any;

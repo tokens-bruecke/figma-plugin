@@ -19,14 +19,12 @@
     },
     "include": [
         "src/cli/**/*.ts",
-        "src/controller/**/*.ts",
-        "src/resolvers/**/*.ts",
+        "src/common/**/*.ts",
         "src/utils/**/*.ts",
-        "**/*.d.ts"
+        "**/*.d.ts",
     ],
     "exclude": [
         "src/app/**",
-        "src/app/components/**",
     ],
     "files": [
         "src/cli.ts"

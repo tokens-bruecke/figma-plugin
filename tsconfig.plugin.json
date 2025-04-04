@@ -13,7 +13,7 @@
         "jsx": "react",
         "lib": [
             "dom",
-            "es6"
+            "es2021"
         ],
         "declaration": false, // Disable declaration file generation
         "emitDeclarationOnly": false // Ensure only JS files are emitted
@@ -24,7 +24,7 @@
     ],
     "files": [
         "src/app/index.tsx",
-        "src/controller/index.ts"
+        "src/app/controller/index.ts"
     ],
     "exclude": [
         "src/cli/**/*"

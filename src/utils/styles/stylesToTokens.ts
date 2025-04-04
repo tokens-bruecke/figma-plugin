@@ -1,7 +1,7 @@
 import { textStylesToTokens } from "./textStylesToTokens";
 import { gridStylesToTokens } from "./gridStylesToTokens";
 import { effectStylesToTokens } from "./effectStylesToTokens";
-import { IResolver } from "../../resolvers/resolver";
+import { IResolver } from "../../common/resolver";
 
 export const stylesToTokens = async (
   props: ExportSettingsI,

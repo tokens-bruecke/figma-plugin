@@ -1,11 +1,11 @@
-import { checkForVariables } from "../utils/controller/checkForVariables";
-import { getStorageConfig } from "../utils/controller/getStorageConfig";
+import { checkForVariables } from "../../utils/controller/checkForVariables";
+import { getStorageConfig } from "../../utils/controller/getStorageConfig";
 
 // import { removeDollarSign } from "../utils/removeDollarSign";
 
-import { config } from "../utils/config";
-import { getTokens } from "./export";
-import { PluginAPIResolver } from "../resolvers/pluginApiResolver";
+import { config } from "../../utils/config";
+import { getTokens } from "../../common/export";
+import { PluginAPIResolver } from "../api/pluginApiResolver";
 
 // clear console on reload
 console.clear();
