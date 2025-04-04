@@ -7,7 +7,7 @@
     "url": "https://pavellaptev.github.io"
   },
   "scripts": {
-    "build:cli": "tsc src/cli.ts --skipLibCheck --outDir bin",
+    "build:cli": "tsc -p tsconfig.cli.json --outDir bin",
     "build:plugin": "webpack --mode=production",
     "build": "npm run build:cli && npm run build:plugin",
     "dev": "webpack --mode=development --watch"

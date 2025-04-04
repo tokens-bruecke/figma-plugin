@@ -142,22 +142,6 @@ type ServerType =
   | "customURL"
   | "none";
 
-type ViewsConfigI = {
-  [K in ServerType]: {
-    title: string;
-    description: React.ReactNode;
-    isEnabled: boolean;
-    fields: {
-      readonly id: string;
-      readonly type: "input" | "textarea" | "select";
-      readonly required: boolean;
-      readonly placeholder?: string;
-      readonly options?: string[];
-      value: string;
-    }[];
-  };
-};
-
 interface TokensMessageI {
   type: "getTokens" | "setTokens";
   tokens: any;

@@ -15,18 +15,18 @@ import {
   OverlayList,
 } from "pavelLaptev/react-figma-ui/ui";
 
-import { config } from "../../utils/config";
+import { config } from "../../../utils/config";
 
 import { Toast } from "../../components/Toast";
 import { ServerSettingsView } from "../ServerSettingsView";
 
-import { pushToJSONBin } from "../../utils/servers/pushToJSONBin";
-import { pushToGithub } from "../../utils/servers/pushToGithub";
-import { githubPullRequest } from "../../utils/servers/githubPullRequest";
-import { pushToGitlab } from "../../utils/servers/pushToGitlab";
-import { pushToCustomURL } from "../../utils/servers/pushToCustomURL";
+import { pushToJSONBin } from "../../../utils/servers/pushToJSONBin";
+import { pushToGithub } from "../../../utils/servers/pushToGithub";
+import { githubPullRequest } from "../../../utils/servers/githubPullRequest";
+import { pushToGitlab } from "../../../utils/servers/pushToGitlab";
+import { pushToCustomURL } from "../../../utils/servers/pushToCustomURL";
 
-import { downloadTokensFile } from "../../utils/downloadTokensFile";
+import { downloadTokensFile } from "../../api/downloadTokensFile";
 
 type StyleListItemType = {
   id: stylesType;

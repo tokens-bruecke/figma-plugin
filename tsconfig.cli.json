@@ -7,18 +7,26 @@
         "experimentalDecorators": true,
         "removeComments": true,
         "noImplicitAny": false,
+        "skipLibCheck": true,
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
         "lib": [
-            "es6"
+            "ES2021",
         ],
         "types": [
             "node"
         ]
     },
     "include": [
-        "src/**/*",
+        "src/cli/**/*.ts",
+        "src/controller/**/*.ts",
+        "src/resolvers/**/*.ts",
+        "src/utils/**/*.ts",
         "**/*.d.ts"
+    ],
+    "exclude": [
+        "src/app/**",
+        "src/app/components/**",
     ],
     "files": [
         "src/cli.ts"
