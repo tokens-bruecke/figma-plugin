@@ -68,6 +68,7 @@ interface GithubPullRequestCredentialsI {
 interface GitlabCredentialsI {
   isEnabled: boolean;
   owner: string;
+  host: string;
   repo: string;
   branch: string;
   fileName: string;

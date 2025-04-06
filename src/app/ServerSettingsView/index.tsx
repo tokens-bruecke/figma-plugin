@@ -225,6 +225,13 @@ const viewsConfig = {
     isEnabled: false,
     fields: [
       {
+        id: "host",
+        placeholder: "Gitlab host for selfhosted (default: gitlab.com)",
+        type: "input",
+        value: "",
+        required: false,
+      },
+      {
         id: "token",
         placeholder: "Project access token",
         type: "input",

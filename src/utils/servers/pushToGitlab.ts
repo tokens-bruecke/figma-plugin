@@ -7,6 +7,7 @@ export const pushToGitlab = async (
   const glUser = credentials.owner;
   const glRepo = credentials.repo;
   const branch = credentials.branch;
+  const glHost = credentials.host || "gitlab.com";
   const fileName = credentials.fileName;
   const commitMessage = credentials.commitMessage || "Update tokens";
   const fileContent = JSON.stringify(tokens, null, 2);
@@ -17,7 +18,7 @@ export const pushToGitlab = async (
     content: fileContent,
   };
 
-  const fetchUrl = `https://gitlab.com/api/v4/projects/${glUser}%2F${glRepo}/repository/files/${fileName}`;
+  const fetchUrl = `https://${glHost}/api/v4/projects/${glUser}%2F${glRepo}/repository/files/${fileName}`;
 
   const gitlabRequest = async (method: "POST" | "PUT") => {
     try {
