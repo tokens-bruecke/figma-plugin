@@ -653,7 +653,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 **2.1.4 and 2.1.5**
 
-- Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). Thanks to @JeroenRoodIHS
+- Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). _by @JeroenRoodIHS_
 
 **2.2.0**
 
@@ -680,3 +680,8 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 **2.3.1**
 
 - [Fixes dimension type for vars with single scope](https://github.com/tokens-bruecke/figma-plugin/pull/31)
+
+**2.4.0**
+
+- [Add font style support for italic](https://github.com/tokens-bruecke/figma-plugin/pull/35) _by @r1m_
+- [add support for selfhosted gitlab](https://github.com/tokens-bruecke/figma-plugin/pull/34) _by @r1m_
