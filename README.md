@@ -25,6 +25,10 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Use DTCG keys format](#use-dtcg-keys-format)
     - [Include `.value` string for aliases](#include-value-string-for-aliases)
   - [Use as cli tool](#use-as-cli-tool)
+    - [Installation](#installation)
+    - [Usage](#usage)
+    - [Options](#options)
+    - [CLI Configuration File](#cli-configuration-file)
   - [Push to server](#push-to-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
@@ -685,7 +689,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 - Added `GitHub PR` option to the `Push to server` feature
 - `Connect server` renamed to `Push to server`
-- _Thanks for contribution to @distolma_
+- _Thanks for contribution to [@distolma](https://github.com/distolma)_
 
 **1.6.0**
 
@@ -713,7 +717,7 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 **2.1.4 and 2.1.5**
 
-- Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). _by @JeroenRoodIHS_
+- Fix wrong font weight output. Related PR — [Right the heuristic wrongs](https://github.com/tokens-bruecke/figma-plugin/pull/20). _by [@JeroenRoodIHS](https://github.com/JeroenRoodIHS)_
 
 **2.2.0**
 
@@ -742,5 +746,10 @@ If you have any questions or suggestions, feel free to [create an issue](https:/
 
 **2.4.0**
 
-- [Add font style support for italic](https://github.com/tokens-bruecke/figma-plugin/pull/35) _by @r1m_
-- [add support for selfhosted gitlab](https://github.com/tokens-bruecke/figma-plugin/pull/34) _by @r1m_
+- [Add font style support for italic](https://github.com/tokens-bruecke/figma-plugin/pull/35) _by [Sylvain Marcadal](https://github.com/r1m)_
+- [Add support for selfhosted gitlab](https://github.com/tokens-bruecke/figma-plugin/pull/34) _by [Sylvain Marcadal](https://github.com/r1m)_
+
+**2.5.0**
+- [Introduce CLI Based tool that uses Figma Rest API](https://github.com/tokens-bruecke/figma-plugin/pull/33) _by [Sylvain Marcadal](https://github.com/r1m)_ (not yet published to NPM)
+- [Fix: support font style strings like "Semi Bold"](https://github.com/tokens-bruecke/figma-plugin/pull/36) _by [Peter Lazar](peterlazar1993)_
+- [Fix: precision errors for floats](https://github.com/tokens-bruecke/figma-plugin/pull/37) _by [Peter Lazar](peterlazar1993)_
