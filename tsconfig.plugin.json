@@ -1,32 +1,22 @@
 {
+    "extends": "./tsconfig.base.json",
     "compilerOptions": {
-        "target": "es6",
-        "outDir": "dist/plugin/dts",
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "sourceMap": true,
-        "experimentalDecorators": true,
-        "removeComments": true,
-        "noImplicitAny": false,
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true,
-        "jsx": "react",
-        "lib": [
-            "dom",
-            "es2021"
-        ],
-        "declaration": false, // Disable declaration file generation
-        "emitDeclarationOnly": false // Ensure only JS files are emitted
+      "outDir": "dist/plugin/dts",
+      "sourceMap": true,
+      "jsx": "react",
+      "lib": ["dom", "es2021"], // Extends lib from base
+      "declaration": false,
+      "emitDeclarationOnly": false,
     },
     "include": [
-        "src/**/*",
-        "**/*.d.ts"
+      "src/**/*",
+      "**/*.d.ts"
     ],
     "files": [
-        "src/app/index.tsx",
-        "src/app/controller/index.ts"
+      "src/app/index.tsx",
+      "src/app/controller/index.ts"
     ],
     "exclude": [
-        "src/cli/**/*"
+      "src/cli/**/*"
     ]
-}
+  }

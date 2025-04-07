@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest";
+import { IResolver } from "../common/resolver";
+
 import { normalizeValue } from "./normalizeValue";
+
+const resolver = {} as IResolver;
 
 describe("getFontStyleAndWeight", () => {
   test("Lossy float", () => {
@@ -9,9 +13,9 @@ describe("getFontStyleAndWeight", () => {
         variableType: "FLOAT",
         variableScope: [],
         colorMode: "hex",
-        isDTCGForamt: false,
+        useDTCGKeys: false,
         includeValueAliasString: false,
-      })
+      }, resolver)
     ).toBe("0.4px")
   });
 });

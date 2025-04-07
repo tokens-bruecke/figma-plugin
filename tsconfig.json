@@ -1,20 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "experimentalDecorators": true,
-    "removeComments": true,
-    "noImplicitAny": false,
-    "moduleResolution": "node",
-    "noEmit": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": [
-      "es2021"
-    ],
-  },
-  "include": [],
   "files": [],
+  "include": [],
   "references": [
     {
       "path": "./tsconfig.plugin.json"
@@ -22,5 +8,5 @@
     {
       "path": "./tsconfig.cli.json"
     }
-  ],
+  ]
 }
