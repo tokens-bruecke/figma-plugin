@@ -18,14 +18,23 @@ module.exports = (env, argv) => ({
   // Define the entry points for the webpack build
   entry: {
     ui: "./src/app/index.tsx", // The entry point for your UI code
-    code: "./src/controller/index.ts", // The entry point for your plugin code
+    code: "./src/app/controller/index.ts", // The entry point for your plugin code
   },
 
   // Define the rules for how different types of files should be handled
   module: {
     rules: [
       // Convert TypeScript code to JavaScript
-      { test: /\.tsx?$/, use: "ts-loader", exclude: /node_modules/ },
+      {
+        test: /\.tsx?$/,
+        use: {
+          loader: "ts-loader",
+          options: {
+            configFile: "tsconfig.plugin.json"
+          }
+        },
+        exclude: /node_modules/
+      },
 
       // Allows you to use "<%= require('./file.svg') %>" in your HTML code to get a data URI
       {
@@ -53,7 +62,7 @@ module.exports = (env, argv) => ({
   // Define the output file(s)
   output: {
     filename: "[name].js", // Use the name of the entry point as the output filename
-    path: path.resolve(__dirname, "dist"), // Compile into a folder called "dist"
+    path: path.resolve(__dirname, "dist/plugin"), // Compile into a folder called "dist"
     publicPath: "", // Set the public path for the output files (empty string means relative path)
   },
 

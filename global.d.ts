@@ -1,3 +1,6 @@
+/// <reference path="./node_modules/@figma/plugin-typings/index.d.ts" />
+/// <reference path="./node_modules/@tokens-bruecke/token-types/index.d.ts" />
+
 type nameConventionType =
   | "none"
   | "PascalCase"
@@ -29,7 +32,6 @@ type JSONSettingsStyleType = {
 };
 
 interface IncludedStylesI {
-  colors: JSONSettingsStyleType;
   text: JSONSettingsStyleType;
   effects: JSONSettingsStyleType;
   grids: JSONSettingsStyleType;
@@ -83,22 +85,30 @@ interface CustomURLCredentialsI {
   headers: string;
 }
 
-interface JSONSettingsConfigI {
+interface ExportSettingsI {
   includedStyles: IncludedStylesI;
   includeScopes: boolean;
   useDTCGKeys: boolean;
   includeValueAliasString: boolean;
   colorMode: colorModeType;
-  variableCollections: string[];
-  selectedCollection: string;
-  servers: {
-    jsonbin: JsonbinCredentialsI;
-    github: GithubCredentialsI;
-    githubPullRequest: GithubPullRequestCredentialsI;
-    gitlab: GitlabCredentialsI;
-    customURL: CustomURLCredentialsI;
-  };
+  storeStyleInCollection: string;
 }
+
+interface ServerSettingsI {
+  jsonbin: JsonbinCredentialsI;
+  github: GithubCredentialsI;
+  githubPullRequest: GithubPullRequestCredentialsI;
+  gitlab: GitlabCredentialsI;
+  customURL: CustomURLCredentialsI;
+}
+type PluginStateI = {
+  variableCollections: string[];
+};
+
+type JSONSettingsConfigI = ExportSettingsI &
+  PluginStateI & {
+    servers: ServerSettingsI;
+  };
 
 interface PluginTokenI {
   $value: string;
@@ -132,22 +142,6 @@ type ServerType =
   | "customURL"
   | "none";
 
-type ViewsConfigI = {
-  [K in ServerType]: {
-    title: string;
-    description: React.ReactNode;
-    isEnabled: boolean;
-    fields: {
-      readonly id: string;
-      readonly type: "input" | "textarea" | "select";
-      readonly required: boolean;
-      readonly placeholder?: string;
-      readonly options?: string[];
-      value: string;
-    }[];
-  };
-};
-
 interface TokensMessageI {
   type: "getTokens" | "setTokens";
   tokens: any;
@@ -158,7 +152,7 @@ interface TokensMessageI {
 interface MetaPropsI {
   useDTCGKeys: boolean;
   colorMode: colorModeType;
-  variableCollections: string[];
+  variableCollections: string[] | undefined;
   createdAt: string;
 }
 

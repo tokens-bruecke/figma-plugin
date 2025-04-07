@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "outDir": "dist/plugin/dts",
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "sourceMap": true,
+        "experimentalDecorators": true,
+        "removeComments": true,
+        "noImplicitAny": false,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "jsx": "react",
+        "lib": [
+            "dom",
+            "es2021"
+        ],
+        "declaration": false, // Disable declaration file generation
+        "emitDeclarationOnly": false // Ensure only JS files are emitted
+    },
+    "include": [
+        "src/**/*",
+        "**/*.d.ts"
+    ],
+    "files": [
+        "src/app/index.tsx",
+        "src/app/controller/index.ts"
+    ],
+    "exclude": [
+        "src/cli/**/*"
+    ]
+}

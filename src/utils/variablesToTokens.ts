@@ -3,18 +3,18 @@ import { normilizeType } from "./normilizeType";
 import { getTokenKeyName } from "./getTokenKeyName";
 
 import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
+import { IResolver } from "../common/resolver";
 
 // console.clear();
 
 export const variablesToTokens = async (
   variables: Variable[],
   collections: VariableCollection[],
-  JSONSettingsConfig: JSONSettingsConfigI
+  config: ExportSettingsI,
+  resolver: IResolver
 ) => {
-  const colorMode = JSONSettingsConfig.colorMode;
-  const isDTCGForamt = JSONSettingsConfig.useDTCGKeys;
-  const includeValueAliasString = JSONSettingsConfig.includeValueAliasString;
-  const keyNames = getTokenKeyName(isDTCGForamt);
+  const { colorMode, useDTCGKeys, includeValueAliasString } = config;
+  const keyNames = getTokenKeyName(useDTCGKeys);
 
   // let mergedVariables = {};
   let emptyCollection = collections.map((collection) => {
@@ -24,7 +24,7 @@ export const variablesToTokens = async (
   });
 
   // console.log("variables", variables);
-  console.log("collections", collections);
+  // console.log("collections", collections);
 
   variables.forEach((variable) => {
     // console.log("variable", variable);
@@ -50,14 +50,17 @@ export const variablesToTokens = async (
     const modesAmount = Object.keys(modes).length;
 
     const getValue = (modeIndex: number) =>
-      normalizeValue({
-        variableType: variable.resolvedType,
-        variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
-        variableScope: variable.scopes,
-        colorMode,
-        isDTCGForamt,
-        includeValueAliasString,
-      });
+      normalizeValue(
+        {
+          variableType: variable.resolvedType,
+          variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
+          variableScope: variable.scopes,
+          colorMode,
+          useDTCGKeys,
+          includeValueAliasString,
+        },
+        resolver
+      );
 
     const defaultValue = getValue(
       Object.keys(modes).indexOf(collectionDefaultModeId)
@@ -81,7 +84,7 @@ export const variablesToTokens = async (
       [keyNames.value]: defaultValue,
       [keyNames.description]: variable.description,
       // add scopes if true
-      ...(JSONSettingsConfig.includeScopes && {
+      ...(config.includeScopes && {
         scopes: variable.scopes,
       }),
       // add meta

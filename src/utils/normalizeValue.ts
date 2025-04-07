@@ -1,23 +1,23 @@
 import { getAliasVariableName } from "./getAliasVariableName";
 import { convertRGBA } from "./color/convertRGBA";
+import { IResolver } from "../common/resolver";
 
 interface PropsI {
   variableValue: any;
   variableType: VariableResolvedDataType;
   variableScope: VariableScope[];
   colorMode: colorModeType;
-  isDTCGForamt: boolean;
+  useDTCGKeys: boolean;
   includeValueAliasString: boolean;
-
 }
 
-export const normalizeValue = (props: PropsI) => {
+export const normalizeValue = (props: PropsI, resolver: IResolver) => {
   const {
     variableValue,
     variableType,
     variableScope,
     colorMode,
-    isDTCGForamt,
+    useDTCGKeys,
     includeValueAliasString,
   } = props;
 
@@ -28,8 +28,9 @@ export const normalizeValue = (props: PropsI) => {
 
     const aliasVariableName = getAliasVariableName(
       variableValue.id,
-      isDTCGForamt,
-      includeValueAliasString
+      useDTCGKeys,
+      includeValueAliasString,
+      resolver
     );
 
     return aliasVariableName;
@@ -45,7 +46,7 @@ export const normalizeValue = (props: PropsI) => {
     } else if (variableScope.length === 1 && variableScope[0] === "OPACITY") {
       return Number(variableValue) / 100;
     } else {
-      return `${variableValue}px`
+      return `${variableValue}px`;
     }
   }
 

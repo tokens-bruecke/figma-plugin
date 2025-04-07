@@ -1,0 +1,21 @@
+{
+    "includedStyles": {
+        "text": {
+            "isIncluded": true,
+            "customName": "typography"
+        },
+        "effects": {
+            "isIncluded": true,
+            "customName": "effects"
+        },
+        "grids": {
+            "isIncluded": false,
+            "customName": "grids"
+        }
+    },
+    "includeScopes": false,
+    "useDTCGKeys": true,
+    "includeValueAliasString": true,
+    "colorMode": "hsla-css",
+    "storeStyleInCollection": "none"
+}

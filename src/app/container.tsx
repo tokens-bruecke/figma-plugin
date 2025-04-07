@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 
 import { useDidUpdate } from "../utils/hooks/useDidUpdate";
 
-import { LoadingView } from "./LoadingView";
-import { EmptyView } from "./EmptyView";
-import { SettingsView } from "./SettingsView";
+import { LoadingView } from "./views/LoadingView";
+import { EmptyView } from "./views/EmptyView";
+import { SettingsView } from "./views/SettingsView";
 
-import { CodePreviewView } from "./CodePreviewView";
+import { CodePreviewView } from "./views/CodePreviewView";
 
 import styles from "./styles.module.scss";
 
@@ -43,7 +43,7 @@ const Container = () => {
       },
     },
     variableCollections: [],
-    selectedCollection: "none",
+    storeStyleInCollection: "none",
     colorMode: "hex",
     includeScopes: false,
     useDTCGKeys: false,
@@ -69,6 +69,7 @@ const Container = () => {
         token: "",
         repo: "",
         branch: "",
+        baseBranch: "",
         fileName: "",
         owner: "",
         commitMessage: "",
