@@ -18,7 +18,7 @@ importers:
         specifier: 2.0.1-beta
         version: 2.0.1-beta
       pavelLaptev/react-figma-ui:
-        specifier: git+https://git@github.com/PavelLaptev/react-figma-ui#4c8d20dbd911c0008fd4d0b20280f14404f186e7
+        specifier: git+https://git@github.com/PavelLaptev/react-figma-ui.git#4c8d20dbd911c0008fd4d0b20280f14404f186e7
         version: react-figma-ui@https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/4c8d20dbd911c0008fd4d0b20280f14404f186e7
       react:
         specifier: ^18.2.0
