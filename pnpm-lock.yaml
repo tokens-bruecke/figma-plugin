@@ -834,7 +834,7 @@ packages:
     peerDependenciesMeta:
       supports-color:
         optional: true
-
+        
   decimal.js@10.5.0:
     resolution: {integrity: sha512-8vDa8Qxvr/+d94hSh5P3IJwI5t8/c0KsMp+g8bNw9cY2icONa5aPfvKeieW1WlG0WQYwwhJ7mjui2xtiePQSXw==}
 
@@ -2687,7 +2687,7 @@ snapshots:
   debug@4.4.0:
     dependencies:
       ms: 2.1.3
-
+      
   decimal.js@10.5.0: {}
 
   deep-eql@5.0.2: {}

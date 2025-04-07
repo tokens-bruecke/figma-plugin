@@ -1,7 +1,8 @@
 export function getFontStyleAndWeight(fontStyle: string) {
+  // Split on spaces or hyphens, then clean each part
   const formattedStyleParts = fontStyle
     .toLowerCase()
-    .split(" ")
+    .split(/[\s-]+/) // Split on spaces or hyphens
     .map((s) => s.replaceAll(/[-_.]/gi, ""));
 
   const weights = {
@@ -18,12 +19,28 @@ export function getFontStyleAndWeight(fontStyle: string) {
   };
   const styles = ["italic", "oblique", "normal"];
 
+  // Detect and remove style
+  let resolvedStyle = "normal";
+  const styleIndex = formattedStyleParts.findIndex((part) =>
+    styles.includes(part)
+  );
+  if (styleIndex !== -1) {
+    resolvedStyle = formattedStyleParts[styleIndex];
+    formattedStyleParts.splice(styleIndex, 1); // Remove style from parts
+  }
+
+  // Process remaining parts for weight
+  const weightParts = formattedStyleParts; // What's left after style removal
+  const joinedWeight = weightParts.join(""); // Join remaining parts for compound weights
+
   const resolvedWeight =
-    Object.keys(weights).find((weight) =>
-      weights[weight].some((value) => formattedStyleParts.includes(value))
-    ) || 400;
-  const resolvedStyle =
-    styles.find((style) => formattedStyleParts.includes(style)) || "normal";
+    Object.keys(weights).find((weight) => {
+      return (
+        weights[weight].some((value) => weightParts.includes(value)) ||
+        weights[weight].includes(joinedWeight)
+      );
+    }) || 400;
+
   return {
     weight: Number(resolvedWeight),
     style: resolvedStyle,
