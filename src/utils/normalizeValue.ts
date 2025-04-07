@@ -1,6 +1,7 @@
-import { getAliasVariableName } from "./getAliasVariableName";
-import { convertRGBA } from "./color/convertRGBA";
+import Decimal from "decimal.js";
 import { IResolver } from "../common/resolver";
+import { convertRGBA } from "./color/convertRGBA";
+import { getAliasVariableName } from "./getAliasVariableName";
 
 interface PropsI {
   variableValue: any;
@@ -46,7 +47,7 @@ export const normalizeValue = (props: PropsI, resolver: IResolver) => {
     } else if (variableScope.length === 1 && variableScope[0] === "OPACITY") {
       return Number(variableValue) / 100;
     } else {
-      return `${variableValue}px`;
+      return `${new Decimal(variableValue).toDecimalPlaces(6).toNumber()}px`;
     }
   }
 
