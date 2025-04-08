@@ -47,7 +47,6 @@ export const variablesToTokens = async (
 
     // get values by mode
     const modes = variable.valuesByMode;
-    const modesAmount = Object.keys(modes).length;
 
     const getValue = (modeIndex: number) =>
       normalizeValue(
@@ -69,15 +68,21 @@ export const variablesToTokens = async (
     // console.log("defaultValue", defaultValue);
 
     const modesValues = Object.fromEntries(
-      Object.keys(modes).map((modeId, index) => {
+      Object.keys(modes).flatMap((modeId, index) => {
         const modeName = collections
           .find((collection) => collection.id === collectionId)
-          .modes.find((mode) => mode.modeId === modeId).name;
-        return [modeName, getValue(index)];
+          .modes.find((mode) => mode.modeId === modeId)?.name;
+
+        if (modeName) {
+          return [[modeName, getValue(index)]];
+        }
+        console.warn(`ModeId ${modeId} not found in ${collectionId}`);
+        return [];
       })
     );
 
-    const filteredModesValues = modesAmount === 1 ? {} : modesValues;
+    const filteredModesValues =
+      Object.keys(modesValues).length === 1 ? {} : modesValues;
 
     const variableObject = {
       [keyNames.type]: normilizeType(variable.resolvedType, variable.scopes),
