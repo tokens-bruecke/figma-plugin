@@ -2,6 +2,8 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
+const ZipPlugin = require('zip-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin =
   require("html-inline-css-webpack-plugin").default;
 const path = require("path");
@@ -62,7 +64,7 @@ module.exports = (env, argv) => ({
   // Define the output file(s)
   output: {
     filename: "[name].js", // Use the name of the entry point as the output filename
-    path: path.resolve(__dirname, "dist/plugin"), // Compile into a folder called "dist"
+    path: path.resolve(__dirname, "dist/figma-plugin"), // Compile into a folder called "dist"
     publicPath: "", // Set the public path for the output files (empty string means relative path)
   },
 
@@ -84,5 +86,14 @@ module.exports = (env, argv) => ({
 
     // Inline the CSS into the HTML file
     new HTMLInlineCSSWebpackPlugin(),
+    new CopyPlugin({
+      patterns: [
+        "manifest.json",
+      ],
+    }),
+    new ZipPlugin({
+      filename: 'figma-plugin.zip',
+      path: path.resolve(__dirname, "dist"),
+    })
   ],
 });

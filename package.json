@@ -2,6 +2,18 @@
   "name": "tokens-bruecke",
   "version": "2.5.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tokens-bruecke/figma-plugin.git"
+  },
+  "description": "Tokens Bruecke is a Figma cli that helps you to export varibales as design tokens.",
+  "keywords": [
+    "figma",
+    "plugin",
+    "tokens",
+    "design tokens",
+    "design system"
+  ],
   "author": {
     "name": "Pavel Laptev",
     "url": "https://pavellaptev.github.io"
@@ -19,31 +31,32 @@
     "tokens-bruecke": "bin/cli.js"
   },
   "dependencies": {
-    "@octokit/core": "^5.0.0",
-    "clipboard-copy": "^4.0.1",
     "decimal.js": "^10.5.0",
     "figma-api": "2.0.1-beta",
-    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#4c8d20dbd911c0008fd4d0b20280f14404f186e7",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.100.0",
     "@figma/rest-api-spec": "^0.25.0",
+    "@octokit/core": "^5.0.0",
     "@tokens-bruecke/token-types": "git+https://github.com/tokens-bruecke/token-types.git#1.4.0",
     "@types/node": "^22.7.4",
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
     "@types/yargs": "^17.0.33",
     "buffer": "^6.0.3",
+    "clipboard-copy": "^4.0.1",
+    "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^6.8.1",
     "html-inline-css-webpack-plugin": "^1.11.1",
     "html-inline-script-webpack-plugin": "^3.2.0",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.7.2",
+    "pavelLaptev/react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#4c8d20dbd911c0008fd4d0b20280f14404f186e7",
     "prettier": "^2.7.1",
+    "react": "^18.2.0",
     "react-dev-utils": "^12.0.1",
+    "react-dom": "^18.2.0",
     "sass": "^1.57.1",
     "sass-loader": "^13.2.0",
     "style-loader": "^3.3.1",
@@ -52,7 +65,8 @@
     "url-loader": "^4.1.1",
     "vitest": "^3.1.1",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "zip-webpack-plugin": "^4.0.3"
   },
   "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
 }
