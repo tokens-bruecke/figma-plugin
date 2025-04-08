@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { useDidUpdate } from "../utils/hooks/useDidUpdate";
+import { useDidUpdate } from "./hooks/useDidUpdate";
 
 import { LoadingView } from "./views/LoadingView";
 import { EmptyView } from "./views/EmptyView";

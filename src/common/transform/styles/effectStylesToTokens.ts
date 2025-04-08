@@ -2,7 +2,7 @@ import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategorie
 import { convertRGBA } from "../color/convertRGBA";
 import { getTokenKeyName } from "../getTokenKeyName";
 import { getAliasVariableName } from "../getAliasVariableName";
-import { IResolver } from "../../common/resolver";
+import { IResolver } from "../../resolver";
 
 const wrapShadowObject = (
   shadowEffect: DropShadowEffect | InnerShadowEffect,

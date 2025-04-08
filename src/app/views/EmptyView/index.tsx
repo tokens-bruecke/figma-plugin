@@ -1,6 +1,6 @@
 import React from "react";
 
-import { config } from "../../../utils/config";
+import { config } from "../../controller/config";
 
 import { Text, Button, Stack } from "pavelLaptev/react-figma-ui/ui";
 import { StatusPicture } from "../../components/StatusPicture";

@@ -1,9 +1,9 @@
-import { checkForVariables } from "../../utils/controller/checkForVariables";
-import { getStorageConfig } from "../../utils/controller/getStorageConfig";
+import { checkForVariables } from "./checkForVariables";
+import { getStorageConfig } from "./getStorageConfig";
 
 // import { removeDollarSign } from "../utils/removeDollarSign";
 
-import { config } from "../../utils/config";
+import { config } from "./config";
 import { getTokens } from "../../common/export";
 import { PluginAPIResolver } from "../api/pluginApiResolver";
 
