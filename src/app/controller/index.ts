@@ -70,13 +70,13 @@ figma.ui.onmessage = async (msg) => {
 
   // change size of UI
   if (msg.type === "resizeUIHeight") {
-    figma.ui.resize(frameWidth, msg.height);
+    figma.ui.resize(frameWidth, Math.round(msg.height));
   }
 
   if (msg.type === "openCodePreview") {
     console.log("openCodePreview", msg.isCodePreviewOpen);
 
     isCodePreviewOpen = msg.isCodePreviewOpen;
-    figma.ui.resize(frameWidthWithCodePreview, msg.height);
+    figma.ui.resize(frameWidthWithCodePreview, Math.round(msg.height));
   }
 };
