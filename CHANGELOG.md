@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.6.0](https://github.com/tokens-bruecke/figma-plugin/compare/2.5.0...v2.6.0) (2025-04-11)
+
+
+### Bug Fixes
+
+* fix warning about passing float to figma.ui.resize ([3c5702d](https://github.com/tokens-bruecke/figma-plugin/commit/3c5702d253d402f8c0e7b19ea26a4c44b5e59c75))
+
+
+### Miscellaneous Chores
+
+* release 2.6.0 ([cf525b1](https://github.com/tokens-bruecke/figma-plugin/commit/cf525b148f465bd109fa5f7c73c891a45acc1115))
+
 ## 2.5.0
 
 - [Introduce CLI Based tool that uses Figma Rest API](https://github.com/tokens-bruecke/figma-plugin/pull/33) _by [Sylvain Marcadal](https://github.com/r1m)_ (not yet published to NPM)
