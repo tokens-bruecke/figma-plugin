@@ -1,20 +1,21 @@
 {
-    "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-      "outDir": "dist/cli",
-      "skipLibCheck": true,
-      "types": ["node"]
-    },
-    "include": [
-      "src/cli/**/*.ts",
-      "src/common/**/*.ts",
-      "src/utils/**/*.ts",
-      "**/*.d.ts"
-    ],
-    "exclude": [
-      "src/app/**"
-    ],
-    "files": [
-      "src/cli.ts"
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist/cli",
+    "skipLibCheck": true,
+    "types": [
+      "node"
     ]
-  }
+  },
+  "include": [
+    "src/cli/**/*.ts",
+    "src/common/**/*.ts",
+    "**/*.d.ts"
+  ],
+  "exclude": [
+    "src/app/**"
+  ],
+  "files": [
+    "src/cli.ts"
+  ]
+}

@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import { IResolver } from "../common/resolver";
+import { IResolver } from "../resolver";
 import { convertRGBA } from "./color/convertRGBA";
 import { getAliasVariableName } from "./getAliasVariableName";
 
