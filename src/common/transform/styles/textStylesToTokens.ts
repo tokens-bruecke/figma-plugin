@@ -43,7 +43,7 @@ export const textStylesToTokens = async (
       [keyNames.type]: "typography",
       [keyNames.value]: {
         fontFamily: aliasVariables.fontFamily || style.fontName.family,
-        fontWeight: aliasVariables.fontWeight || fontStyleWeight.weight,
+        fontWeight: fontStyleWeight.weight || aliasVariables.fontWeight,
         fontStyle: fontStyleWeight.style || aliasVariables.fontStyle,
         fontSize: aliasVariables.fontSize || `${style.fontSize}px`,
         lineHeight:
