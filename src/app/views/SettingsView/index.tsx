@@ -215,12 +215,12 @@ export const SettingsView = (props: ViewProps) => {
 
       if (type === "setTokens") {
         if (role === "preview") {
-          console.log("tokens preview", tokens);
+          // console.log("tokens preview", tokens);
           setGeneratedTokens(tokens);
         }
 
         if (role === "download") {
-          console.log("tokens download", tokens);
+          // console.log("tokens download", tokens);
           downloadTokensFile(tokens);
         }
 
