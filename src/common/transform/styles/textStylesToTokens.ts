@@ -16,8 +16,6 @@ export const textStylesToTokens = async (
   const keyNames = getTokenKeyName(isDTCGForamt);
   const textStyles = await resolver.getLocalTextStyles();
 
-  // console.log("textStyles", textStyles);
-
   let textTokens = {};
 
   const allTextStyles = textStyles.reduce((result, style) => {
@@ -62,6 +60,7 @@ export const textStylesToTokens = async (
         styleId: style.id,
       },
     } as unknown as TypographyTokenI;
+    
 
     result[style.name] = styleObject;
 

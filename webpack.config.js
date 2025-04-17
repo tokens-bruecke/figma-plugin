@@ -86,6 +86,9 @@ module.exports = (env, argv) => ({
 
     // Inline the CSS into the HTML file
     new HTMLInlineCSSWebpackPlugin(),
+    
+    // Package the plugin code into a single file
+    // Open manifest.json in Figma from the dist folder
     new CopyPlugin({
       patterns: [
         "manifest.json",
