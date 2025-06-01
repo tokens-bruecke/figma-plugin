@@ -7,6 +7,7 @@ export const getStorageConfig = async (key) => {
 
   const storageConfig = await figma.clientStorage.getAsync(storageVersionKey);
 
+
   // clear storage if storage version is different
   if (storageConfig && storageConfig !== actualStorageVersion) {
     figma.clientStorage.setAsync(key, null);
