@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.2](https://github.com/tokens-bruecke/figma-plugin/compare/v2.6.1...v2.6.2) (2025-06-01)
+
+
+### Bug Fixes
+
+* prettier and file formatting ([43bbca5](https://github.com/tokens-bruecke/figma-plugin/commit/43bbca5a922a2d5653704c56b0c2d6e1060855d2))
+
 ## [2.6.1](https://github.com/tokens-bruecke/figma-plugin/compare/v2.6.0...v2.6.1) (2025-04-17)
 
 ### Bug Fixes
