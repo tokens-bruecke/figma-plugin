@@ -9,15 +9,15 @@ const defaultConfig: ExportSettingsI = {
   includedStyles: {
     text: {
       isIncluded: false,
-      customName: "Typography",
+      customName: "Typography-styles",
     },
     effects: {
       isIncluded: false,
-      customName: "Effects",
+      customName: "Effect-styles",
     },
     grids: {
       isIncluded: false,
-      customName: "Grids",
+      customName: "Grid-styles",
     },
   },
   storeStyleInCollection: "none",
