@@ -43,7 +43,8 @@ const Container = () => {
     colorMode: "hex",
     includeScopes: false,
     useDTCGKeys: false,
-    includeValueAliasString: false,
+    includeValueStringKeyToAlias: false,
+    includeFigmaMetaData: false,
     servers: {
       jsonbin: {
         isEnabled: false,

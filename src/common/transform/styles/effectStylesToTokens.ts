@@ -8,7 +8,7 @@ const wrapShadowObject = (
   shadowEffect: DropShadowEffect | InnerShadowEffect,
   colorMode: colorModeType,
   isDTCGForamt: boolean,
-  includeValueAliasString: boolean,
+  includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
   const effectBoundVariables = shadowEffect.boundVariables;
@@ -18,7 +18,7 @@ const wrapShadowObject = (
       return getAliasVariableName(
         effectBoundVariables[key].id,
         isDTCGForamt,
-        includeValueAliasString,
+        includeValueStringKeyToAlias,
         resolver
       );
     }
@@ -40,7 +40,7 @@ export const effectStylesToTokens = async (
   customName: string,
   colorMode: colorModeType,
   isDTCGForamt: boolean,
-  includeValueAliasString: boolean,
+  includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
   const keyNames = getTokenKeyName(isDTCGForamt);
@@ -62,7 +62,7 @@ export const effectStylesToTokens = async (
             effect as DropShadowEffect | InnerShadowEffect,
             colorMode,
             isDTCGForamt,
-            includeValueAliasString,
+            includeValueStringKeyToAlias,
             resolver
           )
         ),
@@ -79,7 +79,7 @@ export const effectStylesToTokens = async (
         aliasVariable = getAliasVariableName(
           aliasRef.id,
           isDTCGForamt,
-          includeValueAliasString,
+          includeValueStringKeyToAlias,
           resolver
         );
       }
