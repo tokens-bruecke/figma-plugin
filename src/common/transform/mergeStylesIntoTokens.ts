@@ -3,7 +3,7 @@ export const mergeStylesIntoTokens = (
   styleTokens: any,
   storeStyleInCollection: string
 ) => {
-  if (!storeStyleInCollection || storeStyleInCollection === "none") {
+  if (!storeStyleInCollection || storeStyleInCollection === 'none') {
     // Object.assign(variableTokens, styleTokens);
     styleTokens.forEach((styleToken) => {
       Object.assign(variableTokens, styleToken);

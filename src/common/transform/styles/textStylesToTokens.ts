@@ -1,11 +1,11 @@
-import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
+import { groupObjectNamesIntoCategories } from '../groupObjectNamesIntoCategories';
 
-import { getLineHeight } from "../text/getLineHeight";
-import { getLetterSpacing } from "../text/getLetterSpacing";
-import { getFontStyleAndWeight } from "../text/getFontStyleAndWeight";
-import { getTokenKeyName } from "../getTokenKeyName";
-import { getAliasVariableName } from "../getAliasVariableName";
-import { IResolver } from "../../resolver";
+import { getLineHeight } from '../text/getLineHeight';
+import { getLetterSpacing } from '../text/getLetterSpacing';
+import { getFontStyleAndWeight } from '../text/getFontStyleAndWeight';
+import { getTokenKeyName } from '../getTokenKeyName';
+import { getAliasVariableName } from '../getAliasVariableName';
+import { IResolver } from '../../resolver';
 
 export const textStylesToTokens = async (
   customName: string,
@@ -19,7 +19,7 @@ export const textStylesToTokens = async (
   let textTokens = {};
 
   const allTextStyles = textStyles.reduce((result, style) => {
-    let aliasVariables = {} as TextStyle["boundVariables"];
+    let aliasVariables = {} as TextStyle['boundVariables'];
     const boundVariables = style.boundVariables;
 
     if (boundVariables) {
@@ -38,7 +38,7 @@ export const textStylesToTokens = async (
 
     const fontStyleWeight = getFontStyleAndWeight(style.fontName.style);
     const styleObject = {
-      [keyNames.type]: "typography",
+      [keyNames.type]: 'typography',
       [keyNames.value]: {
         fontFamily: aliasVariables.fontFamily || style.fontName.family,
         fontWeight: fontStyleWeight.weight || aliasVariables.fontWeight,
@@ -60,7 +60,6 @@ export const textStylesToTokens = async (
         styleId: style.id,
       },
     } as unknown as TypographyTokenI;
-    
 
     result[style.name] = styleObject;
 

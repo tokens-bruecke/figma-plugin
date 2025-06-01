@@ -1,16 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import styles from "./styles.module.scss";
+import styles from './styles.module.scss';
 
-import { getTokensStat } from "../../../common/transform/getTokensStat";
+import { getTokensStat } from '../../../common/transform/getTokensStat';
 
-import { Text, Icon } from "pavelLaptev/react-figma-ui/ui";
+import { Text, Icon } from 'pavelLaptev/react-figma-ui/ui';
 
 interface CodePreviewViewProps {
   generatedTokens: any;
 }
 
-const copy = require("clipboard-copy");
+const copy = require('clipboard-copy');
 
 export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
   const [isUpdateButtonAnimated, setIsUpdateButtonAnimated] =
@@ -23,11 +23,11 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
     parent.postMessage(
       {
         pluginMessage: {
-          type: "getTokens",
-          role: "preview",
+          type: 'getTokens',
+          role: 'preview',
         } as TokensMessageI,
       },
-      "*"
+      '*'
     );
 
     // start animation
@@ -65,7 +65,7 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
       <section className={styles.previewToolbar}>
         <button
           className={`${styles.toolbarItem} ${styles.previewToolbarButton} ${
-            isUpdateButtonAnimated ? styles.successUpdateAnimation : ""
+            isUpdateButtonAnimated ? styles.successUpdateAnimation : ''
           }`}
           onClick={getTokensPreview}
         >
@@ -77,12 +77,12 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
           className={`${styles.toolbarItem} ${styles.previewToolbarSecondButton}`}
           onClick={copyCode}
         >
-          <Text>{isCodeCopied ? "Copied!" : "Copy"}</Text>
+          <Text>{isCodeCopied ? 'Copied!' : 'Copy'}</Text>
         </button>
 
         <div className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}>
           <Text>
-            {tokensStat.tokensCount} tokens, {tokensStat.groupsCount} groups,{" "}
+            {tokensStat.tokensCount} tokens, {tokensStat.groupsCount} groups,{' '}
             {tokensStat.codeLines} lines
           </Text>
         </div>

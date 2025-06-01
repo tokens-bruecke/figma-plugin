@@ -1,9 +1,9 @@
-import { normalizeValue } from "./normalizeValue";
-import { normilizeType } from "./normilizeType";
-import { getTokenKeyName } from "./getTokenKeyName";
+import { normalizeValue } from './normalizeValue';
+import { normilizeType } from './normilizeType';
+import { getTokenKeyName } from './getTokenKeyName';
 
-import { groupObjectNamesIntoCategories } from "./groupObjectNamesIntoCategories";
-import { IResolver } from "../resolver";
+import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
+import { IResolver } from '../resolver';
 
 // console.clear();
 
@@ -13,7 +13,12 @@ export const variablesToTokens = async (
   config: ExportSettingsI,
   resolver: IResolver
 ) => {
-  const { colorMode, useDTCGKeys, includeValueStringKeyToAlias, includeFigmaMetaData } = config;
+  const {
+    colorMode,
+    useDTCGKeys,
+    includeValueStringKeyToAlias,
+    includeFigmaMetaData,
+  } = config;
   const keyNames = getTokenKeyName(useDTCGKeys);
 
   // let mergedVariables = {};
@@ -95,11 +100,13 @@ export const variablesToTokens = async (
       // add meta
       $extensions: {
         mode: filteredModesValues,
-        ...(includeFigmaMetaData && {figma: {
-          codeSyntax: variable.codeSyntax,
-          variableId: variable.id,
-          collection: collectionObject,
-        }}),
+        ...(includeFigmaMetaData && {
+          figma: {
+            codeSyntax: variable.codeSyntax,
+            variableId: variable.id,
+            collection: collectionObject,
+          },
+        }),
       },
     } as PluginTokenI;
 

@@ -1,4 +1,4 @@
-import { convertRGBA } from "./convertRGBA";
+import { convertRGBA } from './convertRGBA';
 
 ////////////////////////////////
 ////////////////////////////////
@@ -15,14 +15,14 @@ interface IGradientTransformData {
 
 export const convertFigmaLinearGradient = (paint: Paint) => {
   if (!paint || paint.visible === false) {
-    return "";
+    return '';
   }
 
   const { type } = paint;
 
   const { gradientTransform, gradientStops } = paint as GradientPaint;
   if (!gradientTransform || !gradientStops) {
-    return "";
+    return '';
   }
   let gradientTransformData: IGradientTransformData = {
     m00: 1,
@@ -76,17 +76,17 @@ export const convertFigmaLinearGradient = (paint: Paint) => {
   ).toFixed(2);
 
   const gradientStopsData = gradientStops.map((stop) => {
-    const color = convertRGBA(stop.color, "rgba-css");
+    const color = convertRGBA(stop.color, 'rgba-css');
     return `${color} ${Math.round(stop.position * 100)}%`;
   });
 
-  if (type === "GRADIENT_LINEAR") {
+  if (type === 'GRADIENT_LINEAR') {
     return `linear-gradient(${gradientRotation}deg, ${gradientStopsData.join(
-      ", "
+      ', '
     )})`;
   }
 
-  if (type === "GRADIENT_RADIAL") {
-    return `radial-gradient(${gradientStopsData.join(", ")})`;
+  if (type === 'GRADIENT_RADIAL') {
+    return `radial-gradient(${gradientStopsData.join(', ')})`;
   }
 };

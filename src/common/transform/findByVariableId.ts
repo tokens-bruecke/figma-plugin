@@ -1,6 +1,6 @@
 export const findByVariableId = (obj, variableId) => {
   for (const key in obj) {
-    if (typeof obj[key] === "object") {
+    if (typeof obj[key] === 'object') {
       if (
         obj[key].$extensions &&
         obj[key].$extensions.variableId === variableId

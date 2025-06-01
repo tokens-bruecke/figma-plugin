@@ -3,19 +3,9 @@
   "compilerOptions": {
     "outDir": "dist/cli",
     "skipLibCheck": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "src/cli/**/*.ts",
-    "src/common/**/*.ts",
-    "**/*.d.ts"
-  ],
-  "exclude": [
-    "src/app/**"
-  ],
-  "files": [
-    "src/cli.ts"
-  ]
+  "include": ["src/cli/**/*.ts", "src/common/**/*.ts", "**/*.d.ts"],
+  "exclude": ["src/app/**"],
+  "files": ["src/cli.ts"]
 }

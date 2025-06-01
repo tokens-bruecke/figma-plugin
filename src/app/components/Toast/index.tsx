@@ -1,7 +1,7 @@
-import React, { forwardRef, useImperativeHandle, Ref, useEffect } from "react";
+import React, { forwardRef, useImperativeHandle, Ref, useEffect } from 'react';
 
-import { Text } from "pavelLaptev/react-figma-ui/ui";
-import styles from "./styles.module.scss";
+import { Text } from 'pavelLaptev/react-figma-ui/ui';
+import styles from './styles.module.scss';
 
 interface ToastRefI {
   show: (params: ToastIPropsI) => void;
@@ -15,10 +15,10 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
       setToasts([
         ...toasts,
         {
-          title: params.title ?? "Title",
+          title: params.title ?? 'Title',
           message: params.message,
           options: {
-            type: params.options?.type ?? "info",
+            type: params.options?.type ?? 'info',
             timeout: params.options?.timeout ?? 5000,
             onClose: params.options?.onClose,
           },
@@ -34,7 +34,7 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
   };
 
   useEffect(() => {
-    if (toasts[0]?.options?.type === "error") {
+    if (toasts[0]?.options?.type === 'error') {
       return;
     }
 
@@ -57,11 +57,11 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
             onClick={() => handleClose(index)}
           >
             <Text fontWeight="bold" className={styles.title}>
-              {toast.options.type === "error"
-                ? "⛔️ "
-                : toast.options.type === "warn"
-                ? "⚠️ "
-                : "🎉 "}
+              {toast.options.type === 'error'
+                ? '⛔️ '
+                : toast.options.type === 'warn'
+                  ? '⚠️ '
+                  : '🎉 '}
               {toast.title}
             </Text>
 

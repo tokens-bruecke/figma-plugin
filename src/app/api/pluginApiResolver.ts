@@ -1,4 +1,4 @@
-import { IResolver } from "../../common/resolver";
+import { IResolver } from '../../common/resolver';
 
 export class PluginAPIResolver implements IResolver {
   async getLocalEffectStyles(): Promise<EffectStyle[]> {

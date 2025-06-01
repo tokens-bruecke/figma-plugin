@@ -1,10 +1,10 @@
-import { countTokens } from "./countTokens";
+import { countTokens } from './countTokens';
 
 export const getTokensStat = (tokens) => {
   // get lines count
-  const codeLines = JSON.stringify(tokens, null, 2).split("\n").length;
+  const codeLines = JSON.stringify(tokens, null, 2).split('\n').length;
 
-  console.log("codeLines", codeLines);
+  console.log('codeLines', codeLines);
   // get groups count
   const groupsCount = Object.keys(tokens).reduce((acc, key) => {
     const group = tokens[key];

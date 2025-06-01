@@ -1,6 +1,6 @@
-import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
-import { getTokenKeyName } from "../getTokenKeyName";
-import { IResolver } from "../../resolver";
+import { groupObjectNamesIntoCategories } from '../groupObjectNamesIntoCategories';
+import { getTokenKeyName } from '../getTokenKeyName';
+import { IResolver } from '../../resolver';
 
 export const gridStylesToTokens = async (
   customName: string,
@@ -22,7 +22,7 @@ export const gridStylesToTokens = async (
     const rowGrid = firstTwoGrids[1];
 
     const styleObject = {
-      [keyNames.type]: "grid",
+      [keyNames.type]: 'grid',
       [keyNames.value]: {
         columnCount: columnGrid?.count,
         columnGap: columnGrid?.gutterSize

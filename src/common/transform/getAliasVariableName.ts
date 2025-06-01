@@ -1,5 +1,5 @@
-import { getTokenKeyName } from "./getTokenKeyName";
-import { IResolver } from "../resolver";
+import { getTokenKeyName } from './getTokenKeyName';
+import { IResolver } from '../resolver';
 
 export const getAliasVariableName = (
   variableId: string,
@@ -9,8 +9,8 @@ export const getAliasVariableName = (
 ) => {
   const variableObj = resolver.getVariableById(variableId) as Variable;
   if (!variableObj) {
-    console.log("cannot find variable", variableId);
-    return "#missing#";
+    console.log('cannot find variable', variableId);
+    return '#missing#';
   }
   const collectionObj = resolver.getVariableCollectionById(
     variableObj.variableCollectionId
@@ -20,11 +20,11 @@ export const getAliasVariableName = (
   const collectionName = collectionObj.name;
 
   const valueKey = getTokenKeyName(isDTCGForamt).value;
-  const isValueKeyIncluded = includeValueStringKeyToAlias ? `.${valueKey}` : "";
+  const isValueKeyIncluded = includeValueStringKeyToAlias ? `.${valueKey}` : '';
 
-  const variableParts = variableName.split("/");
+  const variableParts = variableName.split('/');
   const aliasName = `{${collectionName}.${variableParts.join(
-    "."
+    '.'
   )}${isValueKeyIncluded}}`;
 
   return aliasName;

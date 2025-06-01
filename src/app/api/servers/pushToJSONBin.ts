@@ -10,11 +10,11 @@ export const pushToJSONBin = async (
   // update existing bin
   if (credentials.id) {
     response = await fetch(`https://api.jsonbin.io/v3/b/${credentials.id}`, {
-      method: "PUT",
+      method: 'PUT',
       headers: {
-        "Content-Type": "application/json",
-        "X-Master-Key": credentials.secretKey,
-        "X-Bin-Name": credentials.name,
+        'Content-Type': 'application/json',
+        'X-Master-Key': credentials.secretKey,
+        'X-Bin-Name': credentials.name,
       },
       body: JSON.stringify(tokens),
     });
@@ -23,11 +23,11 @@ export const pushToJSONBin = async (
   // create new bin
   if (!credentials.id) {
     response = await fetch(`https://api.jsonbin.io/v3/b`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "X-Master-Key": credentials.secretKey,
-        "X-Bin-Name": credentials.name,
+        'Content-Type': 'application/json',
+        'X-Master-Key': credentials.secretKey,
+        'X-Bin-Name': credentials.name,
       },
       body: JSON.stringify(tokens),
     });
@@ -37,13 +37,13 @@ export const pushToJSONBin = async (
   if (response.ok) {
     const json = await response.json();
 
-    console.log("JSONBin success", json);
+    console.log('JSONBin success', json);
 
     toastCallback({
-      title: "JSONBin: Updated successfully",
-      message: "Tokens on JSONBin have been updated successfully",
+      title: 'JSONBin: Updated successfully',
+      message: 'Tokens on JSONBin have been updated successfully',
       options: {
-        type: "success",
+        type: 'success',
       },
     });
 
@@ -51,13 +51,13 @@ export const pushToJSONBin = async (
   }
 
   // handle error
-  console.log("JSONBin error", response);
+  console.log('JSONBin error', response);
   if (!response.ok) {
     toastCallback({
-      title: "JSONBin: Error pushing tokens",
+      title: 'JSONBin: Error pushing tokens',
       message: `Error pushing tokens to JSONBin: ${response.statusText}`,
       options: {
-        type: "error",
+        type: 'error',
       },
     });
   }

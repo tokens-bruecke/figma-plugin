@@ -162,8 +162,6 @@
   },
   "$themes": [],
   "$metadata": {
-    "tokenSetOrder": [
-      "global"
-    ]
+    "tokenSetOrder": ["global"]
   }
 }

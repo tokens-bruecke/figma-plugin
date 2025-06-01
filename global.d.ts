@@ -2,29 +2,29 @@
 /// <reference path="./node_modules/@tokens-bruecke/token-types/index.d.ts" />
 
 type nameConventionType =
-  | "none"
-  | "PascalCase"
-  | "camelCase"
-  | "snake_case"
-  | "kebab-case"
-  | "UPPERCASE"
-  | "lowercase"
-  | "MACRO_CASE"
-  | "COBOL-CASE"
-  | "Cobol case"
-  | "Ada_Case"
-  | "dot.notation";
+  | 'none'
+  | 'PascalCase'
+  | 'camelCase'
+  | 'snake_case'
+  | 'kebab-case'
+  | 'UPPERCASE'
+  | 'lowercase'
+  | 'MACRO_CASE'
+  | 'COBOL-CASE'
+  | 'Cobol case'
+  | 'Ada_Case'
+  | 'dot.notation';
 
 type colorModeType =
-  | "hex"
-  | "rgba-object"
-  | "rgba-css"
-  | "hsla-object"
-  | "hsla-css";
+  | 'hex'
+  | 'rgba-object'
+  | 'rgba-css'
+  | 'hsla-object'
+  | 'hsla-css';
 
-type stylesType = "text" | "colors" | "effects" | "grids";
+type stylesType = 'text' | 'colors' | 'effects' | 'grids';
 
-type variableFeatureType = "scope" | "hidden";
+type variableFeatureType = 'scope' | 'hidden';
 
 type JSONSettingsStyleType = {
   isIncluded: boolean;
@@ -81,7 +81,7 @@ interface GitlabCredentialsI {
 interface CustomURLCredentialsI {
   isEnabled: boolean;
   url: string;
-  method: "POST" | "PUT";
+  method: 'POST' | 'PUT';
   headers: string;
 }
 
@@ -135,18 +135,18 @@ interface PluginTokenI {
 }
 
 type ServerType =
-  | "jsonbin"
-  | "github"
-  | "githubPullRequest"
-  | "gitlab"
-  | "bitbucket"
-  | "customURL"
-  | "none";
+  | 'jsonbin'
+  | 'github'
+  | 'githubPullRequest'
+  | 'gitlab'
+  | 'bitbucket'
+  | 'customURL'
+  | 'none';
 
 interface TokensMessageI {
-  type: "getTokens" | "setTokens";
+  type: 'getTokens' | 'setTokens';
   tokens: any;
-  role: "preview" | "push" | "download";
+  role: 'preview' | 'push' | 'download';
   server: ServerType[];
 }
 
@@ -161,7 +161,7 @@ interface ToastIPropsI {
   title: string;
   message: string;
   options: {
-    type?: "success" | "error" | "warn" | "info";
+    type?: 'success' | 'error' | 'warn' | 'info';
     timeout?: number;
     onClose?: () => void;
   };

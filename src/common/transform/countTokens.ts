@@ -3,9 +3,9 @@ export const countTokens = (obj) => {
 
   function traverse(obj) {
     for (let key in obj) {
-      if (key === "$value" || key === "value") {
+      if (key === '$value' || key === 'value') {
         count++;
-      } else if (typeof obj[key] === "object") {
+      } else if (typeof obj[key] === 'object') {
         traverse(obj[key]);
       }
     }

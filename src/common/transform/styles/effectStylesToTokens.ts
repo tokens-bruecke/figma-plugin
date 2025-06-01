@@ -1,8 +1,8 @@
-import { groupObjectNamesIntoCategories } from "../groupObjectNamesIntoCategories";
-import { convertRGBA } from "../color/convertRGBA";
-import { getTokenKeyName } from "../getTokenKeyName";
-import { getAliasVariableName } from "../getAliasVariableName";
-import { IResolver } from "../../resolver";
+import { groupObjectNamesIntoCategories } from '../groupObjectNamesIntoCategories';
+import { convertRGBA } from '../color/convertRGBA';
+import { getTokenKeyName } from '../getTokenKeyName';
+import { getAliasVariableName } from '../getAliasVariableName';
+import { IResolver } from '../../resolver';
 
 const wrapShadowObject = (
   shadowEffect: DropShadowEffect | InnerShadowEffect,
@@ -27,12 +27,12 @@ const wrapShadowObject = (
 
   // console.log("shadowEffect", shadowEffect);
   return {
-    inset: shadowEffect.type === "INNER_SHADOW",
+    inset: shadowEffect.type === 'INNER_SHADOW',
     color: convertRGBA(shadowEffect.color, colorMode),
-    offsetX: getAlias("offsetX") || `${shadowEffect.offset.x}px`,
-    offsetY: getAlias("offsetY") || `${shadowEffect.offset.y}px`,
-    blur: getAlias("blur") || `${shadowEffect.radius}px`,
-    spread: getAlias("spread") || `${shadowEffect.spread}px`,
+    offsetX: getAlias('offsetX') || `${shadowEffect.offset.x}px`,
+    offsetY: getAlias('offsetY') || `${shadowEffect.offset.y}px`,
+    blur: getAlias('blur') || `${shadowEffect.radius}px`,
+    spread: getAlias('spread') || `${shadowEffect.spread}px`,
   };
 };
 
@@ -54,9 +54,9 @@ export const effectStylesToTokens = async (
     const styleName = style.name;
     const effectType = style.effects[0].type;
 
-    if (effectType === "DROP_SHADOW" || effectType === "INNER_SHADOW") {
+    if (effectType === 'DROP_SHADOW' || effectType === 'INNER_SHADOW') {
       const styleObject = {
-        [keyNames.type]: "shadow",
+        [keyNames.type]: 'shadow',
         [keyNames.value]: style.effects.map((effect) =>
           wrapShadowObject(
             effect as DropShadowEffect | InnerShadowEffect,
@@ -70,7 +70,7 @@ export const effectStylesToTokens = async (
       result[styleName] = styleObject;
     }
 
-    if (effectType === "LAYER_BLUR" || effectType === "BACKGROUND_BLUR") {
+    if (effectType === 'LAYER_BLUR' || effectType === 'BACKGROUND_BLUR') {
       const effect = style.effects[0];
       const aliasRef = effect.boundVariables?.radius;
       let aliasVariable = null;
@@ -85,9 +85,9 @@ export const effectStylesToTokens = async (
       }
 
       const styleObject = {
-        $type: "blur",
+        $type: 'blur',
         $value: {
-          role: effectType === "LAYER_BLUR" ? "layer" : "background",
+          role: effectType === 'LAYER_BLUR' ? 'layer' : 'background',
           blur: aliasVariable || `${effect.radius}px`,
         },
       } as BlurTokenI;

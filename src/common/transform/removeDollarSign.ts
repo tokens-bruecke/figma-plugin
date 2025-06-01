@@ -1,5 +1,5 @@
 export const removeDollarSign = (obj: any) => {
-  if (typeof obj !== "object" || obj === null) {
+  if (typeof obj !== 'object' || obj === null) {
     return obj;
   }
 
@@ -14,8 +14,8 @@ export const removeDollarSign = (obj: any) => {
       let newKey = key;
 
       if (
-        key.startsWith("$") &&
-        ["value", "type", "description", "extensions"].includes(key.slice(1))
+        key.startsWith('$') &&
+        ['value', 'type', 'description', 'extensions'].includes(key.slice(1))
       ) {
         newKey = key.slice(1);
       }

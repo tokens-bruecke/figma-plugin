@@ -542,7 +542,6 @@ All aliases are converted into the alias string format from the [Design Tokens s
 
 You can switch on the `Include .value string for aliases` option in [the plugin settings](#include-value-string-for-aliases).
 
-
 ---
 
 ### Handle variables from another file

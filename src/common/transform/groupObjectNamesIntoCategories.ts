@@ -2,7 +2,7 @@ export const groupObjectNamesIntoCategories = (inputObject: any) => {
   const result = {};
 
   for (const key in inputObject) {
-    const parts = key.split("/");
+    const parts = key.split('/');
     let current = result;
 
     for (let i = 0; i < parts.length; i++) {
@@ -25,7 +25,7 @@ export const groupObjectNamesIntoCategories = (inputObject: any) => {
   }
 
   for (const prop in result) {
-    if (typeof result[prop] === "object" && !Array.isArray(result[prop])) {
+    if (typeof result[prop] === 'object' && !Array.isArray(result[prop])) {
       result[prop] = groupObjectNamesIntoCategories(result[prop]);
     }
   }

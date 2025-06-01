@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
-import { config } from "../../controller/config";
+import { config } from '../../controller/config';
 
-import { Text, Button, Stack } from "pavelLaptev/react-figma-ui/ui";
-import { StatusPicture } from "../../components/StatusPicture";
+import { Text, Button, Stack } from 'pavelLaptev/react-figma-ui/ui';
+import { StatusPicture } from '../../components/StatusPicture';
 
-import styles from "./styles.module.scss";
+import styles from './styles.module.scss';
 
 interface EmptyViewProps {
   setFileHasVariables: (value: boolean) => void;
@@ -33,7 +33,7 @@ export const EmptyView = ({ setFileHasVariables }: EmptyViewProps) => {
           className={styles.button}
           label="Documentation"
           onClick={() => {
-            window.open(config.docsLink, "_blank");
+            window.open(config.docsLink, '_blank');
           }}
           fullWidth
         />

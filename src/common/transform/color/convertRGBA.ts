@@ -1,4 +1,4 @@
-import { normilizeRGBAColor } from "./normilizeRGBAColor";
+import { normilizeRGBAColor } from './normilizeRGBAColor';
 
 type rgbaType = {
   r: number;
@@ -27,11 +27,11 @@ const rgbaToHexA = (rgba: rgbaType) => {
   // Pad single-digit output values
   outParts.forEach(function (part, i) {
     if (part.length === 1) {
-      outParts[i] = "0" + part;
+      outParts[i] = '0' + part;
     }
   });
 
-  return "#" + outParts.join("");
+  return '#' + outParts.join('');
 };
 
 const rgbaToCss = (rgba: rgbaType) => {
@@ -89,15 +89,15 @@ export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
   const normalizedRGBA = normilizeRGBAColor(rgba);
 
   switch (colorFormat) {
-    case "hex":
+    case 'hex':
       return rgbaToHexA(normalizedRGBA);
-    case "rgba-css":
+    case 'rgba-css':
       return rgbaToCss(normalizedRGBA);
-    case "rgba-object":
+    case 'rgba-object':
       return normalizedRGBA;
-    case "hsla-css":
+    case 'hsla-css':
       return hslaToCss(rgbaToHsla(normalizedRGBA));
-    case "hsla-object":
+    case 'hsla-object':
       return rgbaToHsla(normalizedRGBA);
   }
 };

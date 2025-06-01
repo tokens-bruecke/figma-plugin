@@ -9,23 +9,13 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "lib": [
-      "es2021"
-    ],
+    "lib": ["es2021"],
     "baseUrl": "./",
     "paths": {
-      "@app/*": [
-        "src/app/*"
-      ],
-      "@common/*": [
-        "src/common/*"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
-      "@cli/*": [
-        "src/cli/*"
-      ],
-    },
+      "@app/*": ["src/app/*"],
+      "@common/*": ["src/common/*"],
+      "@utils/*": ["src/utils/*"],
+      "@cli/*": ["src/cli/*"]
+    }
   }
 }

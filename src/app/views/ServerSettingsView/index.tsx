@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import styles from "./styles.module.scss";
+import React, { useState } from 'react';
+import styles from './styles.module.scss';
 
 import {
   PanelHeader,
@@ -8,7 +8,7 @@ import {
   Button,
   Input,
   Text,
-} from "pavelLaptev/react-figma-ui/ui";
+} from 'pavelLaptev/react-figma-ui/ui';
 
 type ViewsConfigI = {
   [K in ServerType]: {
@@ -17,7 +17,7 @@ type ViewsConfigI = {
     isEnabled: boolean;
     fields: {
       readonly id: string;
-      readonly type: "input" | "textarea" | "select";
+      readonly type: 'input' | 'textarea' | 'select';
       readonly required: boolean;
       readonly placeholder?: string;
       readonly options?: string[];
@@ -37,14 +37,14 @@ interface ViewProps {
 
 const viewsConfig = {
   jsonbin: {
-    title: "JSONbin credentials",
+    title: 'JSONbin credentials',
     description: (
       <>
-        To use JSONbin you need to create{" "}
+        To use JSONbin you need to create{' '}
         <a href="https://jsonbin.io/" target="_blank" rel="noopener noreferrer">
           an account
-        </a>{" "}
-        and get your{" "}
+        </a>{' '}
+        and get your{' '}
         <a
           href="https://jsonbin.io/api-reference/access-keys/create"
           target="_blank"
@@ -58,33 +58,33 @@ const viewsConfig = {
     isEnabled: false,
     fields: [
       {
-        id: "name",
-        placeholder: "Bin name",
-        type: "input",
-        value: "design.tokens",
+        id: 'name',
+        placeholder: 'Bin name',
+        type: 'input',
+        value: 'design.tokens',
         required: true,
       },
       {
-        id: "secretKey",
-        placeholder: "Access Key",
-        type: "input",
-        value: "",
+        id: 'secretKey',
+        placeholder: 'Access Key',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "id",
-        placeholder: "Bin ID (for existing bin)",
-        type: "input",
-        value: "",
+        id: 'id',
+        placeholder: 'Bin ID (for existing bin)',
+        type: 'input',
+        value: '',
         required: false,
       },
     ],
   },
   github: {
-    title: "Github credentials",
+    title: 'Github credentials',
     description: (
       <>
-        In order to post on Github you need to have a{" "}
+        In order to post on Github you need to have a{' '}
         <a
           href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
           target="_blank"
@@ -98,54 +98,54 @@ const viewsConfig = {
     isEnabled: false,
     fields: [
       {
-        id: "token",
-        placeholder: "Personal access token",
-        type: "input",
-        value: "",
+        id: 'token',
+        placeholder: 'Personal access token',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "owner",
-        placeholder: "Owner",
-        type: "input",
-        value: "",
+        id: 'owner',
+        placeholder: 'Owner',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "repo",
-        placeholder: "Repo name",
-        type: "input",
-        value: "",
+        id: 'repo',
+        placeholder: 'Repo name',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "branch",
-        placeholder: "Branch name",
-        type: "input",
-        value: "",
+        id: 'branch',
+        placeholder: 'Branch name',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "fileName",
-        placeholder: "File name",
-        type: "input",
-        value: "design.tokens.json",
+        id: 'fileName',
+        placeholder: 'File name',
+        type: 'input',
+        value: 'design.tokens.json',
         required: true,
       },
       {
-        id: "commitMessage",
-        placeholder: "Commit message (optional)",
-        type: "input",
-        value: "",
+        id: 'commitMessage',
+        placeholder: 'Commit message (optional)',
+        type: 'input',
+        value: '',
         required: false,
       },
     ],
   },
   githubPullRequest: {
-    title: "Github credentials",
+    title: 'Github credentials',
     description: (
       <>
-        In order to post on Github you need to have a{" "}
+        In order to post on Github you need to have a{' '}
         <a
           href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
           target="_blank"
@@ -159,75 +159,75 @@ const viewsConfig = {
     isEnabled: false,
     fields: [
       {
-        id: "token",
-        placeholder: "Personal access token",
-        type: "input",
-        value: "",
+        id: 'token',
+        placeholder: 'Personal access token',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "owner",
-        placeholder: "Owner",
-        type: "input",
-        value: "",
+        id: 'owner',
+        placeholder: 'Owner',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "repo",
-        placeholder: "Repo name",
-        type: "input",
-        value: "",
+        id: 'repo',
+        placeholder: 'Repo name',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "baseBranch",
-        placeholder: "Base branch",
-        type: "input",
-        value: "",
+        id: 'baseBranch',
+        placeholder: 'Base branch',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "branch",
-        placeholder: "Branch name (optional)",
-        type: "input",
-        value: "",
+        id: 'branch',
+        placeholder: 'Branch name (optional)',
+        type: 'input',
+        value: '',
         required: false,
       },
       {
-        id: "fileName",
-        placeholder: "File name",
-        type: "input",
-        value: "design.tokens.json",
+        id: 'fileName',
+        placeholder: 'File name',
+        type: 'input',
+        value: 'design.tokens.json',
         required: true,
       },
       {
-        id: "commitMessage",
-        placeholder: "Commit message (optional)",
-        type: "input",
-        value: "",
+        id: 'commitMessage',
+        placeholder: 'Commit message (optional)',
+        type: 'input',
+        value: '',
         required: false,
       },
       {
-        id: "pullRequestTitle",
-        placeholder: "PR title (optional)",
-        type: "input",
-        value: "",
+        id: 'pullRequestTitle',
+        placeholder: 'PR title (optional)',
+        type: 'input',
+        value: '',
         required: false,
       },
       {
-        id: "pullRequestBody",
-        placeholder: "PR body (optional)",
-        type: "input",
-        value: "",
+        id: 'pullRequestBody',
+        placeholder: 'PR body (optional)',
+        type: 'input',
+        value: '',
         required: false,
       },
     ],
   },
   gitlab: {
-    title: "Gitlab credentials",
+    title: 'Gitlab credentials',
     description: (
       <>
-        In order to post on Gitlab you need to have a{" "}
+        In order to post on Gitlab you need to have a{' '}
         <a
           href="https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html"
           target="_blank"
@@ -241,58 +241,58 @@ const viewsConfig = {
     isEnabled: false,
     fields: [
       {
-        id: "host",
-        placeholder: "Gitlab host for selfhosted (default: gitlab.com)",
-        type: "input",
-        value: "",
+        id: 'host',
+        placeholder: 'Gitlab host for selfhosted (default: gitlab.com)',
+        type: 'input',
+        value: '',
         required: false,
       },
       {
-        id: "token",
-        placeholder: "Project access token",
-        type: "input",
-        value: "",
+        id: 'token',
+        placeholder: 'Project access token',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "owner",
-        placeholder: "Owner",
-        type: "input",
-        value: "",
+        id: 'owner',
+        placeholder: 'Owner',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "repo",
-        placeholder: "Repo name",
-        type: "input",
-        value: "",
+        id: 'repo',
+        placeholder: 'Repo name',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "branch",
-        placeholder: "Branch name",
-        type: "input",
-        value: "",
+        id: 'branch',
+        placeholder: 'Branch name',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "fileName",
-        placeholder: "File name",
-        type: "input",
-        value: "design.tokens.json",
+        id: 'fileName',
+        placeholder: 'File name',
+        type: 'input',
+        value: 'design.tokens.json',
         required: true,
       },
       {
-        id: "commitMessage",
-        placeholder: "Commit message (optional)",
-        type: "input",
-        value: "",
+        id: 'commitMessage',
+        placeholder: 'Commit message (optional)',
+        type: 'input',
+        value: '',
         required: false,
       },
     ],
   },
   customURL: {
-    title: "Custom URL",
+    title: 'Custom URL',
     description: (
       <>
         To use custom URL you need to create a server that will accept POST or
@@ -302,23 +302,23 @@ const viewsConfig = {
     isEnabled: false,
     fields: [
       {
-        id: "url",
-        placeholder: "URL",
-        type: "input",
-        value: "",
+        id: 'url',
+        placeholder: 'URL',
+        type: 'input',
+        value: '',
         required: true,
       },
       {
-        id: "method",
-        placeholder: "Method (POST or PUT)",
-        type: "input",
+        id: 'method',
+        placeholder: 'Method (POST or PUT)',
+        type: 'input',
         required: true,
       },
       {
-        id: "headers",
-        placeholder: "Headers (optional)",
-        type: "input",
-        value: "",
+        id: 'headers',
+        placeholder: 'Headers (optional)',
+        type: 'input',
+        value: '',
         required: false,
       },
     ],
@@ -349,7 +349,7 @@ export const ServerSettingsView = (props: ViewProps) => {
   // console.log("config state", config);
 
   const isFormValid = viewsConfig[props.server].fields.every((field) => {
-    return config[field.id] !== "" || !field.required;
+    return config[field.id] !== '' || !field.required;
   });
 
   /////////////////
@@ -367,7 +367,7 @@ export const ServerSettingsView = (props: ViewProps) => {
           isActive
           hasBackButton
           onClick={() => {
-            setCurrentView("main");
+            setCurrentView('main');
           }}
         />
       </Stack>
@@ -383,7 +383,7 @@ export const ServerSettingsView = (props: ViewProps) => {
             // console.log("field", field);
 
             const handleErrorsOnBlur = (value: string) => {
-              if (value === "" && field.required) {
+              if (value === '' && field.required) {
                 setErrorFields((prevState) => {
                   return [...prevState, field.id];
                 });
@@ -411,7 +411,7 @@ export const ServerSettingsView = (props: ViewProps) => {
                 id={field.id}
                 placeholder={field.placeholder}
                 value={
-                  JSONsettingsConfig.servers[props.server]?.[field.id] || ""
+                  JSONsettingsConfig.servers[props.server]?.[field.id] || ''
                 }
                 onChange={handleChange}
                 onBlur={handleErrorsOnBlur}
@@ -431,7 +431,7 @@ export const ServerSettingsView = (props: ViewProps) => {
             onClick={() => {
               // check if all fields are filled
               if (!isFormValid) {
-                console.log("not valid");
+                console.log('not valid');
                 setErrorFields(
                   // add to array only fields that are empty
                   viewsConfig[props.server].fields.reduce((acc, field) => {
@@ -460,7 +460,7 @@ export const ServerSettingsView = (props: ViewProps) => {
                 };
               });
 
-              setCurrentView("main");
+              setCurrentView('main');
             }}
           />
           <Button
@@ -481,7 +481,7 @@ export const ServerSettingsView = (props: ViewProps) => {
                       (acc, field) => {
                         return {
                           ...acc,
-                          ["isEnabled"]: false,
+                          ['isEnabled']: false,
                           [field.id]: viewsConfig[props.server].fields.find(
                             (item) => item.id === field.id
                           )?.value,
@@ -492,7 +492,7 @@ export const ServerSettingsView = (props: ViewProps) => {
                 };
               });
 
-              setCurrentView("main");
+              setCurrentView('main');
             }}
           />
         </Stack>

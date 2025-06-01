@@ -1,14 +1,18 @@
-import { textStylesToTokens } from "./textStylesToTokens";
-import { gridStylesToTokens } from "./gridStylesToTokens";
-import { effectStylesToTokens } from "./effectStylesToTokens";
-import { IResolver } from "../../resolver";
+import { textStylesToTokens } from './textStylesToTokens';
+import { gridStylesToTokens } from './gridStylesToTokens';
+import { effectStylesToTokens } from './effectStylesToTokens';
+import { IResolver } from '../../resolver';
 
 export const stylesToTokens = async (
   props: ExportSettingsI,
   resolver: IResolver
 ) => {
-  const { includedStyles, colorMode, useDTCGKeys, includeValueStringKeyToAlias } =
-    props;
+  const {
+    includedStyles,
+    colorMode,
+    useDTCGKeys,
+    includeValueStringKeyToAlias,
+  } = props;
   let styleTokens = [];
 
   if (!includedStyles) {

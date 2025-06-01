@@ -7,9 +7,9 @@ export const pushToGitlab = async (
   const glUser = credentials.owner;
   const glRepo = credentials.repo;
   const branch = credentials.branch;
-  const glHost = credentials.host || "gitlab.com";
+  const glHost = credentials.host || 'gitlab.com';
   const fileName = credentials.fileName;
-  const commitMessage = credentials.commitMessage || "Update tokens";
+  const commitMessage = credentials.commitMessage || 'Update tokens';
   const fileContent = JSON.stringify(tokens, null, 2);
 
   const payload = {
@@ -20,25 +20,25 @@ export const pushToGitlab = async (
 
   const fetchUrl = `https://${glHost}/api/v4/projects/${glUser}%2F${glRepo}/repository/files/${fileName}`;
 
-  const gitlabRequest = async (method: "POST" | "PUT") => {
+  const gitlabRequest = async (method: 'POST' | 'PUT') => {
     try {
       const response = await fetch(fetchUrl, {
         method: method,
         headers: {
-          "Content-Type": "application/json",
-          "PRIVATE-TOKEN": glToken,
+          'Content-Type': 'application/json',
+          'PRIVATE-TOKEN': glToken,
         },
         body: JSON.stringify(payload),
       });
 
       return await response.json();
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
       toastCallback({
-        title: "Gitlab: An error occured",
+        title: 'Gitlab: An error occured',
         message: `Error: ${error.message}`,
         options: {
-          type: "error",
+          type: 'error',
         },
       });
 
@@ -46,45 +46,45 @@ export const pushToGitlab = async (
     }
   };
 
-  const data = await gitlabRequest("POST");
+  const data = await gitlabRequest('POST');
 
-  console.log("Gitlab response", data);
+  console.log('Gitlab response', data);
 
   if (data.message) {
-    if (data.message === "A file with this name already exists") {
-      console.warn("File already exists, updating");
+    if (data.message === 'A file with this name already exists') {
+      console.warn('File already exists, updating');
 
-      await gitlabRequest("PUT");
+      await gitlabRequest('PUT');
 
-      console.log("File updated successfully");
+      console.log('File updated successfully');
       toastCallback({
-        title: "Gitlab: Updated successfully",
-        message: "Tokens on Gitlab have been updated successfully",
+        title: 'Gitlab: Updated successfully',
+        message: 'Tokens on Gitlab have been updated successfully',
         options: {
-          type: "success",
+          type: 'success',
         },
       });
 
       return;
     }
 
-    console.error("Error:", data.message);
+    console.error('Error:', data.message);
     toastCallback({
-      title: "Gitlab: An error occured",
+      title: 'Gitlab: An error occured',
       message: `Error: ${data.message}`,
       options: {
-        type: "error",
+        type: 'error',
       },
     });
   } else {
     // handle status response
     // if file doesn't exist, create it
-    console.log("File created successfully");
+    console.log('File created successfully');
     toastCallback({
-      title: "Gitlab: Created successfully",
-      message: "Tokens on Gitlab have been created successfully",
+      title: 'Gitlab: Created successfully',
+      message: 'Tokens on Gitlab have been created successfully',
       options: {
-        type: "success",
+        type: 'success',
       },
     });
   }

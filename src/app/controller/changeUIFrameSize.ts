@@ -1,7 +1,7 @@
-import { config } from "./config";
+import { config } from './config';
 
 export const changeUIFrameSize = (msg) => {
-  if (msg.type === "resizeUIHeight") {
+  if (msg.type === 'resizeUIHeight') {
     figma.ui.resize(config.frameWidth, msg.height);
   }
 };

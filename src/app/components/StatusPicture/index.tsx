@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import styles from "./styles.module.scss";
+import styles from './styles.module.scss';
 
 interface StatusPictureProps {
-  status: "error" | "tokens" | "import";
+  status: 'error' | 'tokens' | 'import';
 }
 
 const errorSVG = (
@@ -46,9 +46,9 @@ const importSVG = (
 export const StatusPicture = ({ status }: StatusPictureProps) => {
   return (
     <div className={styles.statusPicture}>
-      {status === "error" && errorSVG}
-      {status === "tokens" && tokensSVG}
-      {status === "import" && importSVG}
+      {status === 'error' && errorSVG}
+      {status === 'tokens' && tokensSVG}
+      {status === 'import' && importSVG}
     </div>
   );
 };

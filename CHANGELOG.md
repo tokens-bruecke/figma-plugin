@@ -2,24 +2,21 @@
 
 ## [2.6.1](https://github.com/tokens-bruecke/figma-plugin/compare/v2.6.0...v2.6.1) (2025-04-17)
 
-
 ### Bug Fixes
 
-* handle font style value ([77db500](https://github.com/tokens-bruecke/figma-plugin/commit/77db5001285c9bbee3870f88fb0cb77502f3599a))
-* handle font style value ([7b284d6](https://github.com/tokens-bruecke/figma-plugin/commit/7b284d6239bb7f0bf7f9283667e38020ecd523db))
-* handle font weight value ([5ff1181](https://github.com/tokens-bruecke/figma-plugin/commit/5ff1181d088d01c9dc64338dd610d3ac745d8d90))
+- handle font style value ([77db500](https://github.com/tokens-bruecke/figma-plugin/commit/77db5001285c9bbee3870f88fb0cb77502f3599a))
+- handle font style value ([7b284d6](https://github.com/tokens-bruecke/figma-plugin/commit/7b284d6239bb7f0bf7f9283667e38020ecd523db))
+- handle font weight value ([5ff1181](https://github.com/tokens-bruecke/figma-plugin/commit/5ff1181d088d01c9dc64338dd610d3ac745d8d90))
 
 ## [2.6.0](https://github.com/tokens-bruecke/figma-plugin/compare/2.5.0...v2.6.0) (2025-04-11)
 
-
 ### Bug Fixes
 
-* fix warning about passing float to figma.ui.resize ([3c5702d](https://github.com/tokens-bruecke/figma-plugin/commit/3c5702d253d402f8c0e7b19ea26a4c44b5e59c75))
-
+- fix warning about passing float to figma.ui.resize ([3c5702d](https://github.com/tokens-bruecke/figma-plugin/commit/3c5702d253d402f8c0e7b19ea26a4c44b5e59c75))
 
 ### Miscellaneous Chores
 
-* release 2.6.0 ([cf525b1](https://github.com/tokens-bruecke/figma-plugin/commit/cf525b148f465bd109fa5f7c73c891a45acc1115))
+- release 2.6.0 ([cf525b1](https://github.com/tokens-bruecke/figma-plugin/commit/cf525b148f465bd109fa5f7c73c891a45acc1115))
 
 ## 2.5.0
 

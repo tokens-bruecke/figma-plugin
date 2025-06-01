@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-import { useDidUpdate } from "./hooks/useDidUpdate";
+import { useDidUpdate } from './hooks/useDidUpdate';
 
-import { LoadingView } from "./views/LoadingView";
-import { EmptyView } from "./views/EmptyView";
-import { SettingsView } from "./views/SettingsView";
+import { LoadingView } from './views/LoadingView';
+import { EmptyView } from './views/EmptyView';
+import { SettingsView } from './views/SettingsView';
 
-import { CodePreviewView } from "./views/CodePreviewView";
+import { CodePreviewView } from './views/CodePreviewView';
 
-import styles from "./styles.module.scss";
+import styles from './styles.module.scss';
 
 const Container = () => {
   const wrapperRef = React.useRef(null);
@@ -20,27 +20,27 @@ const Container = () => {
   const [frameHeight, setFrameHeight] = useState(0);
   const [isCodePreviewOpen, setIsCodePreviewOpen] = useState(false);
 
-  const [currentView, setCurrentView] = useState("main");
+  const [currentView, setCurrentView] = useState('main');
   const [fileHasVariables, setFileHasVariables] = useState(false);
 
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
     includedStyles: {
       text: {
         isIncluded: false,
-        customName: "Typography-styles",
+        customName: 'Typography-styles',
       },
       effects: {
         isIncluded: false,
-        customName: "Effect-styles",
+        customName: 'Effect-styles',
       },
       grids: {
         isIncluded: false,
-        customName: "Grid-styles",
+        customName: 'Grid-styles',
       },
     },
     variableCollections: [],
-    storeStyleInCollection: "none",
-    colorMode: "hex",
+    storeStyleInCollection: 'none',
+    colorMode: 'hex',
     includeScopes: false,
     useDTCGKeys: false,
     includeValueStringKeyToAlias: false,
@@ -48,44 +48,44 @@ const Container = () => {
     servers: {
       jsonbin: {
         isEnabled: false,
-        id: "",
-        name: "",
-        secretKey: "",
+        id: '',
+        name: '',
+        secretKey: '',
       },
       github: {
         isEnabled: false,
-        token: "",
-        repo: "",
-        branch: "",
-        fileName: "",
-        owner: "",
-        commitMessage: "",
+        token: '',
+        repo: '',
+        branch: '',
+        fileName: '',
+        owner: '',
+        commitMessage: '',
       },
       githubPullRequest: {
         isEnabled: false,
-        token: "",
-        repo: "",
-        branch: "",
-        baseBranch: "",
-        fileName: "",
-        owner: "",
-        commitMessage: "",
+        token: '',
+        repo: '',
+        branch: '',
+        baseBranch: '',
+        fileName: '',
+        owner: '',
+        commitMessage: '',
       },
       gitlab: {
         isEnabled: false,
-        host: "",
-        token: "",
-        repo: "",
-        branch: "",
-        fileName: "",
-        owner: "",
-        commitMessage: "",
+        host: '',
+        token: '',
+        repo: '',
+        branch: '',
+        fileName: '',
+        owner: '',
+        commitMessage: '',
       },
       customURL: {
         isEnabled: false,
-        url: "",
-        method: "POST",
-        headers: "",
+        url: '',
+        method: 'POST',
+        headers: '',
       },
     },
   } as JSONSettingsConfigI);
@@ -106,14 +106,14 @@ const Container = () => {
 
   // Get all collections from Figma
   useEffect(() => {
-    parent.postMessage({ pluginMessage: { type: "checkForVariables" } }, "*");
+    parent.postMessage({ pluginMessage: { type: 'checkForVariables' } }, '*');
 
     window.onmessage = (event) => {
       const { type, hasVariables, variableCollections, storageConfig } =
         event.data.pluginMessage;
 
       // check if file has variables
-      if (type === "checkForVariables") {
+      if (type === 'checkForVariables') {
         setFileHasVariables(hasVariables);
         setIsLoading(false);
 
@@ -126,7 +126,7 @@ const Container = () => {
       }
 
       // check storage on load
-      if (type === "storageConfig") {
+      if (type === 'storageConfig') {
         if (storageConfig) {
           setJSONsettingsConfig(storageConfig);
         }
@@ -145,11 +145,11 @@ const Container = () => {
       parent.postMessage(
         {
           pluginMessage: {
-            type: "resizeUIHeight",
+            type: 'resizeUIHeight',
             height,
           },
         },
-        "*"
+        '*'
       );
     });
 
@@ -167,11 +167,11 @@ const Container = () => {
     parent.postMessage(
       {
         pluginMessage: {
-          type: "JSONSettingsConfig",
+          type: 'JSONSettingsConfig',
           config: JSONsettingsConfig,
         },
       },
-      "*"
+      '*'
     );
   }, [JSONsettingsConfig]);
 
@@ -181,12 +181,12 @@ const Container = () => {
       parent.postMessage(
         {
           pluginMessage: {
-            type: "openCodePreview",
+            type: 'openCodePreview',
             isCodePreviewOpen,
             height: frameHeight,
           },
         },
-        "*"
+        '*'
       );
     }
   }, [isCodePreviewOpen]);

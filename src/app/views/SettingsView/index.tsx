@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import styles from "./styles.module.scss";
-import pkg from "../../../../package.json";
+import React, { useEffect, useState } from 'react';
+import styles from './styles.module.scss';
+import pkg from '../../../../package.json';
 
 import {
   Panel,
@@ -14,20 +14,20 @@ import {
   Text,
   Toggle,
   OverlayList,
-} from "pavelLaptev/react-figma-ui/ui";
+} from 'pavelLaptev/react-figma-ui/ui';
 
-import { config } from "../../controller/config";
+import { config } from '../../controller/config';
 
-import { Toast } from "../../components/Toast";
-import { ServerSettingsView } from "../ServerSettingsView";
+import { Toast } from '../../components/Toast';
+import { ServerSettingsView } from '../ServerSettingsView';
 
-import { pushToJSONBin } from "../../api/servers/pushToJSONBin";
-import { pushToGithub } from "../../api/servers/pushToGithub";
-import { githubPullRequest } from "../../api/servers/githubPullRequest";
-import { pushToGitlab } from "../../api/servers/pushToGitlab";
-import { pushToCustomURL } from "../../api/servers/pushToCustomURL";
+import { pushToJSONBin } from '../../api/servers/pushToJSONBin';
+import { pushToGithub } from '../../api/servers/pushToGithub';
+import { githubPullRequest } from '../../api/servers/githubPullRequest';
+import { pushToGitlab } from '../../api/servers/pushToGitlab';
+import { pushToCustomURL } from '../../api/servers/pushToCustomURL';
 
-import { downloadTokensFile } from "../../api/downloadTokensFile";
+import { downloadTokensFile } from '../../api/downloadTokensFile';
 
 type StyleListItemType = {
   id: stylesType;
@@ -50,47 +50,47 @@ interface ViewProps {
 const version = pkg.version;
 const stylesList = [
   {
-    id: "text",
-    label: "Typography",
+    id: 'text',
+    label: 'Typography',
     icon: <Icon name="text" size="32" />,
   },
   {
-    id: "grids",
-    label: "Grids",
+    id: 'grids',
+    label: 'Grids',
     icon: <Icon name="grid-styles" size="32" />,
   },
   {
-    id: "effects",
-    label: "Effects",
+    id: 'effects',
+    label: 'Effects',
     icon: <Icon name="effects" size="32" />,
   },
 ] as StyleListItemType[];
 
 const serverList = [
   {
-    id: "jsonbin",
-    label: "JSONBin",
-    iconName: "jsonbin",
+    id: 'jsonbin',
+    label: 'JSONBin',
+    iconName: 'jsonbin',
   },
   {
-    id: "github",
-    label: "Github",
-    iconName: "github",
+    id: 'github',
+    label: 'Github',
+    iconName: 'github',
   },
   {
-    id: "githubPullRequest",
-    label: "Github PR",
-    iconName: "github",
+    id: 'githubPullRequest',
+    label: 'Github PR',
+    iconName: 'github',
   },
   {
-    id: "gitlab",
-    label: "Gitlab",
-    iconName: "gitlab",
+    id: 'gitlab',
+    label: 'Gitlab',
+    iconName: 'gitlab',
   },
   {
-    id: "customURL",
-    label: "Custom URL",
-    iconName: "custom-url-server",
+    id: 'customURL',
+    label: 'Custom URL',
+    iconName: 'custom-url-server',
   },
 ];
 
@@ -114,7 +114,7 @@ export const SettingsView = (props: ViewProps) => {
   // HANDLE FUNCTIONS //
   //////////////////////
   const handleIncludeFigmaMetaDataChange = (checked: boolean) => {
-    console.log("handleIncludeFigmaMetaDataChange", checked);
+    console.log('handleIncludeFigmaMetaDataChange', checked);
     setJSONsettingsConfig({
       ...JSONsettingsConfig,
       includeFigmaMetaData: checked,
@@ -167,11 +167,11 @@ export const SettingsView = (props: ViewProps) => {
     parent.postMessage(
       {
         pluginMessage: {
-          type: "getTokens",
-          role: "preview",
+          type: 'getTokens',
+          role: 'preview',
         } as TokensMessageI,
       },
-      "*"
+      '*'
     );
   };
 
@@ -180,11 +180,11 @@ export const SettingsView = (props: ViewProps) => {
     parent.postMessage(
       {
         pluginMessage: {
-          type: "getTokens",
-          role: "download",
+          type: 'getTokens',
+          role: 'download',
         } as TokensMessageI,
       },
-      "*"
+      '*'
     );
   };
 
@@ -195,18 +195,18 @@ export const SettingsView = (props: ViewProps) => {
       (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
     );
 
-    console.log("all enebled servers", allEnabledServers);
+    console.log('all enebled servers', allEnabledServers);
 
     // send command to figma controller
     parent.postMessage(
       {
         pluginMessage: {
-          type: "getTokens",
-          role: "push",
+          type: 'getTokens',
+          role: 'push',
           server: allEnabledServers,
         } as TokensMessageI,
       },
-      "*"
+      '*'
     );
   };
 
@@ -220,20 +220,20 @@ export const SettingsView = (props: ViewProps) => {
       const { type, tokens, role, server } = event.data
         .pluginMessage as TokensMessageI;
 
-      if (type === "setTokens") {
-        if (role === "preview") {
+      if (type === 'setTokens') {
+        if (role === 'preview') {
           // console.log("tokens preview", tokens);
           setGeneratedTokens(tokens);
         }
 
-        if (role === "download") {
+        if (role === 'download') {
           // console.log("tokens download", tokens);
           downloadTokensFile(tokens);
         }
 
-        if (role === "push") {
-          if (server.includes("jsonbin")) {
-            console.log("push to jsonbin");
+        if (role === 'push') {
+          if (server.includes('jsonbin')) {
+            console.log('push to jsonbin');
             await pushToJSONBin(
               JSONsettingsConfig.servers.jsonbin,
               tokens,
@@ -243,9 +243,9 @@ export const SettingsView = (props: ViewProps) => {
             );
           }
 
-          if (server.includes("github")) {
+          if (server.includes('github')) {
             // console.log("github config", JSONsettingsConfig.servers.github);
-            console.log("push to github");
+            console.log('push to github');
             await pushToGithub(
               JSONsettingsConfig.servers.github,
               tokens,
@@ -255,8 +255,8 @@ export const SettingsView = (props: ViewProps) => {
             );
           }
 
-          if (server.includes("githubPullRequest")) {
-            console.log("create github pull request");
+          if (server.includes('githubPullRequest')) {
+            console.log('create github pull request');
             await githubPullRequest(
               JSONsettingsConfig.servers.githubPullRequest,
               tokens,
@@ -266,8 +266,8 @@ export const SettingsView = (props: ViewProps) => {
             );
           }
 
-          if (server.includes("gitlab")) {
-            console.log("push to gitlab");
+          if (server.includes('gitlab')) {
+            console.log('push to gitlab');
             await pushToGitlab(
               JSONsettingsConfig.servers.gitlab,
               tokens,
@@ -277,13 +277,13 @@ export const SettingsView = (props: ViewProps) => {
             );
           }
 
-          if (server.includes("customURL")) {
-            console.log("push to customURL");
+          if (server.includes('customURL')) {
+            console.log('push to customURL');
             await pushToCustomURL(JSONsettingsConfig.servers.customURL, tokens);
           }
 
           setIsPushing(false);
-          console.log("push done");
+          console.log('push done');
         }
       }
     };
@@ -319,7 +319,7 @@ export const SettingsView = (props: ViewProps) => {
 
   //
   useEffect(() => {
-    console.log("JSONsettingsConfig Settings View >>>>", JSONsettingsConfig);
+    console.log('JSONsettingsConfig Settings View >>>>', JSONsettingsConfig);
   }, [JSONsettingsConfig]);
 
   /////////////////
@@ -356,32 +356,32 @@ export const SettingsView = (props: ViewProps) => {
               {
                 options: [
                   {
-                    id: "hex",
-                    label: "HEX",
+                    id: 'hex',
+                    label: 'HEX',
                   },
                 ],
               },
               {
                 options: [
                   {
-                    id: "rgba-css",
-                    label: "RGBA CSS",
+                    id: 'rgba-css',
+                    label: 'RGBA CSS',
                   },
                   {
-                    id: "rgba-object",
-                    label: "RGBA Object",
+                    id: 'rgba-object',
+                    label: 'RGBA Object',
                   },
                 ],
               },
               {
                 options: [
                   {
-                    id: "hsla-css",
-                    label: "HSLA CSS",
+                    id: 'hsla-css',
+                    label: 'HSLA CSS',
                   },
                   {
-                    id: "hsla-object",
-                    label: "HSLA Object",
+                    id: 'hsla-object',
+                    label: 'HSLA Object',
                   },
                 ],
               },
@@ -462,8 +462,8 @@ export const SettingsView = (props: ViewProps) => {
                 {
                   options: [
                     {
-                      id: "none",
-                      label: "Keep separate",
+                      id: 'none',
+                      label: 'Keep separate',
                     },
                   ],
                 },
@@ -523,7 +523,7 @@ export const SettingsView = (props: ViewProps) => {
         </Stack>
       </Panel>
 
-       <Panel>
+      <Panel>
         <Stack>
           <Toggle
             id="scope-feature"
@@ -648,27 +648,27 @@ export const SettingsView = (props: ViewProps) => {
   };
 
   const selectRender = () => {
-    if (currentView === "main") {
+    if (currentView === 'main') {
       return mainView;
     }
 
-    if (currentView === "jsonbin") {
+    if (currentView === 'jsonbin') {
       return <ServerSettingsView {...commonProps} server="jsonbin" />;
     }
 
-    if (currentView === "github") {
+    if (currentView === 'github') {
       return <ServerSettingsView {...commonProps} server="github" />;
     }
 
-    if (currentView === "gitlab") {
+    if (currentView === 'gitlab') {
       return <ServerSettingsView {...commonProps} server="gitlab" />;
     }
 
-    if (currentView === "githubPullRequest") {
+    if (currentView === 'githubPullRequest') {
       return <ServerSettingsView {...commonProps} server="githubPullRequest" />;
     }
 
-    if (currentView === "customURL") {
+    if (currentView === 'customURL') {
       return <ServerSettingsView {...commonProps} server="customURL" />;
     }
   };
@@ -678,7 +678,7 @@ export const SettingsView = (props: ViewProps) => {
       <Toast ref={toastRef} />
       <Stack
         className={`${styles.settingView} ${
-          isCodePreviewOpen ? styles.fitHighToFrame : ""
+          isCodePreviewOpen ? styles.fitHighToFrame : ''
         }`}
         hasLeftRightPadding={false}
       >

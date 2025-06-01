@@ -1,22 +1,14 @@
 {
-    "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-      "outDir": "dist/plugin/dts",
-      "sourceMap": true,
-      "jsx": "react",
-      "lib": ["dom", "es2021"], // Extends lib from base
-      "declaration": false,
-      "emitDeclarationOnly": false,
-    },
-    "include": [
-      "src/**/*",
-      "**/*.d.ts"
-    ],
-    "files": [
-      "src/app/index.tsx",
-      "src/app/controller/index.ts"
-    ],
-    "exclude": [
-      "src/cli/**/*"
-    ]
-  }
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist/plugin/dts",
+    "sourceMap": true,
+    "jsx": "react",
+    "lib": ["dom", "es2021"], // Extends lib from base
+    "declaration": false,
+    "emitDeclarationOnly": false
+  },
+  "include": ["src/**/*", "**/*.d.ts"],
+  "files": ["src/app/index.tsx", "src/app/controller/index.ts"],
+  "exclude": ["src/cli/**/*"]
+}

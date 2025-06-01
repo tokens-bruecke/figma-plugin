@@ -1,21 +1,21 @@
 {
-    "includedStyles": {
-        "text": {
-            "isIncluded": true,
-            "customName": "typography"
-        },
-        "effects": {
-            "isIncluded": true,
-            "customName": "effects"
-        },
-        "grids": {
-            "isIncluded": false,
-            "customName": "grids"
-        }
+  "includedStyles": {
+    "text": {
+      "isIncluded": true,
+      "customName": "typography"
     },
-    "includeScopes": false,
-    "useDTCGKeys": true,
-    "includeValueStringKeyToAlias": true,
-    "colorMode": "hsla-css",
-    "storeStyleInCollection": "none"
+    "effects": {
+      "isIncluded": true,
+      "customName": "effects"
+    },
+    "grids": {
+      "isIncluded": false,
+      "customName": "grids"
+    }
+  },
+  "includeScopes": false,
+  "useDTCGKeys": true,
+  "includeValueStringKeyToAlias": true,
+  "colorMode": "hsla-css",
+  "storeStyleInCollection": "none"
 }

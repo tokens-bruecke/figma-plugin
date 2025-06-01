@@ -1,8 +1,8 @@
-import { stylesToTokens } from "./transform/styles/stylesToTokens";
+import { stylesToTokens } from './transform/styles/stylesToTokens';
 
-import { variablesToTokens } from "./transform/variablesToTokens";
-import { mergeStylesIntoTokens } from "./transform/mergeStylesIntoTokens";
-import { IResolver } from "./resolver";
+import { variablesToTokens } from './transform/variablesToTokens';
+import { mergeStylesIntoTokens } from './transform/mergeStylesIntoTokens';
+import { IResolver } from './resolver';
 
 export const getTokens = async (
   resolver: IResolver,
@@ -39,8 +39,8 @@ export const getTokens = async (
   } as MetaPropsI;
 
   // add meta to mergedVariables
-  mergedVariables["$extensions"] = {
-    "tokens-bruecke-meta": metaData,
+  mergedVariables['$extensions'] = {
+    'tokens-bruecke-meta': metaData,
   };
 
   // console.log("mergedVariables", mergedVariables);

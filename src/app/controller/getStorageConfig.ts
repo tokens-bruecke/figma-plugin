@@ -2,8 +2,8 @@ export const getStorageConfig = async (key) => {
   // clear storage for testing
   // figma.clientStorage.setAsync(key, null);
 
-  const storageVersionKey = "bruecke-storage";
-  const actualStorageVersion = "v1";
+  const storageVersionKey = 'bruecke-storage';
+  const actualStorageVersion = 'v1';
 
   const storageConfig = await figma.clientStorage.getAsync(storageVersionKey);
 
@@ -16,15 +16,15 @@ export const getStorageConfig = async (key) => {
   // get storage config
   figma.clientStorage.getAsync(key).then((storageConfig) => {
     try {
-      console.log("storageConfig >>>>", JSON.parse(storageConfig));
+      console.log('storageConfig >>>>', JSON.parse(storageConfig));
 
       figma.ui.postMessage({
-        type: "storageConfig",
+        type: 'storageConfig',
         storageConfig: JSON.parse(storageConfig),
       });
     } catch (error) {
       figma.ui.postMessage({
-        type: "storageConfig",
+        type: 'storageConfig',
         storageConfig: null,
       });
     }
