@@ -22,10 +22,7 @@ export const normalizeValue = (props: PropsI, resolver: IResolver) => {
     includeValueAliasString,
   } = props;
 
-  // console.log("variableValue", variableValue);
-
   if (variableValue?.type === "VARIABLE_ALIAS") {
-    // console.log("VARIABLE_ALIAS", variableValue);
 
     const aliasVariableName = getAliasVariableName(
       variableValue.id,

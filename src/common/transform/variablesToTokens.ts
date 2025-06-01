@@ -23,12 +23,8 @@ export const variablesToTokens = async (
     };
   });
 
-  // console.log("variables", variables);
-  // console.log("collections", collections);
 
   variables.forEach((variable) => {
-    // console.log("variable", variable);
-    // get collection object
     const collectionId = variable.variableCollectionId;
     const collectionName = collections.find(
       (collection) => collection.id === collectionId
@@ -42,8 +38,6 @@ export const variablesToTokens = async (
       defaultModeId: collectionDefaultModeId,
     };
 
-    // console.log("collectionObject", collectionObj
-    // console.log("collection", collectionObject);
 
     // get values by mode
     const modes = variable.valuesByMode;
@@ -65,7 +59,6 @@ export const variablesToTokens = async (
       Object.keys(modes).indexOf(collectionDefaultModeId)
     );
 
-    // console.log("defaultValue", defaultValue);
 
     const modesValues = Object.fromEntries(
       Object.keys(modes).flatMap((modeId, index) => {
@@ -85,7 +78,13 @@ export const variablesToTokens = async (
       Object.keys(modesValues).length === 1 ? {} : modesValues;
 
     const variableObject = {
-      [keyNames.type]: normilizeType(variable.resolvedType, variable.scopes),
+      [keyNames.type]: normilizeType(
+        variable.resolvedType,
+        variable.scopes,
+        variable.valuesByMode[collectionDefaultModeId],
+        collectionDefaultModeId,
+        resolver
+      ),
       [keyNames.value]: defaultValue,
       [keyNames.description]: variable.description,
       // add scopes if true
@@ -103,8 +102,6 @@ export const variablesToTokens = async (
       },
     } as PluginTokenI;
 
-    // console.log("variableObject", variableObject);
-
     // place variable into collection
     emptyCollection = emptyCollection.map((collection) => {
       if (Object.keys(collection)[0] === collectionName) {
@@ -113,8 +110,6 @@ export const variablesToTokens = async (
       return collection;
     });
   });
-
-  // console.log("emptyCollection", emptyCollection);
 
   const mergedVariables = emptyCollection.reduce((result, collection) => {
     return {
