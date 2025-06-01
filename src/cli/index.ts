@@ -23,7 +23,8 @@ const defaultConfig: ExportSettingsI = {
   storeStyleInCollection: "none",
   colorMode: "hex",
   includeScopes: false,
-  includeValueAliasString: false,
+  includeValueStringKeyToAlias: false,
+  includeFigmaMetaData: false,
   useDTCGKeys: false,
 };
 

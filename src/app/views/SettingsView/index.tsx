@@ -113,6 +113,13 @@ export const SettingsView = (props: ViewProps) => {
   //////////////////////
   // HANDLE FUNCTIONS //
   //////////////////////
+  const handleIncludeFigmaMetaDataChange = (checked: boolean) => {
+    console.log("handleIncludeFigmaMetaDataChange", checked);
+    setJSONsettingsConfig({
+      ...JSONsettingsConfig,
+      includeFigmaMetaData: checked,
+    });
+  };
 
   const handleIncludeScopesChange = (checked: boolean) => {
     // console.log("handleIncludeScopesChange", checked);
@@ -132,12 +139,12 @@ export const SettingsView = (props: ViewProps) => {
     });
   };
 
-  const handleIncludeValueAliasString = (checked: boolean) => {
+  const handleincludeValueStringKeyToAlias = (checked: boolean) => {
     // console.log("handleSplitFilesChange", checked);
 
     setJSONsettingsConfig({
       ...JSONsettingsConfig,
-      includeValueAliasString: checked,
+      includeValueStringKeyToAlias: checked,
     });
   };
 
@@ -505,13 +512,27 @@ export const SettingsView = (props: ViewProps) => {
         <Stack hasLeftRightPadding>
           <Toggle
             id="include-value-alias-string"
-            checked={JSONsettingsConfig.includeValueAliasString}
-            onChange={handleIncludeValueAliasString}
+            checked={JSONsettingsConfig.includeValueStringKeyToAlias}
+            onChange={handleincludeValueStringKeyToAlias}
           >
             <Text>
               Include <span className={styles.codeLine}>.value</span> string for
               aliases
             </Text>
+          </Toggle>
+        </Stack>
+      </Panel>
+
+       <Panel>
+        <Stack>
+          <Toggle
+            id="scope-feature"
+            checked={JSONsettingsConfig.includeFigmaMetaData}
+            onChange={(checked: boolean) => {
+              handleIncludeFigmaMetaDataChange(checked);
+            }}
+          >
+            <Text>Include figma metadata</Text>
           </Toggle>
         </Stack>
       </Panel>

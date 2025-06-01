@@ -10,7 +10,7 @@ import { IResolver } from "../../resolver";
 export const textStylesToTokens = async (
   customName: string,
   isDTCGForamt: boolean,
-  includeValueAliasString: boolean,
+  includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
   const keyNames = getTokenKeyName(isDTCGForamt);
@@ -29,7 +29,7 @@ export const textStylesToTokens = async (
           [key]: getAliasVariableName(
             boundVariables[key].id,
             isDTCGForamt,
-            includeValueAliasString,
+            includeValueStringKeyToAlias,
             resolver
           ),
         };

@@ -13,7 +13,7 @@ export const variablesToTokens = async (
   config: ExportSettingsI,
   resolver: IResolver
 ) => {
-  const { colorMode, useDTCGKeys, includeValueAliasString } = config;
+  const { colorMode, useDTCGKeys, includeValueStringKeyToAlias, includeFigmaMetaData } = config;
   const keyNames = getTokenKeyName(useDTCGKeys);
 
   // let mergedVariables = {};
@@ -56,7 +56,7 @@ export const variablesToTokens = async (
           variableScope: variable.scopes,
           colorMode,
           useDTCGKeys,
-          includeValueAliasString,
+          includeValueStringKeyToAlias,
         },
         resolver
       );
@@ -95,15 +95,13 @@ export const variablesToTokens = async (
       // add meta
       $extensions: {
         mode: filteredModesValues,
-        figma: {
+        ...(includeFigmaMetaData && {figma: {
           codeSyntax: variable.codeSyntax,
           variableId: variable.id,
           collection: collectionObject,
-        },
+        }}),
       },
     } as PluginTokenI;
-
-    // console.log("variableObject", variableObject);
 
     // place variable into collection
     emptyCollection = emptyCollection.map((collection) => {

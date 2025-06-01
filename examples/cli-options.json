@@ -15,7 +15,7 @@
     },
     "includeScopes": false,
     "useDTCGKeys": true,
-    "includeValueAliasString": true,
+    "includeValueStringKeyToAlias": true,
     "colorMode": "hsla-css",
     "storeStyleInCollection": "none"
 }

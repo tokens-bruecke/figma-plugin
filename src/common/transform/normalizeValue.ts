@@ -9,7 +9,7 @@ interface PropsI {
   variableScope: VariableScope[];
   colorMode: colorModeType;
   useDTCGKeys: boolean;
-  includeValueAliasString: boolean;
+  includeValueStringKeyToAlias: boolean;
 }
 
 export const normalizeValue = (props: PropsI, resolver: IResolver) => {
@@ -19,7 +19,7 @@ export const normalizeValue = (props: PropsI, resolver: IResolver) => {
     variableScope,
     colorMode,
     useDTCGKeys,
-    includeValueAliasString,
+    includeValueStringKeyToAlias,
   } = props;
 
   // console.log("variableValue", variableValue);
@@ -30,7 +30,7 @@ export const normalizeValue = (props: PropsI, resolver: IResolver) => {
     const aliasVariableName = getAliasVariableName(
       variableValue.id,
       useDTCGKeys,
-      includeValueAliasString,
+      includeValueStringKeyToAlias,
       resolver
     );
 

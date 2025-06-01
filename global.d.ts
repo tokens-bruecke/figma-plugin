@@ -89,9 +89,10 @@ interface ExportSettingsI {
   includedStyles: IncludedStylesI;
   includeScopes: boolean;
   useDTCGKeys: boolean;
-  includeValueAliasString: boolean;
+  includeValueStringKeyToAlias: boolean;
   colorMode: colorModeType;
   storeStyleInCollection: string;
+  includeFigmaMetaData: boolean;
 }
 
 interface ServerSettingsI {
@@ -117,7 +118,7 @@ interface PluginTokenI {
   scopes?: VariableScope[];
   $extensions: {
     mode: Object;
-    figma: {
+    figma?: {
       variableId: string;
       codeSyntax: {
         WEB?: string;

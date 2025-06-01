@@ -7,7 +7,7 @@ export const stylesToTokens = async (
   props: ExportSettingsI,
   resolver: IResolver
 ) => {
-  const { includedStyles, colorMode, useDTCGKeys, includeValueAliasString } =
+  const { includedStyles, colorMode, useDTCGKeys, includeValueStringKeyToAlias } =
     props;
   let styleTokens = [];
 
@@ -20,7 +20,7 @@ export const stylesToTokens = async (
     const textTokens = await textStylesToTokens(
       includedStyles.text.customName,
       useDTCGKeys,
-      includeValueAliasString,
+      includeValueStringKeyToAlias,
       resolver
     );
 
@@ -44,7 +44,7 @@ export const stylesToTokens = async (
       includedStyles.effects.customName,
       colorMode,
       useDTCGKeys,
-      includeValueAliasString,
+      includeValueStringKeyToAlias,
       resolver
     );
 

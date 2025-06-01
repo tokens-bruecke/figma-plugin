@@ -24,6 +24,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Include variable scopes](#include-variable-scopes)
     - [Use DTCG keys format](#use-dtcg-keys-format)
     - [Include `.value` string for aliases](#include-value-string-for-aliases)
+    - [Include Figma metadata](#include-figma-metadata)
   - [Use as cli tool](#use-as-cli-tool)
     - [Installation](#installation)
     - [Usage](#usage)
@@ -56,7 +57,6 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Style Dictionary support](#style-dictionary-support)
   - [Contribution 🚧](#contribution-)
   - [Feedback](#feedback)
-  - [Changelog](CHANGELOG.md)
 
 ---
 
@@ -175,6 +175,22 @@ If the format is `DTCG`:
 
 ![fig.13](readme-assets/fig13.webp)
 
+### Include Figma metadata
+
+Is `off` by default. Allows you to include Figma metadata like `styleId`, `variableId`, etc. into the generated JSON. It will be added to the `$extensions` object.
+
+```json
+"figma": {
+  "codeSyntax": {},
+  "variableId": "VariableID:1:4",
+  "collection": {
+    "id": "VariableCollectionId:1:3",
+    "name": "Primitives",
+    "defaultModeId": "1:0"
+  }
+}
+```
+
 ---
 
 ## Use as cli tool
@@ -226,7 +242,8 @@ You can use a JSON configuration file to specify the export options for the CLI.
   },
   "includeScopes": true,
   "useDTCGKeys": false,
-  "includeValueAliasString": true,
+  "includeValueStringKeyToAlias": true,
+  "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
   "colorMode": "hex", // "hex"  | "rgba-object"  | "rgba-css"  | "hsla-object"  | "hsla-css";
   "storeStyleInCollection": "none" // Name of one of your collection or "none" to keep them separated
 }
@@ -524,6 +541,7 @@ All aliases are converted into the alias string format from the [Design Tokens s
 ### Include `.value` string for aliases
 
 You can switch on the `Include .value string for aliases` option in [the plugin settings](#include-value-string-for-aliases).
+
 
 ---
 

@@ -25,10 +25,6 @@ const Container = () => {
 
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
     includedStyles: {
-      colors: {
-        isIncluded: false,
-        customName: "Colors",
-      },
       text: {
         isIncluded: false,
         customName: "Typography-styles",
@@ -47,7 +43,8 @@ const Container = () => {
     colorMode: "hex",
     includeScopes: false,
     useDTCGKeys: false,
-    includeValueAliasString: false,
+    includeValueStringKeyToAlias: false,
+    includeFigmaMetaData: false,
     servers: {
       jsonbin: {
         isEnabled: false,
