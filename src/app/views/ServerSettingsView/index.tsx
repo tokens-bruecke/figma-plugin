@@ -86,7 +86,7 @@ const viewsConfig = {
       <>
         In order to post on Github you need to have a{' '}
         <a
-          href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
+          href="https://github.com/settings/tokens/new?scopes=repo"
           target="_blank"
           rel="noopener noreferrer"
         >
