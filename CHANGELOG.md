@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.7.0](https://github.com/tokens-bruecke/figma-plugin/compare/v2.6.2...v2.7.0) (2025-09-21)
+
+
+### Features
+
+* Add direct new GitHub token URL with "repo" scope ([f2f68f9](https://github.com/tokens-bruecke/figma-plugin/commit/f2f68f91bb20ded52cb193391bf4eeaca0e6d303))
+* Add direct new GitHub token URL with "repo" scope ([aea4d98](https://github.com/tokens-bruecke/figma-plugin/commit/aea4d983b99892f28040b919bc79b161fe4e4aa2))
+
+
+### Bug Fixes
+
+* file path must be URL-encoded for Gitlab API ([369d43f](https://github.com/tokens-bruecke/figma-plugin/commit/369d43fd01d04ea44a810ebcada07a97c5924072))
+* URL encode file path for Gitlab API ([6a590b1](https://github.com/tokens-bruecke/figma-plugin/commit/6a590b15966d4b4188d210d6d8a7dcd4ab07884f))
+
 ## [2.6.2](https://github.com/tokens-bruecke/figma-plugin/compare/v2.6.1...v2.6.2) (2025-06-01)
 
 
