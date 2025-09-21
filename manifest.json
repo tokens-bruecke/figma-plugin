@@ -5,6 +5,7 @@
   "main": "code.js",
   "editorType": ["figma"],
   "ui": "ui.html",
+  "documentAccess": "dynamic-page",
   "networkAccess": {
     "allowedDomains": ["*"],
     "reasoning": "There is a push method that uses a custom URL. This URL can be any"
