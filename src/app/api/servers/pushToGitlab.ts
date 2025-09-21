@@ -8,7 +8,8 @@ export const pushToGitlab = async (
   const glRepo = credentials.repo;
   const branch = credentials.branch;
   const glHost = credentials.host || 'gitlab.com';
-  const fileName = credentials.fileName;
+  // file name must be URL encoded to handle file paths correctly via Gitlab API
+  const fileName = encodeURIComponent(credentials.fileName);
   const commitMessage = credentials.commitMessage || 'Update tokens';
   const fileContent = JSON.stringify(tokens, null, 2);
 
