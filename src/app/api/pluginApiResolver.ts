@@ -2,7 +2,7 @@ import { IResolver } from '../../common/resolver';
 
 export class PluginAPIResolver implements IResolver {
   async getLocalEffectStyles(): Promise<EffectStyle[]> {
-    return figma.getLocalEffectStyles();
+    return figma.getLocalEffectStylesAsync();
   }
 
   async getLocalVariableCollections(): Promise<VariableCollection[]> {
@@ -21,11 +21,15 @@ export class PluginAPIResolver implements IResolver {
     return figma.getLocalTextStylesAsync();
   }
 
-  getVariableById(variableId: string): Variable {
-    return figma.variables.getVariableById(variableId);
+  async getLocalPaintStyles(): Promise<PaintStyle[]> {
+    return figma.getLocalPaintStylesAsync();
   }
 
-  getVariableCollectionById(id: string): VariableCollection {
-    return figma.variables.getVariableCollectionById(id);
+  async getVariableById(variableId: string): Promise<Variable | null> {
+    return figma.variables.getVariableByIdAsync(variableId);
+  }
+
+  async getVariableCollectionById(id: string): Promise<VariableCollection | null> {
+    return figma.variables.getVariableCollectionByIdAsync(id);
   }
 }

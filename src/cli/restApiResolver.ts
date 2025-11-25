@@ -123,13 +123,30 @@ export class RestAPIResolver implements IResolver {
     return textStyles;
   }
 
-  getVariableById(variableId: string): Variable {
-    // Assuming variables are fetched and stored
-    return this.variables[variableId];
+  async getLocalPaintStyles(): Promise<PaintStyle[]> {
+    await this.fetchFileStyles();
+    console.log('⌛ Fetching paint styles');
+    const ids = this.styles
+      .filter((style) => style.style_type === 'FILL')
+      .map((style) => style.node_id);
+    const r = await this.api.getFileNodes(
+      { file_key: this.fileKey },
+      { ids: ids.join(',') }
+    );
+    const paintStyles = Object.values(r.nodes)
+      .map((node) => node.document as unknown as RectangleNode)
+      .map(this.rectangleNodeToPaint);
+    console.log('✅ Found %d paint styles', paintStyles.length);
+    return paintStyles;
   }
 
-  getVariableCollectionById(id: string): VariableCollection {
-    return this.variableCollections[id];
+  async getVariableById(variableId: string): Promise<Variable | null> {
+    // Assuming variables are fetched and stored
+    return this.variables[variableId] || null;
+  }
+
+  async getVariableCollectionById(id: string): Promise<VariableCollection | null> {
+    return this.variableCollections[id] || null;
   }
 
   rectangleNodeToEffectStyle(node: RectangleNode): EffectStyle {
@@ -195,5 +212,19 @@ export class RestAPIResolver implements IResolver {
         unit: node.style.lineHeightUnit == 'PIXELS' ? 'PIXELS' : 'PERCENT',
       },
     } as unknown as TextStyle;
+  }
+
+  rectangleNodeToPaint(node: RectangleNode): PaintStyle {
+    return {
+      type: 'PAINT',
+      id: node.id,
+      name: node.name,
+      paints: node.fills as Paint[],
+      remote: false,
+      key: node.id,
+      description: '',
+      documentationLinks: [],
+      consumers: [],
+    } as unknown as PaintStyle;
   }
 }

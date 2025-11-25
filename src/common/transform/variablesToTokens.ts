@@ -31,7 +31,7 @@ export const variablesToTokens = async (
   // console.log("variables", variables);
   // console.log("collections", collections);
 
-  variables.forEach((variable) => {
+  for (const variable of variables) {
     // console.log("variable", variable);
     // get collection object
     const collectionId = variable.variableCollectionId;
@@ -53,8 +53,8 @@ export const variablesToTokens = async (
     // get values by mode
     const modes = variable.valuesByMode;
 
-    const getValue = (modeIndex: number) =>
-      normalizeValue(
+    const getValue = async (modeIndex: number) =>
+      await normalizeValue(
         {
           variableType: variable.resolvedType,
           variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
@@ -66,24 +66,26 @@ export const variablesToTokens = async (
         resolver
       );
 
-    const defaultValue = getValue(
+    const defaultValue = await getValue(
       Object.keys(modes).indexOf(collectionDefaultModeId)
     );
 
     // console.log("defaultValue", defaultValue);
 
     const modesValues = Object.fromEntries(
-      Object.keys(modes).flatMap((modeId, index) => {
-        const modeName = collections
-          .find((collection) => collection.id === collectionId)
-          .modes.find((mode) => mode.modeId === modeId)?.name;
+      await Promise.all(
+        Object.keys(modes).flatMap(async (modeId, index) => {
+          const modeName = collections
+            .find((collection) => collection.id === collectionId)
+            .modes.find((mode) => mode.modeId === modeId)?.name;
 
-        if (modeName) {
-          return [[modeName, getValue(index)]];
-        }
-        console.warn(`ModeId ${modeId} not found in ${collectionId}`);
-        return [];
-      })
+          if (modeName) {
+            return [[modeName, await getValue(index)]];
+          }
+          console.warn(`ModeId ${modeId} not found in ${collectionId}`);
+          return [];
+        })
+      )
     );
 
     const filteredModesValues =
@@ -117,7 +119,7 @@ export const variablesToTokens = async (
       }
       return collection;
     });
-  });
+  }
 
   // console.log("emptyCollection", emptyCollection);
 

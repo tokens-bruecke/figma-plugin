@@ -64,6 +64,11 @@ const stylesList = [
     label: 'Effects',
     icon: <Icon name="effects" size="32" />,
   },
+  {
+    id: 'colors',
+    label: 'Colors',
+    icon: <Icon name="color-styles" size="32" />,
+  },
 ] as StyleListItemType[];
 
 const serverList = [
@@ -396,7 +401,10 @@ export const SettingsView = (props: ViewProps) => {
         <Stack hasLeftRightPadding={false} hasTopBottomPadding gap={2}>
           {stylesList.map((item, index) => {
             const configStylesList = JSONsettingsConfig.includedStyles;
-            const styleItem = configStylesList[item.id];
+            const styleItem = configStylesList[item.id] || {
+              isIncluded: false,
+              customName: `${item.label}-styles`,
+            };
 
             // check if style item is included
             const isIncluded = styleItem.isIncluded;

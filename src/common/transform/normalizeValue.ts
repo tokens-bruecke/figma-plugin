@@ -12,7 +12,7 @@ interface PropsI {
   includeValueStringKeyToAlias: boolean;
 }
 
-export const normalizeValue = (props: PropsI, resolver: IResolver) => {
+export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
   const {
     variableValue,
     variableType,
@@ -27,7 +27,7 @@ export const normalizeValue = (props: PropsI, resolver: IResolver) => {
   if (variableValue?.type === 'VARIABLE_ALIAS') {
     // console.log("VARIABLE_ALIAS", variableValue);
 
-    const aliasVariableName = getAliasVariableName(
+    const aliasVariableName = await getAliasVariableName(
       variableValue.id,
       useDTCGKeys,
       includeValueStringKeyToAlias,

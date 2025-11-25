@@ -35,6 +35,7 @@ interface IncludedStylesI {
   text: JSONSettingsStyleType;
   effects: JSONSettingsStyleType;
   grids: JSONSettingsStyleType;
+  colors: JSONSettingsStyleType;
 }
 
 interface JsonbinCredentialsI {

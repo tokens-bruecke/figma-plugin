@@ -18,22 +18,24 @@ export const textStylesToTokens = async (
 
   let textTokens = {};
 
-  const allTextStyles = textStyles.reduce((result, style) => {
+  const allTextStyles = {};
+  
+  for (const style of textStyles) {
     let aliasVariables = {} as TextStyle['boundVariables'];
     const boundVariables = style.boundVariables;
 
     if (boundVariables) {
-      Object.keys(boundVariables).forEach((key: VariableBindableTextField) => {
+      for (const key of Object.keys(boundVariables) as VariableBindableTextField[]) {
         aliasVariables = {
           ...aliasVariables,
-          [key]: getAliasVariableName(
+          [key]: await getAliasVariableName(
             boundVariables[key].id,
             isDTCGForamt,
             includeValueStringKeyToAlias,
             resolver
           ),
         };
-      });
+      }
     }
 
     const fontStyleWeight = getFontStyleAndWeight(style.fontName.style);
@@ -61,10 +63,8 @@ export const textStylesToTokens = async (
       },
     } as unknown as TypographyTokenI;
 
-    result[style.name] = styleObject;
-
-    return result;
-  }, {});
+    allTextStyles[style.name] = styleObject;
+  }
 
   textTokens[customName] = groupObjectNamesIntoCategories(allTextStyles);
 

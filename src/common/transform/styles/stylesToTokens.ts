@@ -1,6 +1,7 @@
 import { textStylesToTokens } from './textStylesToTokens';
 import { gridStylesToTokens } from './gridStylesToTokens';
 import { effectStylesToTokens } from './effectStylesToTokens';
+import { colorStylesToTokens } from './colorStylesToTokens';
 import { IResolver } from '../../resolver';
 
 export const stylesToTokens = async (
@@ -19,8 +20,9 @@ export const stylesToTokens = async (
     return styleTokens;
   }
 
+
   // Extract text tokens
-  if (includedStyles.text.isIncluded) {
+  if (includedStyles.text?.isIncluded) {
     const textTokens = await textStylesToTokens(
       includedStyles.text.customName,
       useDTCGKeys,
@@ -32,7 +34,7 @@ export const stylesToTokens = async (
   }
 
   // Extract grid tokens
-  if (includedStyles.grids.isIncluded) {
+  if (includedStyles.grids?.isIncluded) {
     const gridTokens = await gridStylesToTokens(
       includedStyles.grids.customName,
       useDTCGKeys,
@@ -43,7 +45,7 @@ export const stylesToTokens = async (
   }
 
   // Extract effect tokens
-  if (includedStyles.effects.isIncluded) {
+  if (includedStyles.effects?.isIncluded) {
     const effectTokens = await effectStylesToTokens(
       includedStyles.effects.customName,
       colorMode,
@@ -53,6 +55,19 @@ export const stylesToTokens = async (
     );
 
     styleTokens.push(effectTokens);
+  }
+
+  // Extract color tokens
+  if (includedStyles.colors?.isIncluded) {
+    const colorTokens = await colorStylesToTokens(
+      includedStyles.colors.customName,
+      colorMode,
+      useDTCGKeys,
+      includeValueStringKeyToAlias,
+      resolver
+    );
+
+    styleTokens.push(colorTokens);
   }
 
   return styleTokens;

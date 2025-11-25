@@ -1,20 +1,20 @@
 import { getTokenKeyName } from './getTokenKeyName';
 import { IResolver } from '../resolver';
 
-export const getAliasVariableName = (
+export const getAliasVariableName = async (
   variableId: string,
   isDTCGForamt: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
-  const variableObj = resolver.getVariableById(variableId) as Variable;
+  const variableObj = await resolver.getVariableById(variableId) as Variable | null;
   if (!variableObj) {
     console.log('cannot find variable', variableId);
     return '#missing#';
   }
-  const collectionObj = resolver.getVariableCollectionById(
+  const collectionObj = await resolver.getVariableCollectionById(
     variableObj.variableCollectionId
-  ) as VariableCollection;
+  ) as VariableCollection | null;
 
   const variableName = variableObj.name;
   const collectionName = collectionObj.name;

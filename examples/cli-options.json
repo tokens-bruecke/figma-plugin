@@ -11,6 +11,10 @@
     "grids": {
       "isIncluded": false,
       "customName": "grids"
+    },
+    "colors": {
+      "isIncluded": false,
+      "customName": "colors"
     }
   },
   "includeScopes": false,

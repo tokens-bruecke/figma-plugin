@@ -4,7 +4,7 @@ import { getTokenKeyName } from '../getTokenKeyName';
 import { getAliasVariableName } from '../getAliasVariableName';
 import { IResolver } from '../../resolver';
 
-const wrapShadowObject = (
+const wrapShadowObject = async (
   shadowEffect: DropShadowEffect | InnerShadowEffect,
   colorMode: colorModeType,
   isDTCGForamt: boolean,
@@ -13,9 +13,9 @@ const wrapShadowObject = (
 ) => {
   const effectBoundVariables = shadowEffect.boundVariables;
 
-  const getAlias = (key: string) => {
+  const getAlias = async (key: string) => {
     if (effectBoundVariables && effectBoundVariables[key]) {
-      return getAliasVariableName(
+      return await getAliasVariableName(
         effectBoundVariables[key].id,
         isDTCGForamt,
         includeValueStringKeyToAlias,
@@ -29,10 +29,10 @@ const wrapShadowObject = (
   return {
     inset: shadowEffect.type === 'INNER_SHADOW',
     color: convertRGBA(shadowEffect.color, colorMode),
-    offsetX: getAlias('offsetX') || `${shadowEffect.offset.x}px`,
-    offsetY: getAlias('offsetY') || `${shadowEffect.offset.y}px`,
-    blur: getAlias('blur') || `${shadowEffect.radius}px`,
-    spread: getAlias('spread') || `${shadowEffect.spread}px`,
+    offsetX: (await getAlias('offsetX')) || `${shadowEffect.offset.x}px`,
+    offsetY: (await getAlias('offsetY')) || `${shadowEffect.offset.y}px`,
+    blur: (await getAlias('blur')) || `${shadowEffect.radius}px`,
+    spread: (await getAlias('spread')) || `${shadowEffect.spread}px`,
   };
 };
 
@@ -46,28 +46,30 @@ export const effectStylesToTokens = async (
   const keyNames = getTokenKeyName(isDTCGForamt);
   const effectStyles = await resolver.getLocalEffectStyles();
 
-  // console.log("effectStyles", effectStyles);
-
   let effectTokens = {};
 
-  const allEffectStyles = effectStyles.reduce((result, style) => {
+  const allEffectStyles = {};
+  
+  for (const style of effectStyles) {
     const styleName = style.name;
     const effectType = style.effects[0].type;
 
     if (effectType === 'DROP_SHADOW' || effectType === 'INNER_SHADOW') {
       const styleObject = {
         [keyNames.type]: 'shadow',
-        [keyNames.value]: style.effects.map((effect) =>
-          wrapShadowObject(
-            effect as DropShadowEffect | InnerShadowEffect,
-            colorMode,
-            isDTCGForamt,
-            includeValueStringKeyToAlias,
-            resolver
+        [keyNames.value]: await Promise.all(
+          style.effects.map((effect) =>
+            wrapShadowObject(
+              effect as DropShadowEffect | InnerShadowEffect,
+              colorMode,
+              isDTCGForamt,
+              includeValueStringKeyToAlias,
+              resolver
+            )
           )
         ),
       } as unknown as ShadowTokenI;
-      result[styleName] = styleObject;
+      allEffectStyles[styleName] = styleObject;
     }
 
     if (effectType === 'LAYER_BLUR' || effectType === 'BACKGROUND_BLUR') {
@@ -76,7 +78,7 @@ export const effectStylesToTokens = async (
       let aliasVariable = null;
 
       if (aliasRef) {
-        aliasVariable = getAliasVariableName(
+        aliasVariable = await getAliasVariableName(
           aliasRef.id,
           isDTCGForamt,
           includeValueStringKeyToAlias,
@@ -91,11 +93,9 @@ export const effectStylesToTokens = async (
           blur: aliasVariable || `${effect.radius}px`,
         },
       } as BlurTokenI;
-      result[styleName] = styleObject;
+      allEffectStyles[styleName] = styleObject;
     }
-
-    return result;
-  }, {});
+  }
 
   // console.log("allEffectStyles", allEffectStyles);
 

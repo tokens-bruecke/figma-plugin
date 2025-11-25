@@ -4,6 +4,7 @@ export interface IResolver {
   getLocalVariables(): Promise<Variable[]>;
   getLocalGridStyles(): Promise<GridStyle[]>;
   getLocalTextStyles(): Promise<TextStyle[]>;
-  getVariableById(variableId: string): Variable;
-  getVariableCollectionById(id: string): VariableCollection;
+  getLocalPaintStyles(): Promise<PaintStyle[]>;
+  getVariableById(variableId: string): Promise<Variable | null>;
+  getVariableCollectionById(id: string): Promise<VariableCollection | null>;
 }

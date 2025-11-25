@@ -238,7 +238,8 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "includedStyles": {
     "text": { "isIncluded": true, "customName": "typography" },
     "effects": { "isIncluded": false, "customName": "effects" },
-    "grids": { "isIncluded": false, "customName": "grids" }
+    "grids": { "isIncluded": false, "customName": "grids" },
+    "colors": { "isIncluded": false, "customName": "colors" }
   },
   "includeScopes": true,
   "useDTCGKeys": false,

@@ -37,6 +37,10 @@ const Container = () => {
         isIncluded: false,
         customName: 'Grid-styles',
       },
+      colors: {
+        isIncluded: false,
+        customName: 'Color-styles',
+      },
     },
     variableCollections: [],
     storeStyleInCollection: 'none',

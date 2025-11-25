@@ -19,6 +19,10 @@ const defaultConfig: ExportSettingsI = {
       isIncluded: false,
       customName: 'Grid-styles',
     },
+    colors: {
+      isIncluded: false,
+      customName: 'Color-styles',
+    },
   },
   storeStyleInCollection: 'none',
   colorMode: 'hex',
