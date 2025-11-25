@@ -40,12 +40,11 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Config autosaving](#config-autosaving)
   - [Styles support](#styles-support)
     - [Typography](#typography)
+    - [Colors](#colors)
     - [Grids](#grids)
     - [Shadows](#shadows)
     - [Blur](#blur)
     - [Multiple `Shadow` and `Blur` styles support](#multiple-shadow-and-blur-styles-support)
-    - [Why there is no support for color styles?](#why-there-is-no-support-for-color-styles)
-    - [Gradients support 🚧](#gradients-support-)
   - [Tokens structure](#tokens-structure)
   - [Aliases handling](#aliases-handling)
     - [Include `.value` string for aliases](#include-value-string-for-aliases-1)
@@ -331,6 +330,7 @@ The plugin can support some styles and effects too. Until Figma will support all
 Supported styles:
 
 - Typography
+- Colors
 - Grids
 - Shadows (including `inset` shadows)
 - Blur (including `background` and `layer` blur)
@@ -351,6 +351,43 @@ Supported styles:
   "extensions": {
     "styleId": "S:0ffe98ad785a13839980113831d5fbaf21724594,"
   }
+}
+```
+
+### Colors
+
+The plugin supports solid colors and gradients (linear, radial, angular, diamond). Color styles are converted to DTCG format with support for variable aliases.
+
+```json
+// Solid color
+"primary": {
+  "type": "color",
+  "value": "#ff0000"
+}
+
+// Solid color with variable alias
+"secondary": {
+  "type": "color",
+  "value": "{colors.base.primary}"
+}
+
+// Gradient
+"skeleton-ramp": {
+  "type": "gradient",
+  "value": [
+    {
+      "color": "{clr.scale.ntrl.80}",
+      "position": 0
+    },
+    {
+      "color": "{clr.scale.ntrl.95}",
+      "position": 0.5
+    },
+    {
+      "color": "#eae9e8",
+      "position": 1
+    }
+  ]
 }
 ```
 
@@ -470,14 +507,6 @@ If the style has multiple `Shadow` or `Blur` styles, the plugin will add them in
   ]
 }
 ```
-
-### Why there is no support for color styles?
-
-Despite the fact that color styles could be important for backward compatibility — the main goal of the plugin is to convert Figma variables into design tokens. Since Figma already has a support for color in variables, there is no need to convert also color styles into design tokens.
-
-### Gradients support 🚧
-
-Support for gradients is comming with the next major release.
 
 ---
 
