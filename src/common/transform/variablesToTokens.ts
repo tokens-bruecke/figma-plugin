@@ -73,19 +73,21 @@ export const variablesToTokens = async (
     // console.log("defaultValue", defaultValue);
 
     const modesValues = Object.fromEntries(
-      await Promise.all(
-        Object.keys(modes).flatMap(async (modeId, index) => {
-          const modeName = collections
-            .find((collection) => collection.id === collectionId)
-            .modes.find((mode) => mode.modeId === modeId)?.name;
+      (
+        await Promise.all(
+          Object.keys(modes).map(async (modeId, index) => {
+            const modeName = collections
+              .find((collection) => collection.id === collectionId)
+              .modes.find((mode) => mode.modeId === modeId)?.name;
 
-          if (modeName) {
-            return [[modeName, await getValue(index)]];
-          }
-          console.warn(`ModeId ${modeId} not found in ${collectionId}`);
-          return [];
-        })
-      )
+            if (modeName) {
+              return [[modeName, await getValue(index)]];
+            }
+            console.warn(`ModeId ${modeId} not found in ${collectionId}`);
+            return [];
+          })
+        )
+      ).flat()
     );
 
     const filteredModesValues =
