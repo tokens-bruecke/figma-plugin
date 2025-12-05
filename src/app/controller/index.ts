@@ -5,6 +5,7 @@ import { getStorageConfig } from './getStorageConfig';
 
 import { config } from './config';
 import { getTokens } from '../../common/export';
+import { tokensToVariables } from '../../common/transform/tokensToVariables';
 import { PluginAPIResolver } from '../api/pluginApiResolver';
 
 // clear console on reload
@@ -66,6 +67,50 @@ figma.ui.onmessage = async (msg) => {
         server: msg.server,
       } as TokensMessageI);
     });
+  }
+
+  // import tokens and create variables
+  if (msg.type === 'importTokens') {
+    console.log('Importing tokens...', msg.tokens);
+    
+    try {
+      const result = await tokensToVariables(
+        msg.tokens,
+        new PluginAPIResolver()
+      );
+      
+      console.log('Import result:', result);
+      
+      // Send result back to UI
+      figma.ui.postMessage({
+        type: 'importResult',
+        tokens: null,
+        role: 'import',
+        server: [],
+        result: result,
+      } as TokensMessageI);
+      
+      // Refresh the collections list if import was successful
+      if (result.success) {
+        await checkForVariables('checkForVariables');
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+      
+      figma.ui.postMessage({
+        type: 'importResult',
+        tokens: null,
+        role: 'import',
+        server: [],
+        result: {
+          success: false,
+          message: `Import failed: ${error.message}`,
+          collectionsCreated: 0,
+          variablesCreated: 0,
+          errors: [error.message],
+        },
+      } as TokensMessageI);
+    }
   }
 
   // change size of UI

@@ -145,10 +145,17 @@ type ServerType =
   | 'none';
 
 interface TokensMessageI {
-  type: 'getTokens' | 'setTokens';
+  type: 'getTokens' | 'setTokens' | 'importTokens' | 'importResult';
   tokens: any;
-  role: 'preview' | 'push' | 'download';
+  role: 'preview' | 'push' | 'download' | 'import';
   server: ServerType[];
+  result?: {
+    success: boolean;
+    message: string;
+    collectionsCreated: number;
+    variablesCreated: number;
+    errors: string[];
+  };
 }
 
 interface MetaPropsI {
