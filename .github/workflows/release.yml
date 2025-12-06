@@ -20,19 +20,38 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
+      
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        if: ${{ steps.release.outputs.release_created }}
         with:
+          version: 8
           run_install: false
+
+      - name: Get pnpm store directory
+        if: ${{ steps.release.outputs.release_created }}
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install Node.js
         uses: actions/setup-node@v4
+        if: ${{ steps.release.outputs.release_created }}
         with:
           node-version: 'lts/*'
-          cache: 'pnpm'
           registry-url: 'https://npm.pkg.github.com'
 
       - name: Build package

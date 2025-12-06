@@ -1,5 +1,5 @@
 /// <reference path="./node_modules/@figma/plugin-typings/index.d.ts" />
-/// <reference path="./node_modules/@tokens-bruecke/token-types/index.d.ts" />
+
 
 type nameConventionType =
   | 'none'

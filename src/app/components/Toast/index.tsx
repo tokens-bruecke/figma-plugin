@@ -1,6 +1,6 @@
 import React, { forwardRef, useImperativeHandle, Ref, useEffect } from 'react';
 
-import { Text } from 'pavelLaptev/react-figma-ui/ui';
+import { Text } from 'react-figma-ui/ui';
 import styles from './styles.module.scss';
 
 interface ToastRefI {

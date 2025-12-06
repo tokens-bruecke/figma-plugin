@@ -14,7 +14,7 @@ import {
   Text,
   Toggle,
   OverlayList,
-} from 'pavelLaptev/react-figma-ui/ui';
+} from 'react-figma-ui/ui';
 
 import { config } from '../../controller/config';
 

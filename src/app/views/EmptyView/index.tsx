@@ -2,7 +2,7 @@ import React from 'react';
 
 import { config } from '../../controller/config';
 
-import { Text, Button, Stack } from 'pavelLaptev/react-figma-ui/ui';
+import { Text, Button, Stack } from 'react-figma-ui/ui';
 import { StatusPicture } from '../../components/StatusPicture';
 
 import styles from './styles.module.scss';

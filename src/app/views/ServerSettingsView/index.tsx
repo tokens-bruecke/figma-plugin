@@ -8,7 +8,7 @@ import {
   Button,
   Input,
   Text,
-} from 'pavelLaptev/react-figma-ui/ui';
+} from 'react-figma-ui/ui';
 
 type ViewsConfigI = {
   [K in ServerType]: {
