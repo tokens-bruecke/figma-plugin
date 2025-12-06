@@ -28,6 +28,7 @@ import { pushToGitlab } from '../../api/servers/pushToGitlab';
 import { pushToCustomURL } from '../../api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '../../api/downloadTokensFile';
+import { importTokensFile } from '../../api/importTokensFile';
 
 type StyleListItemType = {
   id: stylesType;
@@ -111,6 +112,7 @@ export const SettingsView = (props: ViewProps) => {
     setCurrentView,
   } = props;
   const [isPushing, setIsPushing] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
 
   const serversHeaderRef = React.useRef(null);
@@ -193,6 +195,41 @@ export const SettingsView = (props: ViewProps) => {
     );
   };
 
+  const handleImportTokens = async () => {
+    setIsImporting(true);
+
+    try {
+      const tokensData = await importTokensFile();
+
+      if (tokensData) {
+        // Send tokens to figma controller for import
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: 'importTokens',
+              tokens: tokensData,
+              role: 'import',
+            } as TokensMessageI,
+          },
+          '*'
+        );
+      } else {
+        setIsImporting(false);
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+      toastRef.current.show({
+        title: 'Import Error',
+        message: error.message,
+        options: {
+          type: 'error',
+          timeout: 5000,
+        },
+      });
+      setIsImporting(false);
+    }
+  };
+
   const getTokensForPush = () => {
     setIsPushing(true);
 
@@ -222,7 +259,7 @@ export const SettingsView = (props: ViewProps) => {
   // Receive tokens from figma controller
   useEffect(() => {
     window.onmessage = async (event) => {
-      const { type, tokens, role, server } = event.data
+      const { type, tokens, role, server, result } = event.data
         .pluginMessage as TokensMessageI;
 
       if (type === 'setTokens') {
@@ -289,6 +326,26 @@ export const SettingsView = (props: ViewProps) => {
 
           setIsPushing(false);
           console.log('push done');
+        }
+      }
+
+      if (type === 'importResult') {
+        setIsImporting(false);
+
+        if (result) {
+          toastRef.current.show({
+            title: result.success ? 'Import Successful' : 'Import Failed',
+            message: result.message,
+            options: {
+              type: result.success ? 'success' : 'error',
+              timeout: 10000,
+            },
+          });
+
+          // Log errors if any
+          if (result.errors.length > 0) {
+            console.error('Import errors:', result.errors);
+          }
         }
       }
     };
@@ -626,18 +683,18 @@ export const SettingsView = (props: ViewProps) => {
         )}
       </Panel>
 
-      {/* <Button
-        label="Push to Gitlab"
-        onClick={() => {
-          pushToGitlab();
-        }}
-      /> */}
-
       <Panel hasLeftRightPadding bottomBorder={false}>
-        <Stack hasLeftRightPadding hasTopBottomPadding>
+        <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
           <Button
             label="Download JSON"
             onClick={getTokensForDownload}
+            fullWidth
+            secondary
+          />
+          <Button
+            label="Import tokens (Beta)"
+            onClick={handleImportTokens}
+            loading={isImporting}
             fullWidth
             secondary
           />
