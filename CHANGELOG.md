@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.3](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.2...v2.9.3) (2025-12-06)
+
+
+### Bug Fixes
+
+* Remove pnpm version and install options in release workflow ([62ea535](https://github.com/tokens-bruecke/figma-plugin/commit/62ea535c12639ab21b056eb08209fa1115d33920))
+
 ## [2.9.2](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.1...v2.9.2) (2025-12-06)
 
 
