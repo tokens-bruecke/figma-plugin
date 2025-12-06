@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.2](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.1...v2.9.2) (2025-12-06)
+
+
+### Bug Fixes
+
+* Add zip existence check and force artifact upload ([f9d9b4b](https://github.com/tokens-bruecke/figma-plugin/commit/f9d9b4b8aa7b79cb858140fc0fed2e24eca1faca))
+
 ## [2.9.1](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.0...v2.9.1) (2025-12-06)
 
 
