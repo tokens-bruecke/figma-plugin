@@ -1,0 +1,15 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "include-component-in-tag": false,
+      "changelog-sections": [
+        {"type": "feat", "section": "Features"},
+        {"type": "fix", "section": "Bug Fixes"},
+        {"type": "chore", "section": "Miscellaneous"},
+        {"type": "docs", "section": "Documentation"},
+        {"type": "refactor", "section": "Code Refactoring"}
+      ]
+    }
+  }
+}

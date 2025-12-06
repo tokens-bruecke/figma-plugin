@@ -19,7 +19,6 @@ jobs:
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: node
       
       - name: Checkout
         uses: actions/checkout@v4
