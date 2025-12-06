@@ -27,9 +27,6 @@ importers:
       '@octokit/core':
         specifier: ^5.0.0
         version: 5.2.0
-      '@tokens-bruecke/token-types':
-        specifier: git+https://github.com/tokens-bruecke/token-types.git#1.4.0
-        version: '@tokens-bruecke/tokens-types@https://codeload.github.com/tokens-bruecke/token-types/tar.gz/8619a9cf0943ef1cb6d803556c3456f756bd2dfc'
       '@types/node':
         specifier: ^22.7.4
         version: 22.7.4
@@ -448,10 +445,6 @@ packages:
     resolution: {integrity: sha512-yAkUOkIKZlK5dl7u6dg897doBgLXmUHhIINM2c+sND3DZwnrdQkkSiDh7N75Ll4mM4dxSkYfXqU9fW3lLkMFug==}
     cpu: [x64]
     os: [win32]
-
-  '@tokens-bruecke/tokens-types@https://codeload.github.com/tokens-bruecke/token-types/tar.gz/8619a9cf0943ef1cb6d803556c3456f756bd2dfc':
-    resolution: {tarball: https://codeload.github.com/tokens-bruecke/token-types/tar.gz/8619a9cf0943ef1cb6d803556c3456f756bd2dfc}
-    version: 1.4.0
 
   '@types/estree@1.0.5':
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
@@ -2316,8 +2309,6 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.39.0':
     optional: true
-
-  '@tokens-bruecke/tokens-types@https://codeload.github.com/tokens-bruecke/token-types/tar.gz/8619a9cf0943ef1cb6d803556c3456f756bd2dfc': {}
 
   '@types/estree@1.0.5': {}
 
