@@ -6,9 +6,9 @@ import { normalizeValue } from './normalizeValue';
 const resolver = {} as IResolver;
 
 describe('getFontStyleAndWeight', () => {
-  test('Lossy float', () => {
+  test('Lossy float', async () => {
     expect(
-      normalizeValue(
+      await normalizeValue(
         {
           variableValue: 0.40000000200345043,
           variableType: 'FLOAT',
