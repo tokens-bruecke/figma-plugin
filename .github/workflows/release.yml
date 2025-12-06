@@ -57,9 +57,13 @@ jobs:
         run: pnpm install && pnpm run build
         if: ${{ steps.release.outputs.release_created }}
 
+      - name: Check if zip exists
+        if: ${{ steps.release.outputs.release_created }}
+        run: ls -la ./dist/
+
       - name: Upload Release Artifact
         if: ${{ steps.release.outputs.release_created }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} ./dist/figma-plugin.zip
+        run: gh release upload ${{ steps.release.outputs.tag_name }} ./dist/figma-plugin.zip --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
