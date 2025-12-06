@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.0...v2.9.1) (2025-12-06)
+
+
+### Bug Fixes
+
+* Add Release Please configuration files ([dcedd19](https://github.com/tokens-bruecke/figma-plugin/commit/dcedd19dc186bb97bb770af7701be5c8f821f861))
+
 ## [2.7.0](https://github.com/tokens-bruecke/figma-plugin/compare/v2.6.2...v2.7.0) (2025-09-21)
 
 
