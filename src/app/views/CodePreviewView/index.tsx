@@ -4,7 +4,7 @@ import styles from './styles.module.scss';
 
 import { getTokensStat } from '../../../common/transform/getTokensStat';
 
-import { Text, Icon } from 'pavelLaptev/react-figma-ui/ui';
+import { Text, Icon } from 'react-figma-ui/ui';
 
 interface CodePreviewViewProps {
   generatedTokens: any;
