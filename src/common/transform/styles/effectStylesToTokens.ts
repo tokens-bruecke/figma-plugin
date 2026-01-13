@@ -28,7 +28,7 @@ const wrapShadowObject = async (
   // console.log("shadowEffect", shadowEffect);
   return {
     inset: shadowEffect.type === 'INNER_SHADOW',
-    color: convertRGBA(shadowEffect.color, colorMode),
+    color: (await getAlias('color')) || convertRGBA(shadowEffect.color, colorMode),
     offsetX: (await getAlias('offsetX')) || `${shadowEffect.offset.x}px`,
     offsetY: (await getAlias('offsetY')) || `${shadowEffect.offset.y}px`,
     blur: (await getAlias('blur')) || `${shadowEffect.radius}px`,
