@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.4](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.3...v2.9.4) (2026-01-13)
+
+
+### Bug Fixes
+
+* hardcoded style colors into variables ([403c4a5](https://github.com/tokens-bruecke/figma-plugin/commit/403c4a582da3cd7f1d3a4af3654660b84275c9dc))
+
 ## [2.9.3](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.2...v2.9.3) (2025-12-06)
 
 
