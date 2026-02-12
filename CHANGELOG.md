@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.10.0](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.4...v2.10.0) (2026-02-12)
+
+
+### Features
+
+* Add export/import docs and styles warning ([6446d2a](https://github.com/tokens-bruecke/figma-plugin/commit/6446d2ab117f6e5b9270588b886e6903505f36fe))
+
+
+### Bug Fixes
+
+* import variables ([1d72235](https://github.com/tokens-bruecke/figma-plugin/commit/1d722358b5e714710df3546727fdaba41427c863))
+
 ## [2.9.4](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.3...v2.9.4) (2026-01-13)
 
 
