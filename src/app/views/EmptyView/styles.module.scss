@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 240px;
+  height: 300px;
   width: 100%;
   gap: 24px;
   padding: 20px 0 30px;
@@ -36,4 +36,8 @@
   100% {
     transform: translateX(0);
   }
+}
+
+.link {
+  color: var(--figma-color-text);
 }

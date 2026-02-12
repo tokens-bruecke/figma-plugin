@@ -7,6 +7,7 @@ import { EmptyView } from './views/EmptyView';
 import { SettingsView } from './views/SettingsView';
 
 import { CodePreviewView } from './views/CodePreviewView';
+import { importTokensFile } from './api/importTokensFile';
 
 import styles from './styles.module.scss';
 
@@ -22,6 +23,7 @@ const Container = () => {
 
   const [currentView, setCurrentView] = useState('main');
   const [fileHasVariables, setFileHasVariables] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
     includedStyles: {
@@ -103,6 +105,33 @@ const Container = () => {
   //////////////////////
   // HANDLE FUNCTIONS //
   //////////////////////
+
+  const handleImportTokens = async () => {
+    setIsImporting(true);
+
+    try {
+      const tokensData = await importTokensFile();
+
+      if (tokensData) {
+        // Send tokens to figma controller for import
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: 'importTokens',
+              tokens: tokensData,
+              role: 'import',
+            } as TokensMessageI,
+          },
+          '*'
+        );
+      } else {
+        setIsImporting(false);
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+      setIsImporting(false);
+    }
+  };
 
   /////////////////
   // USE EFFECTS //
@@ -205,7 +234,13 @@ const Container = () => {
     }
 
     if (!fileHasVariables) {
-      return <EmptyView setFileHasVariables={setFileHasVariables} />;
+      return (
+        <EmptyView
+          setFileHasVariables={setFileHasVariables}
+          onImportTokens={handleImportTokens}
+          isImporting={isImporting}
+        />
+      );
     }
 
     return (
