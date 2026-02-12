@@ -18,8 +18,6 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [New version 2.0.0](#new-version-200)
   - [How to use](#how-to-use)
     - [Export and Import](#export-and-import)
-      - [Export (Variables → JSON)](#export-variables--json)
-      - [Import (JSON → Variables)](#import-json--variables)
   - [General settings](#general-settings)
     - [Color mode](#color-mode)
     - [Include styles](#include-styles)
@@ -82,13 +80,11 @@ You can download and install previos version `1.6.1` here — [github.com/tokens
 The plugin supports both **exporting** and **importing** design tokens:
 
 #### Export (Variables → JSON)
-
 - Click **"Download JSON"** to export your Figma variables as a design tokens JSON file
 - The exported file is compatible with the [Design Tokens specification](https://design-tokens.github.io/community-group/format/)
 - You can also push directly to supported services (JSONBin, GitHub, GitLab, etc.)
 
 #### Import (JSON → Variables)
-
 - Click **"Import JSON"** to import design tokens from a JSON file back into Figma
 - The plugin will create variable collections, modes, and variables based on the JSON structure
 - Supports both DTCG format (`$value`, `$type`) and standard format (`value`, `type`)
@@ -96,16 +92,12 @@ The plugin supports both **exporting** and **importing** design tokens:
 - Creates new collections and variables as needed, or updates existing ones
 
 **Import Features:**
-
 - ✅ Creates variable collections from top-level objects
 - ✅ Supports multiple modes (from `$extensions.mode` or `extensions.mode`)
 - ✅ Handles all variable types (color, number, string, boolean)
 - ✅ Resolves alias references between variables
 - ✅ Supports various color formats (HEX, RGBA CSS, RGBA Object)
 - ✅ Preserves variable descriptions and metadata
-
-> [!WARNING]  
-> **Styles Export Limitation**: If you exported tokens with styles included (typography, grids, shadows, or blur), these cannot be imported back as Figma styles or variables. Figma's variable API currently only supports basic types: `color`, `number`, `string`, `boolean`, and `dimension`. Complex style types will be imported as `STRING` variables without proper value conversion. This is a temporary limitation until Figma supports these types natively in their API.
 
 ---
 
