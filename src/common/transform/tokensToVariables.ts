@@ -317,7 +317,24 @@ export const tokensToVariables = async (
         
         // Create modes if they don't exist (only in plugin context)
         if (modesData.size > 0 && typeof figma !== 'undefined' && collection) {
-          for (const modeName of modesData.keys()) {
+          const modeNames = Array.from(modesData.keys());
+          
+          // Check if the first mode needs to be renamed
+          const firstModeName = modeNames[0];
+          if (collection.modes.length > 0 && collection.modes[0].name !== firstModeName) {
+            try {
+              // Rename the default mode to the first mode from tokens
+              collection.renameMode(collection.modes[0].modeId, firstModeName);
+            } catch (error) {
+              result.errors.push(
+                `Failed to rename default mode to "${firstModeName}": ${error.message}`
+              );
+            }
+          }
+          
+          // Add any remaining modes
+          for (let i = 1; i < modeNames.length; i++) {
+            const modeName = modeNames[i];
             const existingMode = collection.modes.find((m) => m.name === modeName);
             if (!existingMode) {
               try {
