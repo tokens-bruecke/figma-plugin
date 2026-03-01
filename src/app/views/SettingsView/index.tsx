@@ -155,6 +155,13 @@ export const SettingsView = (props: ViewProps) => {
     });
   };
 
+  const handleUsePercentageOpacity = (checked: boolean) => {
+    setJSONsettingsConfig({
+      ...JSONsettingsConfig,
+      usePercentageOpacity: checked,
+    });
+  };
+
   const handleShowOutput = () => {
     setIsCodePreviewOpen(!isCodePreviewOpen);
     getTokensPreview();
@@ -557,6 +564,18 @@ export const SettingsView = (props: ViewProps) => {
             }}
           >
             <Text>Include variable scopes</Text>
+          </Toggle>
+        </Stack>
+      </Panel>
+
+      <Panel>
+        <Stack hasLeftRightPadding>
+          <Toggle
+            id="use-percentage-opacity"
+            checked={JSONsettingsConfig.usePercentageOpacity}
+            onChange={handleUsePercentageOpacity}
+          >
+            <Text>Use percentage for opacity</Text>
           </Toggle>
         </Stack>
       </Panel>

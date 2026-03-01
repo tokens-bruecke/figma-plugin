@@ -10,6 +10,7 @@ interface PropsI {
   colorMode: colorModeType;
   useDTCGKeys: boolean;
   includeValueStringKeyToAlias: boolean;
+  usePercentageOpacity: boolean;
 }
 
 export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
@@ -20,6 +21,7 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
     colorMode,
     useDTCGKeys,
     includeValueStringKeyToAlias,
+    usePercentageOpacity,
   } = props;
 
   // console.log("variableValue", variableValue);
@@ -45,7 +47,11 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
     if (variableScope.length === 1 && variableScope[0] === 'FONT_WEIGHT') {
       return `${variableValue}`;
     } else if (variableScope.length === 1 && variableScope[0] === 'OPACITY') {
-      return Number(variableValue) / 100;
+      if (usePercentageOpacity) {
+        return `${variableValue}%`;
+      } else {
+        return Number(variableValue) / 100;
+      }
     } else {
       return `${new Decimal(variableValue).toDecimalPlaces(6).toNumber()}px`;
     }

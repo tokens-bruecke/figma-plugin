@@ -25,6 +25,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Include styles](#include-styles)
     - [Add styles to](#add-styles-to)
     - [Include variable scopes](#include-variable-scopes)
+    - [Use percentage for opacity](#use-percentage-for-opacity)
     - [Use DTCG keys format](#use-dtcg-keys-format)
     - [Include `.value` string for aliases](#include-value-string-for-aliases)
     - [Include Figma metadata](#include-figma-metadata)
@@ -147,6 +148,28 @@ Each Figma variable has a [scope property](https://www.figma.com/plugin-docs/api
       "value": "#000000",
       "scopes": ["ALL_SCOPES"]
     }
+  }
+}
+```
+
+### Use percentage for opacity
+
+Is `off` by default. When enabled, opacity values will be exported as percentages instead of normalized decimal values. This affects variables with the `OPACITY` scope.
+
+```json
+// Without percentage format (default)
+{
+  "opacity": {
+    "type": "number",
+    "value": 0.1
+  }
+}
+
+// With percentage format
+{
+  "opacity": {
+    "type": "dimension",
+    "value": "10%"
   }
 }
 ```
@@ -277,6 +300,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "useDTCGKeys": false,
   "includeValueStringKeyToAlias": true,
   "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
+  "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)
   "colorMode": "hex", // "hex"  | "rgba-object"  | "rgba-css"  | "hsla-object"  | "hsla-css";
   "storeStyleInCollection": "none" // Name of one of your collection or "none" to keep them separated
 }
@@ -667,7 +691,7 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 In order to convert `FONT-WEIGHT` and `OPACITY` types into valid values you should specify thme as scopes in the Figma variables. The plugin will read the first scope and convert it into the valid value. If there are multiple scopes, the plugin will take the first one.
 
 - `FONT_WEIGHT` scope will be converted into `string` type.
-- `OPACITY` scope will be converted into `number` type.
+- `OPACITY` scope will be converted into `number` type (or `dimension` with `%` if "Use percentage for opacity" is enabled).
 
 ---
 

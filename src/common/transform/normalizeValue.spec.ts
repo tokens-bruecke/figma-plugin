@@ -16,6 +16,7 @@ describe('getFontStyleAndWeight', () => {
           colorMode: 'hex',
           useDTCGKeys: false,
           includeValueStringKeyToAlias: false,
+          usePercentageOpacity: false,
         },
         resolver
       )

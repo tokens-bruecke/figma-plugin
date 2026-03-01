@@ -30,6 +30,7 @@ const defaultConfig: ExportSettingsI = {
   includeValueStringKeyToAlias: false,
   includeFigmaMetaData: false,
   useDTCGKeys: false,
+  usePercentageOpacity: false,
 };
 
 const argv = yargs(process.argv.slice(2))

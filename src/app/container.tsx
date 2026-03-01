@@ -51,6 +51,7 @@ const Container = () => {
     useDTCGKeys: false,
     includeValueStringKeyToAlias: false,
     includeFigmaMetaData: false,
+    usePercentageOpacity: false,
     servers: {
       jsonbin: {
         isEnabled: false,

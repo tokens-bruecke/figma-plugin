@@ -1,6 +1,7 @@
 export const normilizeType = (
   type: VariableResolvedDataType,
-  variableScopes: VariableScope[]
+  variableScopes: VariableScope[],
+  usePercentageOpacity: boolean = false
 ) => {
   switch (type) {
     case 'COLOR':
@@ -10,7 +11,7 @@ export const normilizeType = (
         if (variableScopes[0] === 'FONT_WEIGHT') {
           return 'string';
         } else if (variableScopes[0] === 'OPACITY') {
-          return 'number';
+          return usePercentageOpacity ? 'dimension' : 'number';
         }
       }
       return 'dimension';

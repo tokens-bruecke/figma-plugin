@@ -1,6 +1,5 @@
 /// <reference path="./node_modules/@figma/plugin-typings/index.d.ts" />
 
-
 type nameConventionType =
   | 'none'
   | 'PascalCase'
@@ -94,6 +93,7 @@ interface ExportSettingsI {
   colorMode: colorModeType;
   storeStyleInCollection: string;
   includeFigmaMetaData: boolean;
+  usePercentageOpacity: boolean;
 }
 
 interface ServerSettingsI {

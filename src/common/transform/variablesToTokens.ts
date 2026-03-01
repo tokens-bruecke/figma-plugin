@@ -18,6 +18,7 @@ export const variablesToTokens = async (
     useDTCGKeys,
     includeValueStringKeyToAlias,
     includeFigmaMetaData,
+    usePercentageOpacity,
   } = config;
   const keyNames = getTokenKeyName(useDTCGKeys);
 
@@ -62,6 +63,7 @@ export const variablesToTokens = async (
           colorMode,
           useDTCGKeys,
           includeValueStringKeyToAlias,
+          usePercentageOpacity,
         },
         resolver
       );
@@ -94,7 +96,11 @@ export const variablesToTokens = async (
       Object.keys(modesValues).length === 1 ? {} : modesValues;
 
     const variableObject = {
-      [keyNames.type]: normilizeType(variable.resolvedType, variable.scopes),
+      [keyNames.type]: normilizeType(
+        variable.resolvedType,
+        variable.scopes,
+        usePercentageOpacity
+      ),
       [keyNames.value]: defaultValue,
       [keyNames.description]: variable.description,
       // add scopes if true
