@@ -114,6 +114,21 @@ type JSONSettingsConfigI = ExportSettingsI &
     servers: ServerSettingsI;
   };
 
+type ProfileId = string;
+
+type SettingsProfileI = JSONSettingsConfigI & {
+  profileName: string;
+  updatedAt: number;
+};
+
+type MultiTenantConfigV2I = {
+  version: 'v2';
+  activeProfileId: ProfileId;
+  profiles: Record<ProfileId, SettingsProfileI>;
+};
+
+type LegacyStorageConfigI = JSONSettingsConfigI;
+
 interface PluginTokenI {
   $value: string;
   $type: TokenType;

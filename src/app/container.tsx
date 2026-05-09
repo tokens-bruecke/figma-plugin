@@ -8,6 +8,11 @@ import { SettingsView } from './views/SettingsView';
 
 import { CodePreviewView } from './views/CodePreviewView';
 import { importTokensFile } from './api/importTokensFile';
+import {
+  createV2DefaultConfig,
+  createProfileFromConfig,
+  sanitizeMultiTenantConfig,
+} from './controller/storageConfig';
 
 import styles from './styles.module.scss';
 
@@ -29,84 +34,139 @@ const Container = () => {
   const [fileHasVariables, setFileHasVariables] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
-  const [JSONsettingsConfig, setJSONsettingsConfig] = useState({
-    includedStyles: {
-      text: {
-        isIncluded: false,
-        customName: 'Typography-styles',
-      },
-      effects: {
-        isIncluded: false,
-        customName: 'Effect-styles',
-      },
-      grids: {
-        isIncluded: false,
-        customName: 'Grid-styles',
-      },
-      colors: {
-        isIncluded: false,
-        customName: 'Color-styles',
-      },
-    },
-    variableCollections: [],
-    storeStyleInCollection: 'none',
-    colorMode: 'hex',
-    includeScopes: false,
-    useDTCGKeys: false,
-    includeValueStringKeyToAlias: false,
-    includeFigmaMetaData: false,
-    usePercentageOpacity: false,
-    splitByCollection: false,
-    omitCollectionNames: false,
-    servers: {
-      jsonbin: {
-        isEnabled: false,
-        id: '',
-        name: '',
-        secretKey: '',
-      },
-      github: {
-        isEnabled: false,
-        token: '',
-        repo: '',
-        branch: '',
-        fileName: '',
-        owner: '',
-        commitMessage: '',
-      },
-      githubPullRequest: {
-        isEnabled: false,
-        token: '',
-        repo: '',
-        branch: '',
-        baseBranch: '',
-        fileName: '',
-        owner: '',
-        commitMessage: '',
-      },
-      gitlab: {
-        isEnabled: false,
-        host: '',
-        token: '',
-        repo: '',
-        branch: '',
-        fileName: '',
-        owner: '',
-        commitMessage: '',
-      },
-      customURL: {
-        isEnabled: false,
-        url: '',
-        method: 'POST',
-        headers: '',
-      },
-    },
-  } as JSONSettingsConfigI);
+  const [multiTenantConfig, setMultiTenantConfig] =
+    useState<MultiTenantConfigV2I>(createV2DefaultConfig());
+
+  const activeProfileId = multiTenantConfig.activeProfileId;
+  const JSONsettingsConfig =
+    (multiTenantConfig.profiles[activeProfileId] as JSONSettingsConfigI) ||
+    ({} as JSONSettingsConfigI);
+
+  const setJSONsettingsConfig = (
+    updater: React.SetStateAction<JSONSettingsConfigI>
+  ) => {
+    setMultiTenantConfig((prev) => {
+      const currentProfile = prev.profiles[prev.activeProfileId];
+      const nextProfile =
+        typeof updater === 'function'
+          ? (
+              updater as (prevState: JSONSettingsConfigI) => JSONSettingsConfigI
+            )(currentProfile)
+          : updater;
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [prev.activeProfileId]: {
+            ...nextProfile,
+            profileName: currentProfile.profileName,
+            updatedAt: Date.now(),
+          },
+        },
+      };
+    });
+  };
+
+  const setActiveProfileId = (nextProfileId: string) => {
+    setMultiTenantConfig((prev) => {
+      if (!prev.profiles[nextProfileId]) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        activeProfileId: nextProfileId,
+      };
+    });
+  };
+
+  const addProfile = (profileName: string) => {
+    const normalizedProfileName = profileName.trim();
+
+    if (!normalizedProfileName) {
+      return;
+    }
+
+    setMultiTenantConfig((prev) => {
+      const profileId = `profile-${Date.now()}`;
+      const nextProfile = createProfileFromConfig(
+        normalizedProfileName,
+        prev.profiles[prev.activeProfileId]
+      );
+
+      return {
+        ...prev,
+        activeProfileId: profileId,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: nextProfile,
+        },
+      };
+    });
+  };
+
+  const renameProfile = (profileId: string, profileName: string) => {
+    const normalizedProfileName = profileName.trim();
+
+    if (!normalizedProfileName) {
+      return;
+    }
+
+    setMultiTenantConfig((prev) => {
+      if (!prev.profiles[profileId]) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: {
+            ...prev.profiles[profileId],
+            profileName: normalizedProfileName,
+            updatedAt: Date.now(),
+          },
+        },
+      };
+    });
+  };
+
+  const deleteProfile = (profileId: string) => {
+    setMultiTenantConfig((prev) => {
+      if (!prev.profiles[profileId]) {
+        return prev;
+      }
+
+      const profileIds = Object.keys(prev.profiles);
+
+      if (profileIds.length <= 1) {
+        return prev;
+      }
+
+      const { [profileId]: _, ...restProfiles } = prev.profiles;
+      const nextActiveProfileId =
+        prev.activeProfileId === profileId
+          ? Object.keys(restProfiles)[0]
+          : prev.activeProfileId;
+
+      return {
+        ...prev,
+        activeProfileId: nextActiveProfileId,
+        profiles: restProfiles,
+      };
+    });
+  };
 
   const commonProps = {
     JSONsettingsConfig,
     setJSONsettingsConfig,
     setCurrentView,
+    multiTenantConfig,
+    setActiveProfileId,
+    addProfile,
+    renameProfile,
+    deleteProfile,
   };
 
   //////////////////////
@@ -168,12 +228,7 @@ const Container = () => {
       // check storage on load
       if (type === 'storageConfig') {
         if (storageConfig) {
-          setJSONsettingsConfig((prev) => ({
-            ...prev,
-            ...storageConfig,
-            // Ensure new properties have defaults for backward compatibility
-            splitByCollection: storageConfig.splitByCollection ?? false,
-          }));
+          setMultiTenantConfig(sanitizeMultiTenantConfig(storageConfig));
         }
       }
     };
@@ -248,12 +303,12 @@ const Container = () => {
       {
         pluginMessage: {
           type: 'JSONSettingsConfig',
-          config: JSONsettingsConfig,
+          config: multiTenantConfig,
         },
       },
       '*'
     );
-  }, [JSONsettingsConfig]);
+  }, [multiTenantConfig]);
 
   // handle code preview
   useDidUpdate(() => {
