@@ -478,14 +478,6 @@ export const SettingsView = (props: ViewProps) => {
 
           <IconButton
             onClick={() => {
-              setNewProfileName('');
-              setCurrentView('newProfile');
-            }}
-            children={<Icon name="plus" size="32" />}
-          />
-
-          <IconButton
-            onClick={() => {
               const activeProfileId = multiTenantConfig.activeProfileId;
               setSelectedProfileId(activeProfileId);
               setNewProfileName(
@@ -494,6 +486,14 @@ export const SettingsView = (props: ViewProps) => {
               setCurrentView('profileDetail');
             }}
             children={<Icon name="kebab" size="32" />}
+          />
+
+          <IconButton
+            onClick={() => {
+              setNewProfileName('');
+              setCurrentView('newProfile');
+            }}
+            children={<Icon name="plus" size="32" />}
           />
         </Stack>
       </Panel>
