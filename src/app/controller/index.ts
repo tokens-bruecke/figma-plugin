@@ -7,6 +7,10 @@ import { config } from './config';
 import { getTokens } from '@common/export';
 import { tokensToVariables } from '@common/transform/tokensToVariables';
 import { PluginAPIResolver } from '@app/api/pluginApiResolver';
+import {
+  sanitizeMultiTenantConfig,
+  updateActiveProfile,
+} from './storageConfig';
 
 // clear console on reload
 console.clear();
@@ -34,6 +38,7 @@ figma.showUI(__html__, {
 });
 
 let JSONSettingsConfig: JSONSettingsConfigI;
+let multiTenantConfig: MultiTenantConfigV2I;
 
 // listen for messages from the UI
 figma.ui.onmessage = async (msg) => {
@@ -41,15 +46,29 @@ figma.ui.onmessage = async (msg) => {
 
   // get JSON settings config from UI and store it in a variable
   if (msg.type === 'JSONSettingsConfig') {
-    // update JSONSettingsConfig
-    JSONSettingsConfig = msg.config;
+    multiTenantConfig = sanitizeMultiTenantConfig(msg.config);
 
-    // console.log("updated JSONSettingsConfig received", JSONSettingsConfig);
+    JSONSettingsConfig =
+      multiTenantConfig.profiles[multiTenantConfig.activeProfileId];
 
-    // handle client storage
     await figma.clientStorage.setAsync(
       pluginConfigKey,
-      JSON.stringify(JSONSettingsConfig)
+      JSON.stringify(multiTenantConfig)
+    );
+  }
+
+  if (msg.type === 'activeProfileConfig') {
+    if (!multiTenantConfig) {
+      return;
+    }
+
+    multiTenantConfig = updateActiveProfile(multiTenantConfig, msg.config);
+    JSONSettingsConfig =
+      multiTenantConfig.profiles[multiTenantConfig.activeProfileId];
+
+    await figma.clientStorage.setAsync(
+      pluginConfigKey,
+      JSON.stringify(multiTenantConfig)
     );
   }
 

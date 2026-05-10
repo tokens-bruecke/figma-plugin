@@ -381,8 +381,6 @@ export const ServerSettingsView = (props: ViewProps) => {
 
         <Stack gap="var(--space-extra-small)">
           {viewsConfig[props.server].fields.map((field) => {
-            // console.log("field", field);
-
             const handleErrorsOnBlur = (value: string) => {
               if (value === '' && field.required) {
                 setErrorFields((prevState) => {
