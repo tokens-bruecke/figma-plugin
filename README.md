@@ -43,6 +43,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Custom server](#custom-server)
   - [Show output](#show-output)
   - [Plugin window height](#plugin-window-height)
+  - [Multiple profiles](#multiple-profiles)
   - [Config autosaving](#config-autosaving)
   - [Styles support](#styles-support)
     - [Typography](#typography)
@@ -450,6 +451,26 @@ The plugin window auto-fits the height of its content, but you can adjust it man
 - **Drag** the handle up or down to set a custom height. The minimum is `360px` and the maximum is the current content height — you can't grow the window beyond what's actually there.
 - **Double-click** the handle to reset back to auto-fit. The window snaps to match the content height again.
 - Your manual height is preserved while the output preview is open, so you can resize both with and without the preview showing.
+
+---
+
+## Multiple profiles
+
+The plugin supports multiple named profiles. Each profile stores its own complete set of export settings and server configurations, so you can switch between different setups without reconfiguring every time.
+
+**Profile management controls** appear in the header of the settings view:
+
+- **Profile dropdown** — shows the currently active profile. Click to switch to another profile.
+- **`+` button** — creates a new profile. Enter a name and click **Create**. The new profile starts with default settings.
+- **`⋮` button** — opens the active profile's detail view where you can rename or delete it.
+
+> [!NOTE]
+> Each profile's settings are saved independently. Switching profiles immediately applies that profile's export options and server credentials.
+
+> [!WARNING]
+> The last remaining profile cannot be deleted.
+
+![fig.14](readme-assets/fig14.webp)
 
 ---
 
