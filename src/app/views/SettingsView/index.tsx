@@ -458,10 +458,9 @@ export const SettingsView = (props: ViewProps) => {
           direction="row"
           gap="var(--space-extra-small)"
         >
-          <Icon name="library" size="32" />
-
           <Stack hasLeftRightPadding={false} className={styles.profileDropdown}>
             <Dropdown
+              leftIcon={<Icon name="profile" size="32" />}
               value={multiTenantConfig.activeProfileId}
               onChange={(profileId: string) => {
                 setActiveProfileId(profileId);

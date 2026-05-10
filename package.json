@@ -57,7 +57,7 @@
     "react": "^18.2.0",
     "react-dev-utils": "^12.0.1",
     "react-dom": "^18.2.0",
-    "react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#4c8d20dbd911c0008fd4d0b20280f14404f186e7",
+    "react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#54a31b8d0dea30b5995062d4bba49eef6941a4d2",
     "sass": "^1.57.1",
     "sass-loader": "^13.2.0",
     "style-loader": "^3.3.1",

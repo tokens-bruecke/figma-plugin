@@ -131,7 +131,7 @@ export const createV2DefaultConfig = (): MultiTenantConfigV2I => {
     version: 'v2',
     activeProfileId: defaultProfileId,
     profiles: {
-      [defaultProfileId]: createProfile('Default', {}),
+      [defaultProfileId]: createProfile('Default profile', {}),
     },
   };
 };
@@ -215,7 +215,7 @@ export const parseStoredConfig = (
         version: 'v2',
         activeProfileId: 'default',
         profiles: {
-          default: createProfile('Default', legacyConfig),
+          default: createProfile('Default profile', legacyConfig),
         },
       },
       didMigrate: true,
@@ -234,7 +234,7 @@ export const updateActiveProfile = (
 ): MultiTenantConfigV2I => {
   const activeProfileId = config.activeProfileId;
   const currentProfile =
-    config.profiles[activeProfileId] || createProfile('Default', {});
+    config.profiles[activeProfileId] || createProfile('Default profile', {});
 
   return {
     ...config,

@@ -82,8 +82,8 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
       react-figma-ui:
-        specifier: git+https://git@github.com/PavelLaptev/react-figma-ui.git#4c8d20dbd911c0008fd4d0b20280f14404f186e7
-        version: https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/4c8d20dbd911c0008fd4d0b20280f14404f186e7
+        specifier: git+https://git@github.com/PavelLaptev/react-figma-ui.git#54a31b8d0dea30b5995062d4bba49eef6941a4d2
+        version: https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/54a31b8d0dea30b5995062d4bba49eef6941a4d2
       sass:
         specifier: ^1.57.1
         version: 1.78.0
@@ -1640,8 +1640,8 @@ packages:
   react-error-overlay@6.0.11:
     resolution: {integrity: sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==}
 
-  react-figma-ui@https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/4c8d20dbd911c0008fd4d0b20280f14404f186e7:
-    resolution: {tarball: https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/4c8d20dbd911c0008fd4d0b20280f14404f186e7}
+  react-figma-ui@https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/54a31b8d0dea30b5995062d4bba49eef6941a4d2:
+    resolution: {tarball: https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/54a31b8d0dea30b5995062d4bba49eef6941a4d2}
     version: 0.3.0
 
   react@18.3.1:
@@ -3546,7 +3546,7 @@ snapshots:
 
   react-error-overlay@6.0.11: {}
 
-  react-figma-ui@https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/4c8d20dbd911c0008fd4d0b20280f14404f186e7: {}
+  react-figma-ui@https://codeload.github.com/PavelLaptev/react-figma-ui/tar.gz/54a31b8d0dea30b5995062d4bba49eef6941a4d2: {}
 
   react@18.3.1:
     dependencies:
