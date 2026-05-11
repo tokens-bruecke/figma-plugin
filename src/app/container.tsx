@@ -9,7 +9,7 @@ import { SettingsView } from './views/SettingsView';
 import { CodePreviewView } from './views/CodePreviewView';
 import { importTokensFile } from './api/importTokensFile';
 import {
-  createV2DefaultConfig,
+  createDefaultConfig,
   createProfileFromConfig,
   sanitizeMultiTenantConfig,
 } from './controller/storageConfig';
@@ -35,7 +35,7 @@ const Container = () => {
   const [isImporting, setIsImporting] = useState(false);
 
   const [multiTenantConfig, setMultiTenantConfig] =
-    useState<MultiTenantConfigV2I>(createV2DefaultConfig());
+    useState<MultiTenantConfigI>(createDefaultConfig());
 
   const activeProfileId = multiTenantConfig.activeProfileId;
   const JSONsettingsConfig =

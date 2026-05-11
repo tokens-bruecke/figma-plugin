@@ -20,6 +20,8 @@ import { config } from '@app/controller/config';
 
 import { Toast, ToastRefI } from '@app/components/Toast';
 import { ServerSettingsView } from '@app/views/ServerSettingsView';
+import { ProfileDetailView } from '@app/views/ProfileDetailView';
+import { NewProfileView } from '@app/views/NewProfileView';
 
 import { pushToJSONBin } from '@app/api/servers/pushToJSONBin';
 import { pushToGithub } from '@app/api/servers/pushToGithub';
@@ -42,7 +44,7 @@ interface ViewProps {
     React.SetStateAction<JSONSettingsConfigI>
   >;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
-  multiTenantConfig: MultiTenantConfigV2I;
+  multiTenantConfig: MultiTenantConfigI;
   setActiveProfileId: (profileId: string) => void;
   addProfile: (profileName: string) => void;
   renameProfile: (profileId: string, profileName: string) => void;
@@ -131,15 +133,8 @@ export const SettingsView = (props: ViewProps) => {
   const [isPushing, setIsPushing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
-  const [newProfileName, setNewProfileName] = useState('');
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
-    null
-  );
 
   const profileEntries = Object.entries(multiTenantConfig.profiles || {});
-  const selectedProfile = selectedProfileId
-    ? multiTenantConfig.profiles[selectedProfileId]
-    : null;
 
   const serversHeaderRef = React.useRef(null);
 
@@ -478,11 +473,6 @@ export const SettingsView = (props: ViewProps) => {
 
           <IconButton
             onClick={() => {
-              const activeProfileId = multiTenantConfig.activeProfileId;
-              setSelectedProfileId(activeProfileId);
-              setNewProfileName(
-                multiTenantConfig.profiles[activeProfileId]?.profileName || ''
-              );
               setCurrentView('profileDetail');
             }}
             children={<Icon name="kebab" size="32" />}
@@ -490,7 +480,6 @@ export const SettingsView = (props: ViewProps) => {
 
           <IconButton
             onClick={() => {
-              setNewProfileName('');
               setCurrentView('newProfile');
             }}
             children={<Icon name="plus" size="32" />}
@@ -577,6 +566,7 @@ export const SettingsView = (props: ViewProps) => {
             return (
               <Stack key={index} direction="row" gap="var(--space-extra-small)">
                 <Input
+                  key={`${multiTenantConfig.activeProfileId}-${item.id}`}
                   className={styles.styleNameInput}
                   id={`style-${item.id}`}
                   hasOutline={false}
@@ -857,127 +847,6 @@ export const SettingsView = (props: ViewProps) => {
     </>
   );
 
-  const profileDetailView = (
-    <Panel hasLeftRightPadding={false} hasTopBottomPadding bottomBorder={false}>
-      <Stack hasLeftRightPadding={false}>
-        <PanelHeader
-          title={selectedProfile?.profileName || 'Profile'}
-          isActive
-          hasBackButton
-          onClick={() => {
-            setSelectedProfileId(null);
-            setNewProfileName('');
-            setCurrentView('main');
-          }}
-        />
-      </Stack>
-
-      <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
-        <Stack gap="var(--space-extra-small)">
-          <Input
-            id="profile-name"
-            placeholder="Profile name"
-            value={newProfileName}
-            onChange={(value: string) => {
-              setNewProfileName(value);
-            }}
-          />
-        </Stack>
-
-        <Stack hasTopBottomPadding gap="var(--space-extra-small)">
-          <Button
-            label="Save"
-            fullWidth
-            secondary
-            disabled={
-              !newProfileName.trim() ||
-              newProfileName.trim() === selectedProfile?.profileName
-            }
-            onClick={() => {
-              const profileName = newProfileName.trim();
-
-              if (!profileName || !selectedProfileId) {
-                return;
-              }
-
-              renameProfile(selectedProfileId, profileName);
-              setSelectedProfileId(null);
-              setNewProfileName('');
-              setCurrentView('main');
-            }}
-          />
-
-          <Button
-            label="Remove"
-            fullWidth
-            secondary
-            danger
-            disabled={profileEntries.length <= 1}
-            onClick={() => {
-              if (!selectedProfileId) {
-                return;
-              }
-
-              deleteProfile(selectedProfileId);
-              setSelectedProfileId(null);
-              setNewProfileName('');
-              setCurrentView('main');
-            }}
-          />
-        </Stack>
-      </Stack>
-    </Panel>
-  );
-
-  const newProfileView = (
-    <Panel hasLeftRightPadding={false} hasTopBottomPadding bottomBorder={false}>
-      <Stack hasLeftRightPadding={false}>
-        <PanelHeader
-          title="Create profile"
-          isActive
-          hasBackButton
-          onClick={() => {
-            setNewProfileName('');
-            setCurrentView('main');
-          }}
-        />
-      </Stack>
-
-      <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
-        <Stack gap="var(--space-extra-small)">
-          <Input
-            id="create-profile-name"
-            placeholder="Profile name"
-            value={newProfileName}
-            onChange={(value: string) => {
-              setNewProfileName(value);
-            }}
-          />
-        </Stack>
-
-        <Stack hasTopBottomPadding gap="var(--space-extra-small)">
-          <Button
-            label="Create"
-            fullWidth
-            secondary
-            disabled={!newProfileName.trim()}
-            onClick={() => {
-              const profileName = newProfileName.trim();
-
-              if (!profileName) {
-                return;
-              }
-
-              addProfile(profileName);
-              setNewProfileName('');
-              setCurrentView('main');
-            }}
-          />
-        </Stack>
-      </Stack>
-    </Panel>
-  );
-
   // Select which view to render
   // based on currentView state
 
@@ -993,11 +862,28 @@ export const SettingsView = (props: ViewProps) => {
     }
 
     if (currentView === 'profileDetail') {
-      return profileDetailView;
+      const activeProfileId = multiTenantConfig.activeProfileId;
+      return (
+        <ProfileDetailView
+          profileId={activeProfileId}
+          profileName={
+            multiTenantConfig.profiles[activeProfileId]?.profileName || ''
+          }
+          profileCount={profileEntries.length}
+          renameProfile={renameProfile}
+          deleteProfile={deleteProfile}
+          setCurrentView={setCurrentView}
+        />
+      );
     }
 
     if (currentView === 'newProfile') {
-      return newProfileView;
+      return (
+        <NewProfileView
+          addProfile={addProfile}
+          setCurrentView={setCurrentView}
+        />
+      );
     }
 
     if (currentView === 'jsonbin') {

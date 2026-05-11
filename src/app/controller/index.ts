@@ -38,7 +38,7 @@ figma.showUI(__html__, {
 });
 
 let JSONSettingsConfig: JSONSettingsConfigI;
-let multiTenantConfig: MultiTenantConfigV2I;
+let multiTenantConfig: MultiTenantConfigI;
 
 // listen for messages from the UI
 figma.ui.onmessage = async (msg) => {

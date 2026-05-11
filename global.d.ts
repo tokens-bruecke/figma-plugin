@@ -121,13 +121,10 @@ type SettingsProfileI = JSONSettingsConfigI & {
   updatedAt: number;
 };
 
-type MultiTenantConfigV2I = {
-  version: 'v2';
+type MultiTenantConfigI = {
   activeProfileId: ProfileId;
   profiles: Record<ProfileId, SettingsProfileI>;
 };
-
-type LegacyStorageConfigI = JSONSettingsConfigI;
 
 interface PluginTokenI {
   $value: string;

@@ -124,11 +124,10 @@ const createProfile = (
   updatedAt: Date.now(),
 });
 
-export const createV2DefaultConfig = (): MultiTenantConfigV2I => {
+export const createDefaultConfig = (): MultiTenantConfigI => {
   const defaultProfileId = 'default';
 
   return {
-    version: 'v2',
     activeProfileId: defaultProfileId,
     profiles: {
       [defaultProfileId]: createProfile('Default profile', {}),
@@ -136,10 +135,10 @@ export const createV2DefaultConfig = (): MultiTenantConfigV2I => {
   };
 };
 
-const normalizeV2Config = (
-  config: Partial<MultiTenantConfigV2I>
-): MultiTenantConfigV2I => {
-  const fallback = createV2DefaultConfig();
+const normalizeConfig = (
+  config: Partial<MultiTenantConfigI>
+): MultiTenantConfigI => {
+  const fallback = createDefaultConfig();
 
   const sourceProfiles = config.profiles || {};
   const normalizedProfiles = Object.keys(sourceProfiles).reduce(
@@ -169,7 +168,6 @@ const normalizeV2Config = (
     !!config.activeProfileId && !!normalizedProfiles[config.activeProfileId];
 
   return {
-    version: 'v2',
     activeProfileId: hasActiveProfile
       ? (config.activeProfileId as string)
       : Object.keys(normalizedProfiles)[0],
@@ -177,61 +175,34 @@ const normalizeV2Config = (
   };
 };
 
-export const parseStoredConfig = (
-  rawValue: unknown
-): {
-  config: MultiTenantConfigV2I;
-  didMigrate: boolean;
-} => {
+export const parseStoredConfig = (rawValue: unknown): MultiTenantConfigI => {
   if (!rawValue) {
-    return {
-      config: createV2DefaultConfig(),
-      didMigrate: true,
-    };
+    return createDefaultConfig();
   }
 
   try {
     const parsed =
       typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
 
-    if (parsed?.version === 'v2') {
-      return {
-        config: normalizeV2Config(parsed),
-        didMigrate: false,
-      };
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      typeof parsed.activeProfileId === 'string' &&
+      parsed.profiles
+    ) {
+      return normalizeConfig(parsed as Partial<MultiTenantConfigI>);
     }
 
-    if (!parsed || typeof parsed !== 'object') {
-      return {
-        config: createV2DefaultConfig(),
-        didMigrate: true,
-      };
-    }
-
-    const legacyConfig = sanitizeProfileConfig(parsed as LegacyStorageConfigI);
-
-    return {
-      config: {
-        version: 'v2',
-        activeProfileId: 'default',
-        profiles: {
-          default: createProfile('Default profile', legacyConfig),
-        },
-      },
-      didMigrate: true,
-    };
-  } catch (error) {
-    return {
-      config: createV2DefaultConfig(),
-      didMigrate: true,
-    };
+    return createDefaultConfig();
+  } catch {
+    return createDefaultConfig();
   }
 };
 
 export const updateActiveProfile = (
-  config: MultiTenantConfigV2I,
+  config: MultiTenantConfigI,
   profile: Partial<JSONSettingsConfigI>
-): MultiTenantConfigV2I => {
+): MultiTenantConfigI => {
   const activeProfileId = config.activeProfileId;
   const currentProfile =
     config.profiles[activeProfileId] || createProfile('Default profile', {});
@@ -257,5 +228,5 @@ export const createProfileFromConfig = (
 ): SettingsProfileI => createProfile(profileName, config);
 
 export const sanitizeMultiTenantConfig = (
-  config: MultiTenantConfigV2I
-): MultiTenantConfigV2I => normalizeV2Config(config);
+  config: MultiTenantConfigI
+): MultiTenantConfigI => normalizeConfig(config);
