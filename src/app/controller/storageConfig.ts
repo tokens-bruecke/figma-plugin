@@ -21,7 +21,7 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
   storeStyleInCollection: 'none',
   colorMode: 'hex',
   includeScopes: false,
-  useDTCGKeys: false,
+  useDTCGKeys: true,
   includeValueStringKeyToAlias: false,
   includeFigmaMetaData: false,
   usePercentageOpacity: false,
