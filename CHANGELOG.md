@@ -1,3 +1,4 @@
+## [2.16.1](https://github.com/tokens-bruecke/figma-plugin/compare/v16.0.1...v2.16.1) (2026-05-11)
 # Changelog
 
 ## [2.11.1](https://github.com/tokens-bruecke/figma-plugin/compare/v2.11.0...v2.11.1) (2026-03-28)
