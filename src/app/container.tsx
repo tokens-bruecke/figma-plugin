@@ -92,7 +92,7 @@ const Container = () => {
       const profileId = `profile-${Date.now()}`;
       const nextProfile = createProfileFromConfig(
         normalizedProfileName,
-        prev.profiles[prev.activeProfileId]
+        {} as JSONSettingsConfigI
       );
 
       return {
