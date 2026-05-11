@@ -30,7 +30,7 @@ const defaultConfig: ExportSettingsI = {
   includeScopes: false,
   includeValueStringKeyToAlias: false,
   includeFigmaMetaData: false,
-  useDTCGKeys: false,
+  useDTCGKeys: true,
   usePercentageOpacity: false,
   splitByCollection: false,
   omitCollectionNames: false,
