@@ -53,7 +53,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git pull origin main
           npx --yes conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s -r 1
           git add CHANGELOG.md
           git diff --staged --quiet || git commit -m "docs: update CHANGELOG for ${{ github.ref_name }}"
-          git push origin HEAD:main
+          git push origin main
