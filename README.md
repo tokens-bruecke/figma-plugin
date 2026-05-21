@@ -171,7 +171,7 @@ Is `off` by default. When enabled, opacity values will be exported as percentage
 
 ### Use DTCG keys format
 
-Is `off` by default. Currently many design tokens tools doesn't support [DTCG keys format](https://design-tokens.github.io/community-group/format/#character-restrictions). All DTCG keys are prefixed with `$` symbol.
+Is `on` by default. All DTCG keys are prefixed with `$` symbol. Currently many design tokens tools support [DTCG keys format](https://design-tokens.github.io/community-group/format/#character-restrictions).
 
 ```json
 // Without DTCG keys format
@@ -365,7 +365,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
     "colors": { "isIncluded": false, "customName": "colors" }
   },
   "includeScopes": true,
-  "useDTCGKeys": false,
+  "useDTCGKeys": true,
   "includeValueStringKeyToAlias": true,
   "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
   "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)

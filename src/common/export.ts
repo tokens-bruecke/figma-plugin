@@ -6,18 +6,18 @@ import { IResolver } from './resolver';
 
 const buildMeta = (
   config: ExportSettingsI,
-  state?: PluginStateI
+  variableCollections: VariableCollection[]
 ): MetaPropsI => ({
   useDTCGKeys: config.useDTCGKeys,
   colorMode: config.colorMode,
-  variableCollections: state?.variableCollections,
+  variableCollections: variableCollections.map((collection) => collection.name),
   createdAt: new Date().toISOString(),
 });
 
 export const getTokens = async (
   resolver: IResolver,
   config: ExportSettingsI,
-  state?: PluginStateI
+  _state?: PluginStateI
 ) => {
   const variableCollection = await resolver.getLocalVariableCollections();
   const variables = await resolver.getLocalVariables();
@@ -40,7 +40,7 @@ export const getTokens = async (
     config.storeStyleInCollection
   );
 
-  const metaData = buildMeta(config, state);
+  const metaData = buildMeta(config, variableCollection);
 
   if (config.splitByCollection) {
     // Return a map of { collectionName: tokens } where each entry gets its own meta
