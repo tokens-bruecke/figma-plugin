@@ -19,6 +19,7 @@ import {
 import { config } from '@app/controller/config';
 
 import { Toast, ToastRefI } from '@app/components/Toast';
+import { AdvancedSettingsView } from '@app/views/AdvancedSettingsView';
 import { ServerSettingsView } from '@app/views/ServerSettingsView';
 import { ProfileDetailView } from '@app/views/ProfileDetailView';
 import { NewProfileView } from '@app/views/NewProfileView';
@@ -138,51 +139,19 @@ export const SettingsView = (props: ViewProps) => {
 
   const serversHeaderRef = React.useRef(null);
 
+  const advancedSettingsIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M14.9141 7.708L14.2061 7L9.00006 11.999L14.2061 16.9986L14.9141 16.2906L10.4141 11.999L14.9141 7.708Z"
+        fill="currentColor"
+        transform="translate(24 0) scale(-1 1)"
+      />
+    </svg>
+  );
+
   //////////////////////
   // HANDLE FUNCTIONS //
   //////////////////////
-  const handleIncludeFigmaMetaDataChange = (checked: boolean) => {
-    console.log('handleIncludeFigmaMetaDataChange', checked);
-    setJSONsettingsConfig({
-      ...JSONsettingsConfig,
-      includeFigmaMetaData: checked,
-    });
-  };
-
-  const handleIncludeScopesChange = (checked: boolean) => {
-    // console.log("handleIncludeScopesChange", checked);
-
-    setJSONsettingsConfig({
-      ...JSONsettingsConfig,
-      includeScopes: checked,
-    });
-  };
-
-  const handleDTCGKeys = (checked: boolean) => {
-    // console.log("handleSplitFilesChange", checked);
-
-    setJSONsettingsConfig({
-      ...JSONsettingsConfig,
-      useDTCGKeys: checked,
-    });
-  };
-
-  const handleincludeValueStringKeyToAlias = (checked: boolean) => {
-    // console.log("handleSplitFilesChange", checked);
-
-    setJSONsettingsConfig({
-      ...JSONsettingsConfig,
-      includeValueStringKeyToAlias: checked,
-    });
-  };
-
-  const handleUsePercentageOpacity = (checked: boolean) => {
-    setJSONsettingsConfig({
-      ...JSONsettingsConfig,
-      usePercentageOpacity: checked,
-    });
-  };
-
   const handleShowOutput = () => {
     setIsCodePreviewOpen(!isCodePreviewOpen);
     getTokensPreview();
@@ -647,103 +616,26 @@ export const SettingsView = (props: ViewProps) => {
       )}
 
       <Panel>
-        <Stack hasLeftRightPadding>
-          <Toggle
-            id="split-by-collection"
-            checked={JSONsettingsConfig.splitByCollection}
-            onChange={(checked: boolean) => {
-              setJSONsettingsConfig({
-                ...JSONsettingsConfig,
-                splitByCollection: checked,
-              });
-            }}
-          >
-            <Text>Split collections into separate files</Text>
-          </Toggle>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <Stack hasLeftRightPadding>
-          <Toggle
-            id="omit-collection-names"
-            checked={JSONsettingsConfig.omitCollectionNames}
-            onChange={(checked: boolean) => {
-              setJSONsettingsConfig({
-                ...JSONsettingsConfig,
-                omitCollectionNames: checked,
-              });
-            }}
-          >
-            <Text>Omit collection names</Text>
-          </Toggle>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <Stack>
-          <Toggle
-            id="scope-feature"
-            onChange={(checked: boolean) => {
-              handleIncludeScopesChange(checked);
-            }}
-          >
-            <Text>Include variable scopes</Text>
-          </Toggle>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <Stack hasLeftRightPadding>
-          <Toggle
-            id="use-percentage-opacity"
-            checked={JSONsettingsConfig.usePercentageOpacity}
-            onChange={handleUsePercentageOpacity}
-          >
-            <Text>Use percentage for opacity</Text>
-          </Toggle>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <Stack hasLeftRightPadding>
-          <Toggle
-            id="use-dtcg-key"
-            checked={JSONsettingsConfig.useDTCGKeys}
-            onChange={handleDTCGKeys}
-          >
-            <Text>Use DTCG keys format</Text>
-          </Toggle>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <Stack hasLeftRightPadding>
-          <Toggle
-            id="include-value-alias-string"
-            checked={JSONsettingsConfig.includeValueStringKeyToAlias}
-            onChange={handleincludeValueStringKeyToAlias}
-          >
-            <Text>
-              Include <span className={styles.codeLine}>.value</span> string for
-              aliases
-            </Text>
-          </Toggle>
-        </Stack>
-      </Panel>
-
-      <Panel>
-        <Stack>
-          <Toggle
-            id="scope-feature"
-            checked={JSONsettingsConfig.includeFigmaMetaData}
-            onChange={(checked: boolean) => {
-              handleIncludeFigmaMetaDataChange(checked);
-            }}
-          >
-            <Text>Include figma metadata</Text>
-          </Toggle>
-        </Stack>
+        <PanelHeader
+          title="Advanced settings"
+          onClick={() => {
+            setCurrentView('advancedSettings');
+          }}
+          iconButtons={[
+            {
+              children: (
+                <Icon
+                  name="caret-right"
+                  size="16"
+                  customIcon={advancedSettingsIcon}
+                />
+              ),
+              onClick: () => {
+                setCurrentView('advancedSettings');
+              },
+            },
+          ]}
+        />
       </Panel>
 
       <Panel>
@@ -881,6 +773,16 @@ export const SettingsView = (props: ViewProps) => {
       return (
         <NewProfileView
           addProfile={addProfile}
+          setCurrentView={setCurrentView}
+        />
+      );
+    }
+
+    if (currentView === 'advancedSettings') {
+      return (
+        <AdvancedSettingsView
+          JSONsettingsConfig={JSONsettingsConfig}
+          setJSONsettingsConfig={setJSONsettingsConfig}
           setCurrentView={setCurrentView}
         />
       );
