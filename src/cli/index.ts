@@ -33,6 +33,7 @@ const defaultConfig: ExportSettingsI = {
   useDTCGKeys: true,
   usePercentageOpacity: false,
   splitByCollection: false,
+  splitByMode: false,
   omitCollectionNames: false,
 };
 
@@ -78,6 +79,13 @@ const argv = yargs(process.argv.slice(2))
     type: 'boolean',
     default: false,
   })
+  .option('split-by-mode', {
+    alias: 'm',
+    description:
+      'Write each mode as a separate .tokens.json file under its collection directory',
+    type: 'boolean',
+    default: false,
+  })
   .option('omit-collection-names', {
     description:
       'Omit collection names as top-level groups; merge all tokens into a single namespace',
@@ -105,6 +113,7 @@ const options: ExportSettingsI = {
   ...config,
   splitByCollection:
     (config as any).splitByCollection ?? argv['split-by-collection'],
+  splitByMode: (config as any).splitByMode ?? argv['split-by-mode'],
   omitCollectionNames:
     (config as any).omitCollectionNames ?? argv['omit-collection-names'],
 };
@@ -117,7 +126,29 @@ async function exportFigmaTokens() {
   );
   const tokens = await getTokens(resolver, options);
   try {
-    if (options.splitByCollection) {
+    if (options.splitByMode) {
+      // Keys are "CollectionName/ModeName" — write as {output}/{CollectionName}/{ModeName}.tokens.json
+      for (const key of Object.keys(tokens)) {
+        const slashIndex = key.indexOf('/');
+        let filePath: string;
+        let fileContent: Record<string, any>;
+        if (slashIndex !== -1) {
+          const collectionName = key.slice(0, slashIndex);
+          const modeName = key.slice(slashIndex + 1);
+          const safeCollection = collectionName.replace(/[/\\?%*:|"<>]/g, '-');
+          const safeMode = modeName.replace(/[/\\?%*:|"<>]/g, '-');
+          filePath = join(argv.output, safeCollection, `${safeMode}.tokens.json`);
+          fileContent = { [modeName]: tokens[key] };
+        } else {
+          const safeFileName = key.replace(/[/\\?%*:|"<>]/g, '-');
+          filePath = join(argv.output, `${safeFileName}.tokens.json`);
+          fileContent = { [key]: tokens[key] };
+        }
+        mkdirSync(dirname(filePath), { recursive: true });
+        writeFileSync(filePath, JSON.stringify(fileContent, null, 2), 'utf-8');
+        console.log('✨ Written', filePath);
+      }
+    } else if (options.splitByCollection) {
       mkdirSync(argv.output, { recursive: true });
       for (const collectionName of Object.keys(tokens)) {
         const safeFileName = collectionName.replace(/[/\\?%*:|"<>]/g, '-');

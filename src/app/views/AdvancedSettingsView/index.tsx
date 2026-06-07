@@ -36,6 +36,17 @@ export const AdvancedSettingsView = ({
       },
     },
     {
+      id: 'split-by-mode',
+      label: 'Split modes into separate files',
+      checked: JSONsettingsConfig.splitByMode,
+      onChange: (checked: boolean) => {
+        setJSONsettingsConfig({
+          ...JSONsettingsConfig,
+          splitByMode: checked,
+        });
+      },
+    },
+    {
       id: 'omit-collection-names',
       label: 'Omit collection names',
       checked: JSONsettingsConfig.omitCollectionNames,

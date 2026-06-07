@@ -26,6 +26,7 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
   includeFigmaMetaData: false,
   usePercentageOpacity: false,
   splitByCollection: false,
+  splitByMode: false,
   omitCollectionNames: false,
   servers: {
     jsonbin: {
@@ -87,6 +88,7 @@ const sanitizeProfileConfig = (
     },
     variableCollections: safeConfig.variableCollections || [],
     splitByCollection: safeConfig.splitByCollection ?? false,
+    splitByMode: safeConfig.splitByMode ?? false,
     omitCollectionNames: safeConfig.omitCollectionNames ?? false,
     servers: {
       ...defaults.servers,

@@ -16,9 +16,34 @@ const triggerDownload = (blob: Blob, fileName: string) => {
 
 export const downloadTokensFile = async (
   objectToSave: Record<string, any>,
-  splitByCollection = false
+  splitByCollection = false,
+  splitByMode = false
 ) => {
-  if (splitByCollection) {
+  if (splitByMode) {
+    // Keys are "CollectionName/ModeName" — write as {CollectionName}/{ModeName}.tokens.json
+    const zip = new JSZip();
+    for (const key of Object.keys(objectToSave)) {
+      const slashIndex = key.indexOf('/');
+      if (slashIndex !== -1) {
+        const collectionName = key.slice(0, slashIndex);
+        const modeName = key.slice(slashIndex + 1);
+        const safeCollection = collectionName.replace(/[/\\?%*:|"<>]/g, '-');
+        const safeMode = modeName.replace(/[/\\?%*:|"<>]/g, '-');
+        zip.file(
+          `${safeCollection}/${safeMode}.tokens.json`,
+          JSON.stringify({ [modeName]: objectToSave[key] }, null, 2)
+        );
+      } else {
+        const safeFileName = key.replace(/[/\\?%*:|"<>]/g, '-');
+        zip.file(
+          `${safeFileName}.tokens.json`,
+          JSON.stringify({ [key]: objectToSave[key] }, null, 2)
+        );
+      }
+    }
+    const blob = await zip.generateAsync({ type: 'blob' });
+    triggerDownload(blob, 'design.tokens.zip');
+  } else if (splitByCollection) {
     const zip = new JSZip();
     for (const collectionName of Object.keys(objectToSave)) {
       const safeFileName = collectionName.replace(/[/\\?%*:|"<>]/g, '-');
