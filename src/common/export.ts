@@ -30,18 +30,24 @@ const collectModeNames = (tokens: Record<string, any>): Set<string> => {
  * Recursively replace each token's $value with the value for the given mode.
  * Removes $extensions.mode from the output.
  */
-const applyModeToTokens = (tokens: Record<string, any>, modeName: string): Record<string, any> => {
+const applyModeToTokens = (
+  tokens: Record<string, any>,
+  modeName: string
+): Record<string, any> => {
   const result: Record<string, any> = {};
   for (const [key, value] of Object.entries(tokens)) {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       if ('$value' in value) {
         const modeValue = value.$extensions?.mode?.[modeName];
         const { mode: _mode, ...restExtensions } = value.$extensions || {};
-        const extensions = Object.keys(restExtensions).length > 0 ? restExtensions : undefined;
+        const extensions =
+          Object.keys(restExtensions).length > 0 ? restExtensions : undefined;
         result[key] = {
           ...value,
           $value: modeValue !== undefined ? modeValue : value.$value,
-          ...(extensions ? { $extensions: extensions } : { $extensions: undefined }),
+          ...(extensions
+            ? { $extensions: extensions }
+            : { $extensions: undefined }),
         };
         if (result[key].$extensions === undefined) {
           delete result[key].$extensions;

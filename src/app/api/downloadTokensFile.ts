@@ -31,7 +31,7 @@ export const downloadTokensFile = async (
         const safeMode = modeName.replace(/[/\\?%*:|"<>]/g, '-');
         zip.file(
           `${safeCollection}/${safeMode}.tokens.json`,
-          JSON.stringify({ [modeName]: objectToSave[key] }, null, 2)
+          JSON.stringify({ [collectionName]: objectToSave[key] }, null, 2)
         );
       } else {
         const safeFileName = key.replace(/[/\\?%*:|"<>]/g, '-');

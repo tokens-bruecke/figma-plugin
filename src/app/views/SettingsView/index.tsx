@@ -296,7 +296,11 @@ export const SettingsView = (props: ViewProps) => {
 
         if (role === 'download') {
           // console.log("tokens download", tokens);
-          downloadTokensFile(tokens, JSONsettingsConfig.splitByCollection, JSONsettingsConfig.splitByMode);
+          downloadTokensFile(
+            tokens,
+            JSONsettingsConfig.splitByCollection,
+            JSONsettingsConfig.splitByMode
+          );
         }
 
         if (role === 'push') {

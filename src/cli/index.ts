@@ -137,8 +137,12 @@ async function exportFigmaTokens() {
           const modeName = key.slice(slashIndex + 1);
           const safeCollection = collectionName.replace(/[/\\?%*:|"<>]/g, '-');
           const safeMode = modeName.replace(/[/\\?%*:|"<>]/g, '-');
-          filePath = join(argv.output, safeCollection, `${safeMode}.tokens.json`);
-          fileContent = { [modeName]: tokens[key] };
+          filePath = join(
+            argv.output,
+            safeCollection,
+            `${safeMode}.tokens.json`
+          );
+          fileContent = { [collectionName]: tokens[key] };
         } else {
           const safeFileName = key.replace(/[/\\?%*:|"<>]/g, '-');
           filePath = join(argv.output, `${safeFileName}.tokens.json`);
