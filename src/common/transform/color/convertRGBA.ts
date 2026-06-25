@@ -86,7 +86,7 @@ const hslaToCss = (hsla: any) => {
 };
 
 export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
-  const normalizedRGBA = normilizeRGBAColor(rgba);
+  const normalizedRGBA = normalizeRGBAColor(rgba);
 
   switch (colorFormat) {
     case 'hex':

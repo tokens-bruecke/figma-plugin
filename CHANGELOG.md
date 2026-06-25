@@ -1,50 +1,45 @@
 ## [2.16.1](https://github.com/tokens-bruecke/figma-plugin/compare/v16.0.1...v2.16.1) (2026-05-11)
+
 # Changelog
 
 ## [2.11.1](https://github.com/tokens-bruecke/figma-plugin/compare/v2.11.0...v2.11.1) (2026-03-28)
 
-
 ### Miscellaneous
 
-* bump version to 2.11.2 ([9983f6a](https://github.com/tokens-bruecke/figma-plugin/commit/9983f6a2939207c85f3f289aa44d38ae64a1f4d1))
+- bump version to 2.11.2 ([9983f6a](https://github.com/tokens-bruecke/figma-plugin/commit/9983f6a2939207c85f3f289aa44d38ae64a1f4d1))
 
 ## [2.11.0](https://github.com/tokens-bruecke/figma-plugin/compare/v2.10.0...v2.11.0) (2026-03-28)
 
-
 ### Features
 
-* split collections into separate files on export ([2e7fcff](https://github.com/tokens-bruecke/figma-plugin/commit/2e7fcffa1f65b37a42c1410f5e79a0403d340b5a)), closes [#17](https://github.com/tokens-bruecke/figma-plugin/issues/17)
-
+- split collections into separate files on export ([2e7fcff](https://github.com/tokens-bruecke/figma-plugin/commit/2e7fcffa1f65b37a42c1410f5e79a0403d340b5a)), closes [#17](https://github.com/tokens-bruecke/figma-plugin/issues/17)
 
 ### Miscellaneous
 
-* remove trailing whitespace in release.yml ([a3340cc](https://github.com/tokens-bruecke/figma-plugin/commit/a3340cc815a522dcc84f40ba40dd90395c45c647))
-* update README and bump version to 2.11.0 ([9b3a332](https://github.com/tokens-bruecke/figma-plugin/commit/9b3a3325dab53c1852ff2914f98ef587bdee791d))
+- remove trailing whitespace in release.yml ([a3340cc](https://github.com/tokens-bruecke/figma-plugin/commit/a3340cc815a522dcc84f40ba40dd90395c45c647))
+- update README and bump version to 2.11.0 ([9b3a332](https://github.com/tokens-bruecke/figma-plugin/commit/9b3a3325dab53c1852ff2914f98ef587bdee791d))
 
 ## [2.10.0](https://github.com/tokens-bruecke/figma-plugin/compare/v2.9.4...v2.10.0) (2026-03-28)
 
-
 ### Features
 
-* Add export/import docs and styles warning ([6446d2a](https://github.com/tokens-bruecke/figma-plugin/commit/6446d2ab117f6e5b9270588b886e6903505f36fe))
-* **cli:** add --oauth-token flag to support OAuth authentication ([ccbc16e](https://github.com/tokens-bruecke/figma-plugin/commit/ccbc16e931c653d4a1aa345902aada38c71a0af3))
-
+- Add export/import docs and styles warning ([6446d2a](https://github.com/tokens-bruecke/figma-plugin/commit/6446d2ab117f6e5b9270588b886e6903505f36fe))
+- **cli:** add --oauth-token flag to support OAuth authentication ([ccbc16e](https://github.com/tokens-bruecke/figma-plugin/commit/ccbc16e931c653d4a1aa345902aada38c71a0af3))
 
 ### Bug Fixes
 
-* import variables ([1d72235](https://github.com/tokens-bruecke/figma-plugin/commit/1d722358b5e714710df3546727fdaba41427c863))
-* **normilizeType:** return 'string' instead of 'dimension' for percentage opacity ([52085c6](https://github.com/tokens-bruecke/figma-plugin/commit/52085c63d50809f9a25a86c6fad9a26fbfd67427))
-
+- import variables ([1d72235](https://github.com/tokens-bruecke/figma-plugin/commit/1d722358b5e714710df3546727fdaba41427c863))
+- **normalizeType:** return 'string' instead of 'dimension' for percentage opacity ([52085c6](https://github.com/tokens-bruecke/figma-plugin/commit/52085c63d50809f9a25a86c6fad9a26fbfd67427))
 
 ### Miscellaneous
 
-* format CHANGELOG ([0e2e4b0](https://github.com/tokens-bruecke/figma-plugin/commit/0e2e4b0e2fe655451c36bdd7e54f2fffbfeb3a46))
+- format CHANGELOG ([0e2e4b0](https://github.com/tokens-bruecke/figma-plugin/commit/0e2e4b0e2fe655451c36bdd7e54f2fffbfeb3a46))
 
 ## [2.11.1](https://github.com/tokens-bruecke/figma-plugin/compare/v2.11.0...v2.11.1) (2026-03-28)
 
 ### Bug Fixes
 
-- **normilizeType:** return `string` instead of `dimension` for percentage opacity
+- **normalizeType:** return `string` instead of `dimension` for percentage opacity
 
 ## [2.11.0](https://github.com/tokens-bruecke/figma-plugin/compare/v2.10.0...v2.11.0) (2026-03-28)
 
