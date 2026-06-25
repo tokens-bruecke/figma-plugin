@@ -1,4 +1,4 @@
-export const normilizeRGBAColor = (rgba: {
+export const normalizeRGBAColor = (rgba: {
   r: number;
   g: number;
   b: number;

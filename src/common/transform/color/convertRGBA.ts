@@ -1,4 +1,4 @@
-import { normilizeRGBAColor } from './normilizeRGBAColor';
+import { normalizeRGBAColor } from './normalizeRGBAColor';
 
 type rgbaType = {
   r: number;
@@ -86,7 +86,7 @@ const hslaToCss = (hsla: any) => {
 };
 
 export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
-  const normalizedRGBA = normilizeRGBAColor(rgba);
+  const normalizedRGBA = normalizeRGBAColor(rgba);
 
   switch (colorFormat) {
     case 'hex':
