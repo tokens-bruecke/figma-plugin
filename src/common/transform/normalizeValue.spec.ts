@@ -22,4 +22,21 @@ describe('getFontStyleAndWeight', () => {
       )
     ).toBe('0.4px');
   });
+
+  test('Numeric font weight', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: 600,
+          variableType: 'FLOAT',
+          variableScope: ['FONT_WEIGHT'],
+          colorMode: 'hex',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toBe(600);
+  });
 });

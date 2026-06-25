@@ -1,5 +1,5 @@
 import { normalizeValue } from './normalizeValue';
-import { normilizeType } from './normilizeType';
+import { normalizeType } from './normalizeType';
 import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
@@ -102,7 +102,7 @@ export const variablesToTokens = async (
       Object.keys(modesValues).length === 1 ? {} : modesValues;
 
     const variableObject = {
-      [keyNames.type]: normilizeType(
+      [keyNames.type]: normalizeType(
         variable.resolvedType,
         variable.scopes,
         usePercentageOpacity
