@@ -1,4 +1,4 @@
-import { normilizeRGBAColor } from './normilizeRGBAColor';
+import { normalizeRGBAColor } from './normalizeRGBAColor';
 
 type rgbaType = {
   r: number;
