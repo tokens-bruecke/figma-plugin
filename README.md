@@ -29,6 +29,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Include `.value` string for aliases](#include-value-string-for-aliases)
     - [Include Figma metadata](#include-figma-metadata)
     - [Split collections into separate files](#split-collections-into-separate-files)
+    - [Split modes into separate files](#split-modes-into-separate-files)
     - [Omit collection names](#omit-collection-names)
   - [Use as cli tool](#use-as-cli-tool)
     - [Installation](#installation)
@@ -262,6 +263,35 @@ Is `off` by default. When enabled, each Figma variable collection is exported as
 
 This is useful when you want to keep component-level token files separate (e.g. `button.tokens.json`, `card.tokens.json`).
 
+### Split modes into separate files
+
+Is `off` by default. When enabled, each mode of a variable collection is exported as its own file. The top-level key in each file is the collection name, and every token's value is resolved for that mode.
+
+- **Download JSON** — produces a `design.tokens.zip` archive containing one `{CollectionName}/{ModeName}.tokens.json` per mode.
+- **CLI** — writes individual `{CollectionName}/{ModeName}.tokens.json` files into the directory specified by `--output`.
+
+Collections with a single mode are exported as a single `{CollectionName}.tokens.json` file.
+
+For example, a collection `color` with modes `light` and `dark` produces `color/light.tokens.json` and `color/dark.tokens.json`:
+
+```json
+// color/light.tokens.json
+{
+  "color": {
+    "primary": { "$type": "color", "$value": "#ffffff" }
+  }
+}
+
+// color/dark.tokens.json
+{
+  "color": {
+    "primary": { "$type": "color", "$value": "#000000" }
+  }
+}
+```
+
+This is useful for generating a [resolver.json](https://www.designtokens.org/tr/drafts/resolver/) file that references per-mode token files.
+
 ### Omit collection names
 
 Is `off` by default. When enabled, the plugin drops the top-level collection name from the output and merges all variables into a single flat namespace (variables are still grouped by the `/` separator in their names).
@@ -342,9 +372,10 @@ This will fetch figma variables and export them in `out/tokens.json`
 | `--api-key`               | `-a`  | Figma personal access token (PAT)                                               | One of `--api-key` or `--oauth-token` is required |
 | `--oauth-token`           | `-t`  | Figma OAuth token                                                               | One of `--api-key` or `--oauth-token` is required |
 | `--file-key`              | `-f`  | Figma file key                                                                  | Yes                                               |
-| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection`           | Yes                                               |
+| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode` | Yes                                   |
 | `--config`                | `-c`  | Path to configuration file                                                      | No                                                |
 | `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`           | No                                                |
+| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output` | No                                 |
 | `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace | No                                                |
 
 > [!TIP]
@@ -372,6 +403,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "colorMode": "hex", // "hex"  | "rgba-object"  | "rgba-css"  | "hsla-object"  | "hsla-css";
   "storeStyleInCollection": "none", // Name of one of your collection or "none" to keep them separated
   "splitByCollection": false, // Write each collection as a separate .tokens.json file
+  "splitByMode": false, // Write each mode as a separate .tokens.json file under its collection directory
   "omitCollectionNames": false // Drop top-level collection names and merge all variables into one flat namespace
 }
 ```
