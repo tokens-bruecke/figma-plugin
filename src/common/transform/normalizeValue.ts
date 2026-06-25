@@ -48,7 +48,7 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
 
   if (variableType === 'FLOAT') {
     if (variableScope.length === 1 && variableScope[0] === 'FONT_WEIGHT') {
-      return `${variableValue}`;
+      return Number(variableValue);
     } else if (variableScope.length === 1 && variableScope[0] === 'OPACITY') {
       if (usePercentageOpacity) {
         return `${variableValue}%`;
