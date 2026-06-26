@@ -1,4 +1,5 @@
 import { normalizeRGBAColor } from './normalizeRGBAColor';
+import { rgbToOKLCH } from './rgbToOKLCH';
 
 type rgbaType = {
   r: number;
@@ -85,6 +86,40 @@ const hslaToCss = (hsla: any) => {
   return `hsla(${h}, ${s}%, ${l}%, ${a})`;
 };
 
+const rgbaToDtcgSrgb = (rgba: rgbaType) => {
+  const { r, g, b, a } = rgba;
+
+  return {
+    colorSpace: 'srgb',
+    components: [r / 255, g / 255, b / 255],
+    alpha: a,
+    hex: rgbaToHexA(rgba),
+  };
+};
+
+const rgbaToDtcgHsl = (rgba: rgbaType) => {
+  const { h, s, l, a } = rgbaToHsla(rgba);
+
+  return {
+    colorSpace: 'hsl',
+    components: [h, s, l],
+    alpha: a,
+    hex: rgbaToHexA(rgba),
+  };
+};
+
+const rgbaToDtcgOklch = (rgba: rgbaType) => {
+  const { r, g, b, a } = rgba;
+  const { l, c, h } = rgbToOKLCH({ r, g, b });
+
+  return {
+    colorSpace: 'oklch',
+    components: [parseFloat(l.toPrecision(4)), parseFloat(c.toPrecision(4)), parseFloat(h.toPrecision(5))],
+    alpha: a,
+    hex: rgbaToHexA(rgba),
+  };
+};
+
 export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
   const normalizedRGBA = normalizeRGBAColor(rgba);
 
@@ -95,9 +130,15 @@ export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
       return rgbaToCss(normalizedRGBA);
     case 'rgba-object':
       return normalizedRGBA;
+    case 'srgb-dtcg-object':
+      return rgbaToDtcgSrgb(normalizedRGBA);
     case 'hsla-css':
       return hslaToCss(rgbaToHsla(normalizedRGBA));
     case 'hsla-object':
       return rgbaToHsla(normalizedRGBA);
+    case 'hsl-dtcg-object':
+      return rgbaToDtcgHsl(normalizedRGBA);
+    case 'oklch-dtcg-object':
+      return rgbaToDtcgOklch(normalizedRGBA);
   }
 };

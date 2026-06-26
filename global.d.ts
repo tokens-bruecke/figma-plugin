@@ -18,8 +18,11 @@ type colorModeType =
   | 'hex'
   | 'rgba-object'
   | 'rgba-css'
+  | 'srgb-dtcg-object'
   | 'hsla-object'
-  | 'hsla-css';
+  | 'hsla-css'
+  | 'hsl-dtcg-object'
+  | 'oklch-dtcg-object';
 
 type stylesType = 'text' | 'colors' | 'effects' | 'grids';
 

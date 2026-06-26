@@ -40,3 +40,161 @@ describe('getFontStyleAndWeight', () => {
     ).toBe(600);
   });
 });
+
+describe('getColor', () => {
+  test('RGBA to hex', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'hex',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toBe('#663399');
+  });
+
+  test('RGBA to RGBA CSS', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'rgba-css',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toBe('rgb(102, 51, 153)');
+  });
+
+  test('RGBA to RGBA object', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'rgba-object',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toStrictEqual({ r: 102, g: 51, b: 153, a: 1 });
+  });
+
+  test('RGBA to sRGB DTCG object', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'srgb-dtcg-object',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toStrictEqual({
+      alpha: 1,
+      colorSpace: 'srgb',
+      components: [0.4, 0.2, 0.6],
+      hex: '#663399',
+    });
+  });
+
+  test('RGBA to HSLA CSS', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'hsla-css',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toBe('hsla(270, 50%, 40%, 1)');
+  });
+
+  test('RGBA to HSLA object', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'hsla-object',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toStrictEqual({
+      h: 270,
+      l: 40,
+      s: 50,
+      a: 1,
+    });
+  });
+
+  test('RGBA to HSLA DTCG object', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'hsl-dtcg-object',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toStrictEqual({
+      alpha: 1,
+      colorSpace: 'hsl',
+      components: [270, 50, 40],
+      hex: '#663399',
+    });
+  });
+
+  test('RGBA to OKLCH DTCG object', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: { r: 0.4, g: 0.2, b: 0.6, a: 1 },
+          variableType: 'COLOR',
+          variableScope: ['ALL_SCOPES'],
+          colorMode: 'oklch-dtcg-object',
+          useDTCGKeys: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toStrictEqual({
+      alpha: 1,
+      colorSpace: 'oklch',
+      components: [0.4403, 0.1603, 303.37],
+      hex: '#663399',
+    });
+  });
+});
