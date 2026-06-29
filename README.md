@@ -804,12 +804,12 @@ Unlike design tokens, Figma variables now [support only 4 types](https://www.fig
 
 | Figma type | Scope condition          | Design Tokens type                                                                  |
 | ---------- | ------------------------ | ----------------------------------------------------------------------------------- |
-| COLOR      | —                        | [color](https://design-tokens.github.io/community-group/format/#color)              |
+| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)              |
 | BOOLEAN    | —                        | _boolean_ \*                                                                        |
-| FLOAT      | `FONT_WEIGHT` scope      | _string_ \*                                                                         |
+| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \*                                                                         |
 | FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                         |
 | FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                          |
-| FLOAT      | all other scopes         | [dimension](https://design-tokens.github.io/community-group/format/#dimension) \*\* |
+| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\* |
 | STRING     | —                        | _string_ \*                                                                         |
 
 \* native JSON types. The specification doesn't restrict the type of the value, so it could be any JSON type. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
@@ -826,9 +826,9 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 
 ## Scopes lemitations
 
-In order to convert `FONT-WEIGHT` and `OPACITY` types into valid values you should specify thme as scopes in the Figma variables. The plugin will read the first scope and convert it into the valid value. If there are multiple scopes, the plugin will take the first one.
+In order to convert `FONT-WEIGHT` and `OPACITY` types into valid values you should specify them as scopes in the Figma variables. The plugin will read the first scope and convert it into the valid value. If there are multiple scopes, the plugin will take the first one.
 
-- `FONT_WEIGHT` scope will be converted into `string` type.
+- `FONT_WEIGHT` scope will be converted into `fontWeight` type.
 - `OPACITY` scope will be converted into `number` type (or `string` with `%` if "Use percentage for opacity" is enabled).
 
 ---
