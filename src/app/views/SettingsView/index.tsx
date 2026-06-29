@@ -503,6 +503,10 @@ export const SettingsView = (props: ViewProps) => {
                     id: 'rgba-object',
                     label: 'RGBA Object',
                   },
+                  {
+                    id: 'srgb-dtcg',
+                    label: 'sRGB DTCG',
+                  },
                 ],
               },
               {
@@ -514,6 +518,18 @@ export const SettingsView = (props: ViewProps) => {
                   {
                     id: 'hsla-object',
                     label: 'HSLA Object',
+                  },
+                  {
+                    id: 'hsl-dtcg',
+                    label: 'HSL DTCG',
+                  },
+                ],
+              },
+              {
+                options: [
+                  {
+                    id: 'oklch-dtcg',
+                    label: 'OKLCH DTCG',
                   },
                 ],
               },
@@ -583,41 +599,41 @@ export const SettingsView = (props: ViewProps) => {
       {Object.keys(JSONsettingsConfig.includedStyles).some((styleId) => {
         return JSONsettingsConfig.includedStyles[styleId].isIncluded;
       }) && (
-        <Panel>
-          <Stack hasLeftRightPadding>
-            <Dropdown
-              label="Add styles to"
-              value={JSONsettingsConfig.storeStyleInCollection}
-              onChange={(value: string) => {
-                setJSONsettingsConfig({
-                  ...JSONsettingsConfig,
-                  storeStyleInCollection: value,
-                });
-              }}
-              optionsSections={[
-                {
-                  options: [
-                    {
-                      id: 'none',
-                      label: 'Keep separate',
-                    },
-                  ],
-                },
-                {
-                  options: JSONsettingsConfig.variableCollections.map(
-                    (collection) => {
-                      return {
-                        id: collection,
-                        label: collection,
-                      };
-                    }
-                  ),
-                },
-              ]}
-            />
-          </Stack>
-        </Panel>
-      )}
+          <Panel>
+            <Stack hasLeftRightPadding>
+              <Dropdown
+                label="Add styles to"
+                value={JSONsettingsConfig.storeStyleInCollection}
+                onChange={(value: string) => {
+                  setJSONsettingsConfig({
+                    ...JSONsettingsConfig,
+                    storeStyleInCollection: value,
+                  });
+                }}
+                optionsSections={[
+                  {
+                    options: [
+                      {
+                        id: 'none',
+                        label: 'Keep separate',
+                      },
+                    ],
+                  },
+                  {
+                    options: JSONsettingsConfig.variableCollections.map(
+                      (collection) => {
+                        return {
+                          id: collection,
+                          label: collection,
+                        };
+                      }
+                    ),
+                  },
+                ]}
+              />
+            </Stack>
+          </Panel>
+        )}
 
       <Panel>
         <PanelHeader
@@ -817,9 +833,8 @@ export const SettingsView = (props: ViewProps) => {
     <>
       <Toast ref={toastRef} />
       <Stack
-        className={`${styles.settingView} ${
-          isCodePreviewOpen ? styles.fitHighToFrame : ''
-        }`}
+        className={`${styles.settingView} ${isCodePreviewOpen ? styles.fitHighToFrame : ''
+          }`}
         hasLeftRightPadding={false}
       >
         <div className={styles.dynamicContent}>{selectRender()}</div>
