@@ -115,11 +115,11 @@ Allows you to choose the color mode for the generated JSON. Default value is `HE
 - `HEX` — HEX color format. Could be converted into `HEXA` if the color has an alpha channel.
 - `RGBA CSS` — RGBA color format in CSS syntax, e.g. `rgba(0, 0, 0, 0.5)`. When alpha is `1`, the output is `rgb(r, g, b)` (no alpha channel).
 - `RGBA Object` — RGBA color format in object syntax, e.g. `{ r: 0, g: 0, b: 0, a: 0.5 }`.
-- `sRGB DTCG Object` — sRGB color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#srgb)
+- `sRGB DTCG` — sRGB color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#srgb)
 - `HSLA CSS` — HSLA color format in CSS syntax, e.g. `hsla(0, 0%, 0%, 0.5)`.
 - `HSLA Object` — HSLA color format in object syntax, e.g. `{ h: 0, s: 0, l: 0, a: 0.5 }`.
-- `HSL DTCG Object` — HSL color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#hsl)
-- `OKLCH DTCG Object` — OKLCH color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#oklch)
+- `HSL DTCG` — HSL color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#hsl)
+- `OKLCH DTCG` — OKLCH color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#oklch)
 
 ### Include styles
 
@@ -403,7 +403,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "includeValueStringKeyToAlias": true,
   "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
   "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)
-  "colorMode": "hex", // "hex"  | "rgba-object"  | "srgb-dtcg-object" |  "rgba-css"  | "hsla-object" | "hsl-dtcg-object" | "hsla-css" | "oklch-dtcg-object";
+  "colorMode": "hex", // "hex"  | "rgba-object"  | "srgb-dtcg" |  "rgba-css"  | "hsla-object" | "hsl-dtcg" | "hsla-css" | "oklch-dtcg";
   "storeStyleInCollection": "none", // Name of one of your collection or "none" to keep them separated
   "splitByCollection": false, // Write each collection as a separate .tokens.json file
   "splitByMode": false, // Write each mode as a separate .tokens.json file under its collection directory

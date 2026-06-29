@@ -134,15 +134,15 @@ export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
       return rgbaToCss(normalizedRGBA);
     case 'rgba-object':
       return normalizedRGBA;
-    case 'srgb-dtcg-object':
+    case 'srgb-dtcg':
       return rgbaToDtcgSrgb(normalizedRGBA);
     case 'hsla-css':
       return hslaToCss(rgbaToHsla(normalizedRGBA));
     case 'hsla-object':
       return rgbaToHsla(normalizedRGBA);
-    case 'hsl-dtcg-object':
+    case 'hsl-dtcg':
       return rgbaToDtcgHsl(normalizedRGBA);
-    case 'oklch-dtcg-object':
+    case 'oklch-dtcg':
       return rgbaToDtcgOklch(normalizedRGBA);
     default:
       return rgbaToHexA(normalizedRGBA);

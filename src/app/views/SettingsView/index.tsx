@@ -504,8 +504,8 @@ export const SettingsView = (props: ViewProps) => {
                     label: 'RGBA Object',
                   },
                   {
-                    id: 'srgb-dtcg-object',
-                    label: 'sRGB DTCG Object',
+                    id: 'srgb-dtcg',
+                    label: 'sRGB DTCG',
                   },
                 ],
               },
@@ -520,16 +520,16 @@ export const SettingsView = (props: ViewProps) => {
                     label: 'HSLA Object',
                   },
                   {
-                    id: 'hsl-dtcg-object',
-                    label: 'HSL DTCG Object',
+                    id: 'hsl-dtcg',
+                    label: 'HSL DTCG',
                   },
                 ],
               },
               {
                 options: [
                   {
-                    id: 'oklch-dtcg-object',
-                    label: 'OKLCH DTCG Object',
+                    id: 'oklch-dtcg',
+                    label: 'OKLCH DTCG',
                   },
                 ],
               },
