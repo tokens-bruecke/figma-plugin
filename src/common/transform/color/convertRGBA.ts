@@ -114,7 +114,11 @@ const rgbaToDtcgOklch = (rgba: rgbaType) => {
 
   return {
     colorSpace: 'oklch',
-    components: [parseFloat(l.toPrecision(4)), parseFloat(c.toPrecision(4)), parseFloat(h.toPrecision(5))],
+    components: [
+      parseFloat(l.toPrecision(4)),
+      parseFloat(c.toPrecision(4)),
+      parseFloat(h.toPrecision(5)),
+    ],
     alpha: a,
     hex: rgbaToHexA(rgba),
   };
@@ -140,5 +144,7 @@ export const convertRGBA = (rgba: rgbaType, colorFormat: colorModeType) => {
       return rgbaToDtcgHsl(normalizedRGBA);
     case 'oklch-dtcg-object':
       return rgbaToDtcgOklch(normalizedRGBA);
+    default:
+      return rgbaToHexA(normalizedRGBA);
   }
 };

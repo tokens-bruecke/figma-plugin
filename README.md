@@ -370,16 +370,16 @@ This will fetch figma variables and export them in `out/tokens.json`
 
 ### Options
 
-| Option                    | Alias | Description                                                                     | Required                                          |
-| ------------------------- | ----- | ------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `--api-key`               | `-a`  | Figma personal access token (PAT)                                               | One of `--api-key` or `--oauth-token` is required |
-| `--oauth-token`           | `-t`  | Figma OAuth token                                                               | One of `--api-key` or `--oauth-token` is required |
-| `--file-key`              | `-f`  | Figma file key                                                                  | Yes                                               |
-| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode` | Yes                                   |
-| `--config`                | `-c`  | Path to configuration file                                                      | No                                                |
-| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`           | No                                                |
-| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output` | No                                 |
-| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace | No                                                |
+| Option                    | Alias | Description                                                                                    | Required                                          |
+| ------------------------- | ----- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                              | One of `--api-key` or `--oauth-token` is required |
+| `--oauth-token`           | `-t`  | Figma OAuth token                                                                              | One of `--api-key` or `--oauth-token` is required |
+| `--file-key`              | `-f`  | Figma file key                                                                                 | Yes                                               |
+| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`     | Yes                                               |
+| `--config`                | `-c`  | Path to configuration file                                                                     | No                                                |
+| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                          | No                                                |
+| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output` | No                                                |
+| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                | No                                                |
 
 > [!TIP]
 > For automated pipelines, `--oauth-token` is preferred over `--api-key`. Personal Access Tokens expire every 90 days and require manual renewal, while OAuth tokens support programmatic refresh for indefinite access.
@@ -403,7 +403,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "includeValueStringKeyToAlias": true,
   "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
   "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)
-  "colorMode": "hex", // "hex"  | "rgba-object"  | "rgba-dtcg-object" |  "rgba-css"  | "hsla-object" | "hsla-dtcg-object" | "hsla-css" | "oklch-dtcg-object";
+  "colorMode": "hex", // "hex"  | "rgba-object"  | "srgb-dtcg-object" |  "rgba-css"  | "hsla-object" | "hsl-dtcg-object" | "hsla-css" | "oklch-dtcg-object";
   "storeStyleInCollection": "none", // Name of one of your collection or "none" to keep them separated
   "splitByCollection": false, // Write each collection as a separate .tokens.json file
   "splitByMode": false, // Write each mode as a separate .tokens.json file under its collection directory
