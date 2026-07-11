@@ -2,6 +2,7 @@ import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNam
 import { convertRGBA } from '@common/transform/color/convertRGBA';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
+import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
 
 const wrapShadowObject = async (
@@ -30,10 +31,18 @@ const wrapShadowObject = async (
     inset: shadowEffect.type === 'INNER_SHADOW',
     color:
       (await getAlias('color')) || convertRGBA(shadowEffect.color, colorMode),
-    offsetX: (await getAlias('offsetX')) || `${shadowEffect.offset.x}px`,
-    offsetY: (await getAlias('offsetY')) || `${shadowEffect.offset.y}px`,
-    blur: (await getAlias('blur')) || `${shadowEffect.radius}px`,
-    spread: (await getAlias('spread')) || `${shadowEffect.spread}px`,
+    offsetX:
+      (await getAlias('offsetX')) ||
+      makeDimension(shadowEffect.offset.x, isDTCGForamt),
+    offsetY:
+      (await getAlias('offsetY')) ||
+      makeDimension(shadowEffect.offset.y, isDTCGForamt),
+    blur:
+      (await getAlias('blur')) ||
+      makeDimension(shadowEffect.radius, isDTCGForamt),
+    spread:
+      (await getAlias('spread')) ||
+      makeDimension(shadowEffect.spread, isDTCGForamt),
   };
 };
 
@@ -91,7 +100,7 @@ export const effectStylesToTokens = async (
         $type: 'blur',
         $value: {
           role: effectType === 'LAYER_BLUR' ? 'layer' : 'background',
-          blur: aliasVariable || `${effect.radius}px`,
+          blur: aliasVariable || makeDimension(effect.radius, isDTCGForamt),
         },
       } as BlurTokenI;
       allEffectStyles[styleName] = styleObject;

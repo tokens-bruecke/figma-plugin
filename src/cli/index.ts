@@ -30,7 +30,7 @@ const defaultConfig: ExportSettingsI = {
   includeScopes: false,
   includeValueStringKeyToAlias: false,
   includeFigmaMetaData: false,
-  useDTCGKeys: true,
+  useDTCG: true,
   usePercentageOpacity: false,
   splitByCollection: false,
   splitByMode: false,
@@ -111,6 +111,11 @@ if (argv.config) {
 const options: ExportSettingsI = {
   ...defaultConfig,
   ...config,
+  // Support legacy `useDTCGKeys` config files (deprecated alias)
+  useDTCG:
+    (config as any).useDTCG ??
+    (config as any).useDTCGKeys ??
+    defaultConfig.useDTCG,
   splitByCollection:
     (config as any).splitByCollection ?? argv['split-by-collection'],
   splitByMode: (config as any).splitByMode ?? argv['split-by-mode'],

@@ -5,6 +5,7 @@ import { getLetterSpacing } from '@common/transform/text/getLetterSpacing';
 import { getFontStyleAndWeight } from '@common/transform/text/getFontStyleAndWeight';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
+import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
 
 export const textStylesToTokens = async (
@@ -47,15 +48,25 @@ export const textStylesToTokens = async (
         fontFamily: aliasVariables.fontFamily || style.fontName.family,
         fontWeight: aliasVariables.fontWeight || fontStyleWeight.weight,
         fontStyle: aliasVariables.fontStyle || fontStyleWeight.style,
-        fontSize: aliasVariables.fontSize || `${style.fontSize}px`,
+        fontSize:
+          aliasVariables.fontSize ||
+          makeDimension(style.fontSize, isDTCGForamt),
         lineHeight:
-          aliasVariables.lineHeight || getLineHeight(style.lineHeight),
+          aliasVariables.lineHeight ||
+          getLineHeight(style.lineHeight, isDTCGForamt),
         letterSpacing:
-          aliasVariables.letterSpacing || getLetterSpacing(style.letterSpacing),
+          aliasVariables.letterSpacing ||
+          getLetterSpacing(style.letterSpacing, isDTCGForamt),
         paragraphSpacing:
-          aliasVariables.paragraphSpacing || `${style.paragraphSpacing}`,
+          aliasVariables.paragraphSpacing ||
+          (isDTCGForamt
+            ? makeDimension(style.paragraphSpacing, true)
+            : `${style.paragraphSpacing}`),
         paragraphIndent:
-          aliasVariables.paragraphIndent || `${style.paragraphIndent}`,
+          aliasVariables.paragraphIndent ||
+          (isDTCGForamt
+            ? makeDimension(style.paragraphIndent, true)
+            : `${style.paragraphIndent}`),
         textDecoration: style.textDecoration,
         textCase: style.textCase,
       },

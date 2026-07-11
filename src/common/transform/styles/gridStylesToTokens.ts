@@ -1,5 +1,6 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
+import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
 
 export const gridStylesToTokens = async (
@@ -26,20 +27,24 @@ export const gridStylesToTokens = async (
       [keyNames.value]: {
         columnCount: columnGrid?.count,
         columnGap: columnGrid?.gutterSize
-          ? `${columnGrid?.gutterSize}px`
+          ? makeDimension(columnGrid.gutterSize, isDTCGForamt)
           : undefined,
         columnWidth: columnGrid?.sectionSize
-          ? `${columnGrid?.sectionSize}px`
+          ? makeDimension(columnGrid.sectionSize, isDTCGForamt)
           : undefined,
         columnMargin: columnGrid?.offset
-          ? `${columnGrid?.offset}px`
+          ? makeDimension(columnGrid.offset, isDTCGForamt)
           : undefined,
         rowCount: rowGrid?.count,
-        rowGap: rowGrid?.gutterSize ? `${rowGrid?.gutterSize}px` : undefined,
-        rowHeight: rowGrid?.sectionSize
-          ? `${rowGrid?.sectionSize}px`
+        rowGap: rowGrid?.gutterSize
+          ? makeDimension(rowGrid.gutterSize, isDTCGForamt)
           : undefined,
-        rowMargin: rowGrid?.offset ? `${rowGrid?.offset}px` : undefined,
+        rowHeight: rowGrid?.sectionSize
+          ? makeDimension(rowGrid.sectionSize, isDTCGForamt)
+          : undefined,
+        rowMargin: rowGrid?.offset
+          ? makeDimension(rowGrid.offset, isDTCGForamt)
+          : undefined,
       },
     } as unknown as GridTokenI;
 

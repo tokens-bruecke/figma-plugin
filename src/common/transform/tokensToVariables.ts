@@ -25,7 +25,11 @@ const getTokenValue = (token: any): any => {
 };
 
 /**
- * Parses DTCG or standard token format to extract the type
+ * Parses DTCG or standard token format to extract the type.
+ * Tokens exported in strict DTCG format omit `$type` for string/boolean
+ * variables (not part of the DTCG type set) — for those, fall back to the
+ * original Figma type stored in `$extensions.figmaType`, or infer from the
+ * value's JS type.
  */
 const getTokenType = (token: any): string | null => {
   // DTCG format uses $type
@@ -35,6 +39,22 @@ const getTokenType = (token: any): string | null => {
   // Standard format uses type
   if (token.type !== undefined) {
     return token.type;
+  }
+  // Strict DTCG export: original Figma type preserved in $extensions
+  const figmaType = token.$extensions?.figmaType;
+  if (figmaType === 'STRING') {
+    return 'string';
+  }
+  if (figmaType === 'BOOLEAN') {
+    return 'boolean';
+  }
+  // Last resort: infer from the value itself
+  const value = getTokenValue(token);
+  if (typeof value === 'boolean') {
+    return 'boolean';
+  }
+  if (typeof value === 'string' && !value.startsWith('{')) {
+    return 'string';
   }
   return null;
 };
@@ -208,7 +228,15 @@ const convertTokenValueToFigmaValue = (
 
     case 'number':
     case 'dimension':
-      // Remove px, rem, etc. and convert to number
+      // DTCG 2025.10 dimension object: { value: 6, unit: "px" }
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        typeof value.value === 'number'
+      ) {
+        return value.value;
+      }
+      // Legacy string format: remove px, rem, etc. and convert to number
       if (typeof value === 'string') {
         return parseFloat(value.replace(/[a-z%]+$/i, ''));
       }

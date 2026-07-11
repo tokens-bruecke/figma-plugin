@@ -1,7 +1,12 @@
-export const getLineHeight = (lineHeight: LineHeight) => {
+import { makeDimension } from '@common/transform/makeDimension';
+
+export const getLineHeight = (
+  lineHeight: LineHeight,
+  isDTCGFormat: boolean = false
+) => {
   if (lineHeight.unit === 'PIXELS') {
     const roundedValue = Math.round(lineHeight.value);
-    return `${roundedValue}px`;
+    return makeDimension(roundedValue, isDTCGFormat);
   }
 
   if (lineHeight.unit === 'PERCENT') {

@@ -8,12 +8,8 @@ export const stylesToTokens = async (
   props: ExportSettingsI,
   resolver: IResolver
 ) => {
-  const {
-    includedStyles,
-    colorMode,
-    useDTCGKeys,
-    includeValueStringKeyToAlias,
-  } = props;
+  const { includedStyles, colorMode, useDTCG, includeValueStringKeyToAlias } =
+    props;
   let styleTokens: object[] = [];
 
   if (!includedStyles) {
@@ -24,7 +20,7 @@ export const stylesToTokens = async (
   if (includedStyles.text?.isIncluded) {
     const textTokens = await textStylesToTokens(
       includedStyles.text.customName,
-      useDTCGKeys,
+      useDTCG,
       includeValueStringKeyToAlias,
       resolver
     );
@@ -36,7 +32,7 @@ export const stylesToTokens = async (
   if (includedStyles.grids?.isIncluded) {
     const gridTokens = await gridStylesToTokens(
       includedStyles.grids.customName,
-      useDTCGKeys,
+      useDTCG,
       resolver
     );
 
@@ -48,7 +44,7 @@ export const stylesToTokens = async (
     const effectTokens = await effectStylesToTokens(
       includedStyles.effects.customName,
       colorMode,
-      useDTCGKeys,
+      useDTCG,
       includeValueStringKeyToAlias,
       resolver
     );
@@ -61,7 +57,7 @@ export const stylesToTokens = async (
     const colorTokens = await colorStylesToTokens(
       includedStyles.colors.customName,
       colorMode,
-      useDTCGKeys,
+      useDTCG,
       includeValueStringKeyToAlias,
       resolver
     );

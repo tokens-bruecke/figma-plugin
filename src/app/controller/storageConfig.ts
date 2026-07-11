@@ -21,7 +21,7 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
   storeStyleInCollection: 'none',
   colorMode: 'hex',
   includeScopes: false,
-  useDTCGKeys: true,
+  useDTCG: true,
   includeValueStringKeyToAlias: false,
   includeFigmaMetaData: false,
   usePercentageOpacity: false,
@@ -86,6 +86,11 @@ const sanitizeProfileConfig = (
       ...defaults.includedStyles,
       ...(safeConfig.includedStyles || {}),
     },
+    // Migrate legacy `useDTCGKeys` profiles to the new `useDTCG` flag
+    useDTCG:
+      safeConfig.useDTCG ??
+      (safeConfig as { useDTCGKeys?: boolean }).useDTCGKeys ??
+      defaults.useDTCG,
     variableCollections: safeConfig.variableCollections || [],
     splitByCollection: safeConfig.splitByCollection ?? false,
     splitByMode: safeConfig.splitByMode ?? false,

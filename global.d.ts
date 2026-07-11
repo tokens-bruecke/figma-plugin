@@ -91,7 +91,7 @@ interface CustomURLCredentialsI {
 interface ExportSettingsI {
   includedStyles: IncludedStylesI;
   includeScopes: boolean;
-  useDTCGKeys: boolean;
+  useDTCG: boolean;
   includeValueStringKeyToAlias: boolean;
   colorMode: colorModeType;
   storeStyleInCollection: string;
@@ -132,11 +132,14 @@ type MultiTenantConfigI = {
 
 interface PluginTokenI {
   $value: string;
-  $type: TokenType;
+  // Omitted in DTCG format for types outside the DTCG 2025.10 type set
+  // (string/boolean); the original Figma type is kept in $extensions.figmaType
+  $type?: TokenType;
   $description: string;
   scopes?: VariableScope[];
   $extensions: {
     mode: Object;
+    figmaType?: VariableResolvedDataType;
     figma?: {
       variableId: string;
       codeSyntax: {
@@ -170,7 +173,8 @@ interface TokensMessageI {
 }
 
 interface MetaPropsI {
-  useDTCGKeys: boolean;
+  useDTCG: boolean;
+  spec?: string;
   colorMode: colorModeType;
   variableCollections: string[] | undefined;
   createdAt: string;

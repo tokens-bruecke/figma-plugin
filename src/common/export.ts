@@ -62,11 +62,14 @@ const applyModeToTokens = (
   return result;
 };
 
+export const DTCG_SPEC_URL = 'https://www.designtokens.org/tr/2025.10/format/';
+
 const buildMeta = (
   config: ExportSettingsI,
   variableCollections: VariableCollection[]
 ): MetaPropsI => ({
-  useDTCGKeys: config.useDTCGKeys,
+  useDTCG: config.useDTCG,
+  ...(config.useDTCG && { spec: DTCG_SPEC_URL }),
   colorMode: config.colorMode,
   variableCollections: variableCollections.map((collection) => collection.name),
   createdAt: new Date().toISOString(),

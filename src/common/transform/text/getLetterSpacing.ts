@@ -1,6 +1,11 @@
-export const getLetterSpacing = (letterSpacing: LetterSpacing) => {
+import { makeDimension } from '@common/transform/makeDimension';
+
+export const getLetterSpacing = (
+  letterSpacing: LetterSpacing,
+  isDTCGFormat: boolean = false
+) => {
   if (letterSpacing.unit === 'PIXELS') {
-    return `${letterSpacing.value}px`;
+    return makeDimension(letterSpacing.value, isDTCGFormat);
   }
 
   if (letterSpacing.unit === 'PERCENT') {

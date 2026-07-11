@@ -1,5 +1,5 @@
 import { normalizeValue } from './normalizeValue';
-import { normalizeType } from './normalizeType';
+import { normalizeType, isNonSpecTokenType } from './normalizeType';
 import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
@@ -15,13 +15,13 @@ export const variablesToTokens = async (
 ) => {
   const {
     colorMode,
-    useDTCGKeys,
+    useDTCG,
     includeValueStringKeyToAlias,
     includeFigmaMetaData,
     usePercentageOpacity,
     omitCollectionNames = false,
   } = config;
-  const keyNames = getTokenKeyName(useDTCGKeys);
+  const keyNames = getTokenKeyName(useDTCG);
 
   // let mergedVariables = {};
   let emptyCollection = collections.map((collection) => {
@@ -66,7 +66,7 @@ export const variablesToTokens = async (
           variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
           variableScope: variable.scopes,
           colorMode,
-          useDTCGKeys,
+          useDTCG,
           includeValueStringKeyToAlias,
           usePercentageOpacity,
           omitCollectionNames,
@@ -101,12 +101,19 @@ export const variablesToTokens = async (
     const filteredModesValues =
       Object.keys(modesValues).length === 1 ? {} : modesValues;
 
+    const tokenType = normalizeType(
+      variable.resolvedType,
+      variable.scopes,
+      usePercentageOpacity
+    );
+
+    // DTCG 2025.10 defines a closed type set — `string`/`boolean` are not
+    // valid `$type` values. In DTCG format, omit `$type` for those tokens
+    // and preserve the original type under `$extensions`.
+    const omitType = useDTCG && isNonSpecTokenType(tokenType);
+
     const variableObject = {
-      [keyNames.type]: normalizeType(
-        variable.resolvedType,
-        variable.scopes,
-        usePercentageOpacity
-      ),
+      ...(!omitType && { [keyNames.type]: tokenType }),
       [keyNames.value]: defaultValue,
       [keyNames.description]: variable.description,
       // add scopes if true
@@ -116,6 +123,7 @@ export const variablesToTokens = async (
       // add meta
       $extensions: {
         mode: filteredModesValues,
+        ...(omitType && { figmaType: variable.resolvedType }),
         ...(includeFigmaMetaData && {
           figma: {
             codeSyntax: variable.codeSyntax,

@@ -28,3 +28,13 @@ export const normalizeType = (
       return 'string';
   }
 };
+
+/**
+ * Token types emitted by the plugin that are not part of the
+ * DTCG 2025.10 closed type set. When exporting in strict DTCG format,
+ * `$type` is omitted for these tokens and the original type is
+ * preserved in the token's `$extensions`.
+ */
+export const isNonSpecTokenType = (tokenType: string): boolean => {
+  return tokenType === 'string' || tokenType === 'boolean';
+};

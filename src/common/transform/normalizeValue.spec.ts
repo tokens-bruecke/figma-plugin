@@ -14,13 +14,30 @@ describe('getFontStyleAndWeight', () => {
           variableType: 'FLOAT',
           variableScope: [],
           colorMode: 'hex',
-          useDTCGKeys: false,
+          useDTCG: false,
           includeValueStringKeyToAlias: false,
           usePercentageOpacity: false,
         },
         resolver
       )
     ).toBe('0.4px');
+  });
+
+  test('Lossy float in DTCG format', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: 0.40000000200345043,
+          variableType: 'FLOAT',
+          variableScope: [],
+          colorMode: 'hex',
+          useDTCG: true,
+          includeValueStringKeyToAlias: false,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toStrictEqual({ value: 0.4, unit: 'px' });
   });
 
   test('Numeric font weight', async () => {
@@ -31,7 +48,7 @@ describe('getFontStyleAndWeight', () => {
           variableType: 'FLOAT',
           variableScope: ['FONT_WEIGHT'],
           colorMode: 'hex',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -50,7 +67,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'hex',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -67,7 +84,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'rgba-css',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -84,7 +101,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'rgba-object',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -101,7 +118,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'srgb-dtcg',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -123,7 +140,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'hsla-css',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -140,7 +157,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'hsla-object',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -162,7 +179,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'hsl-dtcg',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },
@@ -184,7 +201,7 @@ describe('getColor', () => {
           variableType: 'COLOR',
           variableScope: ['ALL_SCOPES'],
           colorMode: 'oklch-dtcg',
-          useDTCGKeys: true,
+          useDTCG: true,
           includeValueStringKeyToAlias: true,
           usePercentageOpacity: false,
         },

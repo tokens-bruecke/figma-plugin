@@ -2,13 +2,14 @@ import Decimal from 'decimal.js';
 import { IResolver } from '@common/resolver';
 import { convertRGBA } from './color/convertRGBA';
 import { getAliasVariableName } from './getAliasVariableName';
+import { makeDimension } from './makeDimension';
 
 interface PropsI {
   variableValue: any;
   variableType: VariableResolvedDataType;
   variableScope: VariableScope[];
   colorMode: colorModeType;
-  useDTCGKeys: boolean;
+  useDTCG: boolean;
   includeValueStringKeyToAlias: boolean;
   usePercentageOpacity: boolean;
   omitCollectionNames?: boolean;
@@ -20,7 +21,7 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
     variableType,
     variableScope,
     colorMode,
-    useDTCGKeys,
+    useDTCG,
     includeValueStringKeyToAlias,
     usePercentageOpacity,
     omitCollectionNames = false,
@@ -33,7 +34,7 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
 
     const aliasVariableName = await getAliasVariableName(
       variableValue.id,
-      useDTCGKeys,
+      useDTCG,
       includeValueStringKeyToAlias,
       resolver,
       omitCollectionNames
@@ -56,7 +57,10 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
         return Number(variableValue) / 100;
       }
     } else {
-      return `${new Decimal(variableValue).toDecimalPlaces(6).toNumber()}px`;
+      return makeDimension(
+        new Decimal(variableValue).toDecimalPlaces(6).toNumber(),
+        useDTCG
+      );
     }
   }
 

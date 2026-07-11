@@ -6,7 +6,7 @@
 
 ## What is this plugin for?
 
-The plugin converts Figma variables into design-tokens JSON that are compatible with the latest [Design Tokens specification](https://design-tokens.github.io/community-group/format/).
+The plugin converts Figma variables into design-tokens JSON that are compatible with the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/).
 
 ---
 
@@ -25,7 +25,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Add styles to](#add-styles-to)
     - [Include variable scopes](#include-variable-scopes)
     - [Use percentage for opacity](#use-percentage-for-opacity)
-    - [Use DTCG keys format](#use-dtcg-keys-format)
+    - [DTCG 2025.10 format](#dtcg-202510-format)
     - [Include `.value` string for aliases](#include-value-string-for-aliases)
     - [Include Figma metadata](#include-figma-metadata)
     - [Split collections into separate files](#split-collections-into-separate-files)
@@ -80,7 +80,7 @@ The plugin supports both **exporting** and **importing** design tokens:
 #### Export (Variables → JSON)
 
 - Click **"Download JSON"** to export your Figma variables as a design tokens JSON file
-- The exported file is compatible with the [Design Tokens specification](https://design-tokens.github.io/community-group/format/)
+- The exported file is compatible with the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/)
 - You can also push directly to supported services (JSONBin, GitHub, GitLab, etc.)
 - The exported tokens can be converted into CSS, JS, and other platform formats using tools like [Terrazzo](https://terrazzo.app/docs/) or [Style Dictionary](https://amzn.github.io/style-dictionary/)
 
@@ -173,31 +173,47 @@ Is `off` by default. When enabled, opacity values will be exported as percentage
 }
 ```
 
-### Use DTCG keys format
+### DTCG 2025.10 format
 
-Is `on` by default. All DTCG keys are prefixed with `$` symbol. Currently many design tokens tools support [DTCG keys format](https://design-tokens.github.io/community-group/format/#character-restrictions).
+Is `on` by default. Aligns the output with the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/):
+
+- All token keys are prefixed with the `$` symbol (`$value`, `$type`, `$description`).
+- Dimensions are exported as objects per [§8.2 Dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) — `{ "value": 6, "unit": "px" }` instead of `"6px"`. This also applies to sub-values in shadows, typography, and grids.
+- `$type` is omitted for Figma `STRING` and `BOOLEAN` variables, since those aren't part of the DTCG type set. The original Figma type is preserved under the token's `$extensions.figmaType`.
+- The root `$extensions["tokens-bruecke-meta"]` includes a `spec` field with the canonical spec URL, so downstream tools know which format to expect.
 
 ```json
-// Without DTCG keys format
+// Off — native Figma format
 {
   "button": {
     "background": {
       "type": "color",
       "value": "#000000"
+    },
+    "height": {
+      "type": "dimension",
+      "value": "32px"
     }
   }
 }
 
-// With DTCG keys format
+// On — DTCG 2025.10 format
 {
   "button": {
     "background": {
       "$type": "color",
-      "$value": "#000000",
+      "$value": "#000000"
+    },
+    "height": {
+      "$type": "dimension",
+      "$value": { "value": 32, "unit": "px" }
     }
   }
 }
 ```
+
+> [!NOTE]
+> Values that have no valid DTCG representation stay as strings even with this setting on: percentage-based `lineHeight`/`letterSpacing` (e.g. `"150%"`) and `"auto"` line height. `blur` and `grid` style tokens are exported with non-spec `$type` values as documented in [Styles support](#styles-support).
 
 ### Include `.value` string for aliases
 
@@ -399,7 +415,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
     "colors": { "isIncluded": false, "customName": "colors" }
   },
   "includeScopes": true,
-  "useDTCGKeys": true,
+  "useDTCG": true, // DTCG 2025.10 format: $-prefixed keys, dimension objects, spec-valid types
   "includeValueStringKeyToAlias": true,
   "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
   "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)
@@ -800,21 +816,21 @@ It follows the same pattern as used by [Cobalt](https://cobalt-ui.pages.dev/guid
 
 ## Variables types conversion
 
-Unlike design tokens, Figma variables now [support only 4 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT` and `STRING`. So, the plugin converts them into the corresponding types from the [Design Tokens specification](https://design-tokens.github.io/community-group/format/#types).
+Unlike design tokens, Figma variables now [support only 4 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT` and `STRING`. So, the plugin converts them into the corresponding types from the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/#types).
 
-| Figma type | Scope condition          | Design Tokens type                                                                  |
-| ---------- | ------------------------ | ----------------------------------------------------------------------------------- |
-| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)              |
-| BOOLEAN    | —                        | _boolean_ \*                                                                        |
-| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \*                                                                         |
-| FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                         |
-| FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                          |
-| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\* |
-| STRING     | —                        | _string_ \*                                                                         |
+| Figma type | Scope condition          | Design Tokens type                                                           |
+| ---------- | ------------------------ | ---------------------------------------------------------------------------- |
+| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)               |
+| BOOLEAN    | —                        | _boolean_ \*                                                                 |
+| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \* |
+| FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                  |
+| FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                   |
+| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*  |
+| STRING     | —                        | _string_ \*                                                                  |
 
-\* native JSON types. The specification doesn't restrict the type of the value, so it could be any JSON type. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
+\* native JSON types — not part of the closed DTCG 2025.10 type set. With the [DTCG 2025.10 format](#dtcg-202510-format) setting on, `$type` is omitted for `string`/`boolean` tokens and the original Figma type is preserved under `$extensions.figmaType`. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
 
-\*\* Figma currently supports only `FLOAT` for numeric values used as dimensions, which map to `px` units. The plugin appends `px` to produce a valid dimension token.
+\*\* Figma currently supports only `FLOAT` for numeric values used as dimensions, which map to `px` units. With the DTCG 2025.10 format on, dimensions are exported as `{ "value": 6, "unit": "px" }` objects; otherwise the plugin appends `px` to the number.
 
 ---
 

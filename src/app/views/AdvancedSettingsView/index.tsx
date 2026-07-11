@@ -80,17 +80,6 @@ export const AdvancedSettingsView = ({
       },
     },
     {
-      id: 'use-dtcg-keys',
-      label: 'Use DTCG keys format',
-      checked: JSONsettingsConfig.useDTCGKeys,
-      onChange: (checked: boolean) => {
-        setJSONsettingsConfig({
-          ...JSONsettingsConfig,
-          useDTCGKeys: checked,
-        });
-      },
-    },
-    {
       id: 'include-value-alias-string',
       label: (
         <>
