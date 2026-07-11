@@ -1,0 +1,103 @@
+.jsonViewer {
+  position: relative;
+  height: 100%;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 10;
+  padding: 4px;
+  border-radius: var(--border-radius-6);
+  background-color: var(--figma-color-bg);
+  border: 1px solid var(--figma-color-border);
+  // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+
+  input {
+    width: 120px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: Inter, sans-serif;
+    color: var(--figma-color-text);
+    background-color: transparent;
+    border: none;
+    outline: none;
+
+    &::placeholder {
+      color: var(--figma-color-text-tertiary);
+    }
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    color: var(--figma-color-icon);
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-4, 4px);
+    cursor: pointer;
+
+    svg {
+      fill: var(--figma-color-icon);
+    }
+
+    &:hover:not(:disabled) {
+      background-color: var(--figma-color-bg-hover);
+    }
+
+    &:disabled {
+      color: var(--figma-color-icon-disabled);
+      cursor: default;
+
+      svg {
+        fill: var(--figma-color-icon-disabled);
+      }
+    }
+  }
+}
+
+.matchCount {
+  font-size: 10px;
+  font-family: Inter, sans-serif;
+  color: var(--figma-color-text-secondary);
+  white-space: nowrap;
+  padding: 0 2px;
+  margin-right: 4px;
+}
+
+.editor {
+  height: 100%;
+
+  :global {
+    .cm-scroller {
+      // custom scrollbar
+      &::-webkit-scrollbar {
+        width: 13px;
+      }
+
+      // keep horizontal scrolling, but hide its scrollbar
+      &::-webkit-scrollbar:horizontal {
+        display: none;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        border: 4px solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 9999px;
+        background-color: var(--figma-color-icon-secondary);
+      }
+    }
+  }
+}

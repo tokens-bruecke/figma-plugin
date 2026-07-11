@@ -2,43 +2,9 @@
   overflow: hidden;
   position: relative;
   flex: 1;
-  overflow: auto;
   height: 100vh;
   background-color: var(--figma-color-bg-secondary);
   border-left: 1px solid var(--figma-color-border);
-  overflow-y: scroll;
-
-  pre {
-    overflow: auto;
-    margin: 0;
-    padding: 20px;
-    margin-bottom: 30px;
-
-    &::-webkit-scrollbar {
-      width: 0;
-      display: none;
-    }
-  }
-
-  code {
-    user-select: text;
-  }
-
-  // custom scrollbar
-  &::-webkit-scrollbar {
-    width: 13px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border: 4px solid rgba(0, 0, 0, 0);
-    background-clip: padding-box;
-    border-radius: 9999px;
-    background-color: var(--figma-color-icon-secondary);
-  }
 }
 
 .codePreviewOpen {
@@ -50,6 +16,7 @@
 }
 
 .previewToolbar {
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;

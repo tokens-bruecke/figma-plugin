@@ -1,6 +1,6 @@
 {
   "name": "tokens-bruecke",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -37,8 +37,15 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@codemirror/commands": "^6.10.4",
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/search": "^6.7.1",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.6",
     "@figma/plugin-typings": "^1.100.0",
     "@figma/rest-api-spec": "^0.25.0",
+    "@lezer/highlight": "^1.2.3",
     "@octokit/core": "^5.0.0",
     "@types/jszip": "^3.4.1",
     "@types/node": "^22.7.4",
@@ -57,7 +64,7 @@
     "react": "^18.2.0",
     "react-dev-utils": "^12.0.1",
     "react-dom": "^18.2.0",
-    "react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#54a31b8d0dea30b5995062d4bba49eef6941a4d2",
+    "react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#6f064d293de56d946628152afdd160ba88fa5128",
     "sass": "^1.57.1",
     "sass-loader": "^13.2.0",
     "style-loader": "^3.3.1",

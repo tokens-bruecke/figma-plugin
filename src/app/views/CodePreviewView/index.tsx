@@ -3,6 +3,7 @@ import React from 'react';
 import styles from './styles.module.scss';
 
 import { getTokensStat } from '@common/transform/getTokensStat';
+import { JsonViewer } from '@app/components/JsonViewer';
 
 import { Text, Icon } from 'react-figma-ui/ui';
 
@@ -92,9 +93,7 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
         </div>
       </section>
 
-      <pre>
-        <code>{JSON.stringify(generatedTokens, null, 2)}</code>
-      </pre>
+      <JsonViewer code={JSON.stringify(generatedTokens, null, 2)} />
     </section>
   );
 };
