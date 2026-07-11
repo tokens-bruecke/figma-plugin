@@ -23,6 +23,22 @@ export const variablesToTokens = async (
   } = config;
   const keyNames = getTokenKeyName(useDTCG);
 
+  // Sort variables to match the order shown in Figma's Variables panel.
+  // getLocalVariables() does not guarantee UI order; the authoritative
+  // order is each collection's `variableIds` array.
+  const variableOrder = new Map<string, number>();
+  let orderIndex = 0;
+  for (const collection of collections) {
+    for (const variableId of collection.variableIds ?? []) {
+      variableOrder.set(variableId, orderIndex++);
+    }
+  }
+  const sortedVariables = [...variables].sort(
+    (a, b) =>
+      (variableOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+      (variableOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER)
+  );
+
   // let mergedVariables = {};
   let emptyCollection = collections.map((collection) => {
     return {
@@ -37,7 +53,7 @@ export const variablesToTokens = async (
   // console.log("variables", variables);
   // console.log("collections", collections);
 
-  for (const variable of variables) {
+  for (const variable of sortedVariables) {
     // console.log("variable", variable);
     // get collection object
     const collectionId = variable.variableCollectionId;
