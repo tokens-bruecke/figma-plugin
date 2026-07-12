@@ -489,7 +489,15 @@ There is a possibilty to connect a custom server. In order to do that you need t
 
 ## Show output
 
-If you want to see the generated JSON, you can enable the `Show output` option. The plugin will show the JSON in the sidebar. The output doesn't update automatically, in order to optimize the performance. So, if you want to see the updated JSON, you need to click the `Update` button.
+If you want to see the generated JSON, you can enable the `Show output` option. The plugin will show the JSON in a code preview sidebar with:
+
+- Syntax highlighting that matches the Figma theme
+- Line numbers and code folding for collapsing groups
+- Search with match highlighting
+- A `Copy` button to copy the whole JSON to the clipboard
+- A stats bar showing the number of tokens, groups, lines, and the file size
+
+The output doesn't update automatically, in order to optimize the performance. So, if you want to see the updated JSON, you need to click the `Update` button.
 
 ![fig.10](readme-assets/fig10.webp)
 
