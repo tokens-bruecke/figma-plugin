@@ -1,4 +1,4 @@
-# TokensBrücke — Figma plugin
+# TokensBruecke — Figma plugin
 
 <a href="https://www.figma.com/community/plugin/1254538877056388290" target="_blank">
 <img src="./readme-assets/preview.webp" alt="preview" width="100%">
@@ -12,7 +12,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
 
 ## Table of contents
 
-- [TokensBrücke — Figma plugin](#tokensbrücke--figma-plugin)
+- [TokensBruecke — Figma plugin](#tokensbruecke--figma-plugin)
   - [What is this plugin for?](#what-is-this-plugin-for)
   - [Table of contents](#table-of-contents)
   - [How to use](#how-to-use)
