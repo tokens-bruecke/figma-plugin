@@ -31,7 +31,20 @@ const getTokenValue = (token: any): any => {
  * original Figma type stored in `$extensions.figmaType`, or infer from the
  * value's JS type.
  */
-const getTokenType = (token: any): string | null => {
+export const getTokenType = (token: any): string | null => {
+  // Opacity variables are exported as `number` (fraction) or `string` ("50%")
+  // depending on settings — the OPACITY scope identifies them reliably.
+  const scopes = getTokenScopes(token);
+  const declaredType = token.$type ?? token.type;
+  if (
+    scopes?.length === 1 &&
+    scopes[0] === 'OPACITY' &&
+    (declaredType === undefined ||
+      declaredType === 'number' ||
+      declaredType === 'string')
+  ) {
+    return 'opacity';
+  }
   // DTCG format uses $type
   if (token.$type !== undefined) {
     return token.$type;
@@ -47,6 +60,11 @@ const getTokenType = (token: any): string | null => {
   }
   if (figmaType === 'BOOLEAN') {
     return 'boolean';
+  }
+  // Strict DTCG export only stores figmaType for omitted $type — a FLOAT
+  // marker means a percentage-opacity string ("50%") was exported.
+  if (figmaType === 'FLOAT') {
+    return 'opacity';
   }
   // Last resort: infer from the value itself
   const value = getTokenValue(token);
@@ -179,7 +197,7 @@ const rgbaToRgb = (
 /**
  * Converts token value to Figma variable value based on type
  */
-const convertTokenValueToFigmaValue = (
+export const convertTokenValueToFigmaValue = (
   value: any,
   type: string,
   variableMap: Map<string, Variable>
@@ -192,8 +210,8 @@ const convertTokenValueToFigmaValue = (
   ) {
     // Extract the alias path
     const aliasPath = value.slice(1, -1);
-    // Remove .value suffix if present
-    const cleanPath = aliasPath.replace(/\.value$/, '');
+    // Remove .value / .$value suffix if present
+    const cleanPath = aliasPath.replace(/\.\$?value$/, '');
     // Convert dots to slashes for Figma variable name format
     const figmaPath = cleanPath.replace(/\./g, '/');
 
@@ -220,11 +238,54 @@ const convertTokenValueToFigmaValue = (
         } else if (value.startsWith('rgb')) {
           return rgbaToRgb(value);
         }
-      } else if (typeof value === 'object' && 'r' in value) {
-        // Already in RGB format
+      } else if (typeof value === 'object' && value !== null) {
+        // DTCG 2025.10 color object: { colorSpace, components, alpha, hex }
+        if ('colorSpace' in value) {
+          // Prefer the hex fallback (always emitted by the plugin's DTCG export)
+          if (typeof value.hex === 'string') {
+            return hexToRgb(value.hex);
+          }
+          // Otherwise use sRGB components directly (already 0-1)
+          if (value.colorSpace === 'srgb' && Array.isArray(value.components)) {
+            const [r, g, b] = value.components;
+            return { r, g, b, a: value.alpha ?? 1 };
+          }
+          throw new Error(
+            `Unsupported DTCG color space without hex fallback: ${value.colorSpace}`
+          );
+        }
+        if ('r' in value) {
+          // Already in RGB format
+          return value;
+        }
+      }
+      throw new Error(`Unsupported color format: ${JSON.stringify(value)}`);
+
+    case 'fontWeight':
+      // Figma font-weight variables can be numeric (400) or string ("Bold")
+      if (typeof value === 'number') {
         return value;
       }
-      throw new Error(`Unsupported color format: ${value}`);
+      if (typeof value === 'string') {
+        const numeric = Number(value);
+        return Number.isNaN(numeric) ? value : numeric;
+      }
+      return value;
+
+    case 'opacity': {
+      // Figma stores opacity as a 0-100 percent number.
+      // Exports produce either "50%" (percentage setting) or 0.5 (fraction).
+      if (typeof value === 'string' && value.trim().endsWith('%')) {
+        return parseFloat(value);
+      }
+      const numeric = typeof value === 'string' ? parseFloat(value) : value;
+      if (typeof numeric !== 'number' || Number.isNaN(numeric)) {
+        throw new Error(`Unsupported opacity value: ${JSON.stringify(value)}`);
+      }
+      // Fractions (0-1) are converted back to percent; values above 1 are
+      // assumed to already be percentages.
+      return numeric <= 1 ? numeric * 100 : numeric;
+    }
 
     case 'number':
     case 'dimension':
@@ -255,15 +316,25 @@ const convertTokenValueToFigmaValue = (
 };
 
 /**
- * Maps token type to Figma variable resolved type
+ * Maps token type to Figma variable resolved type.
+ * `fontWeight` (valid DTCG type) can be numeric (400) or string ("Bold")
+ * in Figma, so the value is used to disambiguate.
  */
-const mapTokenTypeToFigmaType = (
-  tokenType: string
+export const mapTokenTypeToFigmaType = (
+  tokenType: string,
+  value?: any
 ): VariableResolvedDataType => {
+  if (tokenType === 'fontWeight') {
+    return typeof value === 'string' && Number.isNaN(Number(value))
+      ? 'STRING'
+      : 'FLOAT';
+  }
+
   const typeMap: Record<string, VariableResolvedDataType> = {
     color: 'COLOR',
     number: 'FLOAT',
     dimension: 'FLOAT',
+    opacity: 'FLOAT',
     boolean: 'BOOLEAN',
     string: 'STRING',
   };
@@ -478,7 +549,10 @@ export const tokensToVariables = async (
 
             if (!variable && typeof figma !== 'undefined' && collection) {
               // Create new variable - pass collection object, not ID
-              const figmaType = mapTokenTypeToFigmaType(tokenType);
+              const figmaType = mapTokenTypeToFigmaType(
+                tokenType,
+                getTokenValue(token)
+              );
               variable = figma.variables.createVariable(
                 path,
                 collection,
@@ -608,7 +682,7 @@ export const tokensToVariables = async (
               // This is an unresolved alias
               const aliasPath = currentValue
                 .slice(1, -1)
-                .replace(/\.value$/, '');
+                .replace(/\.\$?value$/, '');
               // Convert dots to slashes for Figma variable name format
               const figmaPath = aliasPath.replace(/\./g, '/');
               const referencedVariable = variableMap.get(figmaPath);
