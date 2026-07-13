@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/tokens-bruecke/figma-plugin/main/schemas/cli-options.schema.json",
+  "title": "tokens-bruecke CLI configuration",
+  "description": "Configuration file for the tokens-bruecke CLI (passed via --config). All properties are optional; defaults are applied for missing keys. Explicit CLI flags override values from this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this JSON schema."
+    },
+    "includedStyles": {
+      "type": "object",
+      "description": "Which Figma styles to include in the export, and the token group name for each.",
+      "additionalProperties": false,
+      "properties": {
+        "text": { "$ref": "#/definitions/styleInclusion" },
+        "effects": { "$ref": "#/definitions/styleInclusion" },
+        "grids": { "$ref": "#/definitions/styleInclusion" },
+        "colors": { "$ref": "#/definitions/styleInclusion" }
+      }
+    },
+    "includeScopes": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include Figma variable scopes in token $extensions metadata."
+    },
+    "useDTCG": {
+      "type": "boolean",
+      "default": true,
+      "description": "Use DTCG format keys ($value, $type, $description). Set to false for legacy keys without the $ prefix."
+    },
+    "useDTCGKeys": {
+      "type": "boolean",
+      "description": "DEPRECATED alias for useDTCG. Use useDTCG instead.",
+      "deprecated": true
+    },
+    "includeValueStringKeyToAlias": {
+      "type": "boolean",
+      "default": false,
+      "description": "Add a valueString key with the resolved value next to alias tokens."
+    },
+    "colorMode": {
+      "type": "string",
+      "enum": [
+        "hex",
+        "rgba-object",
+        "rgba-css",
+        "srgb-dtcg",
+        "hsla-object",
+        "hsla-css",
+        "hsl-dtcg",
+        "oklch-dtcg"
+      ],
+      "default": "hex",
+      "description": "Output format for color token values."
+    },
+    "storeStyleInCollection": {
+      "type": "string",
+      "default": "none",
+      "description": "Name of the variable collection to nest exported styles under, or \"none\" to keep styles as top-level groups."
+    },
+    "includeFigmaMetaData": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include Figma-specific metadata (variable ids, collection ids) in $extensions[\"tokens-bruecke-meta\"]."
+    },
+    "usePercentageOpacity": {
+      "type": "boolean",
+      "default": false,
+      "description": "Express opacity values as percentages instead of 0-1 numbers."
+    },
+    "splitByCollection": {
+      "type": "boolean",
+      "default": false,
+      "description": "Write each collection as a separate {Collection}.tokens.json file in the output directory. Overridden by the --split-by-collection CLI flag."
+    },
+    "splitByMode": {
+      "type": "boolean",
+      "default": false,
+      "description": "Write each mode as a separate {Collection}/{Mode}.tokens.json file. Overridden by the --split-by-mode CLI flag."
+    },
+    "omitCollectionNames": {
+      "type": "boolean",
+      "default": false,
+      "description": "Omit collection names as top-level groups; merge all tokens into a single namespace. Overridden by the --omit-collection-names CLI flag."
+    }
+  },
+  "definitions": {
+    "styleInclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isIncluded"],
+      "properties": {
+        "isIncluded": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to include this style type in the export."
+        },
+        "customName": {
+          "type": "string",
+          "description": "Token group name used for this style type in the output."
+        }
+      }
+    }
+  }
+}

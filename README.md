@@ -36,6 +36,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Usage](#usage)
     - [Options](#options)
     - [CLI Configuration File](#cli-configuration-file)
+    - [For AI agents](#for-ai-agents)
   - [Push to server](#push-to-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
@@ -386,16 +387,26 @@ This will fetch figma variables and export them in `out/tokens.json`
 
 ### Options
 
-| Option                    | Alias | Description                                                                                    | Required                                          |
-| ------------------------- | ----- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                              | One of `--api-key` or `--oauth-token` is required |
-| `--oauth-token`           | `-t`  | Figma OAuth token                                                                              | One of `--api-key` or `--oauth-token` is required |
-| `--file-key`              | `-f`  | Figma file key                                                                                 | Yes                                               |
-| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`     | Yes                                               |
-| `--config`                | `-c`  | Path to configuration file                                                                     | No                                                |
-| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                          | No                                                |
-| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output` | No                                                |
-| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                | No                                                |
+| Option                    | Alias | Description                                                                                                | Required                                          |
+| ------------------------- | ----- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                                          | One of `--api-key` or `--oauth-token` is required |
+| `--oauth-token`           | `-t`  | Figma OAuth token                                                                                          | One of `--api-key` or `--oauth-token` is required |
+| `--file-key`              | `-f`  | Figma file key                                                                                             | Yes                                               |
+| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`                 | Yes, unless `--stdout` is used                    |
+| `--stdout`                |       | Print tokens JSON to stdout instead of writing a file (mutually exclusive with `--output` and split flags) | No                                                |
+| `--config`                | `-c`  | Path to configuration file                                                                                 | No                                                |
+| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                      | No                                                |
+| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`             | No                                                |
+| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                            | No                                                |
+| `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                          | No                                                |
+| `--help`                  | `-h`  | Show usage help                                                                                            | No                                                |
+| `--version`               |       | Show the CLI version                                                                                       | No                                                |
+
+Progress logs are printed to **stderr**, so stdout stays clean for piping:
+
+```bash
+tokens-bruecke -a $FIGMA_TOKEN -f $FIGMA_FILE --stdout --quiet | jq .
+```
 
 > [!TIP]
 > For automated pipelines, `--oauth-token` is preferred over `--api-key`. Personal Access Tokens expire every 90 days and require manual renewal, while OAuth tokens support programmatic refresh for indefinite access.
@@ -427,7 +438,20 @@ You can use a JSON configuration file to specify the export options for the CLI.
 }
 ```
 
-Save this JSON file and pass it to the CLI using the `--config` option:
+Save this JSON file and pass it to the CLI using the `--config` option. A JSON schema with all options, types and defaults is available at [schemas/cli-options.schema.json](schemas/cli-options.schema.json) — reference it via a `$schema` key for editor validation and autocompletion (see [examples/cli-options.json](examples/cli-options.json)).
+
+> [!NOTE]
+> Explicit CLI flags (e.g. `--split-by-collection`) override values from the config file, which override the defaults.
+
+### For AI agents
+
+This repository and the npm package ship agent-friendly docs:
+
+- [llms.txt](llms.txt) — entry point for LLM-based tools
+- [skills/tokens-bruecke/SKILL.md](skills/tokens-bruecke/SKILL.md) — an [agent skill](https://code.visualstudio.com/docs/copilot/customization/agent-skills) covering CLI usage, auth, config and exit codes; copy the `skills/tokens-bruecke` folder into your project's skills directory to teach your agent the CLI
+- [schemas/cli-options.schema.json](schemas/cli-options.schema.json) — machine-readable config schema
+
+For scripted/agent usage prefer `--stdout --quiet` (pure JSON on stdout, logs on stderr) and pass tokens via environment variables.
 
 ---
 

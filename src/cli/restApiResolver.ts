@@ -7,6 +7,7 @@ type LocalVariableCollection = {
 };
 import { IResolver } from '@common/resolver';
 import { Api } from 'figma-api';
+import { log } from './logger';
 
 export class RestAPIResolver implements IResolver {
   private fileKey: string;
@@ -38,7 +39,7 @@ export class RestAPIResolver implements IResolver {
   async fetchLocalVariables(): Promise<void> {
     if (!this.variables) {
       if (!this.fetchLocalVariablesPromise) {
-        console.log('⌛ Fetching local variables');
+        log('⌛ Fetching local variables');
         this.fetchLocalVariablesPromise = this.api
           .getLocalVariables({ file_key: this.fileKey })
           .then((response) => {
@@ -55,7 +56,7 @@ export class RestAPIResolver implements IResolver {
                   !collection.remote && !collection.hiddenFromPublishing
               )
             ) as Record<string, VariableCollection>;
-            console.log(
+            log(
               '✅ Found %d local variables in %d collections',
               Object.keys(this.variables).length,
               Object.keys(this.variableCollections).length
@@ -72,7 +73,7 @@ export class RestAPIResolver implements IResolver {
   async fetchFileStyles(): Promise<void> {
     if (this.styles.length === 0) {
       // Fetch file styles only if they are not already fetched
-      console.log('⌛ Fetching file styles');
+      log('⌛ Fetching file styles');
       const styles = await this.api.getFileStyles({
         file_key: this.fileKey,
       });
@@ -82,7 +83,7 @@ export class RestAPIResolver implements IResolver {
 
   async getLocalEffectStyles(): Promise<EffectStyle[]> {
     await this.fetchFileStyles();
-    console.log('⌛ Fetching text styles');
+    log('⌛ Fetching effect styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'EFFECT')
       .map((style) => style.node_id);
@@ -93,7 +94,7 @@ export class RestAPIResolver implements IResolver {
     const effectStyles = Object.values(r.nodes)
       .map((node) => node.document as unknown as RectangleNode)
       .map(this.rectangleNodeToEffectStyle);
-    console.log('✅ Found %d effect styles', effectStyles.length);
+    log('✅ Found %d effect styles', effectStyles.length);
     return effectStyles;
   }
 
@@ -109,7 +110,7 @@ export class RestAPIResolver implements IResolver {
 
   async getLocalGridStyles(): Promise<GridStyle[]> {
     await this.fetchFileStyles();
-    console.log('⌛ Fetching grid styles');
+    log('⌛ Fetching grid styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'GRID')
       .map((style) => style.node_id);
@@ -120,13 +121,13 @@ export class RestAPIResolver implements IResolver {
     const gridStyles = Object.values(r.nodes)
       .map((node) => node.document as unknown as FrameNode)
       .map(this.frameNodeToGrid);
-    console.log('✅ Found %d grid styles', gridStyles.length);
+    log('✅ Found %d grid styles', gridStyles.length);
     return gridStyles;
   }
 
   async getLocalTextStyles(): Promise<TextStyle[]> {
     await this.fetchFileStyles();
-    console.log('⌛ Fetching text styles');
+    log('⌛ Fetching text styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'TEXT')
       .map((style) => style.node_id);
@@ -137,13 +138,13 @@ export class RestAPIResolver implements IResolver {
     const textStyles = Object.values(r.nodes)
       .map((node) => node.document as TextNode)
       .map(this.textNodeToStyle);
-    console.log('✅ Found %d text styles', textStyles.length);
+    log('✅ Found %d text styles', textStyles.length);
     return textStyles;
   }
 
   async getLocalPaintStyles(): Promise<PaintStyle[]> {
     await this.fetchFileStyles();
-    console.log('⌛ Fetching paint styles');
+    log('⌛ Fetching paint styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'FILL')
       .map((style) => style.node_id);
@@ -154,7 +155,7 @@ export class RestAPIResolver implements IResolver {
     const paintStyles = Object.values(r.nodes)
       .map((node) => node.document as unknown as RectangleNode)
       .map(this.rectangleNodeToPaint);
-    console.log('✅ Found %d paint styles', paintStyles.length);
+    log('✅ Found %d paint styles', paintStyles.length);
     return paintStyles;
   }
 

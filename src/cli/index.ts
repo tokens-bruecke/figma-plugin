@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { RestAPIResolver } from './restApiResolver';
 import { getTokens } from '@common/export';
+import { log, setQuiet } from './logger';
 
 const defaultConfig: ExportSettingsI = {
   includedStyles: {
@@ -70,31 +71,55 @@ const argv = yargs(process.argv.slice(2))
     description:
       'Path to output file or directory (when --split-by-collection)',
     type: 'string',
-    demandOption: true,
+  })
+  .option('stdout', {
+    description:
+      'Print tokens JSON to stdout instead of writing a file (progress logs go to stderr)',
+    type: 'boolean',
+    default: false,
   })
   .option('split-by-collection', {
     alias: 's',
     description:
       'Write each collection as a separate .tokens.json file in the output directory',
     type: 'boolean',
-    default: false,
   })
   .option('split-by-mode', {
     alias: 'm',
     description:
       'Write each mode as a separate .tokens.json file under its collection directory',
     type: 'boolean',
-    default: false,
   })
   .option('omit-collection-names', {
     description:
       'Omit collection names as top-level groups; merge all tokens into a single namespace',
     type: 'boolean',
+  })
+  .option('quiet', {
+    alias: 'q',
+    description: 'Suppress progress logs (errors are still printed)',
+    type: 'boolean',
     default: false,
+  })
+  .check((args) => {
+    if (!args.stdout && !args.output) {
+      throw new Error('Either --output or --stdout must be provided');
+    }
+    if (args.stdout && args.output) {
+      throw new Error('--output and --stdout are mutually exclusive');
+    }
+    if (args.stdout && (args['split-by-collection'] || args['split-by-mode'])) {
+      throw new Error(
+        '--stdout cannot be combined with --split-by-collection or --split-by-mode (splits produce multiple files)'
+      );
+    }
+    return true;
   })
   .help()
   .alias('help', 'h')
   .parseSync();
+
+setQuiet(argv.quiet);
 
 let config = {};
 
@@ -116,11 +141,19 @@ const options: ExportSettingsI = {
     (config as any).useDTCG ??
     (config as any).useDTCGKeys ??
     defaultConfig.useDTCG,
+  // Explicit CLI flags override the config file, which overrides defaults
   splitByCollection:
-    (config as any).splitByCollection ?? argv['split-by-collection'],
-  splitByMode: (config as any).splitByMode ?? argv['split-by-mode'],
+    argv['split-by-collection'] ??
+    (config as any).splitByCollection ??
+    defaultConfig.splitByCollection,
+  splitByMode:
+    argv['split-by-mode'] ??
+    (config as any).splitByMode ??
+    defaultConfig.splitByMode,
   omitCollectionNames:
-    (config as any).omitCollectionNames ?? argv['omit-collection-names'],
+    argv['omit-collection-names'] ??
+    (config as any).omitCollectionNames ??
+    defaultConfig.omitCollectionNames,
 };
 
 async function exportFigmaTokens() {
@@ -129,7 +162,31 @@ async function exportFigmaTokens() {
     argv.apiKey,
     argv.oauthToken
   );
-  const tokens = await getTokens(resolver, options);
+
+  let tokens: Record<string, any>;
+  try {
+    tokens = await getTokens(resolver, options);
+  } catch (error: any) {
+    const message = error?.message ?? String(error);
+    console.error('🔴 Error fetching tokens from Figma:', message);
+    if (/403|forbidden/i.test(message)) {
+      console.error(
+        'ℹ️  The Figma Variables REST API requires a Figma Enterprise plan and a token with the file_variables:read scope.'
+      );
+    }
+    if (/404|not found/i.test(message)) {
+      console.error(
+        'ℹ️  Check that the --file-key is correct and the token has access to the file.'
+      );
+    }
+    process.exit(1);
+  }
+
+  if (argv.stdout) {
+    process.stdout.write(JSON.stringify(tokens, null, 2) + '\n');
+    return;
+  }
+
   try {
     if (options.splitByMode) {
       // Keys are "CollectionName/ModeName" — write as {output}/{CollectionName}/{ModeName}.tokens.json
@@ -155,7 +212,7 @@ async function exportFigmaTokens() {
         }
         mkdirSync(dirname(filePath), { recursive: true });
         writeFileSync(filePath, JSON.stringify(fileContent, null, 2), 'utf-8');
-        console.log('✨ Written', filePath);
+        log('✨ Written', filePath);
       }
     } else if (options.splitByCollection) {
       mkdirSync(argv.output, { recursive: true });
@@ -167,12 +224,12 @@ async function exportFigmaTokens() {
           JSON.stringify({ [collectionName]: tokens[collectionName] }, null, 2),
           'utf-8'
         );
-        console.log('✨ Written', filePath);
+        log('✨ Written', filePath);
       }
     } else {
       mkdirSync(dirname(argv.output), { recursive: true });
       writeFileSync(argv.output, JSON.stringify(tokens, null, 2), 'utf-8');
-      console.log('✨ Tokens successfully written to', argv.output);
+      log('✨ Tokens successfully written to', argv.output);
     }
   } catch (error) {
     console.error('🔴 Error writing to output file:', error);

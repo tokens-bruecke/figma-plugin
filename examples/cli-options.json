@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/tokens-bruecke/figma-plugin/main/schemas/cli-options.schema.json",
   "includedStyles": {
     "text": {
       "isIncluded": true,
