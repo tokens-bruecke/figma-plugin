@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'production', // Use production mode for optimized output
@@ -39,4 +40,12 @@ module.exports = {
     react: 'commonjs react',
     'react-dom': 'commonjs react-dom',
   },
+  plugins: [
+    // Webpack strips the shebang from src/cli.ts; re-add it so the npm bin is executable
+    new webpack.BannerPlugin({
+      banner: '#!/usr/bin/env node',
+      raw: true,
+      entryOnly: true,
+    }),
+  ],
 };
