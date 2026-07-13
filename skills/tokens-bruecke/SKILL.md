@@ -10,18 +10,21 @@ Exports Figma variables (and optionally text/color/effect/grid styles) as [DTCG]
 ## Requirements
 
 - **Figma Enterprise plan** — the Figma Variables REST API is Enterprise-only. A `403` error usually means the plan or token scope is insufficient.
-- Auth: a Figma **personal access token** (`--api-key`, needs `file_variables:read` scope) or an **OAuth token** (`--oauth-token`). Provide exactly one; OAuth wins if both are given. Prefer OAuth for pipelines (PATs expire after 90 days).
-- Never hardcode tokens; pass them from environment variables, e.g. `--api-key "$FIGMA_TOKEN"`.
+- Auth: a Figma **personal access token** (`--api-key` / `FIGMA_API_KEY`, needs `file_variables:read` scope) or an **OAuth token** (`--oauth-token` / `FIGMA_OAUTH_TOKEN`). Provide exactly one; OAuth wins if both are given. Prefer OAuth for pipelines (PATs expire after 90 days).
+- Never hardcode tokens; prefer env vars — they are picked up automatically (see below).
 
 ## Quick start
 
 ```bash
-# No install needed:
-npx tokens-bruecke --api-key "$FIGMA_TOKEN" --file-key <FILE_KEY> --output tokens.json
+# Auth via env var, no install needed:
+export FIGMA_API_KEY=<your-token>
+npx tokens-bruecke --file-key <FILE_KEY> --output tokens.json
 
 # Print JSON to stdout instead (progress logs go to stderr):
-npx tokens-bruecke -a "$FIGMA_TOKEN" -f <FILE_KEY> --stdout --quiet | jq .
+npx tokens-bruecke -f <FILE_KEY> --stdout --quiet | jq .
 ```
+
+All flags can be set via `FIGMA_`-prefixed env vars: `FIGMA_API_KEY`, `FIGMA_OAUTH_TOKEN`, `FIGMA_FILE_KEY`, `FIGMA_OUTPUT`, etc. Explicit flags override env vars.
 
 The file key is the segment after `figma.com/design/` in a Figma file URL.
 
@@ -41,7 +44,7 @@ The file key is the segment after `figma.com/design/` in a Figma file URL.
 | `--quiet`                 | `-q`  | Suppress progress logs (errors still printed to stderr)                         |
 | `--help` / `--version`    | `-h`  | Usage / version                                                                 |
 
-Precedence: explicit CLI flags > config file > defaults.
+Precedence: explicit CLI flags > `FIGMA_*` env vars > config file > defaults.
 
 ## Config file
 

@@ -39,25 +39,30 @@ const defaultConfig: ExportSettingsI = {
 };
 
 const argv = yargs(process.argv.slice(2))
+  // Read FIGMA_-prefixed env vars: FIGMA_API_KEY, FIGMA_OAUTH_TOKEN, FIGMA_FILE_KEY, ...
+  // Explicit CLI flags take precedence over env vars
+  .env('FIGMA')
   .option('api-key', {
     alias: 'a',
-    description: 'Figma personal access token (PAT)',
+    description: 'Figma personal access token (PAT) [env: FIGMA_API_KEY]',
     type: 'string',
   })
   .option('oauth-token', {
     alias: 't',
-    description: 'Figma OAuth token',
+    description: 'Figma OAuth token [env: FIGMA_OAUTH_TOKEN]',
     type: 'string',
   })
   .check((args) => {
     if (!args['api-key'] && !args['oauth-token']) {
-      throw new Error('Either --api-key or --oauth-token must be provided');
+      throw new Error(
+        'Either --api-key or --oauth-token must be provided (or set FIGMA_API_KEY / FIGMA_OAUTH_TOKEN)'
+      );
     }
     return true;
   })
   .option('file-key', {
     alias: 'f',
-    description: 'Figma file key',
+    description: 'Figma file key [env: FIGMA_FILE_KEY]',
     type: 'string',
     demandOption: true,
   })
@@ -117,6 +122,17 @@ const argv = yargs(process.argv.slice(2))
   })
   .help()
   .alias('help', 'h')
+  .epilogue(
+    [
+      'Environment variables: options can be set via FIGMA_-prefixed env vars',
+      '(e.g. FIGMA_API_KEY, FIGMA_OAUTH_TOKEN, FIGMA_FILE_KEY). Explicit flags win.',
+      '',
+      'Docs & machine-readable references (also shipped in the npm package):',
+      '  Config schema:  schemas/cli-options.schema.json',
+      '  Agent guide:    skills/tokens-bruecke/SKILL.md',
+      '  Full docs:      https://github.com/tokens-bruecke/figma-plugin#use-as-cli-tool',
+    ].join('\n')
+  )
   .parseSync();
 
 setQuiet(argv.quiet);

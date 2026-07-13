@@ -408,6 +408,13 @@ Progress logs are printed to **stderr**, so stdout stays clean for piping:
 tokens-bruecke -a $FIGMA_TOKEN -f $FIGMA_FILE --stdout --quiet | jq .
 ```
 
+Every option can also be set via a `FIGMA_`-prefixed environment variable — `FIGMA_API_KEY`, `FIGMA_OAUTH_TOKEN`, `FIGMA_FILE_KEY`, `FIGMA_OUTPUT`, etc. Explicit flags override environment variables:
+
+```bash
+export FIGMA_API_KEY=<your-token>
+tokens-bruecke -f $FIGMA_FILE -o out/tokens.json
+```
+
 > [!TIP]
 > For automated pipelines, `--oauth-token` is preferred over `--api-key`. Personal Access Tokens expire every 90 days and require manual renewal, while OAuth tokens support programmatic refresh for indefinite access.
 
