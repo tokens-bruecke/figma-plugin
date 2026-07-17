@@ -9,11 +9,24 @@ export const groupObjectNamesIntoCategories = (inputObject: any) => {
       const part = parts[i];
 
       if (i === parts.length - 1) {
-        // Check if the value is an array, if so, assign the whole array as is
-        if (Array.isArray(inputObject[key])) {
-          current[part] = inputObject[key];
+        const existing = current[part];
+        const value = inputObject[key];
+
+        if (
+          existing &&
+          typeof existing === 'object' &&
+          !Array.isArray(existing) &&
+          value &&
+          typeof value === 'object' &&
+          !Array.isArray(value)
+        ) {
+          // A group with this name was already created (e.g. a variable named
+          // "border/brand" alongside "border/brand/subtle"). Merge the token
+          // into the existing group instead of overwriting it, so sibling
+          // tokens are not silently dropped.
+          current[part] = { ...value, ...existing };
         } else {
-          current[part] = inputObject[key];
+          current[part] = value;
         }
       } else {
         if (!current[part]) {
