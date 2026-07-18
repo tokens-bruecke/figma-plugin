@@ -27,13 +27,14 @@ getStorageConfig(pluginConfigKey);
 let isCodePreviewOpen = false;
 
 const frameWidthWithCodePreview = 800;
-const frameWidth = isCodePreviewOpen
-  ? frameWidthWithCodePreview
-  : config.frameWidth;
+const minFrameWidthWithCodePreview = 540;
+let codePreviewWidth = frameWidthWithCodePreview;
+let frameHeight = 600;
+const frameWidth = isCodePreviewOpen ? codePreviewWidth : config.frameWidth;
 
 figma.showUI(__html__, {
   width: frameWidth,
-  height: 600,
+  height: frameHeight,
   themeColors: true,
 });
 
@@ -135,16 +136,35 @@ figma.ui.onmessage = async (msg) => {
   // change size of UI
   if (msg.type === 'resizeUIHeight') {
     const currentWidth = isCodePreviewOpen
-      ? frameWidthWithCodePreview
+      ? codePreviewWidth
       : config.frameWidth;
-    figma.ui.resize(currentWidth, Math.round(msg.height));
+    frameHeight = Math.round(msg.height);
+    figma.ui.resize(currentWidth, frameHeight);
+  }
+
+  if (msg.type === 'resizeUIWidth') {
+    codePreviewWidth = Math.max(
+      minFrameWidthWithCodePreview,
+      Math.round(msg.width)
+    );
+
+    if (isCodePreviewOpen) {
+      figma.ui.resize(codePreviewWidth, frameHeight);
+    }
+  }
+
+  if (msg.type === 'resetUIWidth') {
+    codePreviewWidth = frameWidthWithCodePreview;
+
+    if (isCodePreviewOpen) {
+      figma.ui.resize(codePreviewWidth, frameHeight);
+    }
   }
 
   if (msg.type === 'openCodePreview') {
     isCodePreviewOpen = msg.isCodePreviewOpen;
-    const nextWidth = isCodePreviewOpen
-      ? frameWidthWithCodePreview
-      : config.frameWidth;
-    figma.ui.resize(nextWidth, Math.round(msg.height));
+    const nextWidth = isCodePreviewOpen ? codePreviewWidth : config.frameWidth;
+    frameHeight = Math.round(msg.height);
+    figma.ui.resize(nextWidth, frameHeight);
   }
 };

@@ -5,6 +5,7 @@
   height: 100vh;
   background-color: var(--figma-color-bg-secondary);
   border-left: 1px solid var(--figma-color-border);
+  container-type: inline-size;
 }
 
 .codePreviewOpen {
@@ -21,15 +22,34 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  position: fixed;
-  width: 500px;
-  bottom: 20px;
+  position: absolute;
+  left: 0;
   right: 0;
+  bottom: 20px;
   opacity: 0;
   transform: translateY(10px);
 
   animation: previewToolbarFadeIn 0.3s ease-in-out forwards;
   animation-delay: 0.1s;
+}
+
+// progressively hide the meta as the preview pane gets narrower:
+// first the long tokens/groups/lines stat, then the KB badge,
+// keeping only the Update and Copy buttons
+@container (max-width: 480px) {
+  .previewToolbarStat:not(:last-child) {
+    display: none;
+  }
+}
+
+@container (max-width: 320px) {
+  .previewToolbarStat {
+    display: none;
+  }
+
+  .previewToolbarSecondButton {
+    margin-right: 0;
+  }
 }
 
 @keyframes previewToolbarFadeIn {
@@ -51,6 +71,8 @@
   height: 24px;
   padding: 4px 8px;
   border-radius: var(--border-radius-6);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .previewToolbarButton {
@@ -87,4 +109,19 @@
 
 .previewToolbarSecondButton {
   margin-right: 10px;
+}
+
+.widthResizer {
+  z-index: 110;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100vh;
+  cursor: ew-resize;
+}
+
+.resizingCursor {
+  cursor: ew-resize;
+  user-select: none;
 }

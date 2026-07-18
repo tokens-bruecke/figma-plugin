@@ -18,6 +18,53 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
     React.useState<boolean>(false);
   const [tokensStat, setTokensStat] = React.useState<any>(null);
   const [isCodeCopied, setIsCodeCopied] = React.useState<boolean>(false);
+  const isResizingRef = React.useRef(false);
+
+  const startWidthResize = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    isResizingRef.current = true;
+    document.body.classList.add(styles.resizingCursor);
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizingRef.current) {
+        return;
+      }
+
+      // the handle sits on the right edge, so the pointer's X position
+      // is effectively the desired frame width
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: 'resizeUIWidth',
+            width: moveEvent.clientX + 4,
+          },
+        },
+        '*'
+      );
+    };
+
+    const handleMouseUp = () => {
+      isResizingRef.current = false;
+      document.body.classList.remove(styles.resizingCursor);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const resetWidth = () => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'resetUIWidth',
+        },
+      },
+      '*'
+    );
+  };
 
   const getTokensPreview = () => {
     // send command to figma controller
@@ -94,6 +141,13 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
       </section>
 
       <JsonViewer code={JSON.stringify(generatedTokens, null, 2)} />
+
+      <div
+        className={styles.widthResizer}
+        onMouseDown={startWidthResize}
+        onDoubleClick={resetWidth}
+        title="Drag to resize. Double-click to reset"
+      />
     </section>
   );
 };
