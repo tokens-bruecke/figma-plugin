@@ -1,5 +1,5 @@
 import { normalizeValue } from './normalizeValue';
-import { normalizeType, isNonSpecTokenType } from './normalizeType';
+import { normalizeType } from './normalizeType';
 import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
@@ -123,13 +123,8 @@ export const variablesToTokens = async (
       usePercentageOpacity
     );
 
-    // DTCG 2025.10 defines a closed type set — `string`/`boolean` are not
-    // valid `$type` values. In DTCG format, omit `$type` for those tokens
-    // and preserve the original type under `$extensions`.
-    const omitType = useDTCG && isNonSpecTokenType(tokenType);
-
     const variableObject = {
-      ...(!omitType && { [keyNames.type]: tokenType }),
+      [keyNames.type]: tokenType,
       [keyNames.value]: defaultValue,
       [keyNames.description]: variable.description,
       // add scopes if true
@@ -139,7 +134,6 @@ export const variablesToTokens = async (
       // add meta
       $extensions: {
         mode: filteredModesValues,
-        ...(omitType && { figmaType: variable.resolvedType }),
         ...(includeFigmaMetaData && {
           figma: {
             codeSyntax: variable.codeSyntax,

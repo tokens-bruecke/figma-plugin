@@ -57,7 +57,7 @@ const baseConfig = {
 } as ExportSettingsI;
 
 describe('variablesToTokens DTCG 2025.10 format', () => {
-  test('DTCG on: dimension objects, no string/boolean $type', async () => {
+  test('DTCG on: dimension objects, string/boolean $type always emitted', async () => {
     const tokens = await variablesToTokens(
       variables,
       collections,
@@ -69,14 +69,14 @@ describe('variablesToTokens DTCG 2025.10 format', () => {
     expect(spacing.$value).toStrictEqual({ value: 6, unit: 'px' });
 
     const flag = tokens['core']['flags']['isCompact'];
-    expect(flag.$type).toBeUndefined();
+    expect(flag.$type).toBe('boolean');
     expect(flag.$value).toBe(true);
-    expect(flag.$extensions.figmaType).toBe('BOOLEAN');
+    expect(flag.$extensions.figmaType).toBeUndefined();
 
     const brand = tokens['core']['content']['brand'];
-    expect(brand.$type).toBeUndefined();
+    expect(brand.$type).toBe('string');
     expect(brand.$value).toBe('Acme');
-    expect(brand.$extensions.figmaType).toBe('STRING');
+    expect(brand.$extensions.figmaType).toBeUndefined();
   });
 
   test('DTCG off: legacy strings and native types', async () => {
