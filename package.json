@@ -30,6 +30,20 @@
   "bin": {
     "tokens-bruecke": "bin/cli.js"
   },
+  "files": [
+    "bin",
+    "schemas",
+    "skills",
+    "examples/cli-options.json",
+    "llms.txt",
+    "manifest.json",
+    "declaration.d.ts",
+    "global.d.ts",
+    "plugin-types.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "decimal.js": "^10.5.0",
     "figma-api": "2.0.1-beta",

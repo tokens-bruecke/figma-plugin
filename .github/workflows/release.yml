@@ -6,6 +6,7 @@ name: release
 permissions:
   contents: write
   packages: write
+  id-token: write
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -43,6 +44,11 @@ jobs:
 
       - name: Build package
         run: pnpm run build
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub release
         run: gh release create ${{ github.ref_name }} ./dist/figma-plugin.zip --title "${{ github.ref_name }}" --generate-notes
