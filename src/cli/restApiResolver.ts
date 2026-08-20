@@ -236,16 +236,27 @@ export class RestAPIResolver implements IResolver {
   }
 
   rectangleNodeToPaint(node: RectangleNode): PaintStyle {
+    const paints = (node.fills ?? []) as Paint[];
+    // The REST API exposes bound variables per paint (`fills[].boundVariables.color`),
+    // while the plugin API exposes them on the style (`boundVariables.paints[]`).
+    // Reshape so colorStylesToTokens emits aliases for variable-bound color styles.
+    const boundPaints = paints
+      .map((paint) => (paint as any).boundVariables?.color)
+      .filter(Boolean);
+
     return {
       type: 'PAINT',
       id: node.id,
       name: node.name,
-      paints: node.fills as Paint[],
+      paints,
       remote: false,
       key: node.id,
       description: '',
       documentationLinks: [],
       consumers: [],
+      ...(boundPaints.length > 0 && {
+        boundVariables: { paints: boundPaints },
+      }),
     } as unknown as PaintStyle;
   }
 }
