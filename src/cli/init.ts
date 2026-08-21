@@ -7,6 +7,15 @@ import {
   DEFAULT_CONFIG_FILENAME,
   defaultConfig,
 } from './defaults';
+import {
+  ChoiceI,
+  PromptCancelledError,
+  PromptIoI,
+  confirm,
+  multiselect,
+  select,
+  supportsRawMode,
+} from './prompt';
 
 export interface InitAnswersI {
   colorMode: colorModeType;
@@ -15,16 +24,26 @@ export interface InitAnswersI {
   split: 'none' | 'collection' | 'mode';
 }
 
-export const COLOR_MODE_CHOICES: { value: colorModeType; label: string }[] = [
-  { value: 'hex', label: 'HEX                 "#3366ff"' },
-  { value: 'rgba-css', label: 'RGBA CSS            "rgba(51, 102, 255, 1)"' },
-  { value: 'rgba-object', label: 'RGBA Object         { r, g, b, a }' },
-  { value: 'srgb-dtcg', label: 'sRGB DTCG           DTCG color object' },
-  { value: 'hsla-css', label: 'HSLA CSS            "hsla(225, 100%, 60%, 1)"' },
-  { value: 'hsla-object', label: 'HSLA Object         { h, s, l, a }' },
-  { value: 'hsl-dtcg', label: 'HSL DTCG            DTCG color object' },
-  { value: 'oklch-dtcg', label: 'OKLCH DTCG          DTCG color object' },
+const COLOR_MODES: { value: colorModeType; name: string; example: string }[] = [
+  { value: 'hex', name: 'HEX', example: '"#3366ff"' },
+  { value: 'rgba-css', name: 'RGBA CSS', example: '"rgba(51, 102, 255, 1)"' },
+  { value: 'rgba-object', name: 'RGBA Object', example: '{ r, g, b, a }' },
+  { value: 'srgb-dtcg', name: 'sRGB DTCG', example: 'DTCG color object' },
+  {
+    value: 'hsla-css',
+    name: 'HSLA CSS',
+    example: '"hsla(225, 100%, 60%, 1)"',
+  },
+  { value: 'hsla-object', name: 'HSLA Object', example: '{ h, s, l, a }' },
+  { value: 'hsl-dtcg', name: 'HSL DTCG', example: 'DTCG color object' },
+  { value: 'oklch-dtcg', name: 'OKLCH DTCG', example: 'DTCG color object' },
 ];
+
+export const COLOR_MODE_CHOICES = COLOR_MODES.map((choice) => ({
+  ...choice,
+  // Padded form for the typed fallback, where there is no dim styling
+  label: `${choice.name.padEnd(18)}${choice.example}`,
+}));
 
 export const STYLE_CHOICES: { value: stylesType; label: string }[] = [
   { value: 'colors', label: 'Color styles' },
@@ -192,6 +211,54 @@ export const promptAnswers = async (ask: Ask): Promise<InitAnswersI> => {
   return { colorMode, includedStyles, useDTCG, split };
 };
 
+/**
+ * Keyboard-driven variant: arrow keys, space to toggle, enter to confirm.
+ * Falls back to promptAnswers() where raw mode is unavailable.
+ */
+export const promptAnswersInteractive = async (
+  io: PromptIoI
+): Promise<InitAnswersI> => {
+  const colorMode = await select<colorModeType>(
+    io,
+    'Color mode',
+    COLOR_MODE_CHOICES.map(
+      (choice): ChoiceI<colorModeType> => ({
+        value: choice.value,
+        label: choice.name,
+        hint: choice.example,
+      })
+    ),
+    0
+  );
+
+  const includedStyles = await multiselect<stylesType>(
+    io,
+    'Styles to include',
+    STYLE_CHOICES.map(
+      (choice): ChoiceI<stylesType> => ({
+        value: choice.value,
+        label: choice.label,
+      })
+    )
+  );
+
+  const useDTCG = await confirm(io, 'Use DTCG 2025.10 format?', true);
+
+  const split = await select<InitAnswersI['split']>(
+    io,
+    'Output layout',
+    SPLIT_CHOICES.map(
+      (choice): ChoiceI<InitAnswersI['split']> => ({
+        value: choice.value,
+        label: choice.label,
+      })
+    ),
+    0
+  );
+
+  return { colorMode, includedStyles, useDTCG, split };
+};
+
 const nextSteps = (configPath: string, split: InitAnswersI['split']) => {
   const outFlag = split === 'none' ? '-o tokens.json' : '-o ./tokens';
   return [
@@ -235,6 +302,21 @@ export const runInit = async ({
 
   if (!yes && ask) {
     answers = await promptAnswers(ask);
+  } else if (!yes && isTTY && supportsRawMode(process.stdin)) {
+    console.log("\nLet's set up a tokens-bruecke config.\n");
+    try {
+      answers = await promptAnswersInteractive({
+        input: process.stdin,
+        output: process.stdout,
+        color: !process.env.NO_COLOR,
+      });
+    } catch (error) {
+      if (error instanceof PromptCancelledError) {
+        console.log('\nCancelled — no config written.');
+        process.exit(130);
+      }
+      throw error;
+    }
   } else if (!yes && isTTY) {
     const readline = await import('node:readline/promises');
     const rl = readline.createInterface({
