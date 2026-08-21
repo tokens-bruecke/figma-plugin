@@ -27,10 +27,6 @@ const convertGradientStopsToDTCG = async (
         includeValueStringKeyToAlias,
         resolver
       );
-      console.log(
-        `Stop ${i} (position ${stop.position}): Variable ID ${stopBoundVariable.id} resolved to:`,
-        colorValue
-      );
     } else {
       const colorWithOpacity = {
         r: stop.color.r,
@@ -39,10 +35,6 @@ const convertGradientStopsToDTCG = async (
         a: stop.color.a,
       };
       colorValue = convertRGBA(colorWithOpacity, colorMode);
-      console.log(
-        `Stop ${i} (position ${stop.position}): No bound variable, using direct color:`,
-        colorValue
-      );
     }
 
     stops.push({
@@ -67,8 +59,6 @@ export const colorStylesToTokens = async (
   let colorTokens = {};
 
   const allColorStyles = {};
-
-  console.log('paintStyles', paintStyles);
 
   for (const style of paintStyles) {
     const styleName = style.name;

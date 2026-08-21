@@ -12,7 +12,8 @@ export const getAliasVariableName = async (
     variableId
   )) as Variable | null;
   if (!variableObj) {
-    console.log('cannot find variable', variableId);
+    // stderr, so CLI --stdout output stays pipeable
+    console.warn('cannot find variable', variableId);
     return '#missing#';
   }
   const collectionObj = (await resolver.getVariableCollectionById(
