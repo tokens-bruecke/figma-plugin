@@ -351,6 +351,8 @@ Alias references are also rewritten so they point to the flat path (the collecti
 
 ## Use as cli tool
 
+The CLI is published on npm: [tokens-bruecke](https://www.npmjs.com/package/tokens-bruecke)
+
 > [!WARNING]  
 > ⚠️ You need a Figma Enterprise plan to use the Figma REST API for variables.
 
