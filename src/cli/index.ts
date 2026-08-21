@@ -5,39 +5,10 @@ import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { RestAPIResolver } from './restApiResolver';
 import { FileResolver, parseSnapshot } from './fileResolver';
+import { runInit } from './init';
+import { DEFAULT_CONFIG_FILENAME, defaultConfig } from './defaults';
 import { getTokens } from '@common/export';
 import { log, setQuiet } from './logger';
-
-const defaultConfig: ExportSettingsI = {
-  includedStyles: {
-    text: {
-      isIncluded: false,
-      customName: 'Typography-styles',
-    },
-    effects: {
-      isIncluded: false,
-      customName: 'Effect-styles',
-    },
-    grids: {
-      isIncluded: false,
-      customName: 'Grid-styles',
-    },
-    colors: {
-      isIncluded: false,
-      customName: 'Color-styles',
-    },
-  },
-  storeStyleInCollection: 'none',
-  colorMode: 'hex',
-  includeScopes: false,
-  includeValueStringKeyToAlias: false,
-  includeFigmaMetaData: false,
-  useDTCG: true,
-  usePercentageOpacity: false,
-  splitByCollection: false,
-  splitByMode: false,
-  omitCollectionNames: false,
-};
 
 // Flags that only make sense when fetching from the REST API
 const REST_FLAGS = [
@@ -49,32 +20,80 @@ const REST_FLAGS = [
   '-f',
 ];
 
+const isInitCommand = process.argv[2] === 'init';
+
 const argv = yargs(process.argv.slice(2))
+  .command(
+    'init',
+    'Create a config file, asking a few questions first',
+    (y) =>
+      y
+        .option('yes', {
+          alias: 'y',
+          description: 'Skip the questions and write the default config',
+          type: 'boolean',
+          default: false,
+        })
+        .option('force', {
+          description: 'Overwrite an existing config file',
+          type: 'boolean',
+          default: false,
+        })
+        .option('path', {
+          alias: 'p',
+          description: `Path of the config file to create (default: ${DEFAULT_CONFIG_FILENAME})`,
+          type: 'string',
+        }),
+    // Not async: yargs .parseSync() rejects handlers that return a promise,
+    // so the work is kicked off and its failure handled here instead.
+    (args) => {
+      void runInit({
+        path: args.path,
+        yes: args.yes,
+        force: args.force,
+      }).catch((error: any) => {
+        console.error(
+          '🔴 Could not create the config:',
+          error?.message ?? error
+        );
+        process.exit(1);
+      });
+    }
+  )
   // Read FIGMA_-prefixed env vars: FIGMA_API_KEY, FIGMA_OAUTH_TOKEN, FIGMA_FILE_KEY, ...
   // Explicit CLI flags take precedence over env vars
   .env('FIGMA')
   .option('api-key', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 'a',
     description: 'Figma personal access token (PAT) [env: FIGMA_API_KEY]',
     type: 'string',
   })
   .option('oauth-token', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 't',
     description: 'Figma OAuth token [env: FIGMA_OAUTH_TOKEN]',
     type: 'string',
   })
   .option('file-key', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 'f',
     description: 'Figma file key [env: FIGMA_FILE_KEY]',
     type: 'string',
   })
   .option('input', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 'i',
     description:
       'Read a local tokens snapshot instead of calling the Figma REST API ("-" reads stdin). See schemas/tokens-snapshot.schema.json',
     type: 'string',
   })
   .check((args) => {
+    if (isInitCommand) return true;
     if (args.input) {
       // Env vars are ignored in snapshot mode; only explicit flags are a conflict
       const conflicting = REST_FLAGS.filter((flag) =>
@@ -104,46 +123,61 @@ const argv = yargs(process.argv.slice(2))
     return true;
   })
   .option('config', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 'c',
     description: 'Path to configuration file',
     type: 'string',
   })
   .option('output', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 'o',
     description:
       'Path to output file or directory (when --split-by-collection)',
     type: 'string',
   })
   .option('stdout', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     description:
       'Print tokens JSON to stdout instead of writing a file (progress logs go to stderr)',
     type: 'boolean',
     default: false,
   })
   .option('split-by-collection', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 's',
     description:
       'Write each collection as a separate .tokens.json file in the output directory',
     type: 'boolean',
   })
   .option('split-by-mode', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 'm',
     description:
       'Write each mode as a separate .tokens.json file under its collection directory',
     type: 'boolean',
   })
   .option('omit-collection-names', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     description:
       'Omit collection names as top-level groups; merge all tokens into a single namespace',
     type: 'boolean',
   })
   .option('quiet', {
+    // Export-only: keep it out of `init --help`
+    global: false,
     alias: 'q',
     description: 'Suppress progress logs (errors are still printed)',
     type: 'boolean',
     default: false,
   })
   .check((args) => {
+    if (isInitCommand) return true;
     if (!args.stdout && !args.output) {
       throw new Error('Either --output or --stdout must be provided');
     }
@@ -320,4 +354,6 @@ async function exportFigmaTokens() {
   }
 }
 
-exportFigmaTokens();
+if (!isInitCommand) {
+  exportFigmaTokens();
+}
