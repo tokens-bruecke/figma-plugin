@@ -1,5 +1,65 @@
 # Changelog
 
+## [3.5.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.4.4...v3.5.0) (2026-08-21)
+
+### Features
+
+- **cli:** add --input to transform a local tokens snapshot ([6fa80be](https://github.com/tokens-bruecke/figma-plugin/commit/6fa80be2ea3b83984bd751ef4d1317a517c121e7))
+
+### Bug Fixes
+
+- **cli:** keep --stdout output parseable when color styles are included ([717824f](https://github.com/tokens-bruecke/figma-plugin/commit/717824f0c34dec5b9dfdffe792d2b7a600fb5689))
+
+## [3.4.4](https://github.com/tokens-bruecke/figma-plugin/compare/v3.4.3...v3.4.4) (2026-08-20)
+
+### Bug Fixes
+
+- **cli:** preserve variable aliases on bound color styles ([d93415f](https://github.com/tokens-bruecke/figma-plugin/commit/d93415fc6912e710077952c8e07ad8afa875dec1))
+
+## [3.4.3](https://github.com/tokens-bruecke/figma-plugin/compare/v3.4.2...v3.4.3) (2026-07-20)
+
+## [3.4.2](https://github.com/tokens-bruecke/figma-plugin/compare/v3.4.1...v3.4.2) (2026-07-18)
+
+## [3.4.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.4.0...v3.4.1) (2026-07-17)
+
+### Bug Fixes
+
+- variables silently missing from export when a variable has the same name as a group ([#83](https://github.com/tokens-bruecke/figma-plugin/issues/83)) ([5c5acd3](https://github.com/tokens-bruecke/figma-plugin/commit/5c5acd377985a5820a1524b5475c538d103eb271))
+
+## [3.4.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.3.1...v3.4.0) (2026-07-13)
+
+### Features
+
+- **cli:** support FIGMA\_\* env vars and add docs epilogue to --help ([127b272](https://github.com/tokens-bruecke/figma-plugin/commit/127b27258c886677ceaf69ade5b64a267d7f2ea1))
+
+## [3.3.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.3.0...v3.3.1) (2026-07-13)
+
+### Bug Fixes
+
+- **cli:** restore shebang in bundled bin so npx tokens-bruecke is executable ([d29a53e](https://github.com/tokens-bruecke/figma-plugin/commit/d29a53e9fd42320966c4f3cee096cc735d72afed))
+
+## [3.3.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.2.0...v3.3.0) (2026-07-13)
+
+### Features
+
+- **cli:** add --stdout/--quiet flags, agent skill, llms.txt and config JSON schema ([94f6b71](https://github.com/tokens-bruecke/figma-plugin/commit/94f6b71de5ca30de87865a57f0f91bbdffd6a3cf))
+
+### Bug Fixes
+
+- import variables ([0a61725](https://github.com/tokens-bruecke/figma-plugin/commit/0a61725b49c7a5cd7a0f6799717675d56078ce10))
+
+## [3.2.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.1.0...v3.2.0) (2026-07-11)
+
+### Features
+
+- new code preview ([46206ff](https://github.com/tokens-bruecke/figma-plugin/commit/46206ff618455881d819a0cdcd243958c1bb93be))
+
+## [3.1.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.0.0...v3.1.0) (2026-07-11)
+
+### Features
+
+- sort variables by collection order ([1ef8b7b](https://github.com/tokens-bruecke/figma-plugin/commit/1ef8b7b8683bf2ae5ddbc1e81ae4fc3875efb652))
+
 ## [3.0.0](https://github.com/tokens-bruecke/figma-plugin/compare/v2.19.0...v3.0.0) (2026-07-11)
 
 ### Features
