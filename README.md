@@ -35,8 +35,10 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Installation](#installation)
     - [Usage](#usage)
     - [Options](#options)
+    - [Snapshot input](#snapshot-input)
     - [CLI Configuration File](#cli-configuration-file)
     - [For AI agents](#for-ai-agents)
+      - [Agentic usage without the REST API](#agentic-usage-without-the-rest-api)
   - [Push to server](#push-to-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
@@ -353,8 +355,15 @@ Alias references are also rewritten so they point to the flat path (the collecti
 
 The CLI is published on npm: [tokens-bruecke](https://www.npmjs.com/package/tokens-bruecke)
 
+The CLI can get its data two ways:
+
+- **From the Figma REST API** — pass `--file-key` and a token. Requires a Figma Enterprise plan.
+- **From a local snapshot** — pass `--input`. No token, no Enterprise plan; see [Snapshot input](#snapshot-input).
+
+Both modes produce identical output and share every other flag.
+
 > [!WARNING]  
-> ⚠️ You need a Figma Enterprise plan to use the Figma REST API for variables.
+> ⚠️ You need a Figma Enterprise plan to use the Figma REST API for variables. Use `--input` if you don't have one.
 
 ### Installation
 
@@ -383,26 +392,30 @@ tokens-bruecke --api-key $FIGMA_TOKEN --file-key $FIGMA_FILE --config config.jso
 
 # Using an OAuth token
 tokens-bruecke --oauth-token $FIGMA_OAUTH_TOKEN --file-key $FIGMA_FILE --config config.json --output out/tokens.json
+
+# From a local snapshot — no token required
+tokens-bruecke --input snapshot.json --output out/tokens.json
 ```
 
 This will fetch figma variables and export them in `out/tokens.json`
 
 ### Options
 
-| Option                    | Alias | Description                                                                                                | Required                                          |
-| ------------------------- | ----- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                                          | One of `--api-key` or `--oauth-token` is required |
-| `--oauth-token`           | `-t`  | Figma OAuth token                                                                                          | One of `--api-key` or `--oauth-token` is required |
-| `--file-key`              | `-f`  | Figma file key                                                                                             | Yes                                               |
-| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`                 | Yes, unless `--stdout` is used                    |
-| `--stdout`                |       | Print tokens JSON to stdout instead of writing a file (mutually exclusive with `--output` and split flags) | No                                                |
-| `--config`                | `-c`  | Path to configuration file                                                                                 | No                                                |
-| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                      | No                                                |
-| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`             | No                                                |
-| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                            | No                                                |
-| `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                          | No                                                |
-| `--help`                  | `-h`  | Show usage help                                                                                            | No                                                |
-| `--version`               |       | Show the CLI version                                                                                       | No                                                |
+| Option                    | Alias | Description                                                                                                | Required                                                |
+| ------------------------- | ----- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                                          | One of `--api-key` or `--oauth-token`, unless `--input` |
+| `--oauth-token`           | `-t`  | Figma OAuth token                                                                                          | One of `--api-key` or `--oauth-token`, unless `--input` |
+| `--file-key`              | `-f`  | Figma file key                                                                                             | Yes, unless `--input` is used                           |
+| `--input`                 | `-i`  | Read a local tokens snapshot instead of calling the REST API (`-` reads stdin)                             | No                                                      |
+| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`                 | Yes, unless `--stdout` is used                          |
+| `--stdout`                |       | Print tokens JSON to stdout instead of writing a file (mutually exclusive with `--output` and split flags) | No                                                      |
+| `--config`                | `-c`  | Path to configuration file                                                                                 | No                                                      |
+| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                      | No                                                      |
+| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`             | No                                                      |
+| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                            | No                                                      |
+| `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                          | No                                                      |
+| `--help`                  | `-h`  | Show usage help                                                                                            | No                                                      |
+| `--version`               |       | Show the CLI version                                                                                       | No                                                      |
 
 Progress logs are printed to **stderr**, so stdout stays clean for piping:
 
@@ -421,6 +434,49 @@ tokens-bruecke -f $FIGMA_FILE -o out/tokens.json
 > For automated pipelines, `--oauth-token` is preferred over `--api-key`. Personal Access Tokens expire every 90 days and require manual renewal, while OAuth tokens support programmatic refresh for indefinite access.
 
 Other export settings are available through a JSON configuration file (see [CLI Configuration File](#cli-configuration-file) below).
+
+### Snapshot input
+
+`--input <path>` transforms a local JSON snapshot of a Figma file's variables and styles instead of calling the REST API. `--input -` reads stdin, so it composes with anything that can dump the data:
+
+```bash
+# From a file
+tokens-bruecke --input snapshot.json --output out/tokens.json
+
+# From a pipe
+my-figma-dumper | tokens-bruecke --input - --stdout --quiet > tokens.json
+```
+
+This is the path for **agents and plugins running inside Figma**: they already have Plugin API access to the open file, so they can dump the local variables and styles and pipe them straight through — no personal access token, and no Enterprise plan.
+
+Snapshot mode ignores the `FIGMA_API_KEY` / `FIGMA_FILE_KEY` environment variables. Passing `--api-key`, `--oauth-token` or `--file-key` explicitly alongside `--input` is an error. Everything else — `--config`, `--split-by-collection`, `--split-by-mode`, `--omit-collection-names`, `--stdout` — behaves exactly as it does in REST mode.
+
+#### Snapshot shape
+
+Objects use the **raw Figma Plugin API shapes, verbatim** — serialize what the API returns rather than reshaping it, so nothing is lost in translation:
+
+```js
+const snapshot = {
+  variableCollections: await figma.variables.getLocalVariableCollectionsAsync(),
+  variables: await figma.variables.getLocalVariablesAsync(),
+  paintStyles: await figma.getLocalPaintStylesAsync(),
+  textStyles: await figma.getLocalTextStylesAsync(),
+  effectStyles: await figma.getLocalEffectStylesAsync(),
+  gridStyles: await figma.getLocalGridStylesAsync(),
+};
+```
+
+Only `variables` and `variableCollections` are required; the style arrays are optional and read only when the matching `includedStyles.*` config flag is on. The full contract is in [schemas/tokens-snapshot.schema.json](schemas/tokens-snapshot.schema.json), with a ready-to-copy example in [examples/tokens-snapshot.json](examples/tokens-snapshot.json).
+
+Things worth knowing when building a snapshot:
+
+- `valuesByMode` is keyed by **`modeId`**, not mode name — names come from the collection's `modes` array.
+- Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
+- `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
+- Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
+
+> [!NOTE]
+> Plugin API objects are live proxies, so `JSON.stringify` may not enumerate their properties. Copy the fields listed in the schema onto plain objects before serializing.
 
 ### CLI Configuration File
 
@@ -459,8 +515,80 @@ This repository and the npm package ship agent-friendly docs:
 - [llms.txt](llms.txt) — entry point for LLM-based tools
 - [skills/tokens-bruecke/SKILL.md](skills/tokens-bruecke/SKILL.md) — an [agent skill](https://code.visualstudio.com/docs/copilot/customization/agent-skills) covering CLI usage, auth, config and exit codes; copy the `skills/tokens-bruecke` folder into your project's skills directory to teach your agent the CLI
 - [schemas/cli-options.schema.json](schemas/cli-options.schema.json) — machine-readable config schema
+- [schemas/tokens-snapshot.schema.json](schemas/tokens-snapshot.schema.json) — machine-readable input schema for `--input`
 
 For scripted/agent usage prefer `--stdout --quiet` (pure JSON on stdout, logs on stderr) and pass tokens via environment variables.
+
+#### Agentic usage without the REST API
+
+If your agent can run code inside Figma — a Figma agent, an MCP server with `evaluate_script`, or your own plugin — it already has Plugin API access to the open file. In that case it should **not** go through the REST API at all:
+
+|                                                | REST API (`--file-key`) | Snapshot (`--input`)                |
+| ---------------------------------------------- | ----------------------- | ----------------------------------- |
+| Figma Enterprise plan                          | Required                | Not required                        |
+| Personal access / OAuth token                  | Required                | Not required                        |
+| File must be published / shared with the token | Yes                     | No — works on whatever file is open |
+| Network calls                                  | Several per export      | None                                |
+
+The agent's job is only to dump data; the CLI still owns every transform, so aliases, modes, scopes and DTCG formatting behave exactly as they do in REST mode.
+
+**1. Extract the snapshot from inside Figma.** Plugin API objects are live proxies, so `JSON.stringify` on them may serialize as empty — copy the fields onto plain objects first:
+
+```js
+const snapshot = {
+  variableCollections: (
+    await figma.variables.getLocalVariableCollectionsAsync()
+  ).map((c) => ({
+    id: c.id,
+    name: c.name,
+    defaultModeId: c.defaultModeId,
+    modes: c.modes.map((m) => ({ modeId: m.modeId, name: m.name })),
+    variableIds: c.variableIds,
+  })),
+  variables: (await figma.variables.getLocalVariablesAsync()).map((v) => ({
+    id: v.id,
+    name: v.name,
+    variableCollectionId: v.variableCollectionId,
+    resolvedType: v.resolvedType,
+    description: v.description,
+    scopes: v.scopes,
+    codeSyntax: v.codeSyntax,
+    valuesByMode: v.valuesByMode,
+  })),
+  // Optional — only needed if the config enables the matching style type
+  paintStyles: (await figma.getLocalPaintStylesAsync()).map((s) => ({
+    id: s.id,
+    name: s.name,
+    description: s.description,
+    paints: s.paints,
+    boundVariables: s.boundVariables,
+  })),
+};
+
+const json = JSON.stringify(snapshot, null, 2);
+```
+
+Text, effect and grid styles follow the same pattern — see [schemas/tokens-snapshot.schema.json](schemas/tokens-snapshot.schema.json) for the fields each one needs.
+
+**2. Pipe it through the CLI.**
+
+```bash
+# From a file the agent wrote
+npx tokens-bruecke --input snapshot.json --output tokens.json
+
+# Or straight from stdin, no temp file
+my-figma-agent dump-tokens | npx tokens-bruecke --input - --stdout --quiet > tokens.json
+
+# All the usual options still apply
+npx tokens-bruecke --input snapshot.json --config config.json --split-by-mode --output ./tokens
+```
+
+Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY`, so a token exported in the environment won't get in the way. Passing `--api-key`, `--oauth-token` or `--file-key` explicitly alongside `--input` is rejected as a conflict.
+
+On a bad snapshot the CLI exits `1` and names the offending key — for example `variables[3] is missing a string "variableCollectionId"` — so an agent can correct its dump and retry without guesswork.
+
+> [!NOTE]
+> Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array.
 
 ---
 

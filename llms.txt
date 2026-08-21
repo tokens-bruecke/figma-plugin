@@ -1,10 +1,13 @@
 # tokens-bruecke
 
-> Figma plugin + CLI that exports Figma variables and styles as DTCG 2025.10 design tokens JSON. The CLI (`npx tokens-bruecke`) fetches variables via the Figma REST API (requires a Figma Enterprise plan) and writes tokens to a file or stdout.
+> Figma plugin + CLI that exports Figma variables and styles as DTCG 2025.10 design tokens JSON. The CLI (`npx tokens-bruecke`) either fetches variables via the Figma REST API (requires a Figma Enterprise plan) or transforms a local snapshot passed with `--input`, and writes tokens to a file or stdout.
 
 Quick CLI usage:
 `npx tokens-bruecke --api-key "$FIGMA_TOKEN" --file-key <FILE_KEY> --output tokens.json`
 or pipe-friendly: `npx tokens-bruecke -a "$FIGMA_TOKEN" -f <FILE_KEY> --stdout --quiet`
+
+No REST API / no Enterprise plan — transform a snapshot dumped from the Figma Plugin API:
+`npx tokens-bruecke --input snapshot.json --output tokens.json` (use `--input -` to read stdin)
 
 ## Docs
 
@@ -12,6 +15,8 @@ or pipe-friendly: `npx tokens-bruecke -a "$FIGMA_TOKEN" -f <FILE_KEY> --stdout -
 - [README — Use as CLI tool](README.md#use-as-cli-tool): human-oriented CLI documentation
 - [Config file JSON schema](schemas/cli-options.schema.json): all config options with types, enums, and defaults
 - [Example config file](examples/cli-options.json): ready-to-copy --config file
+- [Snapshot JSON schema](schemas/tokens-snapshot.schema.json): input contract for `--input` — raw Figma Plugin API shapes for variables, collections and styles
+- [Example snapshot](examples/tokens-snapshot.json): ready-to-copy `--input` file
 
 ## Optional
 
