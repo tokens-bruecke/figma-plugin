@@ -1,0 +1,253 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/tokens-bruecke/figma-plugin/main/schemas/tokens-snapshot.schema.json",
+  "title": "tokens-bruecke tokens snapshot",
+  "description": "A snapshot of a Figma file's local variables and styles, passed to the tokens-bruecke CLI via --input. Objects use the raw Figma Plugin API shapes verbatim, so a dump from figma.variables.getLocalVariablesAsync(), figma.getLocalPaintStylesAsync(), etc. can be serialized as-is with no reshaping. Extra properties are allowed and ignored.",
+  "type": "object",
+  "required": ["variables", "variableCollections"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this JSON schema."
+    },
+    "variableCollections": {
+      "type": "array",
+      "description": "Local variable collections, as returned by figma.variables.getLocalVariableCollectionsAsync(). Exclude remote (library) collections.",
+      "items": { "$ref": "#/definitions/variableCollection" }
+    },
+    "variables": {
+      "type": "array",
+      "description": "Local variables, as returned by figma.variables.getLocalVariablesAsync(). Exclude remote (library) variables.",
+      "items": { "$ref": "#/definitions/variable" }
+    },
+    "paintStyles": {
+      "type": "array",
+      "description": "Local paint styles, as returned by figma.getLocalPaintStylesAsync(). Only exported when includedStyles.colors.isIncluded is true in the config.",
+      "items": { "$ref": "#/definitions/paintStyle" }
+    },
+    "textStyles": {
+      "type": "array",
+      "description": "Local text styles, as returned by figma.getLocalTextStylesAsync(). Only exported when includedStyles.text.isIncluded is true in the config.",
+      "items": { "$ref": "#/definitions/textStyle" }
+    },
+    "effectStyles": {
+      "type": "array",
+      "description": "Local effect styles, as returned by figma.getLocalEffectStylesAsync(). Only exported when includedStyles.effects.isIncluded is true in the config.",
+      "items": { "$ref": "#/definitions/effectStyle" }
+    },
+    "gridStyles": {
+      "type": "array",
+      "description": "Local grid styles, as returned by figma.getLocalGridStylesAsync(). Only exported when includedStyles.grids.isIncluded is true in the config.",
+      "items": { "$ref": "#/definitions/gridStyle" }
+    }
+  },
+  "definitions": {
+    "variableCollection": {
+      "type": "object",
+      "required": ["id", "name", "modes"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Collection id, referenced by each variable's variableCollectionId."
+        },
+        "name": {
+          "type": "string",
+          "description": "Collection name. Becomes the top-level token group unless omitCollectionNames is set."
+        },
+        "modes": {
+          "type": "array",
+          "description": "Modes in this collection. modeId keys the variable's valuesByMode map; name is used for mode groups and --split-by-mode filenames.",
+          "items": {
+            "type": "object",
+            "required": ["modeId", "name"],
+            "properties": {
+              "modeId": { "type": "string" },
+              "name": { "type": "string" }
+            }
+          }
+        },
+        "defaultModeId": {
+          "type": "string",
+          "description": "Mode used for a token's primary $value. Other modes land in $extensions.mode."
+        },
+        "variableIds": {
+          "type": "array",
+          "description": "Variable ids in the order shown in Figma's Variables panel. Preserves token ordering in the output; without it, output order follows the variables array.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "variable": {
+      "type": "object",
+      "required": ["id", "name", "variableCollectionId", "valuesByMode"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Variable id. Alias values reference this id, so every aliased variable must be present in the snapshot."
+        },
+        "name": {
+          "type": "string",
+          "description": "Variable name. Slashes become nested token groups (\"colors/primary\" -> colors.primary)."
+        },
+        "variableCollectionId": {
+          "type": "string",
+          "description": "Id of the collection this variable belongs to."
+        },
+        "resolvedType": {
+          "type": "string",
+          "description": "Figma variable type. Drives the token $type.",
+          "enum": ["COLOR", "FLOAT", "STRING", "BOOLEAN"]
+        },
+        "valuesByMode": {
+          "type": "object",
+          "description": "Value per modeId. Keys are modeIds from the collection's modes array, not mode names.",
+          "additionalProperties": { "$ref": "#/definitions/variableValue" }
+        },
+        "description": {
+          "type": "string",
+          "description": "Variable description. Emitted as the token $description."
+        },
+        "scopes": {
+          "type": "array",
+          "description": "Figma variable scopes. Emitted in $extensions when includeScopes is enabled, and used to refine FLOAT tokens (e.g. FONT_WEIGHT, OPACITY). Defaults to an empty array when omitted.",
+          "default": [],
+          "items": { "type": "string" }
+        },
+        "codeSyntax": {
+          "type": "object",
+          "description": "Per-platform code syntax (WEB, ANDROID, iOS). Emitted when includeFigmaMetaData is enabled.",
+          "additionalProperties": { "type": "string" }
+        },
+        "hiddenFromPublishing": { "type": "boolean" },
+        "remote": {
+          "type": "boolean",
+          "description": "Should be false — remote (library) variables are expected to be filtered out of the snapshot."
+        }
+      }
+    },
+    "variableValue": {
+      "description": "A resolved variable value, or an alias pointing at another variable.",
+      "oneOf": [
+        { "$ref": "#/definitions/variableAlias" },
+        { "$ref": "#/definitions/rgba" },
+        { "type": "number" },
+        { "type": "string" },
+        { "type": "boolean" }
+      ]
+    },
+    "variableAlias": {
+      "type": "object",
+      "description": "Reference to another variable. If the target id is not present in the snapshot (e.g. a library variable), the token value resolves to \"#missing#\" — the same behaviour as the REST API resolver.",
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "const": "VARIABLE_ALIAS" },
+        "id": { "type": "string" }
+      }
+    },
+    "rgba": {
+      "type": "object",
+      "description": "Color in 0..1 float channels, as the Plugin API returns it. Alpha defaults to 1 when absent.",
+      "required": ["r", "g", "b"],
+      "properties": {
+        "r": { "type": "number", "minimum": 0, "maximum": 1 },
+        "g": { "type": "number", "minimum": 0, "maximum": 1 },
+        "b": { "type": "number", "minimum": 0, "maximum": 1 },
+        "a": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "paintStyle": {
+      "type": "object",
+      "description": "Figma PaintStyle. boundVariables.paints[] (Plugin API shape) makes a variable-bound color style export as an alias rather than a literal color.",
+      "required": ["id", "name", "paints"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "paints": {
+          "type": "array",
+          "description": "Paint objects. Solid paints carry a `color` in 0..1 channels plus an optional `opacity`.",
+          "items": { "type": "object" }
+        },
+        "boundVariables": {
+          "type": "object",
+          "properties": {
+            "paints": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/variableAlias" }
+            }
+          }
+        }
+      }
+    },
+    "textStyle": {
+      "type": "object",
+      "description": "Figma TextStyle, as returned by figma.getLocalTextStylesAsync().",
+      "required": ["id", "name", "fontName", "fontSize"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "fontName": {
+          "type": "object",
+          "required": ["family", "style"],
+          "properties": {
+            "family": { "type": "string" },
+            "style": { "type": "string" }
+          }
+        },
+        "fontSize": { "type": "number" },
+        "fontWeight": { "type": "number" },
+        "letterSpacing": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "enum": ["PIXELS", "PERCENT"] }
+          }
+        },
+        "lineHeight": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "enum": ["PIXELS", "PERCENT", "AUTO"] }
+          }
+        },
+        "paragraphIndent": { "type": "number" },
+        "paragraphSpacing": { "type": "number" },
+        "textCase": { "type": "string" },
+        "textDecoration": { "type": "string" },
+        "boundVariables": { "type": "object" }
+      }
+    },
+    "effectStyle": {
+      "type": "object",
+      "description": "Figma EffectStyle, as returned by figma.getLocalEffectStylesAsync().",
+      "required": ["id", "name", "effects"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "effects": {
+          "type": "array",
+          "description": "Effect objects (DROP_SHADOW, INNER_SHADOW, LAYER_BLUR, BACKGROUND_BLUR).",
+          "items": { "type": "object" }
+        },
+        "boundVariables": { "type": "object" }
+      }
+    },
+    "gridStyle": {
+      "type": "object",
+      "description": "Figma GridStyle, as returned by figma.getLocalGridStylesAsync().",
+      "required": ["id", "name", "layoutGrids"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "layoutGrids": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "boundVariables": { "type": "object" }
+      }
+    }
+  }
+}

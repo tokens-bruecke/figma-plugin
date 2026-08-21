@@ -35,6 +35,7 @@
     "schemas",
     "skills",
     "examples/cli-options.json",
+    "examples/tokens-snapshot.json",
     "llms.txt",
     "manifest.json",
     "declaration.d.ts",

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tokens-bruecke/figma-plugin/main/schemas/tokens-snapshot.schema.json",
+  "variableCollections": [
+    {
+      "id": "VariableCollectionId:1:1",
+      "name": "Primitives",
+      "defaultModeId": "1:0",
+      "modes": [{ "modeId": "1:0", "name": "Value" }],
+      "variableIds": ["VariableID:1:2", "VariableID:1:3"]
+    },
+    {
+      "id": "VariableCollectionId:2:1",
+      "name": "Semantic",
+      "defaultModeId": "2:0",
+      "modes": [
+        { "modeId": "2:0", "name": "Light" },
+        { "modeId": "2:1", "name": "Dark" }
+      ],
+      "variableIds": ["VariableID:2:2"]
+    }
+  ],
+  "variables": [
+    {
+      "id": "VariableID:1:2",
+      "name": "colors/blue/500",
+      "variableCollectionId": "VariableCollectionId:1:1",
+      "resolvedType": "COLOR",
+      "description": "Brand blue",
+      "scopes": ["ALL_SCOPES"],
+      "remote": false,
+      "valuesByMode": {
+        "1:0": { "r": 0.2, "g": 0.4, "b": 1, "a": 1 }
+      }
+    },
+    {
+      "id": "VariableID:1:3",
+      "name": "spacing/md",
+      "variableCollectionId": "VariableCollectionId:1:1",
+      "resolvedType": "FLOAT",
+      "remote": false,
+      "valuesByMode": {
+        "1:0": 16
+      }
+    },
+    {
+      "id": "VariableID:2:2",
+      "name": "surface/accent",
+      "variableCollectionId": "VariableCollectionId:2:1",
+      "resolvedType": "COLOR",
+      "remote": false,
+      "valuesByMode": {
+        "2:0": { "type": "VARIABLE_ALIAS", "id": "VariableID:1:2" },
+        "2:1": { "r": 0.4, "g": 0.6, "b": 1, "a": 1 }
+      }
+    }
+  ],
+  "paintStyles": [
+    {
+      "id": "S:paint1",
+      "name": "Brand/Primary",
+      "description": "Bound to the blue primitive",
+      "paints": [
+        {
+          "type": "SOLID",
+          "color": { "r": 0.2, "g": 0.4, "b": 1 },
+          "opacity": 1
+        }
+      ],
+      "boundVariables": {
+        "paints": [{ "type": "VARIABLE_ALIAS", "id": "VariableID:1:2" }]
+      }
+    }
+  ],
+  "textStyles": [
+    {
+      "id": "S:text1",
+      "name": "Heading/H1",
+      "fontName": { "family": "Inter", "style": "Bold" },
+      "fontSize": 32,
+      "fontWeight": 700,
+      "letterSpacing": { "value": 0, "unit": "PIXELS" },
+      "lineHeight": { "value": 40, "unit": "PIXELS" },
+      "paragraphIndent": 0,
+      "paragraphSpacing": 0,
+      "textCase": "ORIGINAL",
+      "textDecoration": "NONE"
+    }
+  ]
+}
