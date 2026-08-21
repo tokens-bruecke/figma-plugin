@@ -45,10 +45,15 @@ jobs:
       - name: Build package
         run: pnpm run build
 
+      # Trusted publishing (OIDC) needs npm >= 11.5.1; pin it rather than
+      # depending on whatever the runner's Node happens to bundle.
+      - name: Use an npm that supports trusted publishing
+        run: npm install -g npm@latest
+
+      # Authenticates via the OIDC id-token, so no NPM_TOKEN is involved.
+      # Provenance is attached automatically.
       - name: Publish to npm
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub release
         run: gh release create ${{ github.ref_name }} ./dist/figma-plugin.zip --title "${{ github.ref_name }}" --generate-notes
