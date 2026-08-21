@@ -1,3 +1,15 @@
+## [3.6.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.5.0...v3.6.0) (2026-08-21)
+
+### Features
+
+- **cli:** add an interactive `init` command ([7752a58](https://github.com/tokens-bruecke/figma-plugin/commit/7752a580f14461dde5027ccb30573638ae4d5609))
+- **cli:** keyboard navigation for the init prompts ([4a839bc](https://github.com/tokens-bruecke/figma-plugin/commit/4a839bc07fae8acd77a08d38edf320a75c4c480f))
+
+### Bug Fixes
+
+- **ci:** generate the release CHANGELOG section that -r 1 silently skipped ([e116963](https://github.com/tokens-bruecke/figma-plugin/commit/e116963d0ceb82a738635bf15b627c0a5a5df956))
+- **ci:** publish to npm via trusted publishing (OIDC) ([3775e31](https://github.com/tokens-bruecke/figma-plugin/commit/3775e31744e33f7442d143ebf36dfe4e13403301))
+
 # Changelog
 
 ## [3.5.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.4.4...v3.5.0) (2026-08-21)
