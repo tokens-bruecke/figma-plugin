@@ -34,6 +34,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Use as cli tool](#use-as-cli-tool)
     - [Installation](#installation)
     - [Usage](#usage)
+    - [Quick setup](#quick-setup)
     - [Options](#options)
     - [Snapshot input](#snapshot-input)
     - [CLI Configuration File](#cli-configuration-file)
@@ -399,6 +400,55 @@ tokens-bruecke --input snapshot.json --output out/tokens.json
 
 This will fetch figma variables and export them in `out/tokens.json`
 
+### Quick setup
+
+`tokens-bruecke init` asks a few questions and writes a config file you can commit:
+
+```bash
+tokens-bruecke init
+```
+
+```
+Color mode
+  › 1) HEX                 "#3366ff"
+    2) RGBA CSS            "rgba(51, 102, 255, 1)"
+    ...
+    8) OKLCH DTCG          DTCG color object
+
+? Color mode [1]: 8
+
+Styles to include (variables are always exported)
+    1) Color styles
+    2) Typography styles
+    3) Effect styles
+    4) Grid styles
+
+? Include styles, comma separated [none]: 1,3
+
+? Use DTCG 2025.10 format? (Y/n) [Y]: n
+
+Output layout
+  › 1) Single file
+    2) One file per collection
+    3) One file per mode
+
+? Output layout [1]: 2
+
+✨ Created tokens-bruecke.config.json
+```
+
+Press Enter to take the default on any question, and Ctrl+C to back out without writing anything.
+
+The four questions cover the settings people change most often, but the generated file contains **every** option with its default, plus a `$schema` link — so your editor autocompletes and documents the rest as you edit it.
+
+| Option    | Alias | Description                                               |
+| --------- | ----- | --------------------------------------------------------- |
+| `--yes`   | `-y`  | Skip the questions and write the default config           |
+| `--force` |       | Overwrite an existing config file                         |
+| `--path`  | `-p`  | Where to write it (default: `tokens-bruecke.config.json`) |
+
+When stdin is not a terminal — CI, a pipe, an agent — `init` skips the questions and writes the defaults instead of hanging.
+
 ### Options
 
 | Option                    | Alias | Description                                                                                                | Required                                                |
@@ -480,7 +530,7 @@ Things worth knowing when building a snapshot:
 
 ### CLI Configuration File
 
-You can use a JSON configuration file to specify the export options for the CLI.
+You can use a JSON configuration file to specify the export options for the CLI. Run [`tokens-bruecke init`](#quick-setup) to generate one, or write it by hand:
 
 ```json
 {

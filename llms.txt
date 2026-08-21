@@ -2,6 +2,8 @@
 
 > Figma plugin + CLI that exports Figma variables and styles as DTCG 2025.10 design tokens JSON. The CLI (`npx tokens-bruecke`) either fetches variables via the Figma REST API (requires a Figma Enterprise plan) or transforms a local snapshot passed with `--input`, and writes tokens to a file or stdout.
 
+Set up a config file: `npx tokens-bruecke init` (asks 4 questions; `init -y` writes defaults, and it never prompts when stdin is not a TTY).
+
 Quick CLI usage:
 `npx tokens-bruecke --api-key "$FIGMA_TOKEN" --file-key <FILE_KEY> --output tokens.json`
 or pipe-friendly: `npx tokens-bruecke -a "$FIGMA_TOKEN" -f <FILE_KEY> --stdout --quiet`

@@ -11,10 +11,10 @@ Exports Figma variables (and optionally text/color/effect/grid styles) as [DTCG]
 
 The CLI has one job — turn Figma variables and styles into DTCG tokens — and two ways to get the data in:
 
-| Mode         | Flag                     | Needs auth? | Needs Enterprise? |
-| ------------ | ------------------------ | ----------- | ----------------- |
-| REST API     | `--file-key` + a token   | Yes         | Yes               |
-| Snapshot     | `--input <path>` or `-`  | No          | No                |
+| Mode     | Flag                    | Needs auth? | Needs Enterprise? |
+| -------- | ----------------------- | ----------- | ----------------- |
+| REST API | `--file-key` + a token  | Yes         | Yes               |
+| Snapshot | `--input <path>` or `-` | No          | No                |
 
 Use **snapshot mode** when you can already read the file directly — e.g. you are an agent running inside Figma with Plugin API access. Dump the local variables and styles to JSON and pipe them in; no personal access token and no Enterprise plan required. See [Snapshot input](#snapshot-input--input) below.
 
@@ -46,6 +46,21 @@ All flags can be set via `FIGMA_`-prefixed env vars: `FIGMA_API_KEY`, `FIGMA_OAU
 
 The file key is the segment after `figma.com/design/` in a Figma file URL.
 
+## Creating a config file
+
+`tokens-bruecke init` writes a config file. It asks four questions (color mode, styles to include, DTCG format, output layout) when run in a terminal.
+
+**For agent and CI use, pass `-y`** — it skips the questions and writes the defaults:
+
+```bash
+npx tokens-bruecke init -y            # tokens-bruecke.config.json with defaults
+npx tokens-bruecke init -y -p cfg.json --force
+```
+
+`init` also detects a non-TTY stdin and skips the prompts automatically, so it will not hang in a pipeline — but passing `-y` makes the intent explicit. Options: `-y/--yes`, `--force` (overwrite an existing file), `-p/--path`.
+
+The generated file contains every option at its default plus a `$schema` link. Editing that file directly is usually faster than re-running `init`.
+
 ## Flags
 
 | Flag                      | Alias | Description                                                                     |
@@ -61,6 +76,7 @@ The file key is the segment after `figma.com/design/` in a Figma file URL.
 | `--split-by-mode`         | `-m`  | One `{Collection}/{Mode}.tokens.json` file per mode                             |
 | `--omit-collection-names` |       | Merge all tokens into a single namespace (drop collection groups)               |
 | `--quiet`                 | `-q`  | Suppress progress logs (errors still printed to stderr)                         |
+| `init` (subcommand)       |       | Create a config file; pass `-y` in non-interactive contexts                     |
 | `--help` / `--version`    | `-h`  | Usage / version                                                                 |
 
 Precedence: explicit CLI flags > `FIGMA_*` env vars > config file > defaults.
