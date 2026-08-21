@@ -62,7 +62,20 @@ jobs:
           git fetch origin main
           git checkout main
           git pull origin main
-          npx --yes conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s -r 1
+          VERSION="${GITHUB_REF_NAME#v}"
+          if grep -q "^## \[${VERSION}\]" CHANGELOG.md; then
+            echo "CHANGELOG.md already documents ${VERSION} — skipping (safe on re-runs)."
+            exit 0
+          fi
+          # -r 2, not -r 1: on a tag push HEAD sits on the tag, so "the latest
+          # release" (-r 1) is the empty unreleased range and nothing is written.
+          # -r 2 reaches back one further and emits the tagged release's section.
+          npx --yes conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s -r 2
+          npx --yes prettier --write CHANGELOG.md
+          if ! grep -q "^## \[${VERSION}\]" CHANGELOG.md; then
+            echo "::error::conventional-changelog produced no section for ${VERSION}"
+            exit 1
+          fi
           git add CHANGELOG.md
-          git diff --staged --quiet || git commit -m "docs: update CHANGELOG for ${{ github.ref_name }}"
+          git commit -m "docs: update CHANGELOG for ${{ github.ref_name }}"
           git push origin main
