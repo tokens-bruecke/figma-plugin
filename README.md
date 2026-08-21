@@ -409,35 +409,35 @@ tokens-bruecke init
 ```
 
 ```
-Color mode
-  › 1) HEX                 "#3366ff"
-    2) RGBA CSS            "rgba(51, 102, 255, 1)"
-    ...
-    8) OKLCH DTCG          DTCG color object
+? Color mode (↑↓ to move, enter to select)
+❯ HEX          "#3366ff"
+  RGBA CSS     "rgba(51, 102, 255, 1)"
+  RGBA Object  { r, g, b, a }
+  sRGB DTCG    DTCG color object
+  HSLA CSS     "hsla(225, 100%, 60%, 1)"
+  HSLA Object  { h, s, l, a }
+  HSL DTCG     DTCG color object
+  OKLCH DTCG   DTCG color object
 
-? Color mode [1]: 8
+? Styles to include (space to toggle, a for all, enter to confirm)
+❯ ◉ Color styles
+  ◯ Typography styles
+  ◉ Effect styles
+  ◯ Grid styles
+```
 
-Styles to include (variables are always exported)
-    1) Color styles
-    2) Typography styles
-    3) Effect styles
-    4) Grid styles
+Each answered question collapses to a single line, so you end up with a short summary rather than a wall of text:
 
-? Include styles, comma separated [none]: 1,3
-
-? Use DTCG 2025.10 format? (Y/n) [Y]: n
-
-Output layout
-  › 1) Single file
-    2) One file per collection
-    3) One file per mode
-
-? Output layout [1]: 2
+```
+? Color mode › OKLCH DTCG
+? Styles to include › Color styles, Effect styles
+? Use DTCG 2025.10 format? › No
+? Output layout › One file per collection
 
 ✨ Created tokens-bruecke.config.json
 ```
 
-Press Enter to take the default on any question, and Ctrl+C to back out without writing anything.
+**Keys:** `↑`/`↓` (or `j`/`k`, or `Tab`) to move, `1`–`9` to jump straight to a row, `Space` to toggle in multi-select, `a` to toggle all, `Enter` to confirm, `Ctrl+C` / `Esc` to cancel without writing anything. Selection wraps at both ends. Set `NO_COLOR=1` to drop the colour codes.
 
 The four questions cover the settings people change most often, but the generated file contains **every** option with its default, plus a `$schema` link — so your editor autocompletes and documents the rest as you edit it.
 

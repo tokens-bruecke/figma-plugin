@@ -48,7 +48,7 @@ The file key is the segment after `figma.com/design/` in a Figma file URL.
 
 ## Creating a config file
 
-`tokens-bruecke init` writes a config file. It asks four questions (color mode, styles to include, DTCG format, output layout) when run in a terminal.
+`tokens-bruecke init` writes a config file. In a terminal it opens a keyboard-driven prompt (arrow keys, space to toggle, enter to confirm) covering color mode, styles to include, DTCG format and output layout.
 
 **For agent and CI use, pass `-y`** — it skips the questions and writes the defaults:
 
