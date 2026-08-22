@@ -334,6 +334,10 @@ export const ServerSettingsView = (props: ViewProps) => {
   const { JSONsettingsConfig, setJSONsettingsConfig, setCurrentView } = props;
   const [errorFields, setErrorFields] = useState([] as string[]);
 
+  // When the tokens are split, the file name field points at a folder instead
+  const isSplitEnabled =
+    JSONsettingsConfig.splitByCollection || JSONsettingsConfig.splitByMode;
+
   const [config, setConfig] = useState(
     viewsConfig[props.server].fields.reduce((acc, field) => {
       const serverSettings = (JSONsettingsConfig.servers[props.server] ||
@@ -404,11 +408,16 @@ export const ServerSettingsView = (props: ViewProps) => {
               });
             };
 
+            const placeholder =
+              field.id === 'fileName' && isSplitEnabled
+                ? 'Folder path (e.g. tokens)'
+                : field.placeholder;
+
             return (
               <Input
                 key={field.id}
                 id={field.id}
-                placeholder={field.placeholder}
+                placeholder={placeholder}
                 value={
                   JSONsettingsConfig.servers[props.server]?.[field.id] || ''
                 }
