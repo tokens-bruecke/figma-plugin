@@ -2,12 +2,13 @@
 
 import yargs from 'yargs';
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { dirname } from 'path';
 import { RestAPIResolver } from './restApiResolver';
 import { FileResolver, parseSnapshot } from './fileResolver';
 import { runInit } from './init';
 import { DEFAULT_CONFIG_FILENAME, defaultConfig } from './defaults';
 import { getTokens } from '@common/export';
+import { splitTokensIntoFiles } from '@common/transform/splitTokensIntoFiles';
 import { log, setQuiet } from './logger';
 
 // Flags that only make sense when fetching from the REST API
@@ -305,48 +306,29 @@ async function exportFigmaTokens() {
   }
 
   try {
-    if (options.splitByMode) {
-      // Keys are "CollectionName/ModeName" — write as {output}/{CollectionName}/{ModeName}.tokens.json
-      for (const key of Object.keys(tokens)) {
-        const slashIndex = key.indexOf('/');
-        let filePath: string;
-        let fileContent: Record<string, any>;
-        if (slashIndex !== -1) {
-          const collectionName = key.slice(0, slashIndex);
-          const modeName = key.slice(slashIndex + 1);
-          const safeCollection = collectionName.replace(/[/\\?%*:|"<>]/g, '-');
-          const safeMode = modeName.replace(/[/\\?%*:|"<>]/g, '-');
-          filePath = join(
-            argv.output,
-            safeCollection,
-            `${safeMode}.tokens.json`
-          );
-          fileContent = { [collectionName]: tokens[key] };
-        } else {
-          const safeFileName = key.replace(/[/\\?%*:|"<>]/g, '-');
-          filePath = join(argv.output, `${safeFileName}.tokens.json`);
-          fileContent = { [key]: tokens[key] };
-        }
-        mkdirSync(dirname(filePath), { recursive: true });
-        writeFileSync(filePath, JSON.stringify(fileContent, null, 2), 'utf-8');
-        log('✨ Written', filePath);
-      }
-    } else if (options.splitByCollection) {
-      mkdirSync(argv.output, { recursive: true });
-      for (const collectionName of Object.keys(tokens)) {
-        const safeFileName = collectionName.replace(/[/\\?%*:|"<>]/g, '-');
-        const filePath = join(argv.output, `${safeFileName}.tokens.json`);
-        writeFileSync(
-          filePath,
-          JSON.stringify({ [collectionName]: tokens[collectionName] }, null, 2),
-          'utf-8'
-        );
-        log('✨ Written', filePath);
-      }
-    } else {
-      mkdirSync(dirname(argv.output), { recursive: true });
-      writeFileSync(argv.output, JSON.stringify(tokens, null, 2), 'utf-8');
+    const files = splitTokensIntoFiles(
+      tokens,
+      {
+        splitByCollection: options.splitByCollection,
+        splitByMode: options.splitByMode,
+        targetIsFolder: options.splitByCollection || options.splitByMode,
+      },
+      argv.output
+    );
+
+    for (const file of files) {
+      mkdirSync(dirname(file.path), { recursive: true });
+      writeFileSync(file.path, file.content, 'utf-8');
+    }
+
+    if (
+      files.length === 1 &&
+      !options.splitByCollection &&
+      !options.splitByMode
+    ) {
       log('✨ Tokens successfully written to', argv.output);
+    } else {
+      files.forEach((file) => log('✨ Written', file.path));
     }
   } catch (error) {
     console.error('🔴 Error writing to output file:', error);

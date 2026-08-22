@@ -283,6 +283,7 @@ Is `off` by default. When enabled, each Figma variable collection is exported as
 
 - **Download JSON** — produces a `design.tokens.zip` archive containing one `{CollectionName}.tokens.json` per collection.
 - **CLI** — writes individual `{CollectionName}.tokens.json` files into the directory specified by `--output`.
+- **Push to a server** — the GitHub, GitHub PR and GitLab servers commit one `{CollectionName}.tokens.json` per collection in a single commit. The `File name` field of the server becomes the folder they are written into, e.g. `tokens` → `tokens/{CollectionName}.tokens.json`.
 
 This is useful when you want to keep component-level token files separate (e.g. `button.tokens.json`, `card.tokens.json`).
 
@@ -292,6 +293,7 @@ Is `off` by default. When enabled, each mode of a variable collection is exporte
 
 - **Download JSON** — produces a `design.tokens.zip` archive containing one `{CollectionName}/{ModeName}.tokens.json` per mode.
 - **CLI** — writes individual `{CollectionName}/{ModeName}.tokens.json` files into the directory specified by `--output`.
+- **Push to a server** — the GitHub, GitHub PR and GitLab servers commit one `{CollectionName}/{ModeName}.tokens.json` per mode in a single commit, inside the folder set in the server's `File name` field.
 
 Collections with a single mode are exported as a single `{CollectionName}.tokens.json` file.
 
@@ -670,6 +672,8 @@ In ordere to test if your credentials are valid you can make a test request by c
 4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
 5. You can also specify a commit message.
 
+> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file name field is treated as a folder instead, and every file is written in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode.
+
 ![fig.8](readme-assets/fig8.webp)
 
 ### [GitHub PR](https://github.com)
@@ -686,7 +690,10 @@ All the steps are the same as for the [GitHub](#github) server, except the last 
 1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope.
 2. In the plugin settings paste the token into the `Project access token` field.
 3. Add an owner name, repository name and a branch name.
-4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`. 5. You can also specify a commit message.
+4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
+5. You can also specify a commit message.
+
+> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file name field is treated as a folder instead, and every file is written in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode.
 
 ![fig.11](readme-assets/fig11.webp)
 

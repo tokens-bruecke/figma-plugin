@@ -304,6 +304,11 @@ export const SettingsView = (props: ViewProps) => {
         }
 
         if (role === 'push') {
+          const splitOptions = {
+            splitByCollection: JSONsettingsConfig.splitByCollection,
+            splitByMode: JSONsettingsConfig.splitByMode,
+          };
+
           if (server.includes('jsonbin')) {
             console.log('push to jsonbin');
             await pushToJSONBin(
@@ -323,7 +328,8 @@ export const SettingsView = (props: ViewProps) => {
               tokens,
               (params) => {
                 toastRef.current?.show(params);
-              }
+              },
+              splitOptions
             );
           }
 
@@ -334,7 +340,8 @@ export const SettingsView = (props: ViewProps) => {
               tokens,
               (params) => {
                 toastRef.current?.show(params);
-              }
+              },
+              splitOptions
             );
           }
 
@@ -345,7 +352,8 @@ export const SettingsView = (props: ViewProps) => {
               tokens,
               (params) => {
                 toastRef.current?.show(params);
-              }
+              },
+              splitOptions
             );
           }
 

@@ -1,9 +1,14 @@
 import { Octokit } from '@octokit/core';
+import {
+  splitTokensIntoFiles,
+  SplitOptionsI,
+} from '../../../common/transform/splitTokensIntoFiles';
 
 export const githubPullRequest = async (
   credentials: GithubPullRequestCredentialsI,
   tokens: any,
-  toastCallback: (props: ToastIPropsI) => void
+  toastCallback: (props: ToastIPropsI) => void,
+  splitOptions: SplitOptionsI = {}
 ) => {
   const { token, owner, repo, baseBranch, fileName, pullRequestBody } =
     credentials;
@@ -11,7 +16,7 @@ export const githubPullRequest = async (
   const commitMessage = credentials.commitMessage || 'Update tokens';
   const pullRequestTitle =
     credentials.pullRequestTitle || 'chore(tokens): update tokens';
-  const fileContent = JSON.stringify(tokens, null, 2);
+  const files = splitTokensIntoFiles(tokens, splitOptions, fileName);
 
   const octokit = new Octokit({ auth: token });
 
@@ -23,6 +28,11 @@ export const githubPullRequest = async (
   async function create() {
     try {
       console.log('start creating pull request');
+
+      if (files.length === 0) {
+        throw new Error('There are no tokens to push');
+      }
+
       const commit = await createCommit();
       console.log('commit created');
       await createOrUpdateBranch(commit);
@@ -77,25 +87,23 @@ export const githubPullRequest = async (
       owner,
       repo,
       base_tree: baseRef.data.object.sha,
-      tree: [
-        {
-          path: fileName,
-          // mode 100644 is regular file
-          mode: '100644',
-          type: 'blob',
-          content: fileContent,
-        },
-      ],
+      tree: files.map((file) => ({
+        path: file.path,
+        // mode 100644 is regular file
+        mode: '100644' as const,
+        type: 'blob' as const,
+        content: file.content,
+      })),
     });
   }
 
   async function createOrUpdateBranch(commit: Commit) {
     if (await isBrunchExist(branch)) {
       console.log('update the branch');
-      updateBranch(commit);
+      await updateBranch(commit);
     } else {
       console.log('create a branch');
-      createBranch(commit);
+      await createBranch(commit);
     }
   }
 
