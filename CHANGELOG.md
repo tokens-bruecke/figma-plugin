@@ -1,3 +1,9 @@
+## [3.7.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.6.0...v3.7.0) (2026-08-22)
+
+### Features
+
+- **servers:** commit split token files to Github and Gitlab ([f3ba2b4](https://github.com/tokens-bruecke/figma-plugin/commit/f3ba2b4c5c8dc0593a918ab46a2c68f813314729))
+
 ## [3.6.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.5.0...v3.6.0) (2026-08-21)
 
 ### Features
