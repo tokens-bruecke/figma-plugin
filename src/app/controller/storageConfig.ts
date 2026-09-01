@@ -25,6 +25,7 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
   includeValueStringKeyToAlias: false,
   includeFigmaMetaData: false,
   usePercentageOpacity: false,
+  expandEasingPresets: true,
   splitByCollection: false,
   splitByMode: false,
   omitCollectionNames: false,

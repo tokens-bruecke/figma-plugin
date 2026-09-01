@@ -71,6 +71,11 @@
       "default": false,
       "description": "Express opacity values as percentages instead of 0-1 numbers."
     },
+    "expandEasingPresets": {
+      "type": "boolean",
+      "default": true,
+      "description": "Expand Figma's named easing presets (Ease in, Ease out, ...) into cubicBezier token values. When false, presets keep their Figma name as a string (\"ease-in\"). Spring presets are always exported as names."
+    },
     "splitByCollection": {
       "type": "boolean",
       "default": false,

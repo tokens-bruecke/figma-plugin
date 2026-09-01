@@ -96,7 +96,7 @@
         "resolvedType": {
           "type": "string",
           "description": "Figma variable type. Drives the token $type.",
-          "enum": ["COLOR", "FLOAT", "STRING", "BOOLEAN"]
+          "enum": ["COLOR", "FLOAT", "STRING", "BOOLEAN", "TIMING", "EASING"]
         },
         "valuesByMode": {
           "type": "object",

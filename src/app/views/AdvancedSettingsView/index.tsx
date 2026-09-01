@@ -80,6 +80,17 @@ export const AdvancedSettingsView = ({
       },
     },
     {
+      id: 'expand-easing-presets',
+      label: 'Expand easing presets to cubic-bezier',
+      checked: JSONsettingsConfig.expandEasingPresets,
+      onChange: (checked: boolean) => {
+        setJSONsettingsConfig({
+          ...JSONsettingsConfig,
+          expandEasingPresets: checked,
+        });
+      },
+    },
+    {
       id: 'include-value-alias-string',
       label: (
         <>

@@ -269,8 +269,13 @@ describe('mapTokenTypeToFigmaType', () => {
     expect(mapTokenTypeToFigmaType('opacity')).toBe('FLOAT');
   });
 
+  test('maps motion types', () => {
+    expect(mapTokenTypeToFigmaType('duration')).toBe('TIMING');
+    expect(mapTokenTypeToFigmaType('cubicBezier')).toBe('EASING');
+  });
+
   test('falls back to STRING for unknown types', () => {
-    expect(mapTokenTypeToFigmaType('duration')).toBe('STRING');
+    expect(mapTokenTypeToFigmaType('shadow')).toBe('STRING');
   });
 });
 
