@@ -3,6 +3,7 @@ import { IResolver } from '@common/resolver';
 import { convertRGBA } from './color/convertRGBA';
 import { getAliasVariableName } from './getAliasVariableName';
 import { makeDimension } from './makeDimension';
+import { makeDuration, normalizeEasing } from './motion';
 
 interface PropsI {
   variableValue: any;
@@ -13,6 +14,7 @@ interface PropsI {
   includeValueStringKeyToAlias: boolean;
   usePercentageOpacity: boolean;
   omitCollectionNames?: boolean;
+  expandEasingPresets?: boolean;
 }
 
 export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
@@ -25,6 +27,7 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
     includeValueStringKeyToAlias,
     usePercentageOpacity,
     omitCollectionNames = false,
+    expandEasingPresets = true,
   } = props;
 
   // console.log("variableValue", variableValue);
@@ -62,6 +65,15 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
         useDTCG
       );
     }
+  }
+
+  if (variableType === 'TIMING') {
+    // Figma stores durations in seconds, design tokens use milliseconds
+    return makeDuration(variableValue, useDTCG);
+  }
+
+  if (variableType === 'EASING') {
+    return normalizeEasing(variableValue, expandEasingPresets).value;
   }
 
   return variableValue;

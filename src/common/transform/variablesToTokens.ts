@@ -7,6 +7,35 @@ import { IResolver } from '@common/resolver';
 
 // console.clear();
 
+const MAX_ALIAS_DEPTH = 10;
+
+/**
+ * Follows a chain of variable aliases down to the concrete value behind it,
+ * reading each target's default mode. Returns the value unchanged when it is
+ * not an alias, or when the chain cannot be resolved.
+ */
+const resolveAliasedValue = async (
+  value: any,
+  resolver: IResolver,
+  depth = 0
+): Promise<any> => {
+  if (value?.type !== 'VARIABLE_ALIAS' || depth >= MAX_ALIAS_DEPTH) {
+    return value;
+  }
+
+  const target = await resolver.getVariableById(value.id);
+  if (!target) {
+    return value;
+  }
+
+  const collection = await resolver.getVariableCollectionById(
+    target.variableCollectionId
+  );
+  const modeId = collection?.defaultModeId ?? Object.keys(target.valuesByMode)[0];
+
+  return resolveAliasedValue(target.valuesByMode[modeId], resolver, depth + 1);
+};
+
 export const variablesToTokens = async (
   variables: Variable[],
   collections: VariableCollection[],
@@ -20,6 +49,7 @@ export const variablesToTokens = async (
     includeFigmaMetaData,
     usePercentageOpacity,
     omitCollectionNames = false,
+    expandEasingPresets = true,
   } = config;
   const keyNames = getTokenKeyName(useDTCG);
 
@@ -86,6 +116,7 @@ export const variablesToTokens = async (
           includeValueStringKeyToAlias,
           usePercentageOpacity,
           omitCollectionNames,
+          expandEasingPresets,
         },
         resolver
       );
@@ -117,10 +148,23 @@ export const variablesToTokens = async (
     const filteredModesValues =
       Object.keys(modesValues).length === 1 ? {} : modesValues;
 
+    // EASING variables map to `cubicBezier` or `string` depending on the
+    // preset they hold, so aliases have to be followed to their real value
+    // before the token type can be decided.
+    const rawDefaultValue =
+      variable.resolvedType === 'EASING'
+        ? await resolveAliasedValue(
+            variable.valuesByMode[collectionDefaultModeId],
+            resolver
+          )
+        : variable.valuesByMode[collectionDefaultModeId];
+
     const tokenType = normalizeType(
       variable.resolvedType,
       variable.scopes,
-      usePercentageOpacity
+      usePercentageOpacity,
+      rawDefaultValue,
+      expandEasingPresets
     );
 
     const variableObject = {

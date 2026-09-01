@@ -25,6 +25,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Add styles to](#add-styles-to)
     - [Include variable scopes](#include-variable-scopes)
     - [Use percentage for opacity](#use-percentage-for-opacity)
+    - [Expand easing presets to cubic-bezier](#expand-easing-presets-to-cubic-bezier)
     - [DTCG 2025.10 format](#dtcg-202510-format)
     - [Include `.value` string for aliases](#include-value-string-for-aliases)
     - [Include Figma metadata](#include-figma-metadata)
@@ -63,6 +64,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Handle variables from another file](#handle-variables-from-another-file)
     - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
+  - [Motion variables](#motion-variables)
   - [Design tokens types](#design-tokens-types)
   - [Scopes lemitations](#scopes-lemitations)
   - [Feedback](#feedback)
@@ -100,13 +102,14 @@ The plugin supports both **exporting** and **importing** design tokens:
 
 - ✅ Creates variable collections from top-level objects
 - ✅ Supports multiple modes (from `$extensions.mode` or `extensions.mode`)
-- ✅ Handles all variable types (color, number, string, boolean)
+- ✅ Handles all variable types (color, number, string, boolean, timing, easing)
 - ✅ Resolves alias references between variables
 - ✅ Supports various color formats (HEX, RGBA CSS, RGBA Object)
 - ✅ Preserves variable descriptions and metadata
+- ✅ Imports `duration` and `cubicBezier` tokens as Figma motion variables (see [Motion variables](#motion-variables))
 
 > [!WARNING]  
-> **Styles Export Limitation**: If you exported tokens with styles included (typography, grids, shadows, or blur), these cannot be imported back as Figma styles or variables. Figma's variable API currently only supports basic types: `color`, `number`, `string`, `boolean`, and `dimension`. Complex style types will be imported as `STRING` variables without proper value conversion. This is a temporary limitation until Figma supports these types natively in their API.
+> **Styles Export Limitation**: If you exported tokens with styles included (typography, grids, shadows, or blur), these cannot be imported back as Figma styles or variables. Figma's variable API currently only supports basic types: `color`, `number`, `string`, `boolean`, `dimension`, `duration` and `cubicBezier`. Complex style types will be imported as `STRING` variables without proper value conversion. This is a temporary limitation until Figma supports these types natively in their API.
 
 ---
 
@@ -176,6 +179,34 @@ Is `off` by default. When enabled, opacity values will be exported as percentage
   }
 }
 ```
+
+### Expand easing presets to cubic-bezier
+
+Is `on` by default. Figma's `EASING` variables hold either a custom curve or one of Figma's named presets, and the API only returns numbers for the custom ones — a preset arrives as just its name.
+
+When enabled, the named bezier presets (Linear, Ease in, Ease out, Ease in and out and the three "back" variants) are expanded into their curve, so every bezier easing exports as a spec-valid `cubicBezier` token. When disabled, they keep the name Figma gave them.
+
+```json
+// Expanded (default)
+{
+  "easing": {
+    "$type": "cubicBezier",
+    "$value": [0.41, 0, 1, 1]
+  }
+}
+
+// Not expanded
+{
+  "easing": {
+    "$type": "string",
+    "$value": "ease-in"
+  }
+}
+```
+
+Custom beziers always export as `cubicBezier` and are unaffected by this setting.
+
+Spring presets (Gentle, Quick, Bouncy, Slow), custom springs and Hold are always exported as strings regardless of the setting — DTCG has no spring type, and Figma exposes no curve to expand a spring into. See [Motion variables](#motion-variables) for the full mapping.
 
 ### DTCG 2025.10 format
 
@@ -547,6 +578,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "includeValueStringKeyToAlias": true,
   "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
   "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)
+  "expandEasingPresets": true, // Expand Figma's named easing presets into cubicBezier values
   "colorMode": "hex", // "hex"  | "rgba-object"  | "srgb-dtcg" |  "rgba-css"  | "hsla-object" | "hsl-dtcg" | "hsla-css" | "oklch-dtcg";
   "storeStyleInCollection": "none", // Name of one of your collection or "none" to keep them separated
   "splitByCollection": false, // Write each collection as a separate .tokens.json file
@@ -1042,7 +1074,7 @@ It follows the same pattern as used by [Cobalt](https://cobalt-ui.pages.dev/guid
 
 ## Variables types conversion
 
-Unlike design tokens, Figma variables now [support only 4 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT` and `STRING`. So, the plugin converts them into the corresponding types from the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/#types).
+Unlike design tokens, Figma variables [support only 6 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT`, `STRING`, `TIMING` and `EASING`. So, the plugin converts them into the corresponding types from the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/#types).
 
 | Figma type | Scope condition          | Design Tokens type                                                           |
 | ---------- | ------------------------ | ---------------------------------------------------------------------------- |
@@ -1053,10 +1085,38 @@ Unlike design tokens, Figma variables now [support only 4 types](https://www.fig
 | FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                   |
 | FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*  |
 | STRING     | —                        | _string_ \*                                                                  |
+| TIMING     | —                        | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*   |
+| EASING     | —                        | [cubicBezier](https://www.designtokens.org/tr/2025.10/format/#cubic-bezier) or _string_ \*\*\*\* |
 
 \* native JSON types — not part of the closed DTCG 2025.10 type set. With the [DTCG 2025.10 format](#dtcg-202510-format) setting on, `$type` is omitted for `string`/`boolean` tokens and the original Figma type is preserved under `$extensions.figmaType`. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
 
 \*\* Figma currently supports only `FLOAT` for numeric values used as dimensions, which map to `px` units. With the DTCG 2025.10 format on, dimensions are exported as `{ "value": 6, "unit": "px" }` objects; otherwise the plugin appends `px` to the number.
+
+\*\*\* Figma stores timings in seconds; the plugin converts them to milliseconds. With the DTCG 2025.10 format on, durations are exported as `{ "value": 300, "unit": "ms" }` objects; otherwise the plugin appends `ms` to the number.
+
+\*\*\*\* See [Motion variables](#motion-variables) below.
+
+---
+
+## Motion variables
+
+Figma's `EASING` variables hold either a custom curve or one of Figma's presets. The API returns numbers only for the two custom types — every preset arrives as just a name — so the plugin maps them like this:
+
+| Figma easing                                                                         | Token type            | Example value              |
+| ------------------------------------------------------------------------------------ | --------------------- | -------------------------- |
+| Custom bezier                                                                          | `cubicBezier`         | `[0, 0, 0.58, 1]`          |
+| Linear, Ease in / out / in and out, Ease in / out / in and out back                    | `cubicBezier`         | `[0.41, 0, 1, 1]`          |
+| Linear, Ease in / out / in and out, Ease in / out / in and out back — expansion off    | `string`              | `"ease-in"`                |
+| Gentle, Quick, Bouncy, Slow                                                            | `string`              | `"gentle"`                 |
+| Custom spring                                                                          | `string`              | `"spring(bounce 0.35)"`    |
+| Hold                                                                                   | `string`              | `"hold"`                   |
+
+Named bezier presets are expanded into curves unless [Expand easing presets to cubic-bezier](#expand-easing-presets-to-cubic-bezier) is turned off. Springs and Hold are always names: DTCG has no spring type, and Figma exposes no numbers for them.
+
+All of these forms are read back on import, so a round trip through the plugin preserves the original preset — including expanded curves, which are matched back to the preset they came from. Springs and Hold are the exception: they are indistinguishable from ordinary text on the way back in, so importing them creates `STRING` variables rather than `EASING` ones.
+
+> [!NOTE]
+> Figma does not publish the control points behind its named bezier presets, and the plugin API does not return them. The curves the plugin expands to are taken from Figma's own custom-bezier editor; if one of them does not match what you see in your file, please [open an issue](https://github.com/tokens-bruecke/figma-plugin/issues).
 
 ---
 

@@ -1,4 +1,5 @@
 import { IResolver } from '@common/resolver';
+import { parseDurationToSeconds, parseEasing } from './motion';
 
 interface ImportResult {
   success: boolean;
@@ -303,6 +304,13 @@ export const convertTokenValueToFigmaValue = (
       }
       return parseFloat(value);
 
+    case 'duration':
+      // Design tokens use milliseconds, Figma stores TIMING in seconds
+      return parseDurationToSeconds(value);
+
+    case 'cubicBezier':
+      return parseEasing(value);
+
     case 'boolean':
       return Boolean(value);
 
@@ -337,6 +345,8 @@ export const mapTokenTypeToFigmaType = (
     opacity: 'FLOAT',
     boolean: 'BOOLEAN',
     string: 'STRING',
+    duration: 'TIMING',
+    cubicBezier: 'EASING',
   };
 
   return typeMap[tokenType] || 'STRING';

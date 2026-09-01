@@ -97,6 +97,7 @@ interface ExportSettingsI {
   storeStyleInCollection: string;
   includeFigmaMetaData: boolean;
   usePercentageOpacity: boolean;
+  expandEasingPresets: boolean;
   splitByCollection: boolean;
   splitByMode: boolean;
   omitCollectionNames: boolean;

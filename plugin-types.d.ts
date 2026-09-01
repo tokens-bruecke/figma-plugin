@@ -49,7 +49,7 @@ declare global {
 
   type DimensionStringType = string | number
 
-  type DurationStringType = string
+  type DurationStringType = string | { value: number; unit: 'ms' | 's' }
 
   type GradientTokenType = 'linear' | 'radial' | 'angular' | 'conic'
 
@@ -154,7 +154,7 @@ declare global {
 
   interface DurationTokenI extends GenericTokenI {
     $type: 'duration'
-    $value: DurationStringType // Number followed by "ms" unit
+    $value: DurationStringType // { value: 300, unit: "ms" } or "300ms"
   }
 
   /**

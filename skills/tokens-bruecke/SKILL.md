@@ -151,7 +151,7 @@ Rules that matter:
 
 Optional JSON file passed via `--config`. Schema: [schemas/cli-options.schema.json](../../schemas/cli-options.schema.json). Example: [examples/cli-options.json](../../examples/cli-options.json).
 
-Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData`, `usePercentageOpacity`, `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`.
+Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData`, `usePercentageOpacity`, `expandEasingPresets` (default `true`, expands Figma's named easing presets into `cubicBezier` values), `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`.
 
 ## Output
 

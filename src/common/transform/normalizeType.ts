@@ -1,7 +1,13 @@
+import { normalizeEasing } from './motion';
+
 export const normalizeType = (
   type: VariableResolvedDataType,
   variableScopes: VariableScope[],
-  usePercentageOpacity: boolean = false
+  usePercentageOpacity: boolean = false,
+  // EASING variables resolve to `cubicBezier` or `string` depending on which
+  // preset they hold, so the value is needed to pick the type.
+  variableValue?: any,
+  expandEasingPresets: boolean = true
 ) => {
   switch (type) {
     case 'COLOR':
@@ -24,6 +30,10 @@ export const normalizeType = (
       return 'string';
     case 'BOOLEAN':
       return 'boolean';
+    case 'TIMING':
+      return 'duration';
+    case 'EASING':
+      return normalizeEasing(variableValue, expandEasingPresets).type;
     default:
       return 'string';
   }

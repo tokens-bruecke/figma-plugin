@@ -48,6 +48,7 @@ const baseConfig: ExportSettingsI = {
   includeFigmaMetaData: false,
   useDTCG: true,
   usePercentageOpacity: false,
+  expandEasingPresets: true,
   splitByCollection: false,
   splitByMode: false,
   omitCollectionNames: false,

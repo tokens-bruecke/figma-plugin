@@ -58,7 +58,7 @@
     "@codemirror/search": "^6.7.1",
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.43.6",
-    "@figma/plugin-typings": "^1.100.0",
+    "@figma/plugin-typings": "^1.137.0",
     "@figma/rest-api-spec": "^0.25.0",
     "@lezer/highlight": "^1.2.3",
     "@octokit/core": "^5.0.0",
