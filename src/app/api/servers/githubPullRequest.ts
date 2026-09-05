@@ -38,13 +38,19 @@ export const githubPullRequest = async (
       await createOrUpdateBranch(commit);
       console.log('branch created or updated');
 
-      await createPullRequest();
-      console.log('pull request created');
+      const { url, created } = await createPullRequest();
+      console.log(created ? 'pull request created' : 'pull request updated');
       toastCallback({
-        title: 'Github: Updated successfully',
-        message: 'Github Pull Request has been updated successfully',
+        title: created
+          ? 'Github: Pull Request created'
+          : 'Github: Pull Request updated',
+        message: created
+          ? 'Github Pull Request has been created successfully'
+          : 'Github Pull Request has been updated successfully',
+        link: url ? { label: 'Open Pull Request', url } : undefined,
         options: {
           type: 'success',
+          timeout: 15000,
         },
       });
     } catch (error) {
@@ -126,13 +132,17 @@ export const githubPullRequest = async (
     });
   }
 
-  async function createPullRequest() {
-    if (await isPullRequestExist(branch)) {
+  async function createPullRequest(): Promise<{
+    url: string | null;
+    created: boolean;
+  }> {
+    const existing = await findExistingPullRequest(branch);
+    if (existing) {
       console.log('pull request already exist');
-      return null;
+      return { url: existing.html_url, created: false };
     }
 
-    return octokit.request('POST /repos/{owner}/{repo}/pulls', {
+    const response = await octokit.request('POST /repos/{owner}/{repo}/pulls', {
       owner,
       repo,
       title: pullRequestTitle,
@@ -140,6 +150,8 @@ export const githubPullRequest = async (
       head: branch,
       base: baseBranch,
     });
+
+    return { url: response.data.html_url, created: true };
   }
 
   async function isBrunchExist(branch: string) {
@@ -158,16 +170,19 @@ export const githubPullRequest = async (
     }
   }
 
-  async function isPullRequestExist(branch: string) {
+  async function findExistingPullRequest(branch: string) {
     const pullRequest = await octokit.request(
       'GET /repos/{owner}/{repo}/pulls',
       {
         owner,
         repo,
-        head: branch,
+        // GitHub expects "owner:branch" for the head filter;
+        // a bare branch name is silently ignored and returns every open PR.
+        head: `${owner}:${branch}`,
+        state: 'open',
       }
     );
 
-    return pullRequest.data.length > 0;
+    return pullRequest.data[0] ?? null;
   }
 };

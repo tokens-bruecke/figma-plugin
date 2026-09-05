@@ -63,6 +63,13 @@
   pointer-events: all;
 }
 
+.link {
+  color: var(--figma-color-text-brand);
+  text-decoration: underline;
+  word-break: break-all;
+  pointer-events: all;
+}
+
 .success {
   background: var(--figma-color-bg-success-tertiary);
 }
