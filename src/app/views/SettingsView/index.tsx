@@ -32,6 +32,7 @@ import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
 import { importTokensFile } from '@app/api/importTokensFile';
+import { track } from '@app/api/analytics';
 
 type StyleListItemType = {
   id: stylesType;
@@ -227,6 +228,7 @@ export const SettingsView = (props: ViewProps) => {
       const tokensData = await importTokensFile();
 
       if (tokensData) {
+        track('/import');
         // Send tokens to figma controller for import
         parent.postMessage(
           {
@@ -295,7 +297,7 @@ export const SettingsView = (props: ViewProps) => {
         }
 
         if (role === 'download') {
-          // console.log("tokens download", tokens);
+          track('/download');
           downloadTokensFile(
             tokens,
             JSONsettingsConfig.splitByCollection,
@@ -310,6 +312,7 @@ export const SettingsView = (props: ViewProps) => {
           };
 
           if (server.includes('jsonbin')) {
+            track('/push/jsonbin');
             console.log('push to jsonbin');
             await pushToJSONBin(
               JSONsettingsConfig.servers.jsonbin,
@@ -321,6 +324,7 @@ export const SettingsView = (props: ViewProps) => {
           }
 
           if (server.includes('github')) {
+            track('/push/github');
             // console.log("github config", JSONsettingsConfig.servers.github);
             console.log('push to github');
             await pushToGithub(
@@ -334,6 +338,7 @@ export const SettingsView = (props: ViewProps) => {
           }
 
           if (server.includes('githubPullRequest')) {
+            track('/push/github-pull-request');
             console.log('create github pull request');
             await githubPullRequest(
               JSONsettingsConfig.servers.githubPullRequest,
@@ -346,6 +351,7 @@ export const SettingsView = (props: ViewProps) => {
           }
 
           if (server.includes('gitlab')) {
+            track('/push/gitlab');
             console.log('push to gitlab');
             await pushToGitlab(
               JSONsettingsConfig.servers.gitlab,
@@ -358,6 +364,7 @@ export const SettingsView = (props: ViewProps) => {
           }
 
           if (server.includes('customURL')) {
+            track('/push/custom-url');
             console.log('push to customURL');
             await pushToCustomURL(JSONsettingsConfig.servers.customURL, tokens);
           }
