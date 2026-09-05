@@ -1,6 +1,8 @@
 import { parseStoredConfig } from './storageConfig';
 
-export const getStorageConfig = async (key) => {
+export const getStorageConfig = async (
+  key: string
+): Promise<MultiTenantConfigI> => {
   const rawStorageConfig = await figma.clientStorage.getAsync(key);
   const config = parseStoredConfig(rawStorageConfig);
 
@@ -10,4 +12,6 @@ export const getStorageConfig = async (key) => {
     type: 'storageConfig',
     storageConfig: config,
   });
+
+  return config;
 };
