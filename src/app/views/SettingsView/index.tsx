@@ -283,7 +283,7 @@ export const SettingsView = (props: ViewProps) => {
 
   // Receive tokens from figma controller
   useEffect(() => {
-    window.onmessage = async (event) => {
+    const handleMessage = async (event: MessageEvent) => {
       if (!event.data?.pluginMessage) return;
       const { type, tokens, role, server, result } = event.data
         .pluginMessage as TokensMessageI;
@@ -386,6 +386,12 @@ export const SettingsView = (props: ViewProps) => {
           }
         }
       }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
     };
   }, [JSONsettingsConfig]);
 

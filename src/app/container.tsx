@@ -36,6 +36,7 @@ const Container = () => {
 
   const [multiTenantConfig, setMultiTenantConfig] =
     useState<MultiTenantConfigI>(createDefaultConfig());
+  const [isStorageLoaded, setIsStorageLoaded] = useState(false);
 
   const activeProfileId = multiTenantConfig.activeProfileId;
   const JSONsettingsConfig =
@@ -204,13 +205,22 @@ const Container = () => {
   // USE EFFECTS //
   /////////////////
 
-  // Get all collections from Figma
+  // Load stored config and collections from Figma
   useEffect(() => {
-    parent.postMessage({ pluginMessage: { type: 'checkForVariables' } }, '*');
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data?.pluginMessage;
+      if (!message) return;
 
-    window.onmessage = (event) => {
       const { type, hasVariables, variableCollections, storageConfig } =
-        event.data.pluginMessage;
+        message;
+
+      // stored config arrives first; only then may the UI write back
+      if (type === 'storageConfig') {
+        if (storageConfig) {
+          setMultiTenantConfig(sanitizeMultiTenantConfig(storageConfig));
+        }
+        setIsStorageLoaded(true);
+      }
 
       // check if file has variables
       if (type === 'checkForVariables') {
@@ -218,19 +228,30 @@ const Container = () => {
         setIsLoading(false);
 
         if (hasVariables) {
-          setJSONsettingsConfig((prev) => ({
+          setMultiTenantConfig((prev) => ({
             ...prev,
-            variableCollections,
+            profiles: Object.keys(prev.profiles).reduce(
+              (acc, profileId) => {
+                acc[profileId] = {
+                  ...prev.profiles[profileId],
+                  variableCollections,
+                };
+                return acc;
+              },
+              {} as Record<ProfileId, SettingsProfileI>
+            ),
           }));
         }
       }
+    };
 
-      // check storage on load
-      if (type === 'storageConfig') {
-        if (storageConfig) {
-          setMultiTenantConfig(sanitizeMultiTenantConfig(storageConfig));
-        }
-      }
+    window.addEventListener('message', handleMessage);
+
+    parent.postMessage({ pluginMessage: { type: 'getStorageConfig' } }, '*');
+    parent.postMessage({ pluginMessage: { type: 'checkForVariables' } }, '*');
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
     };
   }, []);
 
@@ -297,8 +318,11 @@ const Container = () => {
     }
   }, [manualFrameHeight, contentHeight]);
 
-  // pass changed to figma controller
+  // pass changes to figma controller, but never before the stored
+  // config has been loaded, otherwise defaults would overwrite it
   useDidUpdate(() => {
+    if (!isStorageLoaded) return;
+
     parent.postMessage(
       {
         pluginMessage: {
@@ -308,7 +332,7 @@ const Container = () => {
       },
       '*'
     );
-  }, [multiTenantConfig]);
+  }, [multiTenantConfig, isStorageLoaded]);
 
   // handle code preview
   useDidUpdate(() => {

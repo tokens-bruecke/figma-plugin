@@ -21,8 +21,6 @@ console.clear();
 
 const pluginConfigKey = 'tokenbrücke-config';
 
-getStorageConfig(pluginConfigKey);
-
 //
 let isCodePreviewOpen = false;
 
@@ -41,9 +39,22 @@ figma.showUI(__html__, {
 let JSONSettingsConfig: JSONSettingsConfigI;
 let multiTenantConfig: MultiTenantConfigI;
 
+const loadStorageConfig = async () => {
+  multiTenantConfig = await getStorageConfig(pluginConfigKey);
+  JSONSettingsConfig =
+    multiTenantConfig.profiles[multiTenantConfig.activeProfileId];
+};
+
+loadStorageConfig();
+
 // listen for messages from the UI
 figma.ui.onmessage = async (msg) => {
   await checkForVariables(msg.type);
+
+  // UI asks for the stored config once it is ready to receive it
+  if (msg.type === 'getStorageConfig') {
+    await loadStorageConfig();
+  }
 
   // get JSON settings config from UI and store it in a variable
   if (msg.type === 'JSONSettingsConfig') {
