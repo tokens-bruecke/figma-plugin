@@ -8,6 +8,7 @@ import { SettingsView } from './views/SettingsView';
 
 import { CodePreviewView } from './views/CodePreviewView';
 import { importTokensFile } from './api/importTokensFile';
+import { track } from './api/analytics';
 import {
   createDefaultConfig,
   createProfileFromConfig,
@@ -181,6 +182,7 @@ const Container = () => {
       const tokensData = await importTokensFile();
 
       if (tokensData) {
+        track('/import');
         // Send tokens to figma controller for import
         parent.postMessage(
           {
@@ -227,6 +229,8 @@ const Container = () => {
         setFileHasVariables(hasVariables);
         setIsLoading(false);
 
+        track(hasVariables ? '/ready' : '/empty');
+
         if (hasVariables) {
           setMultiTenantConfig((prev) => ({
             ...prev,
@@ -246,6 +250,8 @@ const Container = () => {
     };
 
     window.addEventListener('message', handleMessage);
+
+    track('/', false);
 
     parent.postMessage({ pluginMessage: { type: 'getStorageConfig' } }, '*');
     parent.postMessage({ pluginMessage: { type: 'checkForVariables' } }, '*');

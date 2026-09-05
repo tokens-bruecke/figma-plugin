@@ -4,6 +4,7 @@ import styles from './styles.module.scss';
 
 import { getTokensStat } from '@common/transform/getTokensStat';
 import { JsonViewer } from '@app/components/JsonViewer';
+import { track } from '@app/api/analytics';
 
 import { Text, Icon } from 'react-figma-ui/ui';
 
@@ -88,6 +89,7 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
   };
 
   const copyCode = () => {
+    track('/copy');
     // copy code to clipboard
     copy(JSON.stringify(generatedTokens, null, 2));
     setIsCodeCopied(true);
