@@ -1,3 +1,9 @@
+## [3.10.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.9.0...v3.10.0) (2026-09-05)
+
+### Features
+
+- **analytics:** count anonymous usage events with GoatCounter ([e34eb7e](https://github.com/tokens-bruecke/figma-plugin/commit/e34eb7e3231e1ab048bd8128386c50b447ad0899))
+
 ## [3.9.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.8.1...v3.9.0) (2026-09-05)
 
 ### Features
