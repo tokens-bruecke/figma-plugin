@@ -1,3 +1,13 @@
+## [3.8.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.7.0...v3.8.1) (2026-09-05)
+
+### Features
+
+- **motion:** export TIMING and EASING variables as DTCG motion tokens ([4b130c8](https://github.com/tokens-bruecke/figma-plugin/commit/4b130c8e97713d12534f241e6a6d53963a96937b)), closes [#85](https://github.com/tokens-bruecke/figma-plugin/issues/85)
+
+### Bug Fixes
+
+- **profiles:** stop startup race that wiped stored profiles and server settings ([6b37c18](https://github.com/tokens-bruecke/figma-plugin/commit/6b37c184a533b379693cea233a256534e61bd694))
+
 ## [3.7.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.6.0...v3.7.0) (2026-08-22)
 
 ### Features
