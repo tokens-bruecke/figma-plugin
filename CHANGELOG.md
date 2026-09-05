@@ -1,3 +1,13 @@
+## [3.9.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.8.1...v3.9.0) (2026-09-05)
+
+### Features
+
+- **servers:** show a link to the GitHub Pull Request after pushing ([67562e2](https://github.com/tokens-bruecke/figma-plugin/commit/67562e21286a6d69227f57675b3b0a1191d3994b))
+
+### Bug Fixes
+
+- **ci:** generate the CHANGELOG section when the release tag is on a merge commit ([ce0a628](https://github.com/tokens-bruecke/figma-plugin/commit/ce0a628354d9f8a811ea1bf809454f7688f8b802))
+
 ## [3.8.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.7.0...v3.8.1) (2026-09-05)
 
 ### Features
