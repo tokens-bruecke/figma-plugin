@@ -184,6 +184,10 @@ interface MetaPropsI {
 interface ToastIPropsI {
   title: string;
   message: string;
+  link?: {
+    label: string;
+    url: string;
+  };
   options: {
     type?: 'success' | 'error' | 'warn' | 'info';
     timeout?: number;

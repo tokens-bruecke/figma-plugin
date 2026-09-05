@@ -17,6 +17,7 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
         {
           title: params.title ?? 'Title',
           message: params.message,
+          link: params.link,
           options: {
             type: params.options?.type ?? 'info',
             timeout: params.options?.timeout ?? 5000,
@@ -66,6 +67,18 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
             </Text>
 
             <Text className={styles.message}>{toast.message}</Text>
+
+            {toast.link && (
+              <a
+                className={styles.link}
+                href={toast.link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {toast.link.label}
+              </a>
+            )}
           </div>
         ))}
       </div>
