@@ -1,4 +1,5 @@
 import { IResolver } from '@common/resolver';
+import { isOpacityScope } from './opacityScopes';
 import { parseDurationToSeconds, parseEasing } from './motion';
 
 interface ImportResult {
@@ -38,8 +39,7 @@ export const getTokenType = (token: any): string | null => {
   const scopes = getTokenScopes(token);
   const declaredType = token.$type ?? token.type;
   if (
-    scopes?.length === 1 &&
-    scopes[0] === 'OPACITY' &&
+    isOpacityScope(scopes) &&
     (declaredType === undefined ||
       declaredType === 'number' ||
       declaredType === 'string')
@@ -93,7 +93,9 @@ const getTokenDescription = (token: any): string => {
   return '';
 };
 
-const VALID_VARIABLE_SCOPES: ReadonlyArray<VariableScope> = [
+// `COLOR_OPACITY` (opacity of a color variable) is accepted by Figma at
+// runtime but missing from the published typings, hence the string array.
+const VALID_VARIABLE_SCOPES: ReadonlyArray<string> = [
   'ALL_SCOPES',
   'TEXT_CONTENT',
   'CORNER_RADIUS',
@@ -108,6 +110,7 @@ const VALID_VARIABLE_SCOPES: ReadonlyArray<VariableScope> = [
   'EFFECT_FLOAT',
   'EFFECT_COLOR',
   'OPACITY',
+  'COLOR_OPACITY',
   'FONT_FAMILY',
   'FONT_STYLE',
   'FONT_WEIGHT',
@@ -195,6 +198,21 @@ const rgbaToRgb = (
   };
 };
 
+const isReference = (value: any): boolean =>
+  typeof value === 'string' && value.startsWith('{') && value.endsWith('}');
+
+/**
+ * A color value exported from a Figma color alias with its own opacity:
+ * `{ components: "{color.brand}", alpha: 0.5 }` or a color object whose
+ * `alpha` / `a` is a reference. See "Color aliases with opacity" in README.
+ */
+export const isComposedColorToken = (value: any): boolean =>
+  typeof value === 'object' &&
+  value !== null &&
+  (isReference(value.components) ||
+    isReference(value.alpha) ||
+    isReference(value.a));
+
 /**
  * Converts token value to Figma variable value based on type
  */
@@ -240,6 +258,15 @@ export const convertTokenValueToFigmaValue = (
           return rgbaToRgb(value);
         }
       } else if (typeof value === 'object' && value !== null) {
+        if (isComposedColorToken(value)) {
+          // Exported from a color alias with its own opacity. Figma's Plugin
+          // API can read these but `setValueForMode` rejects them.
+          throw new Error(
+            `Color aliases with a separate opacity cannot be written through the Figma Plugin API yet: ${JSON.stringify(
+              value
+            )}`
+          );
+        }
         // DTCG 2025.10 color object: { colorSpace, components, alpha, hex }
         if ('colorSpace' in value) {
           // Prefer the hex fallback (always emitted by the plugin's DTCG export)

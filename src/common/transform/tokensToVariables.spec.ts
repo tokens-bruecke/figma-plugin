@@ -4,6 +4,7 @@ import {
   getTokenType,
   isValidVariableScope,
   convertTokenValueToFigmaValue,
+  isComposedColorToken,
   mapTokenTypeToFigmaType,
 } from './tokensToVariables';
 
@@ -315,5 +316,53 @@ describe('getTokenType', () => {
   test('respects explicit non-number type despite OPACITY scope', () => {
     const token = { $type: 'color', $value: '#fff', scopes: ['OPACITY'] };
     expect(getTokenType(token)).toBe('color');
+  });
+});
+
+describe('composed colors (color alias with opacity)', () => {
+  test('recognises the exported shapes', () => {
+    expect(
+      isComposedColorToken({ components: '{color.brand}', alpha: 0.5 })
+    ).toBe(true);
+    expect(
+      isComposedColorToken({
+        colorSpace: 'srgb',
+        components: [1, 0, 0],
+        alpha: '{opacity.50}',
+        hex: '#ff0000',
+      })
+    ).toBe(true);
+    expect(
+      isComposedColorToken({ r: 255, g: 0, b: 0, a: '{opacity.50}' })
+    ).toBe(true);
+    expect(
+      isComposedColorToken({
+        colorSpace: 'srgb',
+        components: [1, 0, 0],
+        alpha: 0.5,
+        hex: '#ff0000',
+      })
+    ).toBe(false);
+    expect(isComposedColorToken('{color.brand}')).toBe(false);
+  });
+
+  test('cannot be written back through the Plugin API', () => {
+    expect(() =>
+      convertTokenValueToFigmaValue(
+        { components: '{color.brand}', alpha: 0.5 },
+        'color',
+        new Map()
+      )
+    ).toThrow(/separate opacity/);
+  });
+
+  test('COLOR_OPACITY is a valid scope', () => {
+    expect(isValidVariableScope('COLOR_OPACITY')).toBe(true);
+  });
+
+  test('COLOR_OPACITY tokens are typed as opacity', () => {
+    expect(
+      getTokenType({ $type: 'number', $value: 0.5, scopes: ['COLOR_OPACITY'] })
+    ).toBe('opacity');
   });
 });

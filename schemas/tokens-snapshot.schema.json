@@ -129,6 +129,7 @@
       "description": "A resolved variable value, or an alias pointing at another variable.",
       "oneOf": [
         { "$ref": "#/definitions/variableAlias" },
+        { "$ref": "#/definitions/composedColor" },
         { "$ref": "#/definitions/rgba" },
         { "type": "number" },
         { "type": "string" },
@@ -142,6 +143,34 @@
       "properties": {
         "type": { "const": "VARIABLE_ALIAS" },
         "id": { "type": "string" }
+      }
+    },
+    "composedColor": {
+      "type": "object",
+      "description": "A color variable that aliases another color and applies its own opacity on top (Figma \"Control opacity at scale\", September 2026), as the Plugin API returns it. The first argument is the base color (alias or rgba), the second the opacity in percent (0..100) or an alias to a number variable. Exports as `{ components: \"{color.brand}\", alpha: 0.5 }` — see README, \"Color aliases with opacity\".",
+      "required": ["type", "expressionFunction", "expressionArguments"],
+      "properties": {
+        "type": { "const": "VARIABLE_EXPRESSION" },
+        "expressionFunction": { "const": "COMPOSE_COLOR" },
+        "expressionArguments": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": [
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/variableAlias" },
+                { "$ref": "#/definitions/rgba" }
+              ]
+            },
+            {
+              "oneOf": [
+                { "$ref": "#/definitions/variableAlias" },
+                { "type": "number", "minimum": 0, "maximum": 100 }
+              ]
+            }
+          ]
+        }
       }
     },
     "rgba": {

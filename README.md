@@ -61,6 +61,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Tokens structure](#tokens-structure)
   - [Aliases handling](#aliases-handling)
     - [Include `.value` string for aliases](#include-value-string-for-aliases-1)
+    - [Color aliases with opacity](#color-aliases-with-opacity)
     - [Handle variables from another file](#handle-variables-from-another-file)
     - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
@@ -558,6 +559,7 @@ Things worth knowing when building a snapshot:
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
+- Color aliases with their own opacity come back from the Plugin API as `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }` — pass them through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
 
 > [!NOTE]
 > Plugin API objects are live proxies, so `JSON.stringify` may not enumerate their properties. Copy the fields listed in the schema onto plain objects before serializing.
@@ -1038,6 +1040,41 @@ All aliases are converted into the alias string format from the [Design Tokens s
 ### Include `.value` string for aliases
 
 You can switch on the `Include .value string for aliases` option in [the plugin settings](#include-value-string-for-aliases).
+
+---
+
+### Color aliases with opacity
+
+Since September 2026 Figma lets a color variable alias another color and apply its own opacity on top ("Control opacity at scale"). The opacity can be a plain percentage or a number variable with the `COLOR_OPACITY` scope.
+
+The [DTCG color type](https://www.designtokens.org/tr/2025.10/color/#format) has no way to express "this color, with that opacity" while keeping the reference, so the plugin exports these variables as a composite value: `components` holds the reference to the base color and `alpha` holds the opacity, as a `0..1` number (or `"50%"` with [Use percentage for opacity](#use-percentage-for-opacity)) or a reference to the number variable driving it.
+
+```json
+{
+  "opacity": {
+    "50": { "$type": "number", "$value": 0.5, "scopes": ["COLOR_OPACITY"] }
+  },
+  "color": {
+    "brand": {
+      "$type": "color",
+      "$value": { "colorSpace": "srgb", "components": [0.2, 0.4, 0.8], "alpha": 1, "hex": "#3366cc" }
+    },
+    "brand-translucent": {
+      "$type": "color",
+      "$value": { "components": "{color.brand}", "alpha": 0.5 }
+    },
+    "brand-muted": {
+      "$type": "color",
+      "$value": { "components": "{color.brand}", "alpha": "{opacity.50}" }
+    }
+  }
+}
+```
+
+The `alpha` replaces the alpha channel of the referenced color. If the base color is a literal rather than an alias, the opacity is baked into the regular color value for the chosen [color mode](#color-mode); only when the opacity itself is a reference does the color value keep an `alpha` (or `a`) reference in place of the number.
+
+> [!NOTE]
+> This shape is an extension of the DTCG format, so a consumer needs a small custom transform: resolve the `components` reference, then apply `alpha`. Figma's Plugin API can read these variables but not write them yet, so they cannot be imported back through the plugin.
 
 ---
 

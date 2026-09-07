@@ -1,4 +1,5 @@
 import { normalizeEasing } from './motion';
+import { isOpacityScope } from './opacityScopes';
 
 export const normalizeType = (
   type: VariableResolvedDataType,
@@ -13,12 +14,11 @@ export const normalizeType = (
     case 'COLOR':
       return 'color';
     case 'FLOAT':
-      if (variableScopes.length === 1) {
-        if (variableScopes[0] === 'FONT_WEIGHT') {
-          return 'fontWeight';
-        } else if (variableScopes[0] === 'OPACITY') {
-          return usePercentageOpacity ? 'string' : 'number';
-        }
+      if (variableScopes.length === 1 && variableScopes[0] === 'FONT_WEIGHT') {
+        return 'fontWeight';
+      }
+      if (isOpacityScope(variableScopes)) {
+        return usePercentageOpacity ? 'string' : 'number';
       }
       return 'dimension';
     case 'STRING':

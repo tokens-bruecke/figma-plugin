@@ -159,6 +159,26 @@ describe('getTokens with a snapshot', () => {
     );
   });
 
+  it('exports color aliases with opacity as composed values', async () => {
+    const resolver = new FileResolver(exampleSnapshot());
+    const tokens: any = await getTokens(resolver, baseConfig);
+    const muted = tokens.Semantic.surface['accent-muted'];
+
+    expect(muted.$type).toBe('color');
+    expect(muted.$value).toEqual({
+      components: '{Primitives.colors.blue.500}',
+      alpha: 0.5,
+    });
+    expect(muted.$extensions.mode.Dark).toEqual({
+      components: '{Primitives.colors.blue.500}',
+      alpha: '{Primitives.opacity.50}',
+    });
+
+    // The number variable driving the opacity exports like an OPACITY float
+    expect(tokens.Primitives.opacity['50'].$type).toBe('number');
+    expect(tokens.Primitives.opacity['50'].$value).toBe(0.5);
+  });
+
   it('matches REST behaviour for aliases outside the snapshot', async () => {
     const orphan = {
       ...minimal,

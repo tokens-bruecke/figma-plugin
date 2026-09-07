@@ -215,3 +215,158 @@ describe('getColor', () => {
     });
   });
 });
+
+describe('composed colors (color alias with opacity)', () => {
+  const variables: Record<string, Partial<Variable>> = {
+    'VariableID:1': {
+      id: 'VariableID:1',
+      name: 'brand/blue',
+      variableCollectionId: 'C:1',
+    },
+    'VariableID:2': {
+      id: 'VariableID:2',
+      name: 'opacity/50',
+      variableCollectionId: 'C:1',
+    },
+  };
+  const aliasResolver = {
+    getVariableById: async (id: string) => (variables[id] ?? null) as Variable,
+    getVariableCollectionById: async () =>
+      ({ id: 'C:1', name: 'Primitives' } as VariableCollection),
+  } as unknown as IResolver;
+
+  const compose = (base: any, opacity: any) => ({
+    type: 'VARIABLE_EXPRESSION',
+    expressionFunction: 'COMPOSE_COLOR',
+    expressionArguments: [base, opacity],
+  });
+  const blueAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:1' };
+  const opacityAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:2' };
+  const red = { r: 1, g: 0, b: 0, a: 1 };
+
+  const normalize = (
+    variableValue: any,
+    overrides: Partial<Parameters<typeof normalizeValue>[0]> = {}
+  ) =>
+    normalizeValue(
+      {
+        variableValue,
+        variableType: 'COLOR',
+        variableScope: ['ALL_SCOPES'],
+        colorMode: 'hex',
+        useDTCG: true,
+        includeValueStringKeyToAlias: false,
+        usePercentageOpacity: false,
+        ...overrides,
+      },
+      aliasResolver
+    );
+
+  test('alias base with a literal opacity', async () => {
+    expect(await normalize(compose(blueAlias, 50))).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: 0.5,
+    });
+  });
+
+  test('alias base with an aliased opacity', async () => {
+    expect(await normalize(compose(blueAlias, opacityAlias))).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: '{Primitives.opacity.50}',
+    });
+  });
+
+  test('respects the percentage opacity setting', async () => {
+    expect(
+      await normalize(compose(blueAlias, 33.3), { usePercentageOpacity: true })
+    ).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: '33.3%',
+    });
+  });
+
+  test('respects the .value alias suffix and omitted collection names', async () => {
+    expect(
+      await normalize(compose(blueAlias, opacityAlias), {
+        includeValueStringKeyToAlias: true,
+        omitCollectionNames: true,
+      })
+    ).toStrictEqual({
+      components: '{brand.blue.$value}',
+      alpha: '{opacity.50.$value}',
+    });
+  });
+
+  test('unresolvable alias base falls back to the missing marker', async () => {
+    expect(
+      await normalize(
+        compose({ type: 'VARIABLE_ALIAS', id: 'VariableID:404' }, 50)
+      )
+    ).toStrictEqual({ components: '#missing#', alpha: 0.5 });
+  });
+
+  test('literal base with a literal opacity bakes the alpha in', async () => {
+    expect(await normalize(compose(red, 50))).toBe('#ff000080');
+    expect(
+      await normalize(compose(red, 50), { colorMode: 'srgb-dtcg' })
+    ).toStrictEqual({
+      colorSpace: 'srgb',
+      components: [1, 0, 0],
+      alpha: 0.5,
+      hex: '#ff000080',
+    });
+  });
+
+  test('literal base with an aliased opacity, DTCG color mode', async () => {
+    expect(
+      await normalize(compose(red, opacityAlias), { colorMode: 'srgb-dtcg' })
+    ).toStrictEqual({
+      colorSpace: 'srgb',
+      components: [1, 0, 0],
+      alpha: '{Primitives.opacity.50}',
+      hex: '#ff0000',
+    });
+  });
+
+  test('literal base with an aliased opacity, object color mode', async () => {
+    expect(
+      await normalize(compose(red, opacityAlias), { colorMode: 'rgba-object' })
+    ).toStrictEqual({ r: 255, g: 0, b: 0, a: '{Primitives.opacity.50}' });
+  });
+
+  test('literal base with an aliased opacity, string color mode', async () => {
+    expect(
+      await normalize(compose(red, opacityAlias), { colorMode: 'rgba-css' })
+    ).toStrictEqual({
+      components: 'rgb(255, 0, 0)',
+      alpha: '{Primitives.opacity.50}',
+    });
+  });
+});
+
+describe('opacity scopes', () => {
+  test('COLOR_OPACITY floats export like OPACITY floats', async () => {
+    const props = {
+      variableValue: 50,
+      variableType: 'FLOAT' as const,
+      variableScope: ['COLOR_OPACITY' as VariableScope],
+      colorMode: 'hex' as const,
+      useDTCG: true,
+      includeValueStringKeyToAlias: false,
+      usePercentageOpacity: false,
+    };
+    expect(await normalizeValue(props, resolver)).toBe(0.5);
+    expect(
+      await normalizeValue({ ...props, usePercentageOpacity: true }, resolver)
+    ).toBe('50%');
+    expect(
+      await normalizeValue(
+        {
+          ...props,
+          variableScope: ['OPACITY', 'COLOR_OPACITY' as VariableScope],
+        },
+        resolver
+      )
+    ).toBe(0.5);
+  });
+});
