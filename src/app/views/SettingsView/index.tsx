@@ -19,6 +19,7 @@ import {
 import { config } from '@app/controller/config';
 
 import { Toast, ToastRefI } from '@app/components/Toast';
+import { COMPOSED_COLOR_ISSUE_URL } from '@common/transform/tokensToVariables';
 import { AdvancedSettingsView } from '@app/views/AdvancedSettingsView';
 import { ServerSettingsView } from '@app/views/ServerSettingsView';
 import { ProfileDetailView } from '@app/views/ProfileDetailView';
@@ -378,12 +379,24 @@ export const SettingsView = (props: ViewProps) => {
         setIsImporting(false);
 
         if (result) {
+          const hasIssues = result.errors.length > 0;
           toastRef.current?.show({
-            title: result.success ? 'Import Successful' : 'Import Failed',
+            title: result.success
+              ? hasIssues
+                ? 'Imported with issues'
+                : 'Import Successful'
+              : 'Import Failed',
             message: result.message,
+            ...(result.composedColorsRejected > 0 && {
+              link: {
+                label: 'Figma issue #375: composed colors are read-only',
+                url: COMPOSED_COLOR_ISSUE_URL,
+              },
+            }),
             options: {
-              type: result.success ? 'success' : 'error',
-              timeout: 10000,
+              type: result.success ? (hasIssues ? 'warn' : 'success') : 'error',
+              // leave time to read the issues
+              timeout: hasIssues ? 60000 : 10000,
             },
           });
 

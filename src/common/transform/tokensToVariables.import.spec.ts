@@ -212,6 +212,96 @@ describe('tokensToVariables with composed colors', () => {
     expect(valueOf('broken')).toBeUndefined();
   });
 
+  test('leaves composed colors untouched when the runtime rejects them', async () => {
+    const original = fake.variables.createVariable;
+    fake.variables.createVariable = (...args: any[]) => {
+      const variable = original(...(args as [any, any, any]));
+      const set = variable.setValueForMode.bind(variable);
+      variable.setValueForMode = (modeId: string, value: any) => {
+        if (value?.type === 'VARIABLE_EXPRESSION') {
+          throw new Error('Composed color variable values are not supported');
+        }
+        set(modeId, value);
+      };
+      return variable;
+    };
+
+    const result = await tokensToVariables(
+      {
+        theme: {
+          shadow: {
+            $type: 'color',
+            $value: { components: '{t1.gray}', alpha: '{t1.opacity4}' },
+            $extensions: {
+              mode: {
+                light: { components: '{t1.gray}', alpha: '{t1.opacity4}' },
+                dark: { components: '{t1.gray}', alpha: 0.5 },
+              },
+            },
+          },
+          plain: { $type: 'color', $value: '{t1.gray}' },
+        },
+        t1: {
+          gray: { $type: 'color', $value: '#ff0000' },
+          opacity4: { $type: 'dimension', $value: { value: 4, unit: 'px' } },
+        },
+      },
+      resolver
+    );
+
+    // nothing is written for the rejected values, other tokens are fine
+    expect(valueOf('shadow', 'light')).toBeUndefined();
+    expect(valueOf('shadow', 'dark')).toBeUndefined();
+    expect(valueOf('plain', 'light')).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('gray').id,
+    });
+    // default value + light + dark
+    expect(result.composedColorsRejected).toBe(3);
+    expect(result.errors).toHaveLength(3);
+    expect(result.errors[0]).toMatch(
+      /^Skipped .*shadow.*: this Figma version cannot write color aliases with a separate opacity \(Composed color variable values are not supported\)\. See https:\/\/github\.com\/figma\/plugin-typings\/issues\/375$/
+    );
+    expect(result.success).toBe(true);
+    expect(result.message).toMatch(/3 value\(s\) skipped/);
+    expect(result.message).not.toMatch(/error\(s\)/);
+  });
+
+  test('detects composed colors that Figma drops without throwing', async () => {
+    const original = fake.variables.createVariable;
+    fake.variables.createVariable = (...args: any[]) => {
+      const variable = original(...(args as [any, any, any]));
+      const set = variable.setValueForMode.bind(variable);
+      variable.setValueForMode = (modeId: string, value: any) => {
+        if (value?.type === 'VARIABLE_EXPRESSION') {
+          return; // silently ignored
+        }
+        set(modeId, value);
+      };
+      return variable;
+    };
+
+    const result = await tokensToVariables(
+      {
+        t1: {
+          gray: { $type: 'color', $value: '#ff0000' },
+          shadow: {
+            $type: 'color',
+            $value: { components: '{t1.gray}', alpha: 0.5 },
+          },
+        },
+      },
+      resolver
+    );
+
+    expect(valueOf('shadow')).toBeUndefined();
+    expect(result.composedColorsRejected).toBe(1);
+    expect(result.errors[0]).toMatch(
+      /the value was ignored by setValueForMode/
+    );
+    expect(result.message).toMatch(/1 value\(s\) skipped/);
+  });
+
   test('imports motion tokens as TIMING and EASING variables', async () => {
     const result = await tokensToVariables(
       {

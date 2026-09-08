@@ -1081,6 +1081,9 @@ The `alpha` is the opacity Figma applies on top of the referenced color. If the 
 
 [Importing](#import-json--variables) these tokens recreates the composed color variable in Figma: `components` becomes the alias, `alpha` the opacity (a plain percentage or an alias to the number variable). References to variables in other collections are resolved once every collection has been imported.
 
+> [!WARNING]
+> Some Figma clients can read these variables but refuse to write them ("Composed color variable values are not supported"), currently including Figma Desktop. The plugin then leaves those values untouched, reports how many were skipped and links to [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375). Other tokens in the same import are not affected.
+
 > [!NOTE]
 > This shape is an extension of the DTCG format, so a consumer needs a small custom transform: resolve the `components` reference, then apply `alpha`.
 

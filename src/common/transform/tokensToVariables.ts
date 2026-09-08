@@ -10,6 +10,8 @@ interface ImportResult {
   variablesCreated: number;
   variablesUpdated: number;
   errors: string[];
+  /** Color aliases with a separate opacity this Figma version refused to write. */
+  composedColorsRejected: number;
 }
 
 /**
@@ -492,6 +494,62 @@ const extractTokens = (
   return tokens;
 };
 
+const isComposedFigmaValue = (value: any): value is ComposedColorValue =>
+  value?.type === 'VARIABLE_EXPRESSION' &&
+  value.expressionFunction === 'COMPOSE_COLOR';
+
+/**
+ * Some Figma clients can read color aliases with a separate opacity but
+ * reject writing them ("Composed color variable values are not supported").
+ */
+export const COMPOSED_COLOR_ISSUE_URL =
+  'https://github.com/figma/plugin-typings/issues/375';
+
+interface SetValueContext {
+  errors: string[];
+  /** Composed colors this Figma version refused to write. */
+  composedColorsRejected: number;
+}
+
+/**
+ * Sets a variable value. A composed color the runtime rejects is left
+ * untouched and counted, so the import result can point at the Figma issue
+ * instead of silently degrading the token.
+ */
+const setVariableValue = (
+  variable: Variable,
+  modeId: string,
+  figmaValue: VariableValue,
+  label: string,
+  context: SetValueContext
+) => {
+  const rejectComposed = (reason: string) => {
+    context.composedColorsRejected++;
+    context.errors.push(
+      `Skipped ${label}: this Figma version cannot write color aliases with a separate opacity (${reason}). See ${COMPOSED_COLOR_ISSUE_URL}`
+    );
+  };
+
+  try {
+    variable.setValueForMode(modeId, figmaValue);
+  } catch (error) {
+    if (isComposedFigmaValue(figmaValue)) {
+      rejectComposed(error.message);
+      return;
+    }
+    context.errors.push(`Failed to set value for ${label}: ${error.message}`);
+    return;
+  }
+
+  // Some clients drop the value without throwing: verify it actually stuck.
+  if (
+    isComposedFigmaValue(figmaValue) &&
+    !isComposedFigmaValue(variable.valuesByMode?.[modeId])
+  ) {
+    rejectComposed('the value was ignored by setValueForMode');
+  }
+};
+
 /**
  * Import design tokens and create Figma variables
  */
@@ -506,6 +564,7 @@ export const tokensToVariables = async (
     variablesCreated: 0,
     variablesUpdated: 0,
     errors: [],
+    composedColorsRejected: 0,
   };
 
   try {
@@ -759,13 +818,13 @@ export const tokensToVariables = async (
                   path: `${collectionName}/${path}`,
                 });
               } else {
-                try {
-                  variable.setValueForMode(defaultMode.modeId, figmaValue);
-                } catch (error) {
-                  result.errors.push(
-                    `Failed to set value for variable "${path}": ${error.message}`
-                  );
-                }
+                setVariableValue(
+                  variable,
+                  defaultMode.modeId,
+                  figmaValue,
+                  `variable "${path}"`,
+                  result
+                );
               }
 
               // Set values for other modes if they exist
@@ -793,13 +852,13 @@ export const tokensToVariables = async (
                       continue;
                     }
 
-                    try {
-                      variable.setValueForMode(mode.modeId, modeValue);
-                    } catch (error) {
-                      result.errors.push(
-                        `Failed to set value for mode "${modeName}" in variable "${path}": ${error.message}`
-                      );
-                    }
+                    setVariableValue(
+                      variable,
+                      mode.modeId,
+                      modeValue,
+                      `mode "${modeName}" in variable "${path}"`,
+                      result
+                    );
                   }
                 }
               }
@@ -832,7 +891,7 @@ export const tokensToVariables = async (
           );
           continue;
         }
-        variable.setValueForMode(modeId, figmaValue);
+        setVariableValue(variable, modeId, figmaValue, `"${path}"`, result);
       } catch (error) {
         result.errors.push(
           `Failed to resolve alias for "${path}": ${error.message}`
@@ -854,8 +913,15 @@ export const tokensToVariables = async (
 
     result.message = `Successfully imported tokens. ${parts.join(', ')}.`;
 
-    if (result.errors.length > 0) {
-      result.message += ` ${result.errors.length} error(s) occurred during import.`;
+    if (result.composedColorsRejected > 0) {
+      result.message += ` ${result.composedColorsRejected} value(s) skipped: this Figma version cannot write color aliases with a separate opacity yet.`;
+    }
+    const otherErrors = result.errors.length - result.composedColorsRejected;
+    if (otherErrors > 0) {
+      const firstOther = result.errors.find(
+        (error) => !error.startsWith('Skipped ')
+      );
+      result.message += ` ${otherErrors} error(s): ${firstOther} (see the plugin console for the full list)`;
     }
   } catch (error) {
     result.success = false;

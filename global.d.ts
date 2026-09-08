@@ -168,6 +168,7 @@ interface TokensMessageI {
     success: boolean;
     message: string;
     collectionsCreated: number;
+    composedColorsRejected?: number;
     variablesCreated: number;
     errors: string[];
   };
