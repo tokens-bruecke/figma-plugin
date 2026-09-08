@@ -4,6 +4,8 @@ import {
   getTokenType,
   isValidVariableScope,
   convertTokenValueToFigmaValue,
+  isComposedColorToken,
+  hasUnresolvedReference,
   mapTokenTypeToFigmaType,
 } from './tokensToVariables';
 
@@ -294,6 +296,21 @@ describe('getTokenType', () => {
     expect(getTokenType(token)).toBe('opacity');
   });
 
+  test('treats string easings marked with figmaType EASING as easings', () => {
+    const token = {
+      $type: 'string',
+      $value: 'ease-in',
+      $extensions: { figmaType: 'EASING' },
+    };
+    expect(getTokenType(token)).toBe('cubicBezier');
+    expect(mapTokenTypeToFigmaType(getTokenType(token))).toBe('EASING');
+    expect(
+      convertTokenValueToFigmaValue('gentle', 'cubicBezier', new Map())
+    ).toEqual({
+      type: 'GENTLE',
+    });
+  });
+
   test('detects opacity via figmaType FLOAT in strict DTCG export', () => {
     // Percentage opacity in strict DTCG: $type omitted, figmaType preserved
     const token = {
@@ -315,5 +332,131 @@ describe('getTokenType', () => {
   test('respects explicit non-number type despite OPACITY scope', () => {
     const token = { $type: 'color', $value: '#fff', scopes: ['OPACITY'] };
     expect(getTokenType(token)).toBe('color');
+  });
+});
+
+describe('composed colors (color alias with opacity)', () => {
+  test('recognises the exported shapes', () => {
+    expect(
+      isComposedColorToken({ components: '{color.brand}', alpha: 0.5 })
+    ).toBe(true);
+    expect(
+      isComposedColorToken({
+        colorSpace: 'srgb',
+        components: [1, 0, 0],
+        alpha: '{opacity.50}',
+        hex: '#ff0000',
+      })
+    ).toBe(true);
+    expect(
+      isComposedColorToken({ r: 255, g: 0, b: 0, a: '{opacity.50}' })
+    ).toBe(true);
+    expect(
+      isComposedColorToken({
+        colorSpace: 'srgb',
+        components: [1, 0, 0],
+        alpha: 0.5,
+        hex: '#ff0000',
+      })
+    ).toBe(false);
+    expect(isComposedColorToken('{color.brand}')).toBe(false);
+  });
+
+  const variableMap = new Map<string, Variable>([
+    ['t1/color/brand', { id: 'VariableID:1:1' } as Variable],
+    ['t1/opacity/50', { id: 'VariableID:1:2' } as Variable],
+  ]);
+  const brandAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:1:1' };
+  const opacityAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:1:2' };
+
+  test('alias base with a number opacity becomes a COMPOSE_COLOR expression', () => {
+    expect(
+      convertTokenValueToFigmaValue(
+        { components: '{t1.color.brand}', alpha: 0.5 },
+        'color',
+        variableMap
+      )
+    ).toEqual({
+      type: 'VARIABLE_EXPRESSION',
+      expressionFunction: 'COMPOSE_COLOR',
+      expressionArguments: [brandAlias, 50],
+    });
+  });
+
+  test('percentage opacity and an aliased opacity are supported', () => {
+    expect(
+      convertTokenValueToFigmaValue(
+        { components: '{t1.color.brand}', alpha: '50%' },
+        'color',
+        variableMap
+      )
+    ).toEqual({
+      type: 'VARIABLE_EXPRESSION',
+      expressionFunction: 'COMPOSE_COLOR',
+      expressionArguments: [brandAlias, 50],
+    });
+    expect(
+      convertTokenValueToFigmaValue(
+        { components: '{t1.color.brand}', alpha: '{t1.opacity.50}' },
+        'color',
+        variableMap
+      )
+    ).toEqual({
+      type: 'VARIABLE_EXPRESSION',
+      expressionFunction: 'COMPOSE_COLOR',
+      expressionArguments: [brandAlias, opacityAlias],
+    });
+  });
+
+  test('literal base colors with an aliased opacity keep the color', () => {
+    const expected = {
+      type: 'VARIABLE_EXPRESSION',
+      expressionFunction: 'COMPOSE_COLOR',
+      expressionArguments: [{ r: 1, g: 0, b: 0, a: 1 }, opacityAlias],
+    };
+    expect(
+      convertTokenValueToFigmaValue(
+        {
+          colorSpace: 'srgb',
+          components: [1, 0, 0],
+          alpha: '{t1.opacity.50}',
+          hex: '#ff0000',
+        },
+        'color',
+        variableMap
+      )
+    ).toEqual(expected);
+    expect(
+      convertTokenValueToFigmaValue(
+        { components: '#ff0000', alpha: '{t1.opacity.50}' },
+        'color',
+        variableMap
+      )
+    ).toEqual(expected);
+  });
+
+  test('keeps the token value while a referenced variable is missing', () => {
+    const value = { components: '{t2.color.missing}', alpha: 0.5 };
+    const result = convertTokenValueToFigmaValue(value, 'color', variableMap);
+    expect(result).toBe(value);
+    expect(hasUnresolvedReference(result)).toBe(true);
+    expect(hasUnresolvedReference('{t2.color.missing}')).toBe(true);
+    expect(
+      hasUnresolvedReference({
+        type: 'VARIABLE_EXPRESSION',
+        expressionFunction: 'COMPOSE_COLOR',
+        expressionArguments: [brandAlias, 50],
+      })
+    ).toBe(false);
+  });
+
+  test('COLOR_OPACITY is a valid scope', () => {
+    expect(isValidVariableScope('COLOR_OPACITY')).toBe(true);
+  });
+
+  test('COLOR_OPACITY tokens are typed as opacity', () => {
+    expect(
+      getTokenType({ $type: 'number', $value: 0.5, scopes: ['COLOR_OPACITY'] })
+    ).toBe('opacity');
   });
 });

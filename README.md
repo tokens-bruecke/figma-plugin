@@ -61,6 +61,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Tokens structure](#tokens-structure)
   - [Aliases handling](#aliases-handling)
     - [Include `.value` string for aliases](#include-value-string-for-aliases-1)
+    - [Color aliases with opacity](#color-aliases-with-opacity)
     - [Handle variables from another file](#handle-variables-from-another-file)
     - [Handle modes](#handle-modes)
   - [Variables types conversion](#variables-types-conversion)
@@ -192,7 +193,7 @@ When enabled, the named bezier presets (Linear, Ease in, Ease out, Ease in and o
 {
   "easing": {
     "$type": "cubicBezier",
-    "$value": [0.41, 0, 1, 1]
+    "$value": [0.42, 0, 1, 1]
   }
 }
 
@@ -200,7 +201,8 @@ When enabled, the named bezier presets (Linear, Ease in, Ease out, Ease in and o
 {
   "easing": {
     "$type": "string",
-    "$value": "ease-in"
+    "$value": "ease-in",
+    "$extensions": { "figmaType": "EASING" }
   }
 }
 ```
@@ -558,6 +560,7 @@ Things worth knowing when building a snapshot:
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
+- Color aliases with their own opacity come back from the Plugin API as `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }` — pass them through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
 
 > [!NOTE]
 > Plugin API objects are live proxies, so `JSON.stringify` may not enumerate their properties. Copy the fields listed in the schema onto plain objects before serializing.
@@ -1041,6 +1044,51 @@ You can switch on the `Include .value string for aliases` option in [the plugin 
 
 ---
 
+### Color aliases with opacity
+
+Since September 2026 Figma lets a color variable alias another color and apply its own opacity on top ("Control opacity at scale"). The opacity can be a plain percentage or a number variable with the `COLOR_OPACITY` scope.
+
+The [DTCG color type](https://www.designtokens.org/tr/2025.10/color/#format) has no way to express "this color, with that opacity" while keeping the reference, so the plugin exports these variables as a composite value: `components` holds the reference to the base color and `alpha` holds the opacity, as a `0..1` number (or `"50%"` with [Use percentage for opacity](#use-percentage-for-opacity)) or a reference to the number variable driving it.
+
+```json
+{
+  "opacity": {
+    "50": { "$type": "number", "$value": 0.5, "scopes": ["COLOR_OPACITY"] }
+  },
+  "color": {
+    "brand": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.2, 0.4, 0.8],
+        "alpha": 1,
+        "hex": "#3366cc"
+      }
+    },
+    "brand-translucent": {
+      "$type": "color",
+      "$value": { "components": "{color.brand}", "alpha": 0.5 }
+    },
+    "brand-muted": {
+      "$type": "color",
+      "$value": { "components": "{color.brand}", "alpha": "{opacity.50}" }
+    }
+  }
+}
+```
+
+The `alpha` is the opacity Figma applies on top of the referenced color. If the base color is a literal rather than an alias, the opacity is baked into the regular color value for the chosen [color mode](#color-mode); only when the opacity itself is a reference does the color value keep an `alpha` (or `a`) reference in place of the number.
+
+[Importing](#import-json--variables) these tokens recreates the composed color variable in Figma: `components` becomes the alias, `alpha` the opacity (a plain percentage or an alias to the number variable). References to variables in other collections are resolved once every collection has been imported.
+
+> [!WARNING]
+> Some Figma clients can read these variables but refuse to write them ("Composed color variable values are not supported"), currently including Figma Desktop. The plugin then leaves those values untouched, reports how many were skipped and links to [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375). Other tokens in the same import are not affected.
+
+> [!NOTE]
+> This shape is an extension of the DTCG format, so a consumer needs a small custom transform: resolve the `components` reference, then apply `alpha`.
+
+---
+
 ### Handle variables from another file
 
 Imagine you have a library from another file with "base" variables. And you use this variables in your current file.
@@ -1077,16 +1125,16 @@ It follows the same pattern as used by [Cobalt](https://cobalt-ui.pages.dev/guid
 
 Unlike design tokens, Figma variables [support only 6 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT`, `STRING`, `TIMING` and `EASING`. So, the plugin converts them into the corresponding types from the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/#types).
 
-| Figma type | Scope condition          | Design Tokens type                                                           |
-| ---------- | ------------------------ | ---------------------------------------------------------------------------- |
-| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)               |
-| BOOLEAN    | —                        | _boolean_ \*                                                                 |
-| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \* |
-| FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                  |
-| FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                   |
-| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*  |
-| STRING     | —                        | _string_ \*                                                                  |
-| TIMING     | —                        | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*   |
+| Figma type | Scope condition          | Design Tokens type                                                                               |
+| ---------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
+| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)                                   |
+| BOOLEAN    | —                        | _boolean_ \*                                                                                     |
+| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \*                     |
+| FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                                      |
+| FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                                       |
+| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*                      |
+| STRING     | —                        | _string_ \*                                                                                      |
+| TIMING     | —                        | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*                      |
 | EASING     | —                        | [cubicBezier](https://www.designtokens.org/tr/2025.10/format/#cubic-bezier) or _string_ \*\*\*\* |
 
 \* native JSON types — not part of the closed DTCG 2025.10 type set. With the [DTCG 2025.10 format](#dtcg-202510-format) setting on, `$type` is omitted for `string`/`boolean` tokens and the original Figma type is preserved under `$extensions.figmaType`. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
@@ -1101,23 +1149,23 @@ Unlike design tokens, Figma variables [support only 6 types](https://www.figma.c
 
 ## Motion variables
 
-Figma's `EASING` variables hold either a custom curve or one of Figma's presets. The API returns numbers only for the two custom types — every preset arrives as just a name — so the plugin maps them like this:
+Figma's `EASING` variables hold either a custom curve or one of Figma's presets. DTCG only has a `cubicBezier` type, so the plugin maps them like this:
 
-| Figma easing                                                                         | Token type            | Example value              |
-| ------------------------------------------------------------------------------------ | --------------------- | -------------------------- |
-| Custom bezier                                                                          | `cubicBezier`         | `[0, 0, 0.58, 1]`          |
-| Linear, Ease in / out / in and out, Ease in / out / in and out back                    | `cubicBezier`         | `[0.41, 0, 1, 1]`          |
-| Linear, Ease in / out / in and out, Ease in / out / in and out back — expansion off    | `string`              | `"ease-in"`                |
-| Gentle, Quick, Bouncy, Slow                                                            | `string`              | `"gentle"`                 |
-| Custom spring                                                                          | `string`              | `"spring(bounce 0.35)"`    |
-| Hold                                                                                   | `string`              | `"hold"`                   |
+| Figma easing                                                                        | Token type    | Example value           |
+| ----------------------------------------------------------------------------------- | ------------- | ----------------------- |
+| Custom bezier                                                                       | `cubicBezier` | `[0, 0, 0.58, 1]`       |
+| Linear, Ease in / out / in and out, Ease in / out / in and out back                 | `cubicBezier` | `[0.42, 0, 1, 1]`       |
+| Linear, Ease in / out / in and out, Ease in / out / in and out back — expansion off | `string`      | `"ease-in"`             |
+| Gentle, Quick, Bouncy, Slow                                                         | `string`      | `"gentle"`              |
+| Custom spring                                                                       | `string`      | `"spring(bounce 0.35)"` |
+| Hold                                                                                | `string`      | `"hold"`                |
 
 Named bezier presets are expanded into curves unless [Expand easing presets to cubic-bezier](#expand-easing-presets-to-cubic-bezier) is turned off. Springs and Hold are always names: DTCG has no spring type, and Figma exposes no numbers for them.
 
-All of these forms are read back on import, so a round trip through the plugin preserves the original preset — including expanded curves, which are matched back to the preset they came from. Springs and Hold are the exception: they are indistinguishable from ordinary text on the way back in, so importing them creates `STRING` variables rather than `EASING` ones.
+All of these forms are read back on import, so a round trip through the plugin preserves the original preset. Expanded curves are matched back to the preset they came from, and easings exported as strings carry an `$extensions.figmaType: "EASING"` marker so they are recreated as `EASING` variables rather than `STRING` ones.
 
 > [!NOTE]
-> Figma does not publish the control points behind its named bezier presets, and the plugin API does not return them. The curves the plugin expands to are taken from Figma's own custom-bezier editor; if one of them does not match what you see in your file, please [open an issue](https://github.com/tokens-bruecke/figma-plugin/issues).
+> The curves of the named bezier presets are the ones Figma attaches to the preset in the Plugin API; if one of them does not match what you see in your file, please [open an issue](https://github.com/tokens-bruecke/figma-plugin/issues).
 
 ---
 

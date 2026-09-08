@@ -137,6 +137,7 @@ figma.ui.onmessage = async (msg) => {
           success: false,
           message: `Import failed: ${error.message}`,
           collectionsCreated: 0,
+          composedColorsRejected: 0,
           variablesCreated: 0,
           errors: [error.message],
         },

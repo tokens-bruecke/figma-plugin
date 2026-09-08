@@ -10,3 +10,25 @@ describe('getFontStyleAndWeight', () => {
     expect(normalizeType('FLOAT', ['FONT_WEIGHT'])).toBe('fontWeight');
   });
 });
+
+describe('opacity scopes', () => {
+  test('OPACITY', () => {
+    expect(normalizeType('FLOAT', ['OPACITY'])).toBe('number');
+    expect(normalizeType('FLOAT', ['OPACITY'], true)).toBe('string');
+  });
+  test('COLOR_OPACITY (opacity of a color variable)', () => {
+    expect(normalizeType('FLOAT', ['COLOR_OPACITY' as VariableScope])).toBe(
+      'number'
+    );
+    expect(
+      normalizeType(
+        'FLOAT',
+        ['OPACITY', 'COLOR_OPACITY' as VariableScope],
+        true
+      )
+    ).toBe('string');
+  });
+  test('mixed with other scopes stays a dimension', () => {
+    expect(normalizeType('FLOAT', ['OPACITY', 'GAP'])).toBe('dimension');
+  });
+});
