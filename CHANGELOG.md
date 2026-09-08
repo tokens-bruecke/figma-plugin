@@ -1,3 +1,15 @@
+## [3.12.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.10.0...v3.12.0) (2026-09-08)
+
+### Features
+
+- **color:** export color aliases with a separate opacity as composed values ([c2451b7](https://github.com/tokens-bruecke/figma-plugin/commit/c2451b7a8e04ab356be66a583007e987b03088f2)), closes [#91](https://github.com/tokens-bruecke/figma-plugin/issues/91)
+- **import:** write composed colors back to Figma ([4b3e152](https://github.com/tokens-bruecke/figma-plugin/commit/4b3e1526c7013b1213f22758debe4db1f4de8108)), closes [#91](https://github.com/tokens-bruecke/figma-plugin/issues/91)
+
+### Bug Fixes
+
+- **import:** report composed colors this Figma version cannot write ([0578075](https://github.com/tokens-bruecke/figma-plugin/commit/0578075c91ace03408eb87041e7f8dd2e6c088da)), closes [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375)
+- **motion:** round-trip named easings and skip scopes on motion variables ([72985de](https://github.com/tokens-bruecke/figma-plugin/commit/72985ded7fdb64ae290725d9894e2e026f21106d))
+
 ## [3.10.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.9.0...v3.10.0) (2026-09-05)
 
 ### Features
