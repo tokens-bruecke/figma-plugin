@@ -195,3 +195,53 @@ describe('round trip', () => {
     expect(parseDurationToSeconds(exported)).toBe(0.3);
   });
 });
+
+describe('easing presets with the curve attached by Figma', () => {
+  test('the attached curve wins over the table when expanding', () => {
+    expect(
+      normalizeEasing(
+        {
+          type: 'EASE_IN',
+          easingFunctionCubicBezier: { x1: 0.42, y1: 0, x2: 1, y2: 1 },
+        },
+        true
+      )
+    ).toEqual({ type: 'cubicBezier', value: [0.42, 0, 1, 1] });
+  });
+
+  test('the attached curve is ignored when presets are not expanded', () => {
+    expect(
+      normalizeEasing(
+        {
+          type: 'EASE_IN',
+          easingFunctionCubicBezier: { x1: 0.42, y1: 0, x2: 1, y2: 1 },
+        },
+        false
+      )
+    ).toEqual({ type: 'string', value: 'ease-in' });
+  });
+
+  test('spring presets keep their name even with a bounce attached', () => {
+    expect(
+      normalizeEasing(
+        { type: 'GENTLE', easingFunctionSpring: { bounce: 0.25 } },
+        true
+      )
+    ).toEqual({ type: 'string', value: 'gentle' });
+  });
+
+  test('curves from older exports still map back to the preset', () => {
+    expect(parseEasing([0.41, 0, 1, 1])).toEqual({ type: 'EASE_IN' });
+    expect(parseEasing([0, 0, 0.59, 1])).toEqual({ type: 'EASE_OUT' });
+    expect(parseEasing([0.41, 0, 0.59, 1])).toEqual({
+      type: 'EASE_IN_AND_OUT',
+    });
+  });
+
+  test('a curve clearly off a preset stays custom', () => {
+    expect(parseEasing([0.5, 0, 1, 1])).toEqual({
+      type: 'CUSTOM_CUBIC_BEZIER',
+      easingFunctionCubicBezier: { x1: 0.5, y1: 0, x2: 1, y2: 1 },
+    });
+  });
+});

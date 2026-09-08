@@ -10,23 +10,18 @@ export type CubicBezierValueI = [number, number, number, number];
 type MotionEasingType = MotionEasing['type'];
 
 /**
- * Cubic-bezier equivalents of Figma's named easing presets.
- *
- * Figma's API only returns numbers for `CUSTOM_CUBIC_BEZIER` — named presets
- * arrive as `{ type: 'EASE_IN' }` with no curve attached, and Figma does not
- * publish their control points. To read a preset's real values, set an easing
- * variable to that preset in Figma and switch it to "Custom bezier".
- *
- * `LINEAR` is exact. The rest are community-sourced; the `*_BACK` entries in
- * particular are the least confirmed.
+ * Cubic-bezier equivalents of Figma's named easing presets, as returned by
+ * the Plugin API (`easingFunctionCubicBezier` on a preset value, verified
+ * September 2026). Used when a preset arrives without its curve attached, and
+ * to map an expanded curve back to its preset on import.
  */
 export const EASING_PRESET_BEZIERS: Partial<
   Record<MotionEasingType, CubicBezierValueI>
 > = {
   LINEAR: [0, 0, 1, 1],
-  EASE_IN: [0.41, 0, 1, 1],
-  EASE_OUT: [0, 0, 0.59, 1],
-  EASE_IN_AND_OUT: [0.41, 0, 0.59, 1],
+  EASE_IN: [0.42, 0, 1, 1],
+  EASE_OUT: [0, 0, 0.58, 1],
+  EASE_IN_AND_OUT: [0.42, 0, 0.58, 1],
   EASE_IN_BACK: [0.3, -0.05, 0.7, -0.5],
   EASE_OUT_BACK: [0.45, 1.45, 0.8, 1],
   EASE_IN_AND_OUT_BACK: [0.7, -0.4, 0.4, 1.4],
@@ -62,6 +57,9 @@ const CUSTOM_SPRING_PATTERN = /^spring\(\s*bounce\s+(-?\d*\.?\d+)\s*\)$/i;
 // without touching any value a designer could have entered.
 const DURATION_DECIMALS = 3;
 const BEZIER_DECIMALS = 6;
+// How far a control point may drift from the table when matching an exported
+// curve back to a preset (float noise, older exports of a preset).
+const BEZIER_TOLERANCE = 0.02;
 
 const round = (value: number, decimals: number): number =>
   new Decimal(value).toDecimalPlaces(decimals).toNumber();
@@ -104,13 +102,23 @@ export const normalizeEasing = (
     return { type: 'string', value: String(easing) };
   }
 
-  if (easing.type === 'CUSTOM_CUBIC_BEZIER' && easing.easingFunctionCubicBezier) {
-    const { x1, y1, x2, y2 } = easing.easingFunctionCubicBezier;
+  const toCurve = (bezier: {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }): CubicBezierValueI =>
+    [bezier.x1, bezier.y1, bezier.x2, bezier.y2].map((point) =>
+      round(point, BEZIER_DECIMALS)
+    ) as CubicBezierValueI;
+
+  if (
+    easing.type === 'CUSTOM_CUBIC_BEZIER' &&
+    easing.easingFunctionCubicBezier
+  ) {
     return {
       type: 'cubicBezier',
-      value: [x1, y1, x2, y2].map((point) =>
-        round(point, BEZIER_DECIMALS)
-      ) as CubicBezierValueI,
+      value: toCurve(easing.easingFunctionCubicBezier),
     };
   }
 
@@ -127,7 +135,13 @@ export const normalizeEasing = (
 
   const presetBezier = EASING_PRESET_BEZIERS[easing.type];
   if (expandEasingPresets && presetBezier) {
-    return { type: 'cubicBezier', value: presetBezier };
+    // Prefer the curve Figma attaches to the preset over the table
+    return {
+      type: 'cubicBezier',
+      value: easing.easingFunctionCubicBezier
+        ? toCurve(easing.easingFunctionCubicBezier)
+        : presetBezier,
+    };
   }
 
   return {
@@ -184,7 +198,9 @@ export const parseEasing = (value: any): MotionEasing => {
     const preset = (
       Object.keys(EASING_PRESET_BEZIERS) as MotionEasingType[]
     ).find((type) =>
-      EASING_PRESET_BEZIERS[type].every((point, index) => point === value[index])
+      EASING_PRESET_BEZIERS[type].every(
+        (point, index) => Math.abs(point - value[index]) <= BEZIER_TOLERANCE
+      )
     );
     if (preset) {
       return { type: preset };

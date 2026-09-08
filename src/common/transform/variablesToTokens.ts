@@ -31,7 +31,8 @@ const resolveAliasedValue = async (
   const collection = await resolver.getVariableCollectionById(
     target.variableCollectionId
   );
-  const modeId = collection?.defaultModeId ?? Object.keys(target.valuesByMode)[0];
+  const modeId =
+    collection?.defaultModeId ?? Object.keys(target.valuesByMode)[0];
 
   return resolveAliasedValue(target.valuesByMode[modeId], resolver, depth + 1);
 };
@@ -178,6 +179,10 @@ export const variablesToTokens = async (
       // add meta
       $extensions: {
         mode: filteredModesValues,
+        // Easings exported as names ("ease-in", "gentle", "hold") are plain
+        // strings; the marker lets the import recreate an EASING variable.
+        ...(variable.resolvedType === 'EASING' &&
+          tokenType === 'string' && { figmaType: 'EASING' }),
         ...(includeFigmaMetaData && {
           figma: {
             codeSyntax: variable.codeSyntax,

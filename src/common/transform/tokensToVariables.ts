@@ -47,6 +47,10 @@ export const getTokenType = (token: any): string | null => {
   ) {
     return 'opacity';
   }
+  // Easing presets, springs and "hold" export as strings with a marker
+  if (token.$extensions?.figmaType === 'EASING') {
+    return 'cubicBezier';
+  }
   // DTCG format uses $type
   if (token.$type !== undefined) {
     return token.$type;
@@ -690,7 +694,12 @@ export const tokensToVariables = async (
                 variable.description = tokenDescription;
               }
 
-              if (tokenScopes) {
+              // Figma rejects scopes on TIMING and EASING variables
+              const acceptsScopes =
+                variable.resolvedType !== 'TIMING' &&
+                variable.resolvedType !== 'EASING';
+
+              if (tokenScopes && acceptsScopes) {
                 const invalidScopes = tokenScopes.filter(
                   (s) => !isValidVariableScope(s)
                 );

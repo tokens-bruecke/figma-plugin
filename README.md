@@ -193,7 +193,7 @@ When enabled, the named bezier presets (Linear, Ease in, Ease out, Ease in and o
 {
   "easing": {
     "$type": "cubicBezier",
-    "$value": [0.41, 0, 1, 1]
+    "$value": [0.42, 0, 1, 1]
   }
 }
 
@@ -201,7 +201,8 @@ When enabled, the named bezier presets (Linear, Ease in, Ease out, Ease in and o
 {
   "easing": {
     "$type": "string",
-    "$value": "ease-in"
+    "$value": "ease-in",
+    "$extensions": { "figmaType": "EASING" }
   }
 }
 ```
@@ -1145,12 +1146,12 @@ Unlike design tokens, Figma variables [support only 6 types](https://www.figma.c
 
 ## Motion variables
 
-Figma's `EASING` variables hold either a custom curve or one of Figma's presets. The API returns numbers only for the two custom types — every preset arrives as just a name — so the plugin maps them like this:
+Figma's `EASING` variables hold either a custom curve or one of Figma's presets. DTCG only has a `cubicBezier` type, so the plugin maps them like this:
 
 | Figma easing                                                                        | Token type    | Example value           |
 | ----------------------------------------------------------------------------------- | ------------- | ----------------------- |
 | Custom bezier                                                                       | `cubicBezier` | `[0, 0, 0.58, 1]`       |
-| Linear, Ease in / out / in and out, Ease in / out / in and out back                 | `cubicBezier` | `[0.41, 0, 1, 1]`       |
+| Linear, Ease in / out / in and out, Ease in / out / in and out back                 | `cubicBezier` | `[0.42, 0, 1, 1]`       |
 | Linear, Ease in / out / in and out, Ease in / out / in and out back — expansion off | `string`      | `"ease-in"`             |
 | Gentle, Quick, Bouncy, Slow                                                         | `string`      | `"gentle"`              |
 | Custom spring                                                                       | `string`      | `"spring(bounce 0.35)"` |
@@ -1158,10 +1159,10 @@ Figma's `EASING` variables hold either a custom curve or one of Figma's presets.
 
 Named bezier presets are expanded into curves unless [Expand easing presets to cubic-bezier](#expand-easing-presets-to-cubic-bezier) is turned off. Springs and Hold are always names: DTCG has no spring type, and Figma exposes no numbers for them.
 
-All of these forms are read back on import, so a round trip through the plugin preserves the original preset — including expanded curves, which are matched back to the preset they came from. Springs and Hold are the exception: they are indistinguishable from ordinary text on the way back in, so importing them creates `STRING` variables rather than `EASING` ones.
+All of these forms are read back on import, so a round trip through the plugin preserves the original preset. Expanded curves are matched back to the preset they came from, and easings exported as strings carry an `$extensions.figmaType: "EASING"` marker so they are recreated as `EASING` variables rather than `STRING` ones.
 
 > [!NOTE]
-> Figma does not publish the control points behind its named bezier presets, and the plugin API does not return them. The curves the plugin expands to are taken from Figma's own custom-bezier editor; if one of them does not match what you see in your file, please [open an issue](https://github.com/tokens-bruecke/figma-plugin/issues).
+> The curves of the named bezier presets are the ones Figma attaches to the preset in the Plugin API; if one of them does not match what you see in your file, please [open an issue](https://github.com/tokens-bruecke/figma-plugin/issues).
 
 ---
 

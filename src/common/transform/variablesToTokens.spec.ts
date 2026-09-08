@@ -203,6 +203,7 @@ describe('variablesToTokens motion variables', () => {
     const preset = tokens['motion']['easing']['preset'];
     expect(preset.$type).toBe('string');
     expect(preset.$value).toBe('ease-in');
+    expect(preset.$extensions.figmaType).toBe('EASING');
 
     // Custom beziers carry real numbers and are unaffected by the setting
     const custom = tokens['motion']['easing']['custom'];
@@ -277,7 +278,7 @@ describe('variablesToTokens ordering', () => {
         description: '',
         codeSyntax: {},
         id,
-      }) as unknown as Variable;
+      } as unknown as Variable);
 
     // Variables arrive in a different order than defined in the collection
     const unorderedVariables = [

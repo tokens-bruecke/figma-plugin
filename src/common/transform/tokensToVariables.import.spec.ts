@@ -212,6 +212,49 @@ describe('tokensToVariables with composed colors', () => {
     expect(valueOf('broken')).toBeUndefined();
   });
 
+  test('imports motion tokens as TIMING and EASING variables', async () => {
+    const result = await tokensToVariables(
+      {
+        motion: {
+          duration: {
+            $type: 'duration',
+            $value: { value: 300, unit: 'ms' },
+            scopes: ['ALL_SCOPES'],
+          },
+          expanded: { $type: 'cubicBezier', $value: [0.42, 0, 1, 1] },
+          named: {
+            $type: 'string',
+            $value: 'ease-in',
+            $extensions: { figmaType: 'EASING' },
+          },
+          spring: {
+            $type: 'string',
+            $value: 'spring(bounce 0.35)',
+            scopes: ['ALL_SCOPES'],
+            $extensions: { figmaType: 'EASING' },
+          },
+          label: { $type: 'string', $value: 'hold' },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(byName('duration').resolvedType).toBe('TIMING');
+    expect(byName('duration').scopes).toEqual(['ALL_SCOPES']); // untouched default
+    expect(valueOf('duration')).toBe(0.3);
+    expect(byName('expanded').resolvedType).toBe('EASING');
+    expect(valueOf('expanded')).toEqual({ type: 'EASE_IN' });
+    expect(valueOf('named')).toEqual({ type: 'EASE_IN' });
+    expect(valueOf('spring')).toEqual({
+      type: 'CUSTOM_SPRING',
+      easingFunctionSpring: { bounce: 0.35 },
+    });
+    // Without the marker a plain string stays a string variable
+    expect(byName('label').resolvedType).toBe('STRING');
+    expect(valueOf('label')).toBe('hold');
+  });
+
   test('keeps the variable when the runtime rejects a scope', async () => {
     const original = fake.variables.createVariable;
     fake.variables.createVariable = (...args: any[]) => {

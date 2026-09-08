@@ -296,6 +296,21 @@ describe('getTokenType', () => {
     expect(getTokenType(token)).toBe('opacity');
   });
 
+  test('treats string easings marked with figmaType EASING as easings', () => {
+    const token = {
+      $type: 'string',
+      $value: 'ease-in',
+      $extensions: { figmaType: 'EASING' },
+    };
+    expect(getTokenType(token)).toBe('cubicBezier');
+    expect(mapTokenTypeToFigmaType(getTokenType(token))).toBe('EASING');
+    expect(
+      convertTokenValueToFigmaValue('gentle', 'cubicBezier', new Map())
+    ).toEqual({
+      type: 'GENTLE',
+    });
+  });
+
   test('detects opacity via figmaType FLOAT in strict DTCG export', () => {
     // Percentage opacity in strict DTCG: $type omitted, figmaType preserved
     const token = {
