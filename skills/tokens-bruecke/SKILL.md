@@ -143,7 +143,7 @@ Rules that matter:
 - `variables` and `variableCollections` are **required**; the four style arrays are optional and only read when the matching `includedStyles.*.isIncluded` config flag is on.
 - `valuesByMode` is keyed by **`modeId`**, not by mode name. Mode names come from the collection's `modes` array.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "<variable id>" }`. The target variable must be present in the snapshot, otherwise the value exports as `"#missing#"` — the same behaviour as the REST resolver. Library (remote) variables are not resolvable today; include them in `variables` if you need them aliased.
-- Color aliases with their own opacity (Figma "Control opacity at scale") are `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`. Pass them through verbatim; they export as `{ "components": "{path.to.color}", "alpha": 0.5 }` (or a reference in `alpha`).
+- Color aliases with their own opacity (Figma "Control opacity at scale") are `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`. Pass them through verbatim; they export as `{ "components": "{path.to.color}", "alpha": 0.5 }` (or a reference in `alpha`), and import back as the same expression.
 - `collection.variableIds` preserves Figma's Variables-panel ordering in the output. Without it, output order follows the `variables` array.
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them — not 0..255 and not hex.
 - Filter out remote (library) variables and collections, matching what the REST resolver does.

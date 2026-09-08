@@ -1,4 +1,5 @@
 import { IResolver } from '@common/resolver';
+import { ComposedColorValue } from './color/composeColor';
 import { isOpacityScope } from './opacityScopes';
 import { parseDurationToSeconds, parseEasing } from './motion';
 
@@ -198,8 +199,47 @@ const rgbaToRgb = (
   };
 };
 
-const isReference = (value: any): boolean =>
+const isReference = (value: any): value is string =>
   typeof value === 'string' && value.startsWith('{') && value.endsWith('}');
+
+/**
+ * Turns a `{collection.group.name}` reference into the `collection/group/name`
+ * path used as key in the variable map.
+ */
+const referenceToFigmaPath = (reference: string): string =>
+  reference
+    .slice(1, -1)
+    // Remove .value / .$value suffix if present
+    .replace(/\.\$?value$/, '')
+    // Convert dots to slashes for Figma variable name format
+    .replace(/\./g, '/');
+
+const resolveReference = (
+  reference: string,
+  variableMap: Map<string, Variable>
+): VariableAlias | null => {
+  const referencedVariable = variableMap.get(referenceToFigmaPath(reference));
+  return referencedVariable
+    ? { type: 'VARIABLE_ALIAS', id: referencedVariable.id }
+    : null;
+};
+
+/**
+ * Converts an opacity token value (`0.5`, `"50%"`, `50`) to the 0..100
+ * percent number Figma stores.
+ */
+const toOpacityPercent = (value: any): number => {
+  if (typeof value === 'string' && value.trim().endsWith('%')) {
+    return parseFloat(value);
+  }
+  const numeric = typeof value === 'string' ? parseFloat(value) : value;
+  if (typeof numeric !== 'number' || Number.isNaN(numeric)) {
+    throw new Error(`Unsupported opacity value: ${JSON.stringify(value)}`);
+  }
+  // Fractions (0-1) are converted back to percent; values above 1 are
+  // assumed to already be percentages.
+  return numeric <= 1 ? numeric * 100 : numeric;
+};
 
 /**
  * A color value exported from a Figma color alias with its own opacity:
@@ -214,6 +254,68 @@ export const isComposedColorToken = (value: any): boolean =>
     isReference(value.a));
 
 /**
+ * A converted value that still holds a reference to a variable that does
+ * not exist yet (e.g. it lives in a collection imported later). Such values
+ * are set in a final pass once every variable has been created.
+ */
+export const hasUnresolvedReference = (value: any): boolean =>
+  isReference(value) || isComposedColorToken(value);
+
+/**
+ * Converts a composed color token back into the `COMPOSE_COLOR` expression
+ * Figma stores for a color alias with its own opacity. Returns `null` when a
+ * referenced variable cannot be found in the map (yet).
+ */
+export const convertComposedColorToFigmaValue = (
+  value: any,
+  variableMap: Map<string, Variable>
+): ComposedColorValue | null => {
+  const alphaValue = 'alpha' in value ? value.alpha : value.a;
+
+  let base: RGBA | VariableAlias;
+  if (isReference(value.components)) {
+    const alias = resolveReference(value.components, variableMap);
+    if (!alias) {
+      return null;
+    }
+    base = alias;
+  } else {
+    // The base color is a literal: rebuild it as a plain, opaque color value
+    // and reuse the regular color parsing.
+    let plain: any;
+    if (typeof value.components === 'string') {
+      plain = value.components;
+    } else if ('colorSpace' in value) {
+      plain = { ...value, alpha: 1 };
+    } else {
+      plain = { ...value, a: 1 };
+    }
+    const rgba = convertTokenValueToFigmaValue(plain, 'color', variableMap);
+    if (typeof rgba !== 'object' || rgba === null || !('r' in rgba)) {
+      throw new Error(`Unsupported color format: ${JSON.stringify(value)}`);
+    }
+    base = { r: rgba.r, g: rgba.g, b: rgba.b, a: 1 };
+  }
+
+  let opacity: number | VariableAlias;
+  if (isReference(alphaValue)) {
+    const alias = resolveReference(alphaValue, variableMap);
+    if (!alias) {
+      return null;
+    }
+    opacity = alias;
+  } else {
+    opacity = toOpacityPercent(alphaValue);
+  }
+
+  return {
+    type: 'VARIABLE_EXPRESSION',
+    expressionFunction: 'COMPOSE_COLOR',
+    expressionArguments: [base, opacity],
+  };
+};
+
+/**
  * Converts token value to Figma variable value based on type
  */
 export const convertTokenValueToFigmaValue = (
@@ -222,30 +324,13 @@ export const convertTokenValueToFigmaValue = (
   variableMap: Map<string, Variable>
 ): VariableValue => {
   // Handle alias references
-  if (
-    typeof value === 'string' &&
-    value.startsWith('{') &&
-    value.endsWith('}')
-  ) {
-    // Extract the alias path
-    const aliasPath = value.slice(1, -1);
-    // Remove .value / .$value suffix if present
-    const cleanPath = aliasPath.replace(/\.\$?value$/, '');
-    // Convert dots to slashes for Figma variable name format
-    const figmaPath = cleanPath.replace(/\./g, '/');
-
-    // Try to find the referenced variable
-    const referencedVariable = variableMap.get(figmaPath);
-    if (referencedVariable) {
-      return {
-        type: 'VARIABLE_ALIAS',
-        id: referencedVariable.id,
-      } as VariableAlias;
+  if (isReference(value)) {
+    const alias = resolveReference(value, variableMap);
+    if (alias) {
+      return alias;
     }
-
-    // If variable not found yet, store the reference for later resolution
-    console.warn(`Alias reference not resolved: ${cleanPath}`);
-    return value; // Will need second pass to resolve
+    // Variable not found yet: keep the reference for the final pass
+    return value;
   }
 
   // Handle actual values based on type
@@ -259,13 +344,11 @@ export const convertTokenValueToFigmaValue = (
         }
       } else if (typeof value === 'object' && value !== null) {
         if (isComposedColorToken(value)) {
-          // Exported from a color alias with its own opacity. Figma's Plugin
-          // API can read these but `setValueForMode` rejects them.
-          throw new Error(
-            `Color aliases with a separate opacity cannot be written through the Figma Plugin API yet: ${JSON.stringify(
-              value
-            )}`
-          );
+          // Exported from a color alias with its own opacity: written back
+          // as a COMPOSE_COLOR expression. Kept as-is until every referenced
+          // variable exists.
+          return (convertComposedColorToFigmaValue(value, variableMap) ??
+            value) as VariableValue;
         }
         // DTCG 2025.10 color object: { colorSpace, components, alpha, hex }
         if ('colorSpace' in value) {
@@ -300,20 +383,10 @@ export const convertTokenValueToFigmaValue = (
       }
       return value;
 
-    case 'opacity': {
+    case 'opacity':
       // Figma stores opacity as a 0-100 percent number.
       // Exports produce either "50%" (percentage setting) or 0.5 (fraction).
-      if (typeof value === 'string' && value.trim().endsWith('%')) {
-        return parseFloat(value);
-      }
-      const numeric = typeof value === 'string' ? parseFloat(value) : value;
-      if (typeof numeric !== 'number' || Number.isNaN(numeric)) {
-        throw new Error(`Unsupported opacity value: ${JSON.stringify(value)}`);
-      }
-      // Fractions (0-1) are converted back to percent; values above 1 are
-      // assumed to already be percentages.
-      return numeric <= 1 ? numeric * 100 : numeric;
-    }
+      return toOpacityPercent(value);
 
     case 'number':
     case 'dimension':
@@ -452,6 +525,16 @@ export const tokensToVariables = async (
     // Remove metadata if present
     const cleanedData = { ...tokensData };
     delete cleanedData.$extensions;
+
+    // Values referencing variables that do not exist yet (typically in a
+    // collection imported later). They are set once every variable exists.
+    const deferredValues: Array<{
+      variable: Variable;
+      modeId: string;
+      value: any;
+      type: string;
+      path: string;
+    }> = [];
 
     // Extract all collections from the tokens
     const collections: Map<string, any> = new Map();
@@ -613,12 +696,21 @@ export const tokensToVariables = async (
                 );
                 if (invalidScopes.length > 0) {
                   result.errors.push(
-                    `Token at path "${path}" has invalid scopes: ${invalidScopes.join(', ')}`
+                    `Token at path "${path}" has invalid scopes: ${invalidScopes.join(
+                      ', '
+                    )}`
                   );
                 }
                 const validScopes = tokenScopes.filter(isValidVariableScope);
                 if (validScopes.length > 0) {
-                  variable.scopes = validScopes;
+                  try {
+                    variable.scopes = validScopes;
+                  } catch (error) {
+                    // e.g. a runtime that does not know `COLOR_OPACITY` yet
+                    result.errors.push(
+                      `Failed to set scopes for variable "${path}": ${error.message}`
+                    );
+                  }
                 }
               }
             }
@@ -649,12 +741,22 @@ export const tokensToVariables = async (
                 variableMap
               );
 
-              try {
-                variable.setValueForMode(defaultMode.modeId, figmaValue);
-              } catch (error) {
-                result.errors.push(
-                  `Failed to set value for variable "${path}": ${error.message}`
-                );
+              if (hasUnresolvedReference(figmaValue)) {
+                deferredValues.push({
+                  variable,
+                  modeId: defaultMode.modeId,
+                  value: tokenValue,
+                  type: tokenType,
+                  path: `${collectionName}/${path}`,
+                });
+              } else {
+                try {
+                  variable.setValueForMode(defaultMode.modeId, figmaValue);
+                } catch (error) {
+                  result.errors.push(
+                    `Failed to set value for variable "${path}": ${error.message}`
+                  );
+                }
               }
 
               // Set values for other modes if they exist
@@ -670,6 +772,17 @@ export const tokensToVariables = async (
                       tokenType,
                       variableMap
                     );
+
+                    if (hasUnresolvedReference(modeValue)) {
+                      deferredValues.push({
+                        variable,
+                        modeId: mode.modeId,
+                        value: modes[modeName],
+                        type: tokenType,
+                        path: `${collectionName}/${path}`,
+                      });
+                      continue;
+                    }
 
                     try {
                       variable.setValueForMode(mode.modeId, modeValue);
@@ -695,58 +808,26 @@ export const tokensToVariables = async (
       }
     }
 
-    // Third pass: resolve any remaining alias references that were stored as strings
-    if (typeof figma !== 'undefined') {
-      for (const [fullPath, variable] of variableMap) {
-        try {
-          // Get the fresh collection reference
-          const collection =
-            await figma.variables.getVariableCollectionByIdAsync(
-              variable.variableCollectionId
-            );
-
-          if (!collection) continue;
-
-          // Check each mode for unresolved aliases
-          for (const mode of collection.modes) {
-            const currentValue = variable.valuesByMode[mode.modeId];
-
-            if (
-              typeof currentValue === 'string' &&
-              currentValue.startsWith('{') &&
-              currentValue.endsWith('}')
-            ) {
-              // This is an unresolved alias
-              const aliasPath = currentValue
-                .slice(1, -1)
-                .replace(/\.\$?value$/, '');
-              // Convert dots to slashes for Figma variable name format
-              const figmaPath = aliasPath.replace(/\./g, '/');
-              const referencedVariable = variableMap.get(figmaPath);
-
-              if (referencedVariable) {
-                const aliasValue: VariableAlias = {
-                  type: 'VARIABLE_ALIAS',
-                  id: referencedVariable.id,
-                };
-
-                try {
-                  variable.setValueForMode(mode.modeId, aliasValue);
-                } catch (error) {
-                  result.errors.push(
-                    `Failed to resolve alias for "${fullPath}": ${error.message}`
-                  );
-                }
-              } else {
-                result.errors.push(`Alias reference not found: ${aliasPath}`);
-              }
-            }
-          }
-        } catch (error) {
+    // Third pass: set the values whose references could not be resolved
+    // before, now that every variable from every collection exists.
+    for (const { variable, modeId, value, type, path } of deferredValues) {
+      try {
+        const figmaValue = convertTokenValueToFigmaValue(
+          value,
+          type,
+          variableMap
+        );
+        if (hasUnresolvedReference(figmaValue)) {
           result.errors.push(
-            `Error in second pass for "${fullPath}": ${error.message}`
+            `Alias reference not found for "${path}": ${JSON.stringify(value)}`
           );
+          continue;
         }
+        variable.setValueForMode(modeId, figmaValue);
+      } catch (error) {
+        result.errors.push(
+          `Failed to resolve alias for "${path}": ${error.message}`
+        );
       }
     }
 

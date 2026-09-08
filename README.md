@@ -1057,7 +1057,12 @@ The [DTCG color type](https://www.designtokens.org/tr/2025.10/color/#format) has
   "color": {
     "brand": {
       "$type": "color",
-      "$value": { "colorSpace": "srgb", "components": [0.2, 0.4, 0.8], "alpha": 1, "hex": "#3366cc" }
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.2, 0.4, 0.8],
+        "alpha": 1,
+        "hex": "#3366cc"
+      }
     },
     "brand-translucent": {
       "$type": "color",
@@ -1071,10 +1076,12 @@ The [DTCG color type](https://www.designtokens.org/tr/2025.10/color/#format) has
 }
 ```
 
-The `alpha` replaces the alpha channel of the referenced color. If the base color is a literal rather than an alias, the opacity is baked into the regular color value for the chosen [color mode](#color-mode); only when the opacity itself is a reference does the color value keep an `alpha` (or `a`) reference in place of the number.
+The `alpha` is the opacity Figma applies on top of the referenced color. If the base color is a literal rather than an alias, the opacity is baked into the regular color value for the chosen [color mode](#color-mode); only when the opacity itself is a reference does the color value keep an `alpha` (or `a`) reference in place of the number.
+
+[Importing](#import-json--variables) these tokens recreates the composed color variable in Figma: `components` becomes the alias, `alpha` the opacity (a plain percentage or an alias to the number variable). References to variables in other collections are resolved once every collection has been imported.
 
 > [!NOTE]
-> This shape is an extension of the DTCG format, so a consumer needs a small custom transform: resolve the `components` reference, then apply `alpha`. Figma's Plugin API can read these variables but not write them yet, so they cannot be imported back through the plugin.
+> This shape is an extension of the DTCG format, so a consumer needs a small custom transform: resolve the `components` reference, then apply `alpha`.
 
 ---
 
@@ -1114,16 +1121,16 @@ It follows the same pattern as used by [Cobalt](https://cobalt-ui.pages.dev/guid
 
 Unlike design tokens, Figma variables [support only 6 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT`, `STRING`, `TIMING` and `EASING`. So, the plugin converts them into the corresponding types from the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/#types).
 
-| Figma type | Scope condition          | Design Tokens type                                                           |
-| ---------- | ------------------------ | ---------------------------------------------------------------------------- |
-| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)               |
-| BOOLEAN    | —                        | _boolean_ \*                                                                 |
-| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \* |
-| FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                  |
-| FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                   |
-| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*  |
-| STRING     | —                        | _string_ \*                                                                  |
-| TIMING     | —                        | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*   |
+| Figma type | Scope condition          | Design Tokens type                                                                               |
+| ---------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
+| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)                                   |
+| BOOLEAN    | —                        | _boolean_ \*                                                                                     |
+| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \*                     |
+| FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                                      |
+| FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                                       |
+| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*                      |
+| STRING     | —                        | _string_ \*                                                                                      |
+| TIMING     | —                        | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*                      |
 | EASING     | —                        | [cubicBezier](https://www.designtokens.org/tr/2025.10/format/#cubic-bezier) or _string_ \*\*\*\* |
 
 \* native JSON types — not part of the closed DTCG 2025.10 type set. With the [DTCG 2025.10 format](#dtcg-202510-format) setting on, `$type` is omitted for `string`/`boolean` tokens and the original Figma type is preserved under `$extensions.figmaType`. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
@@ -1140,14 +1147,14 @@ Unlike design tokens, Figma variables [support only 6 types](https://www.figma.c
 
 Figma's `EASING` variables hold either a custom curve or one of Figma's presets. The API returns numbers only for the two custom types — every preset arrives as just a name — so the plugin maps them like this:
 
-| Figma easing                                                                         | Token type            | Example value              |
-| ------------------------------------------------------------------------------------ | --------------------- | -------------------------- |
-| Custom bezier                                                                          | `cubicBezier`         | `[0, 0, 0.58, 1]`          |
-| Linear, Ease in / out / in and out, Ease in / out / in and out back                    | `cubicBezier`         | `[0.41, 0, 1, 1]`          |
-| Linear, Ease in / out / in and out, Ease in / out / in and out back — expansion off    | `string`              | `"ease-in"`                |
-| Gentle, Quick, Bouncy, Slow                                                            | `string`              | `"gentle"`                 |
-| Custom spring                                                                          | `string`              | `"spring(bounce 0.35)"`    |
-| Hold                                                                                   | `string`              | `"hold"`                   |
+| Figma easing                                                                        | Token type    | Example value           |
+| ----------------------------------------------------------------------------------- | ------------- | ----------------------- |
+| Custom bezier                                                                       | `cubicBezier` | `[0, 0, 0.58, 1]`       |
+| Linear, Ease in / out / in and out, Ease in / out / in and out back                 | `cubicBezier` | `[0.41, 0, 1, 1]`       |
+| Linear, Ease in / out / in and out, Ease in / out / in and out back — expansion off | `string`      | `"ease-in"`             |
+| Gentle, Quick, Bouncy, Slow                                                         | `string`      | `"gentle"`              |
+| Custom spring                                                                       | `string`      | `"spring(bounce 0.35)"` |
+| Hold                                                                                | `string`      | `"hold"`                |
 
 Named bezier presets are expanded into curves unless [Expand easing presets to cubic-bezier](#expand-easing-presets-to-cubic-bezier) is turned off. Springs and Hold are always names: DTCG has no spring type, and Figma exposes no numbers for them.
 
