@@ -35,6 +35,53 @@ export const isComposedColor = (value: any): value is ComposedColorValue =>
 const isAlias = (value: any): value is VariableAlias =>
   value?.type === 'VARIABLE_ALIAS' && typeof value.id === 'string';
 
+const isRGB = (value: any): value is RGB | RGBA =>
+  typeof value?.r === 'number' &&
+  typeof value.g === 'number' &&
+  typeof value.b === 'number';
+
+/**
+ * The typings describe expression arguments as `VariableData`
+ * (`{ type, resolvedType, value }`) while Figma Desktop returns the bare
+ * alias / number. Accept both by unwrapping the `value` when present.
+ */
+const unwrapArgument = (argument: any): any => {
+  if (
+    argument &&
+    typeof argument === 'object' &&
+    'value' in argument &&
+    !isAlias(argument) &&
+    !isRGB(argument)
+  ) {
+    return unwrapArgument(argument.value);
+  }
+  return argument;
+};
+
+/**
+ * Reads the base color and opacity out of a composed color, throwing a
+ * descriptive error (with the raw value) when the shape is not one the
+ * plugin knows how to handle, so the export can report it instead of
+ * crashing somewhere down the line.
+ */
+const readComposedArguments = (value: ComposedColorValue) => {
+  const [baseColor, opacity] = value.expressionArguments.map(unwrapArgument);
+
+  const validBase = isAlias(baseColor) || isRGB(baseColor);
+  const validOpacity = isAlias(opacity) || typeof opacity === 'number';
+
+  if (!validBase || !validOpacity) {
+    throw new Error(
+      `Unsupported composed color value: ${JSON.stringify(value)}`
+    );
+  }
+
+  return { baseColor, opacity } as {
+    baseColor: RGB | RGBA | VariableAlias;
+    opacity: number | VariableAlias;
+  };
+};
+
 const DTCG_COLOR_MODES: ReadonlyArray<colorModeType> = [
   'srgb-dtcg',
   'hsl-dtcg',
@@ -73,7 +120,7 @@ export const normalizeComposedColor = async ({
   usePercentageOpacity,
   resolveAlias,
 }: PropsI) => {
-  const [baseColor, opacity] = value.expressionArguments;
+  const { baseColor, opacity } = readComposedArguments(value);
 
   const alpha = isAlias(opacity)
     ? await resolveAlias(opacity.id)

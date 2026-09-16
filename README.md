@@ -1085,6 +1085,9 @@ The `alpha` is the opacity Figma applies on top of the referenced color. If the 
 > Some Figma clients can read these variables but refuse to write them ("Composed color variable values are not supported"), currently including Figma Desktop. The plugin then leaves those values untouched, reports how many were skipped and links to [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375). Other tokens in the same import are not affected.
 
 > [!NOTE]
+> Figma is still changing how these values are exposed to plugins. If a color variable comes back in a shape the plugin does not recognise, the export leaves that variable out and logs a `[tokens-bruecke] Skipped variable …` warning with the raw value to the Figma console (`Plugins → Development → Open console`) instead of failing. Please paste that warning into [#91](https://github.com/tokens-bruecke/figma-plugin/issues/91).
+
+> [!NOTE]
 > This shape is an extension of the DTCG format, so a consumer needs a small custom transform: resolve the `components` reference, then apply `alpha`.
 
 ---
