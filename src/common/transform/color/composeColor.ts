@@ -4,10 +4,17 @@ import { convertRGBA } from './convertRGBA';
 /**
  * Figma's "Control opacity at scale" release (September 2026) lets a color
  * variable alias another color and apply its own opacity on top, optionally
- * driven by a number variable. The Plugin API returns such values as an
- * expression rather than a plain alias or RGBA:
+ * driven by a number variable. The Plugin API has exposed such values in two
+ * shapes so far:
  *
  * ```js
+ * // current runtimes (Figma web app, and what `setValueForMode` accepts)
+ * {
+ *   color: { type: 'VARIABLE_ALIAS', id: '…' } | { r, g, b, a },
+ *   opacity: 50 | { type: 'VARIABLE_ALIAS', id: '…' },
+ * }
+ *
+ * // earlier runtimes (Figma Desktop 126.x)
  * {
  *   type: 'VARIABLE_EXPRESSION',
  *   expressionFunction: 'COMPOSE_COLOR',
@@ -18,19 +25,22 @@ import { convertRGBA } from './convertRGBA';
  * }
  * ```
  *
- * The first argument is the base color, the second the opacity in percent
- * (0..100) or an alias to a FLOAT variable holding it.
+ * In both, the base is the color and the opacity is in percent (0..100) or
+ * an alias to a FLOAT variable holding it. At least one half is an alias;
+ * a literal color with a literal opacity is stored as a plain RGBA.
  */
-export interface ComposedColorValue {
-  type: 'VARIABLE_EXPRESSION';
-  expressionFunction: 'COMPOSE_COLOR';
-  expressionArguments: [RGBA | VariableAlias, number | VariableAlias];
+export interface ComposedColorObject {
+  color: RGB | RGBA | VariableAlias;
+  opacity: number | VariableAlias;
 }
 
-export const isComposedColor = (value: any): value is ComposedColorValue =>
-  value?.type === 'VARIABLE_EXPRESSION' &&
-  value.expressionFunction === 'COMPOSE_COLOR' &&
-  Array.isArray(value.expressionArguments);
+export interface ComposedColorExpression {
+  type: 'VARIABLE_EXPRESSION';
+  expressionFunction: 'COMPOSE_COLOR';
+  expressionArguments: [RGB | RGBA | VariableAlias, number | VariableAlias];
+}
+
+export type ComposedColorValue = ComposedColorObject | ComposedColorExpression;
 
 const isAlias = (value: any): value is VariableAlias =>
   value?.type === 'VARIABLE_ALIAS' && typeof value.id === 'string';
@@ -39,6 +49,30 @@ const isRGB = (value: any): value is RGB | RGBA =>
   typeof value?.r === 'number' &&
   typeof value.g === 'number' &&
   typeof value.b === 'number';
+
+const isBaseColor = (value: any): value is RGB | RGBA | VariableAlias =>
+  isAlias(value) || isRGB(value);
+
+const isOpacity = (value: any): value is number | VariableAlias =>
+  isAlias(value) || typeof value === 'number';
+
+export const isComposedColorObject = (
+  value: any
+): value is ComposedColorObject =>
+  typeof value === 'object' &&
+  value !== null &&
+  isBaseColor(value.color) &&
+  isOpacity(value.opacity);
+
+export const isComposedColorExpression = (
+  value: any
+): value is ComposedColorExpression =>
+  value?.type === 'VARIABLE_EXPRESSION' &&
+  value.expressionFunction === 'COMPOSE_COLOR' &&
+  Array.isArray(value.expressionArguments);
+
+export const isComposedColor = (value: any): value is ComposedColorValue =>
+  isComposedColorObject(value) || isComposedColorExpression(value);
 
 /**
  * The typings describe expression arguments as `VariableData`
@@ -58,29 +92,50 @@ const unwrapArgument = (argument: any): any => {
   return argument;
 };
 
+export interface ComposedColorParts {
+  baseColor: RGB | RGBA | VariableAlias;
+  opacity: number | VariableAlias;
+}
+
 /**
- * Reads the base color and opacity out of a composed color, throwing a
- * descriptive error (with the raw value) when the shape is not one the
- * plugin knows how to handle, so the export can report it instead of
- * crashing somewhere down the line.
+ * Reads the base color and opacity out of either composed color shape,
+ * throwing a descriptive error (with the raw value) when the shape is not
+ * one the plugin knows how to handle, so the export can report it instead
+ * of crashing somewhere down the line.
  */
-const readComposedArguments = (value: ComposedColorValue) => {
-  const [baseColor, opacity] = value.expressionArguments.map(unwrapArgument);
-
-  const validBase = isAlias(baseColor) || isRGB(baseColor);
-  const validOpacity = isAlias(opacity) || typeof opacity === 'number';
-
-  if (!validBase || !validOpacity) {
-    throw new Error(
-      `Unsupported composed color value: ${JSON.stringify(value)}`
-    );
+export const getComposedColorParts = (value: any): ComposedColorParts => {
+  if (isComposedColorObject(value)) {
+    return { baseColor: value.color, opacity: value.opacity };
   }
 
-  return { baseColor, opacity } as {
-    baseColor: RGB | RGBA | VariableAlias;
-    opacity: number | VariableAlias;
-  };
+  if (isComposedColorExpression(value)) {
+    const [baseColor, opacity] = value.expressionArguments.map(unwrapArgument);
+    if (isBaseColor(baseColor) && isOpacity(opacity)) {
+      return { baseColor, opacity };
+    }
+  }
+
+  throw new Error(`Unsupported composed color value: ${JSON.stringify(value)}`);
 };
+
+/** The shape current Figma runtimes store and accept in `setValueForMode`. */
+export const toComposedColorObject = ({
+  baseColor,
+  opacity,
+}: ComposedColorParts): ComposedColorObject => ({
+  color: baseColor,
+  opacity,
+});
+
+/** The shape earlier Figma runtimes (Desktop 126.x) exposed. */
+export const toComposedColorExpression = ({
+  baseColor,
+  opacity,
+}: ComposedColorParts): ComposedColorExpression => ({
+  type: 'VARIABLE_EXPRESSION',
+  expressionFunction: 'COMPOSE_COLOR',
+  expressionArguments: [baseColor, opacity],
+});
 
 const DTCG_COLOR_MODES: ReadonlyArray<colorModeType> = [
   'srgb-dtcg',
@@ -120,7 +175,7 @@ export const normalizeComposedColor = async ({
   usePercentageOpacity,
   resolveAlias,
 }: PropsI) => {
-  const { baseColor, opacity } = readComposedArguments(value);
+  const { baseColor, opacity } = getComposedColorParts(value);
 
   const alpha = isAlias(opacity)
     ? await resolveAlias(opacity.id)

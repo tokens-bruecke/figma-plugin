@@ -369,18 +369,14 @@ describe('composed colors (color alias with opacity)', () => {
   const brandAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:1:1' };
   const opacityAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:1:2' };
 
-  test('alias base with a number opacity becomes a COMPOSE_COLOR expression', () => {
+  test('alias base with a number opacity becomes a composed color value', () => {
     expect(
       convertTokenValueToFigmaValue(
         { components: '{t1.color.brand}', alpha: 0.5 },
         'color',
         variableMap
       )
-    ).toEqual({
-      type: 'VARIABLE_EXPRESSION',
-      expressionFunction: 'COMPOSE_COLOR',
-      expressionArguments: [brandAlias, 50],
-    });
+    ).toEqual({ color: brandAlias, opacity: 50 });
   });
 
   test('percentage opacity and an aliased opacity are supported', () => {
@@ -390,29 +386,20 @@ describe('composed colors (color alias with opacity)', () => {
         'color',
         variableMap
       )
-    ).toEqual({
-      type: 'VARIABLE_EXPRESSION',
-      expressionFunction: 'COMPOSE_COLOR',
-      expressionArguments: [brandAlias, 50],
-    });
+    ).toEqual({ color: brandAlias, opacity: 50 });
     expect(
       convertTokenValueToFigmaValue(
         { components: '{t1.color.brand}', alpha: '{t1.opacity.50}' },
         'color',
         variableMap
       )
-    ).toEqual({
-      type: 'VARIABLE_EXPRESSION',
-      expressionFunction: 'COMPOSE_COLOR',
-      expressionArguments: [brandAlias, opacityAlias],
-    });
+    ).toEqual({ color: brandAlias, opacity: opacityAlias });
   });
 
   test('literal base colors with an aliased opacity keep the color', () => {
     const expected = {
-      type: 'VARIABLE_EXPRESSION',
-      expressionFunction: 'COMPOSE_COLOR',
-      expressionArguments: [{ r: 1, g: 0, b: 0, a: 1 }, opacityAlias],
+      color: { r: 1, g: 0, b: 0, a: 1 },
+      opacity: opacityAlias,
     };
     expect(
       convertTokenValueToFigmaValue(
@@ -441,6 +428,9 @@ describe('composed colors (color alias with opacity)', () => {
     expect(result).toBe(value);
     expect(hasUnresolvedReference(result)).toBe(true);
     expect(hasUnresolvedReference('{t2.color.missing}')).toBe(true);
+    expect(hasUnresolvedReference({ color: brandAlias, opacity: 50 })).toBe(
+      false
+    );
     expect(
       hasUnresolvedReference({
         type: 'VARIABLE_EXPRESSION',

@@ -74,10 +74,19 @@ const resolver = {
 } as unknown as IResolver;
 
 const composed = (base: any, opacity: any) => ({
+  color: base,
+  opacity,
+});
+
+const composedExpression = (base: any, opacity: any) => ({
   type: 'VARIABLE_EXPRESSION',
   expressionFunction: 'COMPOSE_COLOR',
   expressionArguments: [base, opacity],
 });
+
+const isComposedShape = (value: any) =>
+  value?.type === 'VARIABLE_EXPRESSION' ||
+  (typeof value === 'object' && value !== null && 'opacity' in value);
 
 describe('tokensToVariables with composed colors', () => {
   let fake: ReturnType<typeof createFakeFigma>;
@@ -101,7 +110,7 @@ describe('tokensToVariables with composed colors', () => {
     return variable.valuesByMode[modeOf(variable, modeName)];
   };
 
-  test('writes composed colors back as COMPOSE_COLOR expressions', async () => {
+  test('writes composed colors back as { color, opacity } values', async () => {
     const result = await tokensToVariables(
       {
         t1: {
@@ -218,7 +227,7 @@ describe('tokensToVariables with composed colors', () => {
       const variable = original(...(args as [any, any, any]));
       const set = variable.setValueForMode.bind(variable);
       variable.setValueForMode = (modeId: string, value: any) => {
-        if (value?.type === 'VARIABLE_EXPRESSION') {
+        if (isComposedShape(value)) {
           throw new Error('Composed color variable values are not supported');
         }
         set(modeId, value);
@@ -267,13 +276,47 @@ describe('tokensToVariables with composed colors', () => {
     expect(result.message).not.toMatch(/error\(s\)/);
   });
 
+  test('falls back to the COMPOSE_COLOR expression on runtimes that only accept it', async () => {
+    const original = fake.variables.createVariable;
+    fake.variables.createVariable = (...args: any[]) => {
+      const variable = original(...(args as [any, any, any]));
+      const set = variable.setValueForMode.bind(variable);
+      variable.setValueForMode = (modeId: string, value: any) => {
+        if (isComposedShape(value) && value.type !== 'VARIABLE_EXPRESSION') {
+          throw new Error('Property "newValue" failed validation');
+        }
+        set(modeId, value);
+      };
+      return variable;
+    };
+
+    const result = await tokensToVariables(
+      {
+        t1: {
+          gray: { $type: 'color', $value: '#ff0000' },
+          shadow: {
+            $type: 'color',
+            $value: { components: '{t1.gray}', alpha: 0.5 },
+          },
+        },
+      },
+      resolver
+    );
+
+    expect(valueOf('shadow')).toEqual(
+      composedExpression({ type: 'VARIABLE_ALIAS', id: byName('gray').id }, 50)
+    );
+    expect(result.composedColorsRejected).toBe(0);
+    expect(result.errors).toHaveLength(0);
+  });
+
   test('detects composed colors that Figma drops without throwing', async () => {
     const original = fake.variables.createVariable;
     fake.variables.createVariable = (...args: any[]) => {
       const variable = original(...(args as [any, any, any]));
       const set = variable.setValueForMode.bind(variable);
       variable.setValueForMode = (modeId: string, value: any) => {
-        if (value?.type === 'VARIABLE_EXPRESSION') {
+        if (isComposedShape(value)) {
           return; // silently ignored
         }
         set(modeId, value);

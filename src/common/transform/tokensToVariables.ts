@@ -1,5 +1,11 @@
 import { IResolver } from '@common/resolver';
-import { ComposedColorValue } from './color/composeColor';
+import {
+  ComposedColorValue,
+  getComposedColorParts,
+  isComposedColor,
+  toComposedColorExpression,
+  toComposedColorObject,
+} from './color/composeColor';
 import { isOpacityScope } from './opacityScopes';
 import { parseDurationToSeconds, parseEasing } from './motion';
 
@@ -268,9 +274,9 @@ export const hasUnresolvedReference = (value: any): boolean =>
   isReference(value) || isComposedColorToken(value);
 
 /**
- * Converts a composed color token back into the `COMPOSE_COLOR` expression
- * Figma stores for a color alias with its own opacity. Returns `null` when a
- * referenced variable cannot be found in the map (yet).
+ * Converts a composed color token back into the value Figma stores for a
+ * color alias with its own opacity (`{ color, opacity }`). Returns `null`
+ * when a referenced variable cannot be found in the map (yet).
  */
 export const convertComposedColorToFigmaValue = (
   value: any,
@@ -314,11 +320,7 @@ export const convertComposedColorToFigmaValue = (
     opacity = toOpacityPercent(alphaValue);
   }
 
-  return {
-    type: 'VARIABLE_EXPRESSION',
-    expressionFunction: 'COMPOSE_COLOR',
-    expressionArguments: [base, opacity],
-  };
+  return toComposedColorObject({ baseColor: base, opacity });
 };
 
 /**
@@ -494,10 +496,6 @@ const extractTokens = (
   return tokens;
 };
 
-const isComposedFigmaValue = (value: any): value is ComposedColorValue =>
-  value?.type === 'VARIABLE_EXPRESSION' &&
-  value.expressionFunction === 'COMPOSE_COLOR';
-
 /**
  * Some Figma clients can read color aliases with a separate opacity but
  * reject writing them ("Composed color variable values are not supported").
@@ -512,42 +510,61 @@ interface SetValueContext {
 }
 
 /**
- * Sets a variable value. A composed color the runtime rejects is left
+ * Sets a variable value. A composed color is tried in every shape a Figma
+ * runtime has accepted so far; one the runtime still rejects is left
  * untouched and counted, so the import result can point at the Figma issue
  * instead of silently degrading the token.
  */
 const setVariableValue = (
   variable: Variable,
   modeId: string,
-  figmaValue: VariableValue,
+  figmaValue: VariableValue | ComposedColorValue,
   label: string,
   context: SetValueContext
 ) => {
-  const rejectComposed = (reason: string) => {
-    context.composedColorsRejected++;
-    context.errors.push(
-      `Skipped ${label}: this Figma version cannot write color aliases with a separate opacity (${reason}). See ${COMPOSED_COLOR_ISSUE_URL}`
-    );
+  const trySet = (value: any): string | null => {
+    try {
+      variable.setValueForMode(modeId, value);
+      return null;
+    } catch (error) {
+      return error?.message ?? String(error);
+    }
   };
 
-  try {
-    variable.setValueForMode(modeId, figmaValue);
-  } catch (error) {
-    if (isComposedFigmaValue(figmaValue)) {
-      rejectComposed(error.message);
-      return;
+  if (!isComposedColor(figmaValue)) {
+    const error = trySet(figmaValue);
+    if (error) {
+      context.errors.push(`Failed to set value for ${label}: ${error}`);
     }
-    context.errors.push(`Failed to set value for ${label}: ${error.message}`);
     return;
   }
 
-  // Some clients drop the value without throwing: verify it actually stuck.
-  if (
-    isComposedFigmaValue(figmaValue) &&
-    !isComposedFigmaValue(variable.valuesByMode?.[modeId])
-  ) {
-    rejectComposed('the value was ignored by setValueForMode');
+  const parts = getComposedColorParts(figmaValue);
+  // Current runtimes take `{ color, opacity }`; Desktop 126.x exposed the
+  // COMPOSE_COLOR expression instead, so fall back to that.
+  const candidates = [
+    toComposedColorObject(parts),
+    toComposedColorExpression(parts),
+  ];
+
+  let reason = '';
+  for (const candidate of candidates) {
+    const error = trySet(candidate);
+    if (error) {
+      reason = error;
+      continue;
+    }
+    // Some clients drop the value without throwing: verify it actually stuck.
+    if (isComposedColor(variable.valuesByMode?.[modeId])) {
+      return;
+    }
+    reason = 'the value was ignored by setValueForMode';
   }
+
+  context.composedColorsRejected++;
+  context.errors.push(
+    `Skipped ${label}: this Figma version cannot write color aliases with a separate opacity (${reason}). See ${COMPOSED_COLOR_ISSUE_URL}`
+  );
 };
 
 /**

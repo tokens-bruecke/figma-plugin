@@ -451,6 +451,33 @@ describe('color values with unexpected shapes', () => {
     expect(await normalize(wrappedLiteral)).toBe('#ff000080');
   });
 
+  test('composed color in the { color, opacity } shape (Figma web app)', async () => {
+    const blueAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:1' };
+    const opacityAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:2' };
+
+    expect(await normalize({ color: blueAlias, opacity: 48 })).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: 0.48,
+    });
+    expect(
+      await normalize({ color: blueAlias, opacity: opacityAlias })
+    ).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: '{Primitives.opacity.50}',
+    });
+    expect(
+      await normalize(
+        { color: { r: 1, g: 0, b: 0, a: 1 }, opacity: opacityAlias },
+        'srgb-dtcg'
+      )
+    ).toStrictEqual({
+      colorSpace: 'srgb',
+      components: [1, 0, 0],
+      alpha: '{Primitives.opacity.50}',
+      hex: '#ff0000',
+    });
+  });
+
   test('an unknown color shape fails with the raw value in the message', async () => {
     const unknown = {
       type: 'VARIABLE_EXPRESSION',
