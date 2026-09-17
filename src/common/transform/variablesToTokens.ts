@@ -85,6 +85,22 @@ export const variablesToTokens = async (
   // console.log("collections", collections);
 
   for (const variable of sortedVariables) {
+    try {
+      await addVariable(variable);
+    } catch (error) {
+      // One variable the plugin cannot convert must not abort the whole
+      // export: leave it out, say so, and keep going.
+      console.warn(
+        `[tokens-bruecke] Skipped variable "${variable.name}" (${
+          variable.resolvedType
+        }): ${error?.message ?? error}. Values: ${JSON.stringify(
+          variable.valuesByMode
+        )}`
+      );
+    }
+  }
+
+  async function addVariable(variable: Variable) {
     // console.log("variable", variable);
     // get collection object
     const collectionId = variable.variableCollectionId;

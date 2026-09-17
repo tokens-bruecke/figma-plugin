@@ -66,6 +66,14 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
   }
 
   if (variableType === 'COLOR') {
+    if (typeof variableValue?.r !== 'number') {
+      // A shape the plugin does not know (e.g. an expression Figma added
+      // after this release). Fail loudly with the raw value so the export
+      // can report it instead of dying on `undefined.toFixed`.
+      throw new Error(
+        `Unsupported color value: ${JSON.stringify(variableValue)}`
+      );
+    }
     return convertRGBA(variableValue, colorMode);
   }
 

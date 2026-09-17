@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { variablesToTokens } from './variablesToTokens';
 import { IResolver } from '@common/resolver';
@@ -299,5 +299,54 @@ describe('variablesToTokens ordering', () => {
       'sm',
       'xl10',
     ]);
+  });
+});
+
+describe('variables the plugin cannot convert', () => {
+  test('are skipped with a warning instead of aborting the export', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const broken = {
+      name: 'color/broken',
+      resolvedType: 'COLOR',
+      scopes: ['ALL_SCOPES'],
+      variableCollectionId: 'c1',
+      valuesByMode: {
+        m1: {
+          type: 'VARIABLE_EXPRESSION',
+          expressionFunction: 'SOMETHING_NEW',
+          expressionArguments: [],
+        },
+      },
+      description: '',
+      codeSyntax: {},
+      id: 'v4',
+    };
+    const red = {
+      name: 'color/red',
+      resolvedType: 'COLOR',
+      scopes: ['ALL_SCOPES'],
+      variableCollectionId: 'c1',
+      valuesByMode: { m1: { r: 1, g: 0, b: 0, a: 1 } },
+      description: '',
+      codeSyntax: {},
+      id: 'v5',
+    };
+
+    const tokens = (await variablesToTokens(
+      [...variables, broken, red] as unknown as Variable[],
+      collections,
+      { ...baseConfig, useDTCG: true },
+      resolver
+    )) as any;
+
+    expect(tokens.core.color.red.$value).toBe('#ff0000');
+    expect(tokens.core.color.broken).toBeUndefined();
+    expect(tokens.core.spacing.sm).toBeDefined();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('Skipped variable "color/broken"');
+    expect(warn.mock.calls[0][0]).toContain('SOMETHING_NEW');
+
+    warn.mockRestore();
   });
 });

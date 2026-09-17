@@ -560,7 +560,7 @@ Things worth knowing when building a snapshot:
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
-- Color aliases with their own opacity come back from the Plugin API as `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }` — pass them through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
+- Color aliases with their own opacity come back from the Plugin API as `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` (older Figma Desktop builds used `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`) — pass either through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
 
 > [!NOTE]
 > Plugin API objects are live proxies, so `JSON.stringify` may not enumerate their properties. Copy the fields listed in the schema onto plain objects before serializing.
@@ -1081,8 +1081,13 @@ The `alpha` is the opacity Figma applies on top of the referenced color. If the 
 
 [Importing](#import-json--variables) these tokens recreates the composed color variable in Figma: `components` becomes the alias, `alpha` the opacity (a plain percentage or an alias to the number variable). References to variables in other collections are resolved once every collection has been imported.
 
+Figma has exposed these variables to plugins in two shapes so far: current runtimes (the Figma web app, and what `setValueForMode` accepts) use `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }`, while Figma Desktop 126.x returned a `COMPOSE_COLOR` expression. The export reads both. The import writes the current shape and falls back to the expression for runtimes that only accept that one.
+
 > [!WARNING]
-> Some Figma clients can read these variables but refuse to write them ("Composed color variable values are not supported"), currently including Figma Desktop. The plugin then leaves those values untouched, reports how many were skipped and links to [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375). Other tokens in the same import are not affected.
+> Some Figma clients can read these variables but refuse to write them in either shape ("Composed color variable values are not supported"), including Figma Desktop 126.x. The plugin then leaves those values untouched, reports how many were skipped and links to [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375). Other tokens in the same import are not affected.
+
+> [!NOTE]
+> Figma is still changing how these values are exposed to plugins. If a color variable comes back in a shape the plugin does not recognise, the export leaves that variable out and logs a `[tokens-bruecke] Skipped variable …` warning with the raw value to the Figma console (`Plugins → Development → Open console`) instead of failing. Please paste that warning into [#91](https://github.com/tokens-bruecke/figma-plugin/issues/91).
 
 > [!NOTE]
 > This shape is an extension of the DTCG format, so a consumer needs a small custom transform: resolve the `components` reference, then apply `alpha`.

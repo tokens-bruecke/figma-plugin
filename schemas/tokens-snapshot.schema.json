@@ -129,6 +129,7 @@
       "description": "A resolved variable value, or an alias pointing at another variable.",
       "oneOf": [
         { "$ref": "#/definitions/variableAlias" },
+        { "$ref": "#/definitions/composedColorObject" },
         { "$ref": "#/definitions/composedColor" },
         { "$ref": "#/definitions/rgba" },
         { "type": "number" },
@@ -143,6 +144,26 @@
       "properties": {
         "type": { "const": "VARIABLE_ALIAS" },
         "id": { "type": "string" }
+      }
+    },
+    "composedColorObject": {
+      "type": "object",
+      "description": "Color alias with its own opacity, as current Figma runtimes return it (and accept in setValueForMode). At least one of color / opacity is an alias.",
+      "additionalProperties": false,
+      "required": ["color", "opacity"],
+      "properties": {
+        "color": {
+          "oneOf": [
+            { "$ref": "#/definitions/variableAlias" },
+            { "$ref": "#/definitions/rgba" }
+          ]
+        },
+        "opacity": {
+          "oneOf": [
+            { "$ref": "#/definitions/variableAlias" },
+            { "type": "number", "minimum": 0, "maximum": 100 }
+          ]
+        }
       }
     },
     "composedColor": {

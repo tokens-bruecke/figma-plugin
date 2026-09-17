@@ -370,3 +370,131 @@ describe('opacity scopes', () => {
     ).toBe(0.5);
   });
 });
+
+describe('color values with unexpected shapes', () => {
+  const variables: Record<string, Partial<Variable>> = {
+    'VariableID:1': {
+      id: 'VariableID:1',
+      name: 'brand/blue',
+      variableCollectionId: 'C:1',
+    },
+    'VariableID:2': {
+      id: 'VariableID:2',
+      name: 'opacity/50',
+      variableCollectionId: 'C:1',
+    },
+  };
+  const aliasResolver = {
+    getVariableById: async (id: string) => (variables[id] ?? null) as Variable,
+    getVariableCollectionById: async () =>
+      ({ id: 'C:1', name: 'Primitives' } as VariableCollection),
+  } as unknown as IResolver;
+
+  const normalize = (variableValue: any, colorMode: colorModeType = 'hex') =>
+    normalizeValue(
+      {
+        variableValue,
+        variableType: 'COLOR',
+        variableScope: ['ALL_SCOPES'],
+        colorMode,
+        useDTCG: true,
+        includeValueStringKeyToAlias: false,
+        usePercentageOpacity: false,
+      },
+      aliasResolver
+    );
+
+  test('an RGB literal without an alpha channel is treated as opaque', async () => {
+    expect(await normalize({ r: 1, g: 0, b: 0 })).toBe('#ff0000');
+    expect(await normalize({ r: 1, g: 0, b: 0 }, 'srgb-dtcg')).toStrictEqual({
+      colorSpace: 'srgb',
+      components: [1, 0, 0],
+      alpha: 1,
+      hex: '#ff0000',
+    });
+  });
+
+  test('composed color with VariableData-wrapped arguments', async () => {
+    // The typings describe expression arguments as { type, resolvedType, value }
+    const wrapped = {
+      type: 'VARIABLE_EXPRESSION',
+      expressionFunction: 'COMPOSE_COLOR',
+      expressionArguments: [
+        {
+          type: 'VARIABLE_ALIAS',
+          resolvedType: 'COLOR',
+          value: { type: 'VARIABLE_ALIAS', id: 'VariableID:1' },
+        },
+        {
+          type: 'VARIABLE_ALIAS',
+          resolvedType: 'FLOAT',
+          value: { type: 'VARIABLE_ALIAS', id: 'VariableID:2' },
+        },
+      ],
+    };
+    expect(await normalize(wrapped)).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: '{Primitives.opacity.50}',
+    });
+
+    const wrappedLiteral = {
+      ...wrapped,
+      expressionArguments: [
+        {
+          type: 'COLOR',
+          resolvedType: 'COLOR',
+          value: { r: 1, g: 0, b: 0 },
+        },
+        { type: 'FLOAT', resolvedType: 'FLOAT', value: 50 },
+      ],
+    };
+    expect(await normalize(wrappedLiteral)).toBe('#ff000080');
+  });
+
+  test('composed color in the { color, opacity } shape (Figma web app)', async () => {
+    const blueAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:1' };
+    const opacityAlias = { type: 'VARIABLE_ALIAS', id: 'VariableID:2' };
+
+    expect(await normalize({ color: blueAlias, opacity: 48 })).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: 0.48,
+    });
+    expect(
+      await normalize({ color: blueAlias, opacity: opacityAlias })
+    ).toStrictEqual({
+      components: '{Primitives.brand.blue}',
+      alpha: '{Primitives.opacity.50}',
+    });
+    expect(
+      await normalize(
+        { color: { r: 1, g: 0, b: 0, a: 1 }, opacity: opacityAlias },
+        'srgb-dtcg'
+      )
+    ).toStrictEqual({
+      colorSpace: 'srgb',
+      components: [1, 0, 0],
+      alpha: '{Primitives.opacity.50}',
+      hex: '#ff0000',
+    });
+  });
+
+  test('an unknown color shape fails with the raw value in the message', async () => {
+    const unknown = {
+      type: 'VARIABLE_EXPRESSION',
+      expressionFunction: 'SOMETHING_NEW',
+      expressionArguments: [],
+    };
+    await expect(normalize(unknown)).rejects.toThrow(
+      `Unsupported color value: ${JSON.stringify(unknown)}`
+    );
+
+    const composedWithUnknownArguments = {
+      type: 'VARIABLE_EXPRESSION',
+      expressionFunction: 'COMPOSE_COLOR',
+      expressionArguments: [{ foo: 'bar' }, 50],
+    };
+    await expect(normalize(composedWithUnknownArguments)).rejects.toThrow(
+      'Unsupported composed color value'
+    );
+  });
+});
