@@ -1,3 +1,10 @@
+## [3.12.2](https://github.com/tokens-bruecke/figma-plugin/compare/v3.12.0...v3.12.2) (2026-09-17)
+
+### Bug Fixes
+
+- **color:** support the { color, opacity } shape of composed colors ([d486243](https://github.com/tokens-bruecke/figma-plugin/commit/d486243d62e1ea3ea960e77056bdc1c95e7dd770)), closes [#91](https://github.com/tokens-bruecke/figma-plugin/issues/91)
+- **export:** keep exporting when a color variable has an unknown shape ([0a0ba67](https://github.com/tokens-bruecke/figma-plugin/commit/0a0ba670660d7531a85af27bd5152f6213d5fcdc)), closes [#91](https://github.com/tokens-bruecke/figma-plugin/issues/91)
+
 ## [3.12.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.10.0...v3.12.0) (2026-09-08)
 
 ### Features
