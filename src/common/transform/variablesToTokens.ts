@@ -4,6 +4,11 @@ import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
 import { IResolver } from '@common/resolver';
+import {
+  createExtensionResolver,
+  isExtendedCollection,
+  resolveExtendedValuesByMode,
+} from './extendedCollections';
 
 // console.clear();
 
@@ -60,6 +65,12 @@ export const variablesToTokens = async (
   const variableOrder = new Map<string, number>();
   let orderIndex = 0;
   for (const collection of collections) {
+    // An extension lists the variables it inherits too, which would
+    // otherwise reorder the variables of the collection that owns them.
+    if (isExtendedCollection(collection)) {
+      continue;
+    }
+
     for (const variableId of collection.variableIds ?? []) {
       variableOrder.set(variableId, orderIndex++);
     }
@@ -84,9 +95,62 @@ export const variablesToTokens = async (
   // console.log("variables", variables);
   // console.log("collections", collections);
 
-  for (const variable of sortedVariables) {
+  const collectionsById = new Map(
+    collections.map((collection) => [collection.id, collection])
+  );
+  const variablesById = new Map(
+    variables.map((variable) => [variable.id, variable])
+  );
+
+  type VariableEntry = {
+    variable: Variable;
+    collection: VariableCollection;
+    getValuesByMode: () => Variable['valuesByMode'];
+    aliasResolver: IResolver;
+  };
+
+  const entries: VariableEntry[] = sortedVariables.map((variable) => ({
+    variable,
+    collection: collectionsById.get(variable.variableCollectionId),
+    getValuesByMode: () => variable.valuesByMode,
+    aliasResolver: resolver,
+  }));
+
+  // Variables are owned by the root collection, so extended collections
+  // (e.g. a regional theme extending a core theme) export every inherited
+  // variable again, with the overrides of their own chain applied.
+  const extensions = collections.filter(isExtendedCollection);
+
+  if (omitCollectionNames && extensions.length > 0) {
+    console.warn(
+      `[tokens-bruecke] Skipped ${extensions.length} extended collection(s): they repeat the variables of their root collection, which collide in a single namespace.`
+    );
+  } else {
+    for (const extension of extensions) {
+      const aliasResolver = createExtensionResolver(resolver, extension);
+
+      for (const variableId of extension.variableIds ?? []) {
+        const variable = variablesById.get(variableId);
+        if (!variable) {
+          continue;
+        }
+
+        entries.push({
+          variable,
+          collection: extension,
+          getValuesByMode: () =>
+            resolveExtendedValuesByMode(variable, extension, collectionsById),
+          aliasResolver,
+        });
+      }
+    }
+  }
+
+  for (const entry of entries) {
+    const { variable } = entry;
+
     try {
-      await addVariable(variable);
+      await addVariable(entry);
     } catch (error) {
       // One variable the plugin cannot convert must not abort the whole
       // export: leave it out, say so, and keep going.
@@ -100,16 +164,21 @@ export const variablesToTokens = async (
     }
   }
 
-  async function addVariable(variable: Variable) {
+  async function addVariable({
+    variable,
+    collection,
+    getValuesByMode,
+    aliasResolver,
+  }: VariableEntry) {
     // console.log("variable", variable);
+    if (!collection) {
+      throw new Error(`Collection ${variable.variableCollectionId} not found`);
+    }
+
     // get collection object
-    const collectionId = variable.variableCollectionId;
-    const collectionName = collections.find(
-      (collection) => collection.id === collectionId
-    ).name;
-    const collectionDefaultModeId = collections.find(
-      (collection) => collection.id === collectionId
-    ).defaultModeId;
+    const collectionId = collection.id;
+    const collectionName = collection.name;
+    const collectionDefaultModeId = collection.defaultModeId;
     const collectionObject = {
       id: collectionId,
       name: collectionName,
@@ -120,13 +189,14 @@ export const variablesToTokens = async (
     // console.log("collection", collectionObject);
 
     // get values by mode
-    const modes = variable.valuesByMode;
+    const valuesByMode = getValuesByMode();
+    const modes = valuesByMode;
 
     const getValue = async (modeIndex: number) =>
       await normalizeValue(
         {
           variableType: variable.resolvedType,
-          variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
+          variableValue: valuesByMode[Object.keys(modes)[modeIndex]],
           variableScope: variable.scopes,
           colorMode,
           useDTCG,
@@ -135,7 +205,7 @@ export const variablesToTokens = async (
           omitCollectionNames,
           expandEasingPresets,
         },
-        resolver
+        aliasResolver
       );
 
     const defaultValue = await getValue(
@@ -148,9 +218,9 @@ export const variablesToTokens = async (
       (
         await Promise.all(
           Object.keys(modes).map(async (modeId, index) => {
-            const modeName = collections
-              .find((collection) => collection.id === collectionId)
-              .modes.find((mode) => mode.modeId === modeId)?.name;
+            const modeName = collection.modes.find(
+              (mode) => mode.modeId === modeId
+            )?.name;
 
             if (modeName) {
               return [[modeName, await getValue(index)]];
@@ -171,10 +241,10 @@ export const variablesToTokens = async (
     const rawDefaultValue =
       variable.resolvedType === 'EASING'
         ? await resolveAliasedValue(
-            variable.valuesByMode[collectionDefaultModeId],
+            valuesByMode[collectionDefaultModeId],
             resolver
           )
-        : variable.valuesByMode[collectionDefaultModeId];
+        : valuesByMode[collectionDefaultModeId];
 
     const tokenType = normalizeType(
       variable.resolvedType,
