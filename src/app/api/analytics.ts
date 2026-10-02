@@ -1,7 +1,7 @@
 // Anonymous usage counters via GoatCounter's public pixel endpoint.
 // Only fixed event names are sent: never token data, file names, URLs,
 // or anything else read from the Figma plugin API.
-const ENDPOINT = 'https://pavellaptev.goatcounter.com/count';
+const ENDPOINT = 'https://tokens-bruecke.goatcounter.com/count';
 
 const isEnabled = () => process.env.NODE_ENV === 'production';
 
