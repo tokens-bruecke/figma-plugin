@@ -10,9 +10,9 @@ import { Api } from 'figma-api';
 import { log } from './logger';
 
 /**
- * The REST API does not return variables, collections or the `variableIds` of
- * a collection in a fixed order, so they are sorted to make exporting an
- * unchanged file give identical output.
+ * The REST API does not return variables, collections, the `variableIds` of
+ * a collection or styles in a fixed order, so they are sorted to make
+ * exporting an unchanged file give identical output.
  */
 const byNameThenId = (
   a: { name: string; id: string },
@@ -127,7 +127,8 @@ export class RestAPIResolver implements IResolver {
     );
     const effectStyles = Object.values(r.nodes)
       .map((node) => node.document as unknown as RectangleNode)
-      .map(this.rectangleNodeToEffectStyle);
+      .map(this.rectangleNodeToEffectStyle)
+      .sort(byNameThenId);
     log('✅ Found %d effect styles', effectStyles.length);
     return effectStyles;
   }
@@ -164,7 +165,8 @@ export class RestAPIResolver implements IResolver {
     );
     const gridStyles = Object.values(r.nodes)
       .map((node) => node.document as unknown as FrameNode)
-      .map(this.frameNodeToGrid);
+      .map(this.frameNodeToGrid)
+      .sort(byNameThenId);
     log('✅ Found %d grid styles', gridStyles.length);
     return gridStyles;
   }
@@ -181,7 +183,8 @@ export class RestAPIResolver implements IResolver {
     );
     const textStyles = Object.values(r.nodes)
       .map((node) => node.document as TextNode)
-      .map(this.textNodeToStyle);
+      .map(this.textNodeToStyle)
+      .sort(byNameThenId);
     log('✅ Found %d text styles', textStyles.length);
     return textStyles;
   }
@@ -198,7 +201,8 @@ export class RestAPIResolver implements IResolver {
     );
     const paintStyles = Object.values(r.nodes)
       .map((node) => node.document as unknown as RectangleNode)
-      .map(this.rectangleNodeToPaint);
+      .map(this.rectangleNodeToPaint)
+      .sort(byNameThenId);
     log('✅ Found %d paint styles', paintStyles.length);
     return paintStyles;
   }

@@ -537,7 +537,7 @@ The export never picks up `tokens-bruecke.config.json` on its own: pass it with 
 | `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                        | No                                                      |
 | `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`               | No                                                      |
 | `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                              | No                                                      |
-| `--omit-created-at`       |       | Leave the `createdAt` timestamp out of the metadata, so an unchanged file exports to identical output     | No                                                      |
+| `--omit-created-at`       |       | Leave the `createdAt` timestamp out of the metadata, so an unchanged file exports to identical output        | No                                                      |
 | `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                            | No                                                      |
 | `--help`                  | `-h`  | Show usage help                                                                                              | No                                                      |
 | `--version`               |       | Show the CLI version                                                                                         | No                                                      |

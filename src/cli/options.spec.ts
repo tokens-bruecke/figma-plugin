@@ -60,9 +60,9 @@ describe('resolveExportOptions', () => {
 
   it('reads omitCreatedAt from the config file, and the flag overrides it', () => {
     expect(resolveExportOptions({}, {}).omitCreatedAt).toBe(false);
-    expect(resolveExportOptions({ omitCreatedAt: true }, {}).omitCreatedAt).toBe(
-      true
-    );
+    expect(
+      resolveExportOptions({ omitCreatedAt: true }, {}).omitCreatedAt
+    ).toBe(true);
     expect(
       resolveExportOptions({ omitCreatedAt: true }, { omitCreatedAt: false })
         .omitCreatedAt

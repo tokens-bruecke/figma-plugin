@@ -108,7 +108,13 @@ describe('order', () => {
     });
     const collections = await resolverWith(
       {},
-      { 2: collection('2', 'wl'), 1: collection('1', 'surface') }
+      {
+        'VariableCollectionId:2': collection('VariableCollectionId:2', 'wl'),
+        'VariableCollectionId:1': collection(
+          'VariableCollectionId:1',
+          'surface'
+        ),
+      }
     ).getLocalVariableCollections();
 
     expect(collections.map((c) => c.name)).toEqual(['surface', 'wl']);
@@ -170,6 +176,34 @@ describe('getLocalVariables scopes', () => {
       ['ALL_SCOPES'],
       ['FONT_WEIGHT'],
       ['ALL_FILLS'],
+    ]);
+  });
+});
+
+describe('style order', () => {
+  it('returns styles sorted by name, whatever order the API used', async () => {
+    const resolver = new RestAPIResolver('file-key', 'token');
+    const node = (id: string, name: string) => ({
+      document: { id, name, fills: [] },
+    });
+
+    (resolver as any).api = {
+      getFileStyles: async () => ({
+        meta: { styles: [{ style_type: 'FILL', node_id: '1' }] },
+      }),
+      getFileNodes: async () => ({
+        nodes: {
+          '2:1': node('2:1', 'brand/secondary'),
+          '1:1': node('1:1', 'brand/primary'),
+        },
+      }),
+    };
+
+    const styles = await resolver.getLocalPaintStyles();
+
+    expect(styles.map((s) => s.name)).toEqual([
+      'brand/primary',
+      'brand/secondary',
     ]);
   });
 });

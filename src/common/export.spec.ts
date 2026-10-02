@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getTokens } from './export';
-import { defaultConfig } from '../cli/defaults';
+import { defaultConfig } from '@cli/defaults';
 import type { IResolver } from './resolver';
 
 const emptyResolver: IResolver = {
