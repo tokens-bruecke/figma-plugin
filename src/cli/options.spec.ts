@@ -58,6 +58,17 @@ describe('resolveExportOptions', () => {
     expect(options.omitCollectionNames).toBe(true);
   });
 
+  it('reads omitCreatedAt from the config file, and the flag overrides it', () => {
+    expect(resolveExportOptions({}, {}).omitCreatedAt).toBe(false);
+    expect(
+      resolveExportOptions({ omitCreatedAt: true }, {}).omitCreatedAt
+    ).toBe(true);
+    expect(
+      resolveExportOptions({ omitCreatedAt: true }, { omitCreatedAt: false })
+        .omitCreatedAt
+    ).toBe(false);
+  });
+
   it('reads the legacy useDTCGKeys option', () => {
     expect(resolveExportOptions({ useDTCGKeys: false }, {}).useDTCG).toBe(
       false

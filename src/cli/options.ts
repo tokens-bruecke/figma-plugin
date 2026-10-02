@@ -6,6 +6,7 @@ export interface CliOverrides {
   splitByCollection?: boolean;
   splitByMode?: boolean;
   omitCollectionNames?: boolean;
+  omitCreatedAt?: boolean;
 }
 
 /**
@@ -46,6 +47,10 @@ export const resolveExportOptions = (
     overrides.omitCollectionNames ??
     config.omitCollectionNames ??
     defaultConfig.omitCollectionNames,
+  omitCreatedAt:
+    overrides.omitCreatedAt ??
+    config.omitCreatedAt ??
+    defaultConfig.omitCreatedAt,
 });
 
 /**

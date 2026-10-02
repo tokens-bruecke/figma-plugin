@@ -537,6 +537,7 @@ The export never picks up `tokens-bruecke.config.json` on its own: pass it with 
 | `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                        | No                                                      |
 | `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`               | No                                                      |
 | `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                              | No                                                      |
+| `--omit-created-at`       |       | Leave the `createdAt` timestamp out of the metadata, so an unchanged file exports to identical output        | No                                                      |
 | `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                            | No                                                      |
 | `--help`                  | `-h`  | Show usage help                                                                                              | No                                                      |
 | `--version`               |       | Show the CLI version                                                                                         | No                                                      |
@@ -558,6 +559,8 @@ tokens-bruecke -f $FIGMA_FILE -o out/tokens.json
 > For automated pipelines, `--oauth-token` is preferred over `--api-key`. Personal Access Tokens expire every 90 days and require manual renewal, while OAuth tokens support programmatic refresh for indefinite access.
 
 Other export settings are available through a JSON configuration file (see [CLI Configuration File](#cli-configuration-file) below).
+
+The REST API returns variables, collections and styles in no fixed order, so the CLI sorts them by name in REST mode. Exporting an unchanged file then gives the same output every time, as long as you also pass `--omit-created-at`. This order is alphabetical rather than the order of Figma's Variables panel, which the plugin and snapshot mode keep.
 
 ### Snapshot input
 
@@ -627,7 +630,8 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "storeStyleInCollection": "none", // Name of one of your collection or "none" to keep them separated
   "splitByCollection": false, // Write each collection as a separate .tokens.json file
   "splitByMode": false, // Write each mode as a separate .tokens.json file under its collection directory
-  "omitCollectionNames": false // Drop top-level collection names and merge all variables into one flat namespace
+  "omitCollectionNames": false, // Drop top-level collection names and merge all variables into one flat namespace
+  "omitCreatedAt": false // Leave the createdAt timestamp out of the metadata
 }
 ```
 

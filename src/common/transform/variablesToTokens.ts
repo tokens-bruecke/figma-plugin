@@ -211,15 +211,24 @@ export const variablesToTokens = async (
     // console.log("collectionObject", collectionObj
     // console.log("collection", collectionObject);
 
-    // get values by mode
+    // get values by mode, in the collection's mode order: the key order of
+    // valuesByMode is not guaranteed, so following it reorders the output
     const valuesByMode = valuesByModeOf(variable);
     const modes = valuesByMode;
+    const modeOrder = collection.modes.map((mode) => mode.modeId);
+    const modeRank = (modeId: string) => {
+      const index = modeOrder.indexOf(modeId);
+      return index === -1 ? modeOrder.length : index;
+    };
+    const modeIds = Object.keys(modes).sort(
+      (a, b) => modeRank(a) - modeRank(b)
+    );
 
     const getValue = async (modeIndex: number) =>
       await normalizeValue(
         {
           variableType: variable.resolvedType,
-          variableValue: valuesByMode[Object.keys(modes)[modeIndex]],
+          variableValue: valuesByMode[modeIds[modeIndex]],
           variableScope: variable.scopes,
           colorMode,
           useDTCG,
@@ -232,7 +241,7 @@ export const variablesToTokens = async (
       );
 
     const defaultValue = await getValue(
-      Object.keys(modes).indexOf(collectionDefaultModeId)
+      modeIds.indexOf(collectionDefaultModeId)
     );
 
     // console.log("defaultValue", defaultValue);
@@ -240,7 +249,7 @@ export const variablesToTokens = async (
     const modesValues = Object.fromEntries(
       (
         await Promise.all(
-          Object.keys(modes).map(async (modeId, index) => {
+          modeIds.map(async (modeId, index) => {
             const modeName = collection.modes.find(
               (mode) => mode.modeId === modeId
             )?.name;

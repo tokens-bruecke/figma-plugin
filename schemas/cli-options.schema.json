@@ -90,6 +90,11 @@
       "type": "boolean",
       "default": false,
       "description": "Omit collection names as top-level groups; merge all tokens into a single namespace. Overridden by the --omit-collection-names CLI flag."
+    },
+    "omitCreatedAt": {
+      "type": "boolean",
+      "default": false,
+      "description": "Leave the createdAt timestamp out of the metadata, so exporting an unchanged file gives identical output. Overridden by the --omit-created-at CLI flag."
     }
   },
   "definitions": {

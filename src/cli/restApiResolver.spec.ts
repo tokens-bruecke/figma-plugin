@@ -37,12 +37,15 @@ describe('rectangleNodeToPaint', () => {
   });
 });
 
-const resolverWith = (variables: Record<string, any>) => {
+const resolverWith = (
+  variables: Record<string, any>,
+  variableCollections: Record<string, any> = {}
+) => {
   const resolver = new RestAPIResolver('file-key', 'token');
 
   (resolver as any).api = {
     getLocalVariables: async () => ({
-      meta: { variables, variableCollections: {} },
+      meta: { variables, variableCollections },
     }),
   };
 
@@ -51,11 +54,90 @@ const resolverWith = (variables: Record<string, any>) => {
 
 const variable = (id: string, resolvedType: string, scopes: string[]) => ({
   id,
-  name: `weight/${id}`,
+  name: `variable/${id}`,
   resolvedType,
   scopes,
   remote: false,
   valuesByMode: {},
+});
+
+describe('order', () => {
+  const named = (id: string, name: string) => ({
+    ...variable(id, 'FLOAT', ['ALL_SCOPES']),
+    name,
+  });
+
+  it('returns variables sorted by name, whatever order the API used', async () => {
+    const one = {
+      c: named('c', 'space/large'),
+      a: named('a', 'color/brand'),
+      b: named('b', 'space/small'),
+    };
+    const other = {
+      b: one.b,
+      c: one.c,
+      a: one.a,
+    };
+
+    const names = async (variables: Record<string, any>) =>
+      (await resolverWith(variables).getLocalVariables()).map((v) => v.name);
+
+    expect(await names(one)).toEqual([
+      'color/brand',
+      'space/large',
+      'space/small',
+    ]);
+    expect(await names(other)).toEqual(await names(one));
+  });
+
+  it('breaks ties between equal names by id', async () => {
+    const variables = await resolverWith({
+      b: named('b', 'same'),
+      a: named('a', 'same'),
+    }).getLocalVariables();
+
+    expect(variables.map((v) => v.id)).toEqual(['a', 'b']);
+  });
+
+  it('returns collections sorted by name', async () => {
+    const collection = (id: string, name: string) => ({
+      id,
+      name,
+      remote: false,
+      hiddenFromPublishing: false,
+    });
+    const collections = await resolverWith(
+      {},
+      {
+        'VariableCollectionId:2': collection('VariableCollectionId:2', 'wl'),
+        'VariableCollectionId:1': collection(
+          'VariableCollectionId:1',
+          'surface'
+        ),
+      }
+    ).getLocalVariableCollections();
+
+    expect(collections.map((c) => c.name)).toEqual(['surface', 'wl']);
+  });
+
+  it('returns the variableIds of a collection sorted by variable name', async () => {
+    const variables = {
+      c: { ...named('c', 'space/large'), variableCollectionId: '1' },
+      a: { ...named('a', 'color/brand'), variableCollectionId: '1' },
+      b: { ...named('b', 'space/small'), variableCollectionId: '1' },
+    };
+    const [collection] = await resolverWith(variables, {
+      1: {
+        id: '1',
+        name: 'wl',
+        remote: false,
+        hiddenFromPublishing: false,
+        variableIds: ['b', 'c', 'a'],
+      },
+    }).getLocalVariableCollections();
+
+    expect(collection.variableIds).toEqual(['a', 'c', 'b']);
+  });
 });
 
 describe('getLocalVariables scopes', () => {
@@ -94,6 +176,34 @@ describe('getLocalVariables scopes', () => {
       ['ALL_SCOPES'],
       ['FONT_WEIGHT'],
       ['ALL_FILLS'],
+    ]);
+  });
+});
+
+describe('style order', () => {
+  it('returns styles sorted by name, whatever order the API used', async () => {
+    const resolver = new RestAPIResolver('file-key', 'token');
+    const node = (id: string, name: string) => ({
+      document: { id, name, fills: [] },
+    });
+
+    (resolver as any).api = {
+      getFileStyles: async () => ({
+        meta: { styles: [{ style_type: 'FILL', node_id: '1' }] },
+      }),
+      getFileNodes: async () => ({
+        nodes: {
+          '2:1': node('2:1', 'brand/secondary'),
+          '1:1': node('1:1', 'brand/primary'),
+        },
+      }),
+    };
+
+    const styles = await resolver.getLocalPaintStyles();
+
+    expect(styles.map((s) => s.name)).toEqual([
+      'brand/primary',
+      'brand/secondary',
     ]);
   });
 });

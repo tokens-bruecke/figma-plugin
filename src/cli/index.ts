@@ -170,6 +170,13 @@ const argv = yargs(process.argv.slice(2))
       'Omit collection names as top-level groups; merge all tokens into a single namespace',
     type: 'boolean',
   })
+  .option('omit-created-at', {
+    // Export-only: keep it out of `init --help`
+    global: false,
+    description:
+      'Leave the createdAt timestamp out of the metadata, so exporting an unchanged file gives identical output',
+    type: 'boolean',
+  })
   .option('quiet', {
     // Export-only: keep it out of `init --help`
     global: false,
@@ -227,6 +234,7 @@ const options = resolveExportOptions(config, {
   splitByCollection: argv['split-by-collection'],
   splitByMode: argv['split-by-mode'],
   omitCollectionNames: argv['omit-collection-names'],
+  omitCreatedAt: argv['omit-created-at'],
 });
 
 // The flags are checked by yargs above; this also catches splits that come

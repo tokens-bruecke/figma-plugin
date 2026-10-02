@@ -101,6 +101,7 @@ interface ExportSettingsI {
   splitByCollection: boolean;
   splitByMode: boolean;
   omitCollectionNames: boolean;
+  omitCreatedAt?: boolean;
 }
 
 interface ServerSettingsI {
@@ -179,7 +180,7 @@ interface MetaPropsI {
   spec?: string;
   colorMode: colorModeType;
   variableCollections: string[] | undefined;
-  createdAt: string;
+  createdAt?: string;
 }
 
 interface ToastIPropsI {

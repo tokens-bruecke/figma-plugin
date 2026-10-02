@@ -300,6 +300,46 @@ describe('variablesToTokens ordering', () => {
       'xl10',
     ]);
   });
+
+  test('mode values follow the collection mode order, not valuesByMode', async () => {
+    const themed = [
+      {
+        id: 'c1',
+        name: 'theme',
+        defaultModeId: 'light',
+        modes: [
+          { modeId: 'light', name: 'light' },
+          { modeId: 'dark', name: 'dark' },
+        ],
+        variableIds: ['v1'],
+      },
+    ] as unknown as VariableCollection[];
+
+    const tokens = await variablesToTokens(
+      [
+        {
+          name: 'spacing/sm',
+          resolvedType: 'FLOAT',
+          scopes: ['ALL_SCOPES'],
+          variableCollectionId: 'c1',
+          valuesByMode: { dark: 8, light: 4 },
+          description: '',
+          codeSyntax: {},
+          id: 'v1',
+        } as unknown as Variable,
+      ],
+      themed,
+      { ...baseConfig, useDTCG: true },
+      resolver
+    );
+
+    const token = tokens['theme']['spacing']['sm'];
+    expect(token.$value).toStrictEqual({ value: 4, unit: 'px' });
+    expect(Object.keys(token.$extensions.mode)).toStrictEqual([
+      'light',
+      'dark',
+    ]);
+  });
 });
 
 describe('variables the plugin cannot convert', () => {

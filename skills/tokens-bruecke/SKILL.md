@@ -35,6 +35,9 @@ npx tokens-bruecke --file-key <FILE_KEY> --output tokens.json
 
 # Print JSON to stdout instead (progress logs go to stderr):
 npx tokens-bruecke -f <FILE_KEY> --stdout --quiet | jq .
+
+# Tokens committed to git: an unchanged file exports to identical output
+npx tokens-bruecke -f <FILE_KEY> --output tokens.json --omit-created-at
 ```
 
 ```bash
@@ -77,6 +80,7 @@ The generated file contains every option at its default plus a `$schema` link. E
 | `--split-by-collection`   | `-s`  | One `{Collection}.tokens.json` file per collection in the output dir              |
 | `--split-by-mode`         | `-m`  | One `{Collection}/{Mode}.tokens.json` file per mode                               |
 | `--omit-collection-names` |       | Merge all tokens into a single namespace (drop collection groups)                 |
+| `--omit-created-at`       |       | Leave the `createdAt` timestamp out of the metadata, for reproducible output      |
 | `--quiet`                 | `-q`  | Suppress progress logs (errors still printed to stderr)                           |
 | `init` (subcommand)       |       | Create a config file; pass `-y` in non-interactive contexts                       |
 | `--help` / `--version`    | `-h`  | Usage / version                                                                   |
@@ -154,7 +158,7 @@ Rules that matter:
 
 Optional JSON file passed via `--config`. Schema: [schemas/cli-options.schema.json](../../schemas/cli-options.schema.json). Example: [examples/cli-options.json](../../examples/cli-options.json).
 
-Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded; each type is merged with its default, so `{ "text": { "isIncluded": true } }` keeps the default group name), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData` (adds `$extensions.figma` with `variableId`, `codeSyntax` and the collection to variable tokens), `usePercentageOpacity`, `expandEasingPresets` (default `true`, expands Figma's named easing presets into `cubicBezier` values), `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`.
+Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded; each type is merged with its default, so `{ "text": { "isIncluded": true } }` keeps the default group name), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData` (adds `$extensions.figma` with `variableId`, `codeSyntax` and the collection to variable tokens), `usePercentageOpacity`, `expandEasingPresets` (default `true`, expands Figma's named easing presets into `cubicBezier` values), `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`, `omitCreatedAt` (leaves the `createdAt` timestamp out of the metadata, for output that is identical when the file is unchanged).
 
 ## Output
 
@@ -162,7 +166,7 @@ Key options (all optional): `includedStyles` (include text/effects/grids/colors 
 - `--split-by-collection`: `{output}/{Collection}.tokens.json` per collection.
 - `--split-by-mode`: `{output}/{Collection}/{Mode}.tokens.json` (unsafe filename chars replaced with `-`).
 - `--stdout`: pure JSON on stdout; all logs on stderr, safe to pipe.
-- Every file gets a top-level `$extensions["tokens-bruecke-meta"]` block with a `createdAt` timestamp, so two runs on the same input are not byte-identical.
+- Every file gets a top-level `$extensions["tokens-bruecke-meta"]` block with a `createdAt` timestamp. Pass `--omit-created-at` (or `omitCreatedAt: true`) to leave it out, so exporting an unchanged file gives identical output. In REST mode, collections, variables and styles are sorted by name for the same reason.
 - Format is DTCG only. To convert to CSS/platform outputs, feed the JSON to Style Dictionary or Terrazzo.
 
 ## Errors & exit codes
