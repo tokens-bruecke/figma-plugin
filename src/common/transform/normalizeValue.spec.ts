@@ -349,7 +349,7 @@ describe('opacity scopes', () => {
     const props = {
       variableValue: 50,
       variableType: 'FLOAT' as const,
-      variableScope: ['COLOR_OPACITY' as VariableScope],
+      variableScope: ['COLOR_OPACITY'] as VariableScope[],
       colorMode: 'hex' as const,
       useDTCG: true,
       includeValueStringKeyToAlias: false,
@@ -363,7 +363,7 @@ describe('opacity scopes', () => {
       await normalizeValue(
         {
           ...props,
-          variableScope: ['OPACITY', 'COLOR_OPACITY' as VariableScope],
+          variableScope: ['OPACITY', 'COLOR_OPACITY'],
         },
         resolver
       )

@@ -106,9 +106,7 @@ const getTokenDescription = (token: any): string => {
   return '';
 };
 
-// `COLOR_OPACITY` (opacity of a color variable) is accepted by Figma at
-// runtime but missing from the published typings, hence the string array.
-const VALID_VARIABLE_SCOPES: ReadonlyArray<string> = [
+const VALID_VARIABLE_SCOPES: ReadonlyArray<VariableScope> = [
   'ALL_SCOPES',
   'TEXT_CONTENT',
   'CORNER_RADIUS',
@@ -497,15 +495,17 @@ const extractTokens = (
 };
 
 /**
- * Some Figma clients can read color aliases with a separate opacity but
+ * Older Figma clients can read color aliases with a separate opacity but
  * reject writing them ("Composed color variable values are not supported").
+ * Figma enabled the write in `setValueForMode` with plugin typings 1.139.0;
+ * this issue tracked it.
  */
 export const COMPOSED_COLOR_ISSUE_URL =
   'https://github.com/figma/plugin-typings/issues/375';
 
 interface SetValueContext {
   errors: string[];
-  /** Composed colors this Figma version refused to write. */
+  /** Composed colors an outdated Figma client refused to write. */
   composedColorsRejected: number;
 }
 
@@ -563,7 +563,7 @@ const setVariableValue = (
 
   context.composedColorsRejected++;
   context.errors.push(
-    `Skipped ${label}: this Figma version cannot write color aliases with a separate opacity (${reason}). See ${COMPOSED_COLOR_ISSUE_URL}`
+    `Skipped ${label}: this Figma version cannot write color aliases with a separate opacity (${reason}). Update Figma to the latest version and import again. See ${COMPOSED_COLOR_ISSUE_URL}`
   );
 };
 
@@ -791,7 +791,7 @@ export const tokensToVariables = async (
                   try {
                     variable.scopes = validScopes;
                   } catch (error) {
-                    // e.g. a runtime that does not know `COLOR_OPACITY` yet
+                    // e.g. an older runtime that does not know `COLOR_OPACITY`
                     result.errors.push(
                       `Failed to set scopes for variable "${path}": ${error.message}`
                     );
@@ -931,7 +931,7 @@ export const tokensToVariables = async (
     result.message = `Successfully imported tokens. ${parts.join(', ')}.`;
 
     if (result.composedColorsRejected > 0) {
-      result.message += ` ${result.composedColorsRejected} value(s) skipped: this Figma version cannot write color aliases with a separate opacity yet.`;
+      result.message += ` ${result.composedColorsRejected} value(s) skipped: this Figma version cannot write color aliases with a separate opacity. Update Figma to the latest version and import again.`;
     }
     const otherErrors = result.errors.length - result.composedColorsRejected;
     if (otherErrors > 0) {
