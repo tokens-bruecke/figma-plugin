@@ -62,7 +62,7 @@ export class RestAPIResolver implements IResolver {
               Object.entries(variables)
                 .filter(
                   ([_, variable]: [string, LocalVariable]) =>
-                    !variable.remote && !variable.deletedButReferenced // exlude deleted variables https://forum.figma.com/ask-the-community-7/rest-api-variables-35406?tid=35406&fid=7
+                    !variable.remote && !variable.deletedButReferenced // exclude deleted variables https://forum.figma.com/ask-the-community-7/rest-api-variables-35406?tid=35406&fid=7
                 )
                 .map(([id, variable]: [string, LocalVariable]) => [
                   id,
