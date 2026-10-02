@@ -8,7 +8,8 @@ import { convertRGBA } from './convertRGBA';
  * shapes so far:
  *
  * ```js
- * // current runtimes (Figma web app, and what `setValueForMode` accepts)
+ * // current runtimes: `VariableComposedColor` in the typings, also what
+ * // `setValueForMode` accepts (figma/plugin-typings#375)
  * {
  *   color: { type: 'VARIABLE_ALIAS', id: '…' } | { r, g, b, a },
  *   opacity: 50 | { type: 'VARIABLE_ALIAS', id: '…' },
@@ -29,10 +30,7 @@ import { convertRGBA } from './convertRGBA';
  * an alias to a FLOAT variable holding it. At least one half is an alias;
  * a literal color with a literal opacity is stored as a plain RGBA.
  */
-export interface ComposedColorObject {
-  color: RGB | RGBA | VariableAlias;
-  opacity: number | VariableAlias;
-}
+export type ComposedColorObject = VariableComposedColor;
 
 export interface ComposedColorExpression {
   type: 'VARIABLE_EXPRESSION';
@@ -122,10 +120,9 @@ export const getComposedColorParts = (value: any): ComposedColorParts => {
 export const toComposedColorObject = ({
   baseColor,
   opacity,
-}: ComposedColorParts): ComposedColorObject => ({
-  color: baseColor,
-  opacity,
-});
+}: ComposedColorParts): ComposedColorObject =>
+  // the parts come from a composed color, so one half is already an alias
+  ({ color: baseColor, opacity } as ComposedColorObject);
 
 /** The shape earlier Figma runtimes (Desktop 126.x) exposed. */
 export const toComposedColorExpression = ({

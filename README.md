@@ -1,4 +1,4 @@
-# TokensBruecke — Figma plugin
+# TokensBruecke — Figma plugin and CLI
 
 <a href="https://www.figma.com/community/plugin/1254538877056388290" target="_blank">
 <img src="./readme-assets/preview.webp" alt="preview" width="100%">
@@ -6,7 +6,7 @@
 
 ## What is this plugin for?
 
-The plugin converts Figma variables into design-tokens JSON that are compatible with the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/).
+TokensBruecke exports Figma variables and styles as design tokens JSON compatible with the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/), and imports tokens back into Figma variables. Use it as a Figma plugin, or as a [CLI](#use-as-cli-tool) in CI and agent workflows.
 
 ---
 
@@ -32,6 +32,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Split collections into separate files](#split-collections-into-separate-files)
     - [Split modes into separate files](#split-modes-into-separate-files)
     - [Omit collection names](#omit-collection-names)
+    - [Extended collections](#extended-collections)
   - [Use as cli tool](#use-as-cli-tool)
     - [Installation](#installation)
     - [Usage](#usage)
@@ -57,7 +58,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
     - [Grids](#grids)
     - [Shadows](#shadows)
     - [Blur](#blur)
-    - [Multiple `Shadow` and `Blur` styles support](#multiple-shadow-and-blur-styles-support)
+    - [Multiple shadows support](#multiple-shadows-support)
   - [Tokens structure](#tokens-structure)
   - [Aliases handling](#aliases-handling)
     - [Include `.value` string for aliases](#include-value-string-for-aliases-1)
@@ -67,7 +68,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
   - [Variables types conversion](#variables-types-conversion)
   - [Motion variables](#motion-variables)
   - [Design tokens types](#design-tokens-types)
-  - [Scopes lemitations](#scopes-lemitations)
+  - [Scopes limitations](#scopes-limitations)
   - [Privacy and analytics](#privacy-and-analytics)
   - [Feedback](#feedback)
 
@@ -79,7 +80,7 @@ The plugin converts Figma variables into design-tokens JSON that are compatible 
 2. Make sure you have variables in your Figma file.
 3. Run the plugin.
 4. Adjust the settings.
-5. Then you can download the JSON file or push it to on of the [supported services](#link).
+5. Then you can download the JSON file or push it to one of the [supported services](#push-to-server).
 
 ### Export and Import
 
@@ -94,7 +95,7 @@ The plugin supports both **exporting** and **importing** design tokens:
 
 #### Import (JSON → Variables)
 
-- Click **"Import JSON"** to import design tokens from a JSON file back into Figma
+- Click **"Import tokens (Beta)"** to import design tokens from a JSON file back into Figma. The button is in the settings and on the "No variables found" screen
 - The plugin will create variable collections, modes, and variables based on the JSON structure
 - Supports both DTCG format (`$value`, `$type`) and standard format (`value`, `type`)
 - Handles alias references between variables
@@ -106,12 +107,19 @@ The plugin supports both **exporting** and **importing** design tokens:
 - ✅ Supports multiple modes (from `$extensions.mode` or `extensions.mode`)
 - ✅ Handles all variable types (color, number, string, boolean, timing, easing)
 - ✅ Resolves alias references between variables
-- ✅ Supports various color formats (HEX, RGBA CSS, RGBA Object)
-- ✅ Preserves variable descriptions and metadata
+- ✅ Supports these color formats: HEX, RGBA CSS, RGBA Object, DTCG color objects (`srgb-dtcg`, `hsl-dtcg`, `oklch-dtcg`, through their `hex` fallback) and [color aliases with opacity](#color-aliases-with-opacity). HSLA CSS and HSLA Object can't be imported yet
+- ✅ Imports variable descriptions and `scopes`. Invalid scopes are reported, and scopes are skipped on `duration` and `cubicBezier` tokens. `$extensions.figma` (code syntax, variable IDs) is ignored
 - ✅ Imports `duration` and `cubicBezier` tokens as Figma motion variables (see [Motion variables](#motion-variables))
 
+**What to know before importing:**
+
+- Every top-level key becomes a collection. Files exported with [Omit collection names](#omit-collection-names) or split by mode don't map back to the original collections.
+- An existing collection's first mode is renamed to the first mode in the tokens.
+- Units are dropped from dimensions, since Figma number variables have no unit: `1rem` imports as `1`.
+- Extended collections are imported as regular collections.
+
 > [!WARNING]  
-> **Styles Export Limitation**: If you exported tokens with styles included (typography, grids, shadows, or blur), these cannot be imported back as Figma styles or variables. Figma's variable API currently only supports basic types: `color`, `number`, `string`, `boolean`, `dimension`, `duration` and `cubicBezier`. Complex style types will be imported as `STRING` variables without proper value conversion. This is a temporary limitation until Figma supports these types natively in their API.
+> **Styles Export Limitation**: If you exported tokens with styles included (typography, grids, shadows, or blur), these cannot be imported back as Figma styles. Figma variables only have color, number, string and boolean types, plus timing and easing for motion. Solid color styles import as color variables. Typography, grid, shadow and blur tokens fall back to `STRING` variables, but their object values can't be written, so they are reported as errors in the import result.
 
 ---
 
@@ -132,7 +140,7 @@ Allows you to choose the color mode for the generated JSON. Default value is `HE
 
 ### Include styles
 
-Allows you to include styles into the generated JSON. See more about styles support in the [Styles support](#styles-support) section.
+Allows you to include styles into the generated JSON. Text, effect, grid and color styles each have their own toggle, and all of them are `off` by default. See more about styles support in the [Styles support](#styles-support) section.
 
 There is an option to rename each style's group and give it a custom name for better organization.
 
@@ -140,13 +148,13 @@ There is an option to rename each style's group and give it a custom name for be
 
 ### Add styles to
 
-Allows you to choose where to put styles in the generated JSON. By default, the selected value is `Keep separate`. In this case styles will be added into the root of the JSON and will be treated as collections. There is also an option to add styles into the corresponding collection (fig.4).
+Shown once at least one style type is included. Allows you to choose where to put styles in the generated JSON. By default, the selected value is `Keep separate`. In this case styles will be added into the root of the JSON and will be treated as collections. There is also an option to add styles into the corresponding collection (fig.4).
 
 ![fig.4](readme-assets/fig4.webp)
 
 ### Include variable scopes
 
-Each Figma variable has a [scope property](https://www.figma.com/plugin-docs/api/VariableScope). The plugin allows you to include scopes into the generated JSON. It will be included as an array of strings without any transformations.
+Is `off` by default. Each Figma variable has a [scope property](https://www.figma.com/plugin-docs/api/VariableScope). The plugin allows you to include scopes into the generated JSON. It will be included as an array of strings without any transformations.
 
 ```json
 {
@@ -162,7 +170,7 @@ Each Figma variable has a [scope property](https://www.figma.com/plugin-docs/api
 
 ### Use percentage for opacity
 
-Is `off` by default. When enabled, opacity values will be exported as percentages instead of normalized decimal values. This affects variables with the `OPACITY` scope.
+Is `off` by default. When enabled, opacity values will be exported as percentages instead of normalized decimal values. This affects number variables whose scopes are all `OPACITY` or `COLOR_OPACITY` (see [Scopes limitations](#scopes-limitations)).
 
 ```json
 // Without percentage format (default)
@@ -217,7 +225,6 @@ Is `on` by default. Aligns the output with the [DTCG 2025.10 specification](http
 
 - All token keys are prefixed with the `$` symbol (`$value`, `$type`, `$description`).
 - Dimensions are exported as objects per [§8.2 Dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) — `{ "value": 6, "unit": "px" }` instead of `"6px"`. This also applies to sub-values in shadows, typography, and grids.
-- `$type` is omitted for Figma `STRING` and `BOOLEAN` variables, since those aren't part of the DTCG type set. The original Figma type is preserved under the token's `$extensions.figmaType`.
 - The root `$extensions["tokens-bruecke-meta"]` includes a `spec` field with the canonical spec URL, so downstream tools know which format to expect.
 
 ```json
@@ -331,6 +338,8 @@ Is `off` by default. When enabled, each mode of a variable collection is exporte
 
 Collections with a single mode are exported as a single `{CollectionName}.tokens.json` file.
 
+Splitting by mode needs the [DTCG 2025.10 format](#dtcg-202510-format) setting on. With it off, each collection is exported as a single file.
+
 For example, a collection `color` with modes `light` and `dark` produces `color/light.tokens.json` and `color/dark.tokens.json`:
 
 ```json
@@ -387,6 +396,33 @@ Alias references are also rewritten so they point to the flat path (the collecti
 > If two variables in different collections share the same name, the last one wins and a collision warning is logged to the console. Rename conflicting variables (or keep this option off) to avoid losing values.
 
 ---
+
+### Extended collections
+
+Collections created with [Extend a variable collection](https://help.figma.com/hc/en-us/articles/36346281624471-Extend-a-variable-collection) are exported as collections of their own. Figma stores only what an extension changes, so the export writes all the variables it inherits, with the overrides of its chain applied, which keeps every collection complete.
+
+- The value of a variable is the closest override in the chain of extensions, or the value of the root collection when nothing overrides it. An override that was cleared falls through to the parent. Each mode follows the parent mode it inherits from, even when the extension renames it.
+- Aliases to variables of the root collection point to the extension's own variable, so `{Core.color.brand}` becomes `{Regional.color.brand}` inside `Regional`. Aliases to other collections stay as they are.
+- Extensions of a library collection are exported without the variables they inherit, because those live in the library file, not in yours. The export warns about them.
+- With [Omit collection names](#omit-collection-names) the extended collections are skipped with a warning, because they repeat the variables of their root collection and would collide in a single namespace.
+
+```json
+// "Regional" extends "Core" and overrides color/brand
+{
+  "Core": {
+    "color": {
+      "brand": { "type": "color", "value": "#ff0000" },
+      "text": { "type": "color", "value": "{Core.color.brand}" }
+    }
+  },
+  "Regional": {
+    "color": {
+      "brand": { "type": "color", "value": "#00ff00" },
+      "text": { "type": "color", "value": "{Regional.color.brand}" }
+    }
+  }
+}
+```
 
 ## Use as cli tool
 
@@ -483,26 +519,28 @@ The four questions cover the settings people change most often, but the generate
 | `--force` |       | Overwrite an existing config file                         |
 | `--path`  | `-p`  | Where to write it (default: `tokens-bruecke.config.json`) |
 
-When stdin is not a terminal — CI, a pipe, an agent — `init` skips the questions and writes the defaults instead of hanging.
+When stdin or stdout is not a terminal — CI, a pipe, an agent — `init` skips the questions and writes the defaults instead of hanging. It refuses to overwrite an existing config (exit `1`) unless you pass `--force`, and cancelling the questions exits `130` without writing anything.
+
+The export never picks up `tokens-bruecke.config.json` on its own: pass it with `-c`.
 
 ### Options
 
-| Option                    | Alias | Description                                                                                                | Required                                                |
-| ------------------------- | ----- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                                          | One of `--api-key` or `--oauth-token`, unless `--input` |
-| `--oauth-token`           | `-t`  | Figma OAuth token                                                                                          | One of `--api-key` or `--oauth-token`, unless `--input` |
-| `--file-key`              | `-f`  | Figma file key                                                                                             | Yes, unless `--input` is used                           |
-| `--input`                 | `-i`  | Read a local tokens snapshot instead of calling the REST API (`-` reads stdin)                             | No                                                      |
-| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`                 | Yes, unless `--stdout` is used                          |
-| `--stdout`                |       | Print tokens JSON to stdout instead of writing a file (mutually exclusive with `--output` and split flags) | No                                                      |
-| `--config`                | `-c`  | Path to configuration file                                                                                 | No                                                      |
-| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                      | No                                                      |
-| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`             | No                                                      |
-| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                            | No                                                      |
+| Option                    | Alias | Description                                                                                                  | Required                                                |
+| ------------------------- | ----- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                                            | One of `--api-key` or `--oauth-token`, unless `--input` |
+| `--oauth-token`           | `-t`  | Figma OAuth token                                                                                            | One of `--api-key` or `--oauth-token`, unless `--input` |
+| `--file-key`              | `-f`  | Figma file key                                                                                               | Yes, unless `--input` is used                           |
+| `--input`                 | `-i`  | Read a local tokens snapshot instead of calling the REST API (`-` reads stdin)                               | No                                                      |
+| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`                   | Yes, unless `--stdout` is used                          |
+| `--stdout`                |       | Print tokens JSON to stdout instead of writing a file (mutually exclusive with `--output` and split options) | No                                                      |
+| `--config`                | `-c`  | Path to configuration file                                                                                   | No                                                      |
+| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                        | No                                                      |
+| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`               | No                                                      |
+| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                              | No                                                      |
 | `--omit-created-at`       |       | Leave the `createdAt` timestamp out of the metadata, so an unchanged file exports to identical output     | No                                                      |
-| `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                          | No                                                      |
-| `--help`                  | `-h`  | Show usage help                                                                                            | No                                                      |
-| `--version`               |       | Show the CLI version                                                                                       | No                                                      |
+| `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                            | No                                                      |
+| `--help`                  | `-h`  | Show usage help                                                                                              | No                                                      |
+| `--version`               |       | Show the CLI version                                                                                         | No                                                      |
 
 Progress logs are printed to **stderr**, so stdout stays clean for piping:
 
@@ -521,6 +559,8 @@ tokens-bruecke -f $FIGMA_FILE -o out/tokens.json
 > For automated pipelines, `--oauth-token` is preferred over `--api-key`. Personal Access Tokens expire every 90 days and require manual renewal, while OAuth tokens support programmatic refresh for indefinite access.
 
 Other export settings are available through a JSON configuration file (see [CLI Configuration File](#cli-configuration-file) below).
+
+The REST API returns variables, collections and styles in no fixed order, so the CLI sorts them by name in REST mode. Exporting an unchanged file then gives the same output every time, as long as you also pass `--omit-created-at`. This order is alphabetical rather than the order of Figma's Variables panel, which the plugin and snapshot mode keep.
 
 ### Snapshot input
 
@@ -560,6 +600,8 @@ Things worth knowing when building a snapshot:
 - `valuesByMode` is keyed by **`modeId`**, not mode name — names come from the collection's `modes` array.
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
+- [Extended collections](#extended-collections) need `isExtension`, `parentVariableCollectionId`, `variableOverrides`, `modes[].parentModeId` and `variableIds`. Their variables belong to the root collection, so `variableIds` is the only list of what they contain: without it the extension exports as an empty group.
+- Unlike REST mode, snapshot mode doesn't drop collections hidden from publishing. Leave out anything you don't want exported.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
 - Color aliases with their own opacity come back from the Plugin API as `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` (older Figma Desktop builds used `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`) — pass either through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
 
@@ -581,7 +623,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "includeScopes": true,
   "useDTCG": true, // DTCG 2025.10 format: $-prefixed keys, dimension objects, spec-valid types
   "includeValueStringKeyToAlias": true,
-  "includeFigmaMetaData": false, // Include Figma metadata like styleId, variableId, etc.
+  "includeFigmaMetaData": false, // Add $extensions.figma (variableId, codeSyntax, collection) to variables
   "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)
   "expandEasingPresets": true, // Expand Figma's named easing presets into cubicBezier values
   "colorMode": "hex", // "hex"  | "rgba-object"  | "srgb-dtcg" |  "rgba-css"  | "hsla-object" | "hsl-dtcg" | "hsla-css" | "oklch-dtcg";
@@ -597,6 +639,8 @@ Save this JSON file and pass it to the CLI using the `--config` option. A JSON s
 
 > [!NOTE]
 > Explicit CLI flags (e.g. `--split-by-collection`) override values from the config file, which override the defaults.
+
+Each style type in `includedStyles` is merged with its default, so `"text": { "isIncluded": true }` is enough: the group keeps its default name (`Typography-styles`) and the other style types stay excluded.
 
 ### For AI agents
 
@@ -632,8 +676,17 @@ const snapshot = {
     id: c.id,
     name: c.name,
     defaultModeId: c.defaultModeId,
-    modes: c.modes.map((m) => ({ modeId: m.modeId, name: m.name })),
+    modes: c.modes.map((m) => ({
+      modeId: m.modeId,
+      name: m.name,
+      parentModeId: m.parentModeId,
+    })),
     variableIds: c.variableIds,
+    // Extended collections only (undefined otherwise)
+    isExtension: c.isExtension,
+    parentVariableCollectionId: c.parentVariableCollectionId,
+    rootVariableCollectionId: c.rootVariableCollectionId,
+    variableOverrides: c.variableOverrides,
   })),
   variables: (await figma.variables.getLocalVariablesAsync()).map((v) => ({
     id: v.id,
@@ -684,12 +737,12 @@ On a bad snapshot the CLI exits `1` and names the offending key — for example 
 
 ## Push to server
 
-With this feature you can connect a server and push the generated JSON directly to it. At the moment the plugin supports [JSONBin](https://jsonbin.io), [GitHub](https://github.com) and custom servers.
+With this feature you can connect a server and push the generated JSON directly to it. At the moment the plugin supports [JSONBin](https://jsonbin.io), [GitHub](https://github.com) (direct commit or pull request), [GitLab](https://gitlab.com) and custom servers.
 
 ![fig.5](readme-assets/fig5.webp)
 
 If you connected multiple servers, the plugin will try to push the tokens to all of them one by one.
-In ordere to test if your credentials are valid you can make a test request by clicking the `Push to server` button (fig.6).
+In order to test if your credentials are valid you can make a test request by clicking the `Push to server` button (fig.6).
 
 ![fig.6](readme-assets/fig6.webp)
 
@@ -716,16 +769,20 @@ In ordere to test if your credentials are valid you can make a test request by c
 
 ### [GitHub PR](https://github.com)
 
-All the steps are the same as for the [GitHub](#github) server, except the last two.
+Instead of committing to a branch directly, the plugin commits the tokens to a separate branch and opens a pull request. The token, owner, repo, file name and commit message fields work the same as for the [GitHub](#github) server. The other fields:
 
+- **Base branch** (required). The branch the pull request targets, e.g. `main`.
+- **Branch name** (optional). The branch the tokens are committed to. Defaults to `tokens-bruecke/update-tokens`. It is reset to a new commit on top of the base branch on every push, so don't commit anything else to it.
 - **PR title**. You can specify a title for the PR. If you leave it empty, the plugin will use `chore(tokens): update tokens` as a default title.
 - **PR body**. You can specify a body for the PR. If you leave it empty, the plugin won't add any body to the PR.
+
+If a pull request from that branch is already open, the plugin updates it instead of opening a new one. After a push, the toast shows an **Open Pull Request** link.
 
 ![fig.12](readme-assets/fig12.webp)
 
 ### [GitLab](https://gitlab.com)
 
-1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope.
+1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope. For a self-hosted GitLab, fill in the host field; it defaults to `gitlab.com`.
 2. In the plugin settings paste the token into the `Project access token` field.
 3. Add an owner name, repository name and a branch name.
 4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
@@ -737,7 +794,9 @@ All the steps are the same as for the [GitHub](#github) server, except the last 
 
 ### Custom server
 
-There is a possibilty to connect a custom server. In order to do that you need to specify a URL, a method (by default it's `POST`) and headers.
+There is a possibility to connect a custom server. In order to do that you need to specify a URL, a method (`POST` or `PUT`, by default it's `POST`) and optional headers.
+
+JSONBin and custom servers always receive the whole JSON in one request: the [split into separate files](#split-collections-into-separate-files) settings only apply to downloads, the CLI and the Git servers.
 
 ![fig.9](readme-assets/fig9.webp)
 
@@ -816,11 +875,16 @@ Supported styles:
     "fontFamily": "Inter",
     "fontWeight": 400,
     "fontSize": "18px",
+    "fontStyle": "normal",
     "lineHeight": "28px",
-    "letterSpacing": "0%"
+    "letterSpacing": "0%",
+    "paragraphSpacing": "0",
+    "paragraphIndent": "0",
+    "textDecoration": "NONE",
+    "textCase": "ORIGINAL"
   },
   "description": "",
-  "extensions": {
+  "$extensions": {
     "styleId": "S:0ffe98ad785a13839980113831d5fbaf21724594,"
   }
 }
@@ -904,31 +968,33 @@ In Figma you can add as many grids in the style as you want. But the plugin will
 
 ### Shadows
 
-The plugin supports `drop-shadow` and `inner-shadow` effects. If the effect is `inner-shadow`, the plugin will set the `inset` property to `true`.
+The plugin supports `drop-shadow` and `inner-shadow` effects. If the effect is `inner-shadow`, the plugin will set the `inset` property to `true`. The value is always an array, even when the style has a single shadow.
 
 ```json
 "xl": {
   "type": "shadow",
-  "value": {
-    "inset": false,
-    "color": "#0000000a",
-    "offsetX": "0px",
-    "offsetY": "10px",
-    "blur": "10px",
-    "spread": "-5px"
-  }
+  "value": [
+    {
+      "inset": false,
+      "color": "#0000000a",
+      "offsetX": "0px",
+      "offsetY": "10px",
+      "blur": "10px",
+      "spread": "-5px"
+    }
+  ]
 }
 ```
 
 ### Blur
 
-The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON.
+The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported, and blur tokens always use the `$type` / `$value` keys, whatever the [DTCG 2025.10 format](#dtcg-202510-format) setting.
 
 ```json
 // Background blur
 "sm": {
-  "type": "blur",
-  "value": {
+  "$type": "blur",
+  "$value": {
     "role": "background",
     "blur": "4px"
   }
@@ -936,17 +1002,17 @@ The plugin supports `background` and `layer` blur effects. In order to distingui
 
 // Layer blur
 "md": {
-  "type": "blur",
-  "value": {
+  "$type": "blur",
+  "$value": {
     "role": "layer",
     "blur": "12px"
   }
 }
 ```
 
-### Multiple `Shadow` and `Blur` styles support
+### Multiple shadows support
 
-If the style has multiple `Shadow` or `Blur` styles, the plugin will add them into the array.
+If a shadow style has several shadows, the plugin exports all of them in the array.
 
 ```json
 "new-sh": {
@@ -1086,7 +1152,7 @@ The `alpha` is the opacity Figma applies on top of the referenced color. If the 
 Figma has exposed these variables to plugins in two shapes so far: current runtimes (the Figma web app, and what `setValueForMode` accepts) use `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }`, while Figma Desktop 126.x returned a `COMPOSE_COLOR` expression. The export reads both. The import writes the current shape and falls back to the expression for runtimes that only accept that one.
 
 > [!WARNING]
-> Some Figma clients can read these variables but refuse to write them in either shape ("Composed color variable values are not supported"), including Figma Desktop 126.x. The plugin then leaves those values untouched, reports how many were skipped and links to [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375). Other tokens in the same import are not affected.
+> Older Figma clients, including Figma Desktop 126.x, can read these variables but refuse to write them in either shape ("Composed color variable values are not supported"). Figma has since enabled writing them through the Plugin API ([figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375)), so update Figma if the import skips them. On an outdated client the plugin leaves those values untouched, reports how many were skipped and asks you to update Figma. Other tokens in the same import are not affected.
 
 > [!NOTE]
 > Figma is still changing how these values are exposed to plugins. If a color variable comes back in a shape the plugin does not recognise, the export leaves that variable out and logs a `[tokens-bruecke] Skipped variable …` warning with the raw value to the Figma console (`Plugins → Development → Open console`) instead of failing. Please paste that warning into [#91](https://github.com/tokens-bruecke/figma-plugin/issues/91).
@@ -1121,7 +1187,7 @@ So you will need to merge the file with the base variables from one file with an
 
 ### Handle modes
 
-If there is only one mode — the plugin wouldn't include it in a generated JSON.
+If there is only one mode, the mode values are left out: `$extensions.mode` is an empty object.
 If there are multiple modes, the plugin will place them under the `$extensions` objects.
 
 It follows the same pattern as used by [Cobalt](https://cobalt-ui.pages.dev/guides/modes#with-modes)
@@ -1132,19 +1198,20 @@ It follows the same pattern as used by [Cobalt](https://cobalt-ui.pages.dev/guid
 
 Unlike design tokens, Figma variables [support only 6 types](https://www.figma.com/plugin-docs/api/VariableResolvedDataType) — `COLOR`, `BOOLEAN`, `FLOAT`, `STRING`, `TIMING` and `EASING`. So, the plugin converts them into the corresponding types from the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/#types).
 
-| Figma type | Scope condition          | Design Tokens type                                                                               |
-| ---------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
-| COLOR      | —                        | [color](https://www.designtokens.org/tr/2025.10/format/#color)                                   |
-| BOOLEAN    | —                        | _boolean_ \*                                                                                     |
-| FLOAT      | `FONT_WEIGHT` scope      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight) \*                     |
-| FLOAT      | `OPACITY` scope (no %)   | _number_ \*                                                                                      |
-| FLOAT      | `OPACITY` scope (with %) | _string_ (e.g. `"10%"`) \*                                                                       |
-| FLOAT      | all other scopes         | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*                      |
-| STRING     | —                        | _string_ \*                                                                                      |
-| TIMING     | —                        | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*                      |
-| EASING     | —                        | [cubicBezier](https://www.designtokens.org/tr/2025.10/format/#cubic-bezier) or _string_ \*\*\*\* |
+| Figma type | Scope condition         | Design Tokens type                                                                               |
+| ---------- | ----------------------- | ------------------------------------------------------------------------------------------------ |
+| COLOR      | —                       | [color](https://www.designtokens.org/tr/2025.10/format/#color)                                   |
+| BOOLEAN    | —                       | _boolean_ \*                                                                                     |
+| FLOAT      | only `FONT_WEIGHT`      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight)                        |
+| FLOAT      | opacity scopes (no %)   | _number_ \*                                                                                      |
+| FLOAT      | opacity scopes (with %) | _string_ (e.g. `"10%"`) \*                                                                       |
+| FLOAT      | all other scopes        | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*                      |
+| STRING     | only `FONT_WEIGHT`      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight)                        |
+| STRING     | all other scopes        | _string_ \*                                                                                      |
+| TIMING     | —                       | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*                      |
+| EASING     | —                       | [cubicBezier](https://www.designtokens.org/tr/2025.10/format/#cubic-bezier) or _string_ \*\*\*\* |
 
-\* native JSON types — not part of the closed DTCG 2025.10 type set. With the [DTCG 2025.10 format](#dtcg-202510-format) setting on, `$type` is omitted for `string`/`boolean` tokens and the original Figma type is preserved under `$extensions.figmaType`. Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
+\* native JSON types — not part of the closed DTCG 2025.10 type set. The plugin still writes them as the token's `$type`. "Opacity scopes" means every scope of the variable is `OPACITY` or `COLOR_OPACITY`, see [Scopes limitations](#scopes-limitations). Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
 
 \*\* Figma currently supports only `FLOAT` for numeric values used as dimensions, which map to `px` units. With the DTCG 2025.10 format on, dimensions are exported as `{ "value": 6, "unit": "px" }` objects; otherwise the plugin appends `px` to the number.
 
@@ -1182,12 +1249,12 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 
 ---
 
-## Scopes lemitations
+## Scopes limitations
 
-In order to convert `FONT-WEIGHT` and `OPACITY` types into valid values you should specify them as scopes in the Figma variables. The plugin will read the first scope and convert it into the valid value. If there are multiple scopes, the plugin will take the first one.
+Figma variables have no font weight or opacity type, so the plugin reads the variable's scopes to pick the token type:
 
-- `FONT_WEIGHT` scope will be converted into `fontWeight` type.
-- `OPACITY` scope will be converted into `number` type (or `string` with `%` if "Use percentage for opacity" is enabled).
+- A number or string variable whose only scope is `FONT_WEIGHT` becomes a `fontWeight` token. With any other scope next to it, it stays a `dimension` or `string`.
+- A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`.
 
 ---
 

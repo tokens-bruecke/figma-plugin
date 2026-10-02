@@ -133,3 +133,43 @@ describe('order', () => {
     expect(collection.variableIds).toEqual(['a', 'c', 'b']);
   });
 });
+
+describe('getLocalVariables scopes', () => {
+  it('reads a number reported as FONT_STYLE as FONT_WEIGHT', async () => {
+    const [weight] = await resolverWith({
+      a: variable('a', 'FLOAT', ['FONT_STYLE']),
+    }).getLocalVariables();
+
+    expect(weight.scopes).toEqual(['FONT_WEIGHT']);
+  });
+
+  it('only replaces the scope, not the others next to it', async () => {
+    const [weight] = await resolverWith({
+      a: variable('a', 'FLOAT', ['FONT_SIZE', 'FONT_STYLE']),
+    }).getLocalVariables();
+
+    expect(weight.scopes).toEqual(['FONT_SIZE', 'FONT_WEIGHT']);
+  });
+
+  it('leaves FONT_STYLE on a string variable alone', async () => {
+    const [style] = await resolverWith({
+      a: variable('a', 'STRING', ['FONT_STYLE']),
+    }).getLocalVariables();
+
+    expect(style.scopes).toEqual(['FONT_STYLE']);
+  });
+
+  it('leaves the other scopes of a number alone', async () => {
+    const variables = await resolverWith({
+      a: variable('a', 'FLOAT', ['ALL_SCOPES']),
+      b: variable('b', 'FLOAT', ['FONT_WEIGHT']),
+      c: variable('c', 'COLOR', ['ALL_FILLS']),
+    }).getLocalVariables();
+
+    expect(variables.map((v) => v.scopes)).toEqual([
+      ['ALL_SCOPES'],
+      ['FONT_WEIGHT'],
+      ['ALL_FILLS'],
+    ]);
+  });
+});

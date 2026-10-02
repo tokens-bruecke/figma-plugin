@@ -1,3 +1,33 @@
+## [3.14.2](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.1...v3.14.2) (2026-10-02)
+
+### Bug Fixes
+
+- **cli:** merge included styles with defaults and check --stdout against the config ([89dc063](https://github.com/tokens-bruecke/figma-plugin/commit/89dc063c9408e462f6a07426f6182a64f022e529))
+
+## [3.14.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.0...v3.14.1) (2026-10-02)
+
+### Bug Fixes
+
+- **import:** scale RGBA object colors from 0-255 to 0-1 ([1592922](https://github.com/tokens-bruecke/figma-plugin/commit/1592922779b6456996aa8b98b3488b2eb41bbe45))
+
+## [3.14.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.13.1...v3.14.0) (2026-10-02)
+
+### Features
+
+- **color:** import color aliases with opacity now that Figma allows it ([c225d06](https://github.com/tokens-bruecke/figma-plugin/commit/c225d062727d1ab991322df68c3ff0e8d13b98b2)), closes [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375)
+
+## [3.13.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.13.0...v3.13.1) (2026-10-02)
+
+### Bug Fixes
+
+- **cli:** read FONT_STYLE on number variables as FONT_WEIGHT ([#96](https://github.com/tokens-bruecke/figma-plugin/issues/96)) ([18a260d](https://github.com/tokens-bruecke/figma-plugin/commit/18a260d9dcd8725b32d58b4f1ee7c9964f9e1c87))
+
+## [3.13.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.12.2...v3.13.0) (2026-10-02)
+
+### Features
+
+- **export:** support extended collections ([#95](https://github.com/tokens-bruecke/figma-plugin/issues/95)) ([adfb796](https://github.com/tokens-bruecke/figma-plugin/commit/adfb79669f69db31878ade89769edb6b97847a6d)), closes [#94](https://github.com/tokens-bruecke/figma-plugin/issues/94)
+
 ## [3.12.2](https://github.com/tokens-bruecke/figma-plugin/compare/v3.12.0...v3.12.2) (2026-09-17)
 
 ### Bug Fixes

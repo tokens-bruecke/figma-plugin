@@ -4,8 +4,7 @@
  *
  * `COLOR_OPACITY` was introduced with Figma's "Control opacity at scale"
  * release (September 2026): a number variable with this scope can drive the
- * opacity of a color variable. It is not part of the published
- * `VariableScope` typings yet, hence the plain-string list.
+ * opacity of a color variable.
  */
 export const OPACITY_SCOPES: ReadonlyArray<string> = [
   'OPACITY',

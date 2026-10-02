@@ -12,7 +12,7 @@
     },
     "includedStyles": {
       "type": "object",
-      "description": "Which Figma styles to include in the export, and the token group name for each.",
+      "description": "Which Figma styles to include in the export, and the token group name for each. Each style type is merged with its default, so only the fields you set change.",
       "additionalProperties": false,
       "properties": {
         "text": { "$ref": "#/definitions/styleInclusion" },
@@ -64,7 +64,7 @@
     "includeFigmaMetaData": {
       "type": "boolean",
       "default": false,
-      "description": "Include Figma-specific metadata (variable ids, collection ids) in $extensions[\"tokens-bruecke-meta\"]."
+      "description": "Add $extensions.figma to every variable token: variableId, codeSyntax and the collection (id, name, defaultModeId). Styles are not affected."
     },
     "usePercentageOpacity": {
       "type": "boolean",
@@ -110,7 +110,7 @@
         },
         "customName": {
           "type": "string",
-          "description": "Token group name used for this style type in the output."
+          "description": "Token group name used for this style type in the output. Defaults to Typography-styles, Effect-styles, Grid-styles or Color-styles."
         }
       }
     }

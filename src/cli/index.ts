@@ -6,10 +6,11 @@ import { dirname } from 'path';
 import { RestAPIResolver } from './restApiResolver';
 import { FileResolver, parseSnapshot } from './fileResolver';
 import { runInit } from './init';
-import { DEFAULT_CONFIG_FILENAME, defaultConfig } from './defaults';
+import { DEFAULT_CONFIG_FILENAME } from './defaults';
 import { getTokens } from '@common/export';
 import { splitTokensIntoFiles } from '@common/transform/splitTokensIntoFiles';
 import { log, setQuiet } from './logger';
+import { getStdoutSplitConflict, resolveExportOptions } from './options';
 
 // Flags that only make sense when fetching from the REST API
 const REST_FLAGS = [
@@ -217,7 +218,7 @@ const argv = yargs(process.argv.slice(2))
 
 setQuiet(argv.quiet);
 
-let config = {};
+let config: Record<string, any> = {};
 
 if (argv.config) {
   try {
@@ -229,32 +230,20 @@ if (argv.config) {
   }
 }
 
-const options: ExportSettingsI = {
-  ...defaultConfig,
-  ...config,
-  // Support legacy `useDTCGKeys` config files (deprecated alias)
-  useDTCG:
-    (config as any).useDTCG ??
-    (config as any).useDTCGKeys ??
-    defaultConfig.useDTCG,
-  // Explicit CLI flags override the config file, which overrides defaults
-  splitByCollection:
-    argv['split-by-collection'] ??
-    (config as any).splitByCollection ??
-    defaultConfig.splitByCollection,
-  splitByMode:
-    argv['split-by-mode'] ??
-    (config as any).splitByMode ??
-    defaultConfig.splitByMode,
-  omitCollectionNames:
-    argv['omit-collection-names'] ??
-    (config as any).omitCollectionNames ??
-    defaultConfig.omitCollectionNames,
-  omitCreatedAt:
-    argv['omit-created-at'] ??
-    (config as any).omitCreatedAt ??
-    defaultConfig.omitCreatedAt,
-};
+const options = resolveExportOptions(config, {
+  splitByCollection: argv['split-by-collection'],
+  splitByMode: argv['split-by-mode'],
+  omitCollectionNames: argv['omit-collection-names'],
+  omitCreatedAt: argv['omit-created-at'],
+});
+
+// The flags are checked by yargs above; this also catches splits that come
+// from the config file.
+const stdoutConflict = argv.stdout ? getStdoutSplitConflict(options) : null;
+if (stdoutConflict) {
+  console.error(`🔴 ${stdoutConflict}`);
+  process.exit(1);
+}
 
 function createSnapshotResolver(input: string) {
   const isStdin = input === '-';

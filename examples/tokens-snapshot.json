@@ -17,6 +17,24 @@
         { "modeId": "2:1", "name": "Dark" }
       ],
       "variableIds": ["VariableID:2:2", "VariableID:2:3"]
+    },
+    {
+      "id": "VariableCollectionId:3:1",
+      "name": "Campaign",
+      "defaultModeId": "3:0",
+      "isExtension": true,
+      "parentVariableCollectionId": "VariableCollectionId:2:1",
+      "rootVariableCollectionId": "VariableCollectionId:2:1",
+      "modes": [
+        { "modeId": "3:0", "name": "Light", "parentModeId": "2:0" },
+        { "modeId": "3:1", "name": "Dark", "parentModeId": "2:1" }
+      ],
+      "variableIds": ["VariableID:2:2", "VariableID:2:3"],
+      "variableOverrides": {
+        "VariableID:2:2": {
+          "3:0": { "r": 0.9, "g": 0.3, "b": 0.2, "a": 1 }
+        }
+      }
     }
   ],
   "variables": [
@@ -70,13 +88,12 @@
       "name": "surface/accent-muted",
       "variableCollectionId": "VariableCollectionId:2:1",
       "resolvedType": "COLOR",
-      "description": "Blue primitive with an opacity applied on top",
+      "description": "Blue primitive with an opacity applied on top. Light uses the current { color, opacity } shape, Dark the COMPOSE_COLOR expression of older Figma Desktop builds",
       "remote": false,
       "valuesByMode": {
         "2:0": {
-          "type": "VARIABLE_EXPRESSION",
-          "expressionFunction": "COMPOSE_COLOR",
-          "expressionArguments": [{ "type": "VARIABLE_ALIAS", "id": "VariableID:1:2" }, 50]
+          "color": { "type": "VARIABLE_ALIAS", "id": "VariableID:1:2" },
+          "opacity": 50
         },
         "2:1": {
           "type": "VARIABLE_EXPRESSION",
