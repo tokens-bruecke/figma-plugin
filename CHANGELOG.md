@@ -1,3 +1,9 @@
+## [3.13.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.12.2...v3.13.0) (2026-10-02)
+
+### Features
+
+- **export:** support extended collections ([#95](https://github.com/tokens-bruecke/figma-plugin/issues/95)) ([adfb796](https://github.com/tokens-bruecke/figma-plugin/commit/adfb79669f69db31878ade89769edb6b97847a6d)), closes [#94](https://github.com/tokens-bruecke/figma-plugin/issues/94)
+
 ## [3.12.2](https://github.com/tokens-bruecke/figma-plugin/compare/v3.12.0...v3.12.2) (2026-09-17)
 
 ### Bug Fixes
