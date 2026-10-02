@@ -1,3 +1,9 @@
+## [3.14.2](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.1...v3.14.2) (2026-10-02)
+
+### Bug Fixes
+
+- **cli:** merge included styles with defaults and check --stdout against the config ([89dc063](https://github.com/tokens-bruecke/figma-plugin/commit/89dc063c9408e462f6a07426f6182a64f022e529))
+
 ## [3.14.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.0...v3.14.1) (2026-10-02)
 
 ### Bug Fixes
