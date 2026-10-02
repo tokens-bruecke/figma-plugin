@@ -1,15 +1,20 @@
 import { IResolver } from '@common/resolver';
 
 /**
- * Fields the Figma REST API adds to a collection created with "Extend a
- * variable collection". They are missing from the plugin typings that the rest
- * of the code is written against.
+ * Fields of a collection created with "Extend a variable collection" (see
+ * `ExtendedVariableCollection` in the plugin typings). The rest of the code is
+ * written against `VariableCollection`, and REST/snapshot data may leave some
+ * of them out, so every field is optional here.
  */
 type ExtensionFields = {
   isExtension?: boolean;
   parentVariableCollectionId?: string;
   rootVariableCollectionId?: string;
   variableOverrides?: Record<string, Record<string, any>>;
+};
+
+type CollectionMode = VariableCollection['modes'][number] & {
+  parentModeId?: string;
 };
 
 type CollectionsById = Map<string, VariableCollection>;
@@ -49,18 +54,34 @@ const getCollectionChain = (
 };
 
 /**
- * Extension modes get their own ids, so a mode is matched to the parent's mode
- * by name, falling back to its position.
+ * Id of the mode in `parent` that `childModeId` of `child` inherits from.
+ * Extension modes carry a `parentModeId`; when it is missing (or points at a
+ * mode that no longer exists) the mode is matched by name, falling back to its
+ * position.
  */
-const getModeIdFor = (
-  collection: VariableCollection,
-  mode: VariableCollection['modes'][number],
+const getParentModeId = (
+  child: VariableCollection,
+  childModeId: string,
+  parent: VariableCollection,
   modeIndex: number
-) =>
-  (
-    collection.modes.find((candidate) => candidate.name === mode.name) ??
-    collection.modes[modeIndex]
+) => {
+  const childMode = child.modes.find((mode) => mode.modeId === childModeId) as
+    | CollectionMode
+    | undefined;
+  const { parentModeId } = childMode ?? {};
+
+  if (
+    parentModeId &&
+    parent.modes.some((mode) => mode.modeId === parentModeId)
+  ) {
+    return parentModeId;
+  }
+
+  return (
+    parent.modes.find((mode) => mode.name === childMode?.name) ??
+    parent.modes[modeIndex]
   )?.modeId;
+};
 
 /**
  * Value of `variable` in every mode of `extension`. The closest override in
@@ -83,21 +104,42 @@ export const resolveExtendedValuesByMode = (
 
   return Object.fromEntries(
     extension.modes.map((mode, modeIndex) => {
-      for (const level of chain.slice(0, -1)) {
-        const modeId = getModeIdFor(level, mode, modeIndex);
-        const override =
-          asExtension(level).variableOverrides?.[variable.id]?.[modeId];
+      let modeId = mode.modeId;
+
+      for (let level = 0; level < chain.length - 1; level++) {
+        const override = asExtension(chain[level]).variableOverrides?.[
+          variable.id
+        ]?.[modeId];
 
         if (override !== undefined && override !== null) {
           return [mode.modeId, override];
         }
+
+        modeId = getParentModeId(
+          chain[level],
+          modeId,
+          chain[level + 1],
+          modeIndex
+        );
       }
 
-      const rootModeId = getModeIdFor(root, mode, modeIndex);
-      return [mode.modeId, variable.valuesByMode[rootModeId]];
+      return [mode.modeId, variable.valuesByMode[modeId]];
     })
   );
 };
+
+/**
+ * Values by mode of any variable as seen from inside `extension`: variables
+ * of its root collection get the overrides of the chain, variables of other
+ * collections keep their own values.
+ */
+export const createExtensionValuesByMode =
+  (extension: VariableCollection, collectionsById: CollectionsById) =>
+  (variable: Variable) =>
+    variable.variableCollectionId ===
+    asExtension(extension).rootVariableCollectionId
+      ? resolveExtendedValuesByMode(variable, extension, collectionsById)
+      : variable.valuesByMode;
 
 /**
  * Resolver that names every alias into the root collection after `extension`.

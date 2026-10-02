@@ -6,8 +6,8 @@ import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories
 import { IResolver } from '@common/resolver';
 import {
   createExtensionResolver,
+  createExtensionValuesByMode,
   isExtendedCollection,
-  resolveExtendedValuesByMode,
 } from './extendedCollections';
 
 // console.clear();
@@ -17,11 +17,15 @@ const MAX_ALIAS_DEPTH = 10;
 /**
  * Follows a chain of variable aliases down to the concrete value behind it,
  * reading each target's default mode. Returns the value unchanged when it is
- * not an alias, or when the chain cannot be resolved.
+ * not an alias, or when the chain cannot be resolved. `valuesByModeOf` lets an
+ * extended collection read its targets with its own overrides applied.
  */
 const resolveAliasedValue = async (
   value: any,
   resolver: IResolver,
+  valuesByModeOf: (variable: Variable) => Variable['valuesByMode'] = (
+    variable
+  ) => variable.valuesByMode,
   depth = 0
 ): Promise<any> => {
   if (value?.type !== 'VARIABLE_ALIAS' || depth >= MAX_ALIAS_DEPTH) {
@@ -36,10 +40,16 @@ const resolveAliasedValue = async (
   const collection = await resolver.getVariableCollectionById(
     target.variableCollectionId
   );
+  const targetValuesByMode = valuesByModeOf(target);
   const modeId =
-    collection?.defaultModeId ?? Object.keys(target.valuesByMode)[0];
+    collection?.defaultModeId ?? Object.keys(targetValuesByMode)[0];
 
-  return resolveAliasedValue(target.valuesByMode[modeId], resolver, depth + 1);
+  return resolveAliasedValue(
+    targetValuesByMode[modeId],
+    resolver,
+    valuesByModeOf,
+    depth + 1
+  );
 };
 
 export const variablesToTokens = async (
@@ -105,14 +115,14 @@ export const variablesToTokens = async (
   type VariableEntry = {
     variable: Variable;
     collection: VariableCollection;
-    getValuesByMode: () => Variable['valuesByMode'];
+    valuesByModeOf: (variable: Variable) => Variable['valuesByMode'];
     aliasResolver: IResolver;
   };
 
   const entries: VariableEntry[] = sortedVariables.map((variable) => ({
     variable,
     collection: collectionsById.get(variable.variableCollectionId),
-    getValuesByMode: () => variable.valuesByMode,
+    valuesByModeOf: (target) => target.valuesByMode,
     aliasResolver: resolver,
   }));
 
@@ -128,20 +138,33 @@ export const variablesToTokens = async (
   } else {
     for (const extension of extensions) {
       const aliasResolver = createExtensionResolver(resolver, extension);
+      const valuesByModeOf = createExtensionValuesByMode(
+        extension,
+        collectionsById
+      );
+      let missingVariables = 0;
 
       for (const variableId of extension.variableIds ?? []) {
         const variable = variablesById.get(variableId);
         if (!variable) {
+          missingVariables++;
           continue;
         }
 
         entries.push({
           variable,
           collection: extension,
-          getValuesByMode: () =>
-            resolveExtendedValuesByMode(variable, extension, collectionsById),
+          valuesByModeOf,
           aliasResolver,
         });
+      }
+
+      // e.g. an extension of a library collection: the inherited variables
+      // live in the library file, not in this one.
+      if (missingVariables > 0) {
+        console.warn(
+          `[tokens-bruecke] Skipped ${missingVariables} variable(s) of extended collection "${extension.name}": they are not local to this file (is it extending a library collection?).`
+        );
       }
     }
   }
@@ -167,7 +190,7 @@ export const variablesToTokens = async (
   async function addVariable({
     variable,
     collection,
-    getValuesByMode,
+    valuesByModeOf,
     aliasResolver,
   }: VariableEntry) {
     // console.log("variable", variable);
@@ -189,7 +212,7 @@ export const variablesToTokens = async (
     // console.log("collection", collectionObject);
 
     // get values by mode
-    const valuesByMode = getValuesByMode();
+    const valuesByMode = valuesByModeOf(variable);
     const modes = valuesByMode;
 
     const getValue = async (modeIndex: number) =>
@@ -242,7 +265,8 @@ export const variablesToTokens = async (
       variable.resolvedType === 'EASING'
         ? await resolveAliasedValue(
             valuesByMode[collectionDefaultModeId],
-            resolver
+            aliasResolver,
+            valuesByModeOf
           )
         : valuesByMode[collectionDefaultModeId];
 

@@ -393,8 +393,9 @@ Alias references are also rewritten so they point to the flat path (the collecti
 
 Collections created with [Extend a variable collection](https://help.figma.com/hc/en-us/articles/36346281624471-Extend-a-variable-collection) are exported as collections of their own. Figma stores only what an extension changes, so the export writes all the variables it inherits, with the overrides of its chain applied, which keeps every collection complete.
 
-- The value of a variable is the closest override in the chain of extensions, or the value of the root collection when nothing overrides it. An override that was cleared falls through to the parent. Modes are matched by name.
+- The value of a variable is the closest override in the chain of extensions, or the value of the root collection when nothing overrides it. An override that was cleared falls through to the parent. Each mode follows the parent mode it inherits from, even when the extension renames it.
 - Aliases to variables of the root collection point to the extension's own variable, so `{Core.color.brand}` becomes `{Regional.color.brand}` inside `Regional`. Aliases to other collections stay as they are.
+- Extensions of a library collection are exported without the variables they inherit, because those live in the library file, not in yours. The export warns about them.
 - With [Omit collection names](#omit-collection-names) the extended collections are skipped with a warning, because they repeat the variables of their root collection and would collide in a single namespace.
 
 ```json

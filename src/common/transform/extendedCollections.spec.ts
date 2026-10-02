@@ -70,7 +70,7 @@ const makeResolver = (
       allVariables.find((variable) => variable.id === id) ?? null,
     getVariableCollectionById: async (id: string) =>
       allCollections.find((candidate: any) => candidate.id === id) ?? null,
-  }) as unknown as IResolver;
+  } as unknown as IResolver);
 
 const config = {
   colorMode: 'hex',
@@ -227,5 +227,86 @@ describe('variablesToTokens extended collections', () => {
     );
 
     warn.mockRestore();
+  });
+
+  test('modes follow parentModeId even when the extension renames them', async () => {
+    // Names swapped on purpose: matching by name would pick the wrong parent mode
+    const renamed = {
+      ...local,
+      modes: [
+        { modeId: 'local/light', name: 'dark', parentModeId: 'regional/light' },
+        { modeId: 'local/dark', name: 'light', parentModeId: 'regional/dark' },
+      ],
+    };
+    const tokens = await run([core, regional, renamed]);
+
+    // local clears `accent` in local/light, which inherits regional/light (green)
+    expect(tokens['local'].color.accent.$extensions.mode).toStrictEqual({
+      dark: '#00ff00',
+      light: '#ff0000',
+    });
+  });
+
+  test('an extension of variables that are not local is reported', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const library = {
+      ...regional,
+      variableIds: ['brand', 'accent', 'text', 'library-variable'],
+    };
+    const tokens = await run([core, library]);
+
+    expect(Object.keys(tokens['regional'].color)).toStrictEqual([
+      'brand',
+      'accent',
+      'text',
+    ]);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Skipped 1 variable(s) of extended collection "regional"'
+      )
+    );
+
+    warn.mockRestore();
+  });
+
+  test("aliased easings are typed from the extension's own values", async () => {
+    const easing = (id: string, name: string, valuesByMode: object) => ({
+      ...color(id, name, valuesByMode),
+      resolvedType: 'EASING',
+      scopes: [],
+    });
+    const bezier = {
+      type: 'CUSTOM_CUBIC_BEZIER',
+      easingFunctionCubicBezier: { x1: 0, y1: 0, x2: 0.5, y2: 1 },
+    };
+    const easings = [
+      easing('curve', 'easing/curve', {
+        'core/light': bezier,
+        'core/dark': bezier,
+      }),
+      easing('motion', 'easing/motion', {
+        'core/light': { type: 'VARIABLE_ALIAS', id: 'curve' },
+        'core/dark': { type: 'VARIABLE_ALIAS', id: 'curve' },
+      }),
+    ] as unknown as Variable[];
+    const root = { ...core, variableIds: ['curve', 'motion'] };
+    const springy = {
+      ...regional,
+      variableIds: ['curve', 'motion'],
+      variableOverrides: {
+        curve: {
+          'regional/light': { type: 'GENTLE' },
+          'regional/dark': { type: 'GENTLE' },
+        },
+      },
+    };
+
+    const tokens = await run([root, springy], {}, easings);
+
+    expect(tokens['core'].easing.motion.$type).toBe('cubicBezier');
+    expect(tokens['regional'].easing.motion.$type).toBe('string');
+    expect(tokens['regional'].easing.motion.$value).toBe(
+      '{regional.easing.curve}'
+    );
   });
 });
