@@ -4,6 +4,11 @@ import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
 import { IResolver } from '@common/resolver';
+import {
+  createExtensionResolver,
+  createExtensionValuesByMode,
+  isExtendedCollection,
+} from './extendedCollections';
 
 // console.clear();
 
@@ -12,11 +17,15 @@ const MAX_ALIAS_DEPTH = 10;
 /**
  * Follows a chain of variable aliases down to the concrete value behind it,
  * reading each target's default mode. Returns the value unchanged when it is
- * not an alias, or when the chain cannot be resolved.
+ * not an alias, or when the chain cannot be resolved. `valuesByModeOf` lets an
+ * extended collection read its targets with its own overrides applied.
  */
 const resolveAliasedValue = async (
   value: any,
   resolver: IResolver,
+  valuesByModeOf: (variable: Variable) => Variable['valuesByMode'] = (
+    variable
+  ) => variable.valuesByMode,
   depth = 0
 ): Promise<any> => {
   if (value?.type !== 'VARIABLE_ALIAS' || depth >= MAX_ALIAS_DEPTH) {
@@ -31,10 +40,16 @@ const resolveAliasedValue = async (
   const collection = await resolver.getVariableCollectionById(
     target.variableCollectionId
   );
+  const targetValuesByMode = valuesByModeOf(target);
   const modeId =
-    collection?.defaultModeId ?? Object.keys(target.valuesByMode)[0];
+    collection?.defaultModeId ?? Object.keys(targetValuesByMode)[0];
 
-  return resolveAliasedValue(target.valuesByMode[modeId], resolver, depth + 1);
+  return resolveAliasedValue(
+    targetValuesByMode[modeId],
+    resolver,
+    valuesByModeOf,
+    depth + 1
+  );
 };
 
 export const variablesToTokens = async (
@@ -60,6 +75,12 @@ export const variablesToTokens = async (
   const variableOrder = new Map<string, number>();
   let orderIndex = 0;
   for (const collection of collections) {
+    // An extension lists the variables it inherits too, which would
+    // otherwise reorder the variables of the collection that owns them.
+    if (isExtendedCollection(collection)) {
+      continue;
+    }
+
     for (const variableId of collection.variableIds ?? []) {
       variableOrder.set(variableId, orderIndex++);
     }
@@ -84,9 +105,75 @@ export const variablesToTokens = async (
   // console.log("variables", variables);
   // console.log("collections", collections);
 
-  for (const variable of sortedVariables) {
+  const collectionsById = new Map(
+    collections.map((collection) => [collection.id, collection])
+  );
+  const variablesById = new Map(
+    variables.map((variable) => [variable.id, variable])
+  );
+
+  type VariableEntry = {
+    variable: Variable;
+    collection: VariableCollection;
+    valuesByModeOf: (variable: Variable) => Variable['valuesByMode'];
+    aliasResolver: IResolver;
+  };
+
+  const entries: VariableEntry[] = sortedVariables.map((variable) => ({
+    variable,
+    collection: collectionsById.get(variable.variableCollectionId),
+    valuesByModeOf: (target) => target.valuesByMode,
+    aliasResolver: resolver,
+  }));
+
+  // Variables are owned by the root collection, so extended collections
+  // (e.g. a regional theme extending a core theme) export every inherited
+  // variable again, with the overrides of their own chain applied.
+  const extensions = collections.filter(isExtendedCollection);
+
+  if (omitCollectionNames && extensions.length > 0) {
+    console.warn(
+      `[tokens-bruecke] Skipped ${extensions.length} extended collection(s): they repeat the variables of their root collection, which collide in a single namespace.`
+    );
+  } else {
+    for (const extension of extensions) {
+      const aliasResolver = createExtensionResolver(resolver, extension);
+      const valuesByModeOf = createExtensionValuesByMode(
+        extension,
+        collectionsById
+      );
+      let missingVariables = 0;
+
+      for (const variableId of extension.variableIds ?? []) {
+        const variable = variablesById.get(variableId);
+        if (!variable) {
+          missingVariables++;
+          continue;
+        }
+
+        entries.push({
+          variable,
+          collection: extension,
+          valuesByModeOf,
+          aliasResolver,
+        });
+      }
+
+      // e.g. an extension of a library collection: the inherited variables
+      // live in the library file, not in this one.
+      if (missingVariables > 0) {
+        console.warn(
+          `[tokens-bruecke] Skipped ${missingVariables} variable(s) of extended collection "${extension.name}": they are not local to this file (is it extending a library collection?).`
+        );
+      }
+    }
+  }
+
+  for (const entry of entries) {
+    const { variable } = entry;
+
     try {
-      await addVariable(variable);
+      await addVariable(entry);
     } catch (error) {
       // One variable the plugin cannot convert must not abort the whole
       // export: leave it out, say so, and keep going.
@@ -100,16 +187,21 @@ export const variablesToTokens = async (
     }
   }
 
-  async function addVariable(variable: Variable) {
+  async function addVariable({
+    variable,
+    collection,
+    valuesByModeOf,
+    aliasResolver,
+  }: VariableEntry) {
     // console.log("variable", variable);
+    if (!collection) {
+      throw new Error(`Collection ${variable.variableCollectionId} not found`);
+    }
+
     // get collection object
-    const collectionId = variable.variableCollectionId;
-    const collectionName = collections.find(
-      (collection) => collection.id === collectionId
-    ).name;
-    const collectionDefaultModeId = collections.find(
-      (collection) => collection.id === collectionId
-    ).defaultModeId;
+    const collectionId = collection.id;
+    const collectionName = collection.name;
+    const collectionDefaultModeId = collection.defaultModeId;
     const collectionObject = {
       id: collectionId,
       name: collectionName,
@@ -120,13 +212,14 @@ export const variablesToTokens = async (
     // console.log("collection", collectionObject);
 
     // get values by mode
-    const modes = variable.valuesByMode;
+    const valuesByMode = valuesByModeOf(variable);
+    const modes = valuesByMode;
 
     const getValue = async (modeIndex: number) =>
       await normalizeValue(
         {
           variableType: variable.resolvedType,
-          variableValue: variable.valuesByMode[Object.keys(modes)[modeIndex]],
+          variableValue: valuesByMode[Object.keys(modes)[modeIndex]],
           variableScope: variable.scopes,
           colorMode,
           useDTCG,
@@ -135,7 +228,7 @@ export const variablesToTokens = async (
           omitCollectionNames,
           expandEasingPresets,
         },
-        resolver
+        aliasResolver
       );
 
     const defaultValue = await getValue(
@@ -148,9 +241,9 @@ export const variablesToTokens = async (
       (
         await Promise.all(
           Object.keys(modes).map(async (modeId, index) => {
-            const modeName = collections
-              .find((collection) => collection.id === collectionId)
-              .modes.find((mode) => mode.modeId === modeId)?.name;
+            const modeName = collection.modes.find(
+              (mode) => mode.modeId === modeId
+            )?.name;
 
             if (modeName) {
               return [[modeName, await getValue(index)]];
@@ -171,10 +264,11 @@ export const variablesToTokens = async (
     const rawDefaultValue =
       variable.resolvedType === 'EASING'
         ? await resolveAliasedValue(
-            variable.valuesByMode[collectionDefaultModeId],
-            resolver
+            valuesByMode[collectionDefaultModeId],
+            aliasResolver,
+            valuesByModeOf
           )
-        : variable.valuesByMode[collectionDefaultModeId];
+        : valuesByMode[collectionDefaultModeId];
 
     const tokenType = normalizeType(
       variable.resolvedType,
