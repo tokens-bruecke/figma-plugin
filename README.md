@@ -499,6 +499,7 @@ When stdin is not a terminal — CI, a pipe, an agent — `init` skips the quest
 | `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                      | No                                                      |
 | `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`             | No                                                      |
 | `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                            | No                                                      |
+| `--omit-created-at`       |       | Leave the `createdAt` timestamp out of the metadata, so an unchanged file exports to identical output     | No                                                      |
 | `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                          | No                                                      |
 | `--help`                  | `-h`  | Show usage help                                                                                            | No                                                      |
 | `--version`               |       | Show the CLI version                                                                                       | No                                                      |
@@ -587,7 +588,8 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "storeStyleInCollection": "none", // Name of one of your collection or "none" to keep them separated
   "splitByCollection": false, // Write each collection as a separate .tokens.json file
   "splitByMode": false, // Write each mode as a separate .tokens.json file under its collection directory
-  "omitCollectionNames": false // Drop top-level collection names and merge all variables into one flat namespace
+  "omitCollectionNames": false, // Drop top-level collection names and merge all variables into one flat namespace
+  "omitCreatedAt": false // Leave the createdAt timestamp out of the metadata
 }
 ```
 

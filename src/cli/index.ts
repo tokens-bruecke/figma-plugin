@@ -169,6 +169,13 @@ const argv = yargs(process.argv.slice(2))
       'Omit collection names as top-level groups; merge all tokens into a single namespace',
     type: 'boolean',
   })
+  .option('omit-created-at', {
+    // Export-only: keep it out of `init --help`
+    global: false,
+    description:
+      'Leave the createdAt timestamp out of the metadata, so exporting an unchanged file gives identical output',
+    type: 'boolean',
+  })
   .option('quiet', {
     // Export-only: keep it out of `init --help`
     global: false,
@@ -243,6 +250,10 @@ const options: ExportSettingsI = {
     argv['omit-collection-names'] ??
     (config as any).omitCollectionNames ??
     defaultConfig.omitCollectionNames,
+  omitCreatedAt:
+    argv['omit-created-at'] ??
+    (config as any).omitCreatedAt ??
+    defaultConfig.omitCreatedAt,
 };
 
 function createSnapshotResolver(input: string) {

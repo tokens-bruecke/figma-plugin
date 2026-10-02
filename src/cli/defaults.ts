@@ -34,6 +34,7 @@ export const defaultConfig: ExportSettingsI = {
   splitByCollection: false,
   splitByMode: false,
   omitCollectionNames: false,
+  omitCreatedAt: false,
 };
 
 export const CONFIG_SCHEMA_URL =

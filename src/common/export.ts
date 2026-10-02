@@ -72,7 +72,7 @@ const buildMeta = (
   ...(config.useDTCG && { spec: DTCG_SPEC_URL }),
   colorMode: config.colorMode,
   variableCollections: variableCollections.map((collection) => collection.name),
-  createdAt: new Date().toISOString(),
+  ...(!config.omitCreatedAt && { createdAt: new Date().toISOString() }),
 });
 
 export const getTokens = async (
