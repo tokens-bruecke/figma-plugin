@@ -8,6 +8,7 @@ import {
   hasUnresolvedReference,
   mapTokenTypeToFigmaType,
 } from './tokensToVariables';
+import { convertRGBA } from './color/convertRGBA';
 
 describe('getTokenScopes', () => {
   test('returns scopes from standard format', () => {
@@ -145,6 +146,38 @@ describe('convertTokenValueToFigmaValue', () => {
     test('passes through RGB object', () => {
       const rgb = { r: 0.1, g: 0.2, b: 0.3, a: 1 };
       expect(convertTokenValueToFigmaValue(rgb, 'color', emptyMap)).toBe(rgb);
+    });
+
+    test('scales the 0-255 RGBA object export down to 0-1', () => {
+      expect(
+        convertTokenValueToFigmaValue(
+          { r: 255, g: 51, b: 0, a: 0.5 },
+          'color',
+          emptyMap
+        )
+      ).toEqual({ r: 1, g: 0.2, b: 0, a: 0.5 });
+    });
+
+    test('treats an RGBA object with all channels at most 1 as 0-1', () => {
+      expect(
+        convertTokenValueToFigmaValue({ r: 1, g: 1, b: 1 }, 'color', emptyMap)
+      ).toEqual({ r: 1, g: 1, b: 1 });
+    });
+
+    test('round-trips the RGBA object export', () => {
+      const exported = convertRGBA(
+        { r: 0.2, g: 0.4, b: 0.8, a: 1 },
+        'rgba-object'
+      );
+      const imported = convertTokenValueToFigmaValue(
+        exported,
+        'color',
+        emptyMap
+      ) as RGBA;
+      expect(imported.r).toBeCloseTo(0.2, 2);
+      expect(imported.g).toBeCloseTo(0.4, 2);
+      expect(imported.b).toBeCloseTo(0.8, 2);
+      expect(imported.a).toBe(1);
     });
   });
 
