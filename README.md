@@ -525,23 +525,21 @@ The export never picks up `tokens-bruecke.config.json` on its own: pass it with 
 
 ### Options
 
-| Option                    | Alias | Description                                                                                                   | Required                                                |
-| ------------------------- | ----- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                                             | One of `--api-key` or `--oauth-token`, unless `--input` |
-| `--oauth-token`           | `-t`  | Figma OAuth token                                                                                             | One of `--api-key` or `--oauth-token`, unless `--input` |
-| `--file-key`              | `-f`  | Figma file key                                                                                                | Yes, unless `--input` is used                           |
-| `--input`                 | `-i`  | Read a local tokens snapshot instead of calling the REST API (`-` reads stdin)                                | No                                                      |
-| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`                    | Yes, unless `--stdout` is used                          |
-| `--stdout`                |       | Print tokens JSON to stdout instead of writing a file (mutually exclusive with `--output` and split flags) \* | No                                                      |
-| `--config`                | `-c`  | Path to configuration file                                                                                    | No                                                      |
-| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                         | No                                                      |
-| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`                | No                                                      |
-| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                               | No                                                      |
-| `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                             | No                                                      |
-| `--help`                  | `-h`  | Show usage help                                                                                               | No                                                      |
-| `--version`               |       | Show the CLI version                                                                                          | No                                                      |
-
-\* Only the `--split-*` flags are checked. Keep `splitByCollection` and `splitByMode` off in a config file you use with `--stdout`, otherwise the CLI prints an internal map of files instead of the tokens.
+| Option                    | Alias | Description                                                                                                  | Required                                                |
+| ------------------------- | ----- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| `--api-key`               | `-a`  | Figma personal access token (PAT)                                                                            | One of `--api-key` or `--oauth-token`, unless `--input` |
+| `--oauth-token`           | `-t`  | Figma OAuth token                                                                                            | One of `--api-key` or `--oauth-token`, unless `--input` |
+| `--file-key`              | `-f`  | Figma file key                                                                                               | Yes, unless `--input` is used                           |
+| `--input`                 | `-i`  | Read a local tokens snapshot instead of calling the REST API (`-` reads stdin)                               | No                                                      |
+| `--output`                | `-o`  | Path to output file, or output directory when `--split-by-collection` or `--split-by-mode`                   | Yes, unless `--stdout` is used                          |
+| `--stdout`                |       | Print tokens JSON to stdout instead of writing a file (mutually exclusive with `--output` and split options) | No                                                      |
+| `--config`                | `-c`  | Path to configuration file                                                                                   | No                                                      |
+| `--split-by-collection`   | `-s`  | Write each collection as a separate `.tokens.json` file in `--output`                                        | No                                                      |
+| `--split-by-mode`         | `-m`  | Write each mode as a separate `.tokens.json` file under its collection directory in `--output`               | No                                                      |
+| `--omit-collection-names` |       | Drop top-level collection names and merge all variables into one flat namespace                              | No                                                      |
+| `--quiet`                 | `-q`  | Suppress progress logs (errors are still printed)                                                            | No                                                      |
+| `--help`                  | `-h`  | Show usage help                                                                                              | No                                                      |
+| `--version`               |       | Show the CLI version                                                                                         | No                                                      |
 
 Progress logs are printed to **stderr**, so stdout stays clean for piping:
 
@@ -638,8 +636,7 @@ Save this JSON file and pass it to the CLI using the `--config` option. A JSON s
 > [!NOTE]
 > Explicit CLI flags (e.g. `--split-by-collection`) override values from the config file, which override the defaults.
 
-> [!WARNING]
-> Top-level keys are merged one level deep. If you set `includedStyles`, it replaces the whole default object, so give every included style type a `customName`, or its group is exported under the key `"undefined"`.
+Each style type in `includedStyles` is merged with its default, so `"text": { "isIncluded": true }` is enough: the group keeps its default name (`Typography-styles`) and the other style types stay excluded.
 
 ### For AI agents
 

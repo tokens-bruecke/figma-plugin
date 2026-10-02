@@ -72,7 +72,7 @@ The generated file contains every option at its default plus a `$schema` link. E
 | `--file-key`              | `-f`  | Figma file key (required unless `--input`)                                        |
 | `--input`                 | `-i`  | Read a local tokens snapshot instead of the REST API; `-` reads stdin             |
 | `--output`                | `-o`  | Output file path, or directory when splitting (required unless `--stdout`)        |
-| `--stdout`                |       | Print tokens JSON to stdout; mutually exclusive with `--output` and split flags\* |
+| `--stdout`                |       | Print tokens JSON to stdout; mutually exclusive with `--output` and split options |
 | `--config`                | `-c`  | Path to a JSON config file (see below)                                            |
 | `--split-by-collection`   | `-s`  | One `{Collection}.tokens.json` file per collection in the output dir              |
 | `--split-by-mode`         | `-m`  | One `{Collection}/{Mode}.tokens.json` file per mode                               |
@@ -90,8 +90,6 @@ Precedence: explicit CLI flags > `FIGMA_*` env vars > config file > defaults.
 ```bash
 figma-dump-tokens | npx tokens-bruecke --input - --stdout --quiet > tokens.json
 ```
-
-\* Only the `--split-*` flags are checked. Keep `splitByCollection` / `splitByMode` off in a config used with `--stdout`, or the CLI prints an internal map of files instead of the tokens.
 
 Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY` env vars. Passing `--api-key`, `--oauth-token` or `--file-key` explicitly alongside `--input` is an error. Every other flag (`--config`, `--split-by-collection`, `--split-by-mode`, `--omit-collection-names`, `--stdout`) works identically in both modes, and the output has the same shape. One difference: REST mode drops collections hidden from publishing and deleted-but-referenced variables; snapshot mode exports whatever is in the snapshot.
 
@@ -156,7 +154,7 @@ Rules that matter:
 
 Optional JSON file passed via `--config`. Schema: [schemas/cli-options.schema.json](../../schemas/cli-options.schema.json). Example: [examples/cli-options.json](../../examples/cli-options.json).
 
-Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded; setting it replaces the whole default object, so give every included type a `customName` or its group is named `"undefined"`), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData` (adds `$extensions.figma` with `variableId`, `codeSyntax` and the collection to variable tokens), `usePercentageOpacity`, `expandEasingPresets` (default `true`, expands Figma's named easing presets into `cubicBezier` values), `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`.
+Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded; each type is merged with its default, so `{ "text": { "isIncluded": true } }` keeps the default group name), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData` (adds `$extensions.figma` with `variableId`, `codeSyntax` and the collection to variable tokens), `usePercentageOpacity`, `expandEasingPresets` (default `true`, expands Figma's named easing presets into `cubicBezier` values), `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`.
 
 ## Output
 

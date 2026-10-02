@@ -12,7 +12,7 @@
     },
     "includedStyles": {
       "type": "object",
-      "description": "Which Figma styles to include in the export, and the token group name for each. Setting this replaces the whole default object (the config is merged one level deep), so give every included style type a customName.",
+      "description": "Which Figma styles to include in the export, and the token group name for each. Each style type is merged with its default, so only the fields you set change.",
       "additionalProperties": false,
       "properties": {
         "text": { "$ref": "#/definitions/styleInclusion" },
@@ -105,7 +105,7 @@
         },
         "customName": {
           "type": "string",
-          "description": "Token group name used for this style type in the output. Set it whenever isIncluded is true: without it the group is exported under the key \"undefined\"."
+          "description": "Token group name used for this style type in the output. Defaults to Typography-styles, Effect-styles, Grid-styles or Color-styles."
         }
       }
     }
