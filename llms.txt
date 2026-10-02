@@ -7,6 +7,7 @@ Set up a config file: `npx tokens-bruecke init` (asks 4 questions; `init -y` wri
 Quick CLI usage:
 `npx tokens-bruecke --api-key "$FIGMA_TOKEN" --file-key <FILE_KEY> --output tokens.json`
 or pipe-friendly: `npx tokens-bruecke -a "$FIGMA_TOKEN" -f <FILE_KEY> --stdout --quiet`
+Add `--omit-created-at` when the tokens are committed to git: the export timestamp is left out and REST data is sorted by name, so an unchanged file exports to identical output.
 
 No REST API / no Enterprise plan — transform a snapshot dumped from the Figma Plugin API:
 `npx tokens-bruecke --input snapshot.json --output tokens.json` (use `--input -` to read stdin)

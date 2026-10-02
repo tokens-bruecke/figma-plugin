@@ -35,6 +35,9 @@ npx tokens-bruecke --file-key <FILE_KEY> --output tokens.json
 
 # Print JSON to stdout instead (progress logs go to stderr):
 npx tokens-bruecke -f <FILE_KEY> --stdout --quiet | jq .
+
+# Tokens committed to git: an unchanged file exports to identical output
+npx tokens-bruecke -f <FILE_KEY> --output tokens.json --omit-created-at
 ```
 
 ```bash
@@ -77,6 +80,7 @@ The generated file contains every option at its default plus a `$schema` link. E
 | `--split-by-collection`   | `-s`  | One `{Collection}.tokens.json` file per collection in the output dir              |
 | `--split-by-mode`         | `-m`  | One `{Collection}/{Mode}.tokens.json` file per mode                               |
 | `--omit-collection-names` |       | Merge all tokens into a single namespace (drop collection groups)                 |
+| `--omit-created-at`       |       | Leave the `createdAt` timestamp out of the metadata, for reproducible output      |
 | `--quiet`                 | `-q`  | Suppress progress logs (errors still printed to stderr)                           |
 | `init` (subcommand)       |       | Create a config file; pass `-y` in non-interactive contexts                       |
 | `--help` / `--version`    | `-h`  | Usage / version                                                                   |
