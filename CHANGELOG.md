@@ -1,3 +1,9 @@
+## [3.13.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.13.0...v3.13.1) (2026-10-02)
+
+### Bug Fixes
+
+- **cli:** read FONT_STYLE on number variables as FONT_WEIGHT ([#96](https://github.com/tokens-bruecke/figma-plugin/issues/96)) ([18a260d](https://github.com/tokens-bruecke/figma-plugin/commit/18a260d9dcd8725b32d58b4f1ee7c9964f9e1c87))
+
 ## [3.13.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.12.2...v3.13.0) (2026-10-02)
 
 ### Features
