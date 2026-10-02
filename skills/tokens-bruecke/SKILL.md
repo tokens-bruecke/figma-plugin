@@ -57,27 +57,29 @@ npx tokens-bruecke init -y            # tokens-bruecke.config.json with defaults
 npx tokens-bruecke init -y -p cfg.json --force
 ```
 
-`init` also detects a non-TTY stdin and skips the prompts automatically, so it will not hang in a pipeline — but passing `-y` makes the intent explicit. Options: `-y/--yes`, `--force` (overwrite an existing file), `-p/--path`.
+`init` only prompts when both stdin and stdout are terminals, so it will not hang in a pipeline — but passing `-y` makes the intent explicit. Options: `-y/--yes`, `--force` (overwrite an existing file; without it an existing file exits `1`), `-p/--path`.
+
+The export never loads `tokens-bruecke.config.json` on its own: always pass it with `-c`.
 
 The generated file contains every option at its default plus a `$schema` link. Editing that file directly is usually faster than re-running `init`.
 
 ## Flags
 
-| Flag                      | Alias | Description                                                                     |
-| ------------------------- | ----- | ------------------------------------------------------------------------------- |
-| `--api-key`               | `-a`  | Figma personal access token (one of api-key/oauth-token required)               |
-| `--oauth-token`           | `-t`  | Figma OAuth token                                                               |
-| `--file-key`              | `-f`  | Figma file key (required unless `--input`)                                      |
-| `--input`                 | `-i`  | Read a local tokens snapshot instead of the REST API; `-` reads stdin           |
-| `--output`                | `-o`  | Output file path, or directory when splitting (required unless `--stdout`)      |
-| `--stdout`                |       | Print tokens JSON to stdout; mutually exclusive with `--output` and split flags |
-| `--config`                | `-c`  | Path to a JSON config file (see below)                                          |
-| `--split-by-collection`   | `-s`  | One `{Collection}.tokens.json` file per collection in the output dir            |
-| `--split-by-mode`         | `-m`  | One `{Collection}/{Mode}.tokens.json` file per mode                             |
-| `--omit-collection-names` |       | Merge all tokens into a single namespace (drop collection groups)               |
-| `--quiet`                 | `-q`  | Suppress progress logs (errors still printed to stderr)                         |
-| `init` (subcommand)       |       | Create a config file; pass `-y` in non-interactive contexts                     |
-| `--help` / `--version`    | `-h`  | Usage / version                                                                 |
+| Flag                      | Alias | Description                                                                       |
+| ------------------------- | ----- | --------------------------------------------------------------------------------- |
+| `--api-key`               | `-a`  | Figma personal access token (one of api-key/oauth-token required)                 |
+| `--oauth-token`           | `-t`  | Figma OAuth token                                                                 |
+| `--file-key`              | `-f`  | Figma file key (required unless `--input`)                                        |
+| `--input`                 | `-i`  | Read a local tokens snapshot instead of the REST API; `-` reads stdin             |
+| `--output`                | `-o`  | Output file path, or directory when splitting (required unless `--stdout`)        |
+| `--stdout`                |       | Print tokens JSON to stdout; mutually exclusive with `--output` and split flags\* |
+| `--config`                | `-c`  | Path to a JSON config file (see below)                                            |
+| `--split-by-collection`   | `-s`  | One `{Collection}.tokens.json` file per collection in the output dir              |
+| `--split-by-mode`         | `-m`  | One `{Collection}/{Mode}.tokens.json` file per mode                               |
+| `--omit-collection-names` |       | Merge all tokens into a single namespace (drop collection groups)                 |
+| `--quiet`                 | `-q`  | Suppress progress logs (errors still printed to stderr)                           |
+| `init` (subcommand)       |       | Create a config file; pass `-y` in non-interactive contexts                       |
+| `--help` / `--version`    | `-h`  | Usage / version                                                                   |
 
 Precedence: explicit CLI flags > `FIGMA_*` env vars > config file > defaults.
 
@@ -89,7 +91,9 @@ Precedence: explicit CLI flags > `FIGMA_*` env vars > config file > defaults.
 figma-dump-tokens | npx tokens-bruecke --input - --stdout --quiet > tokens.json
 ```
 
-Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY` env vars. Passing `--api-key`, `--oauth-token` or `--file-key` explicitly alongside `--input` is an error. Every other flag (`--config`, `--split-by-collection`, `--split-by-mode`, `--omit-collection-names`, `--stdout`) works identically in both modes, and the output is byte-for-byte the same shape.
+\* Only the `--split-*` flags are checked. Keep `splitByCollection` / `splitByMode` off in a config used with `--stdout`, or the CLI prints an internal map of files instead of the tokens.
+
+Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY` env vars. Passing `--api-key`, `--oauth-token` or `--file-key` explicitly alongside `--input` is an error. Every other flag (`--config`, `--split-by-collection`, `--split-by-mode`, `--omit-collection-names`, `--stdout`) works identically in both modes, and the output has the same shape. One difference: REST mode drops collections hidden from publishing and deleted-but-referenced variables; snapshot mode exports whatever is in the snapshot.
 
 ### Snapshot shape
 
@@ -142,17 +146,17 @@ Rules that matter:
 
 - `variables` and `variableCollections` are **required**; the four style arrays are optional and only read when the matching `includedStyles.*.isIncluded` config flag is on.
 - `valuesByMode` is keyed by **`modeId`**, not by mode name. Mode names come from the collection's `modes` array.
-- Aliases are `{ "type": "VARIABLE_ALIAS", "id": "<variable id>" }`. The target variable must be present in the snapshot, otherwise the value exports as `"#missing#"` — the same behaviour as the REST resolver. Library (remote) variables are not resolvable today; include them in `variables` if you need them aliased.
-- Color aliases with their own opacity (Figma "Control opacity at scale") are `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` on current runtimes, or `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }` on older Figma Desktop builds. Pass either through verbatim; they export as `{ "components": "{path.to.color}", "alpha": 0.5 }` (or a reference in `alpha`), and import back as `{ color, opacity }` (falling back to the expression where only that is accepted).
+- Aliases are `{ "type": "VARIABLE_ALIAS", "id": "<variable id>" }`. The target variable must be present in the snapshot, otherwise the value exports as `"#missing#"` — the same behaviour as the REST resolver. Leave remote (library) variables and collections out of the snapshot, except a library variable that a local alias points at: add that one to `variables` to keep the alias resolvable.
+- Color aliases with their own opacity (Figma "Control opacity at scale") are `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` on current runtimes, or `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }` on older Figma Desktop builds. Pass either through verbatim. With an aliased base color they export as `{ "components": "{path.to.color}", "alpha": 0.5 }` (a reference in `alpha` when the opacity is aliased, `"50%"` with `usePercentageOpacity`). With a literal base color and an aliased opacity, the color is written in the configured `colorMode` with the opacity reference in its `alpha` (or `a`). They import back as `{ color, opacity }` (falling back to the expression where only that is accepted).
 - `collection.variableIds` preserves Figma's Variables-panel ordering in the output. Without it, output order follows the `variables` array.
+- Extended collections ("Extend a variable collection") need `isExtension`, `parentVariableCollectionId`, `variableOverrides` (`{ variableId: { modeId: value } }`), `modes[].parentModeId` and `variableIds` copied from the Plugin API. Their variables belong to the root collection, so `variableIds` is the only list of what an extension contains: drop it and the extension exports as an empty group, with no error.
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them — not 0..255 and not hex.
-- Filter out remote (library) variables and collections, matching what the REST resolver does.
 
 ## Config file
 
 Optional JSON file passed via `--config`. Schema: [schemas/cli-options.schema.json](../../schemas/cli-options.schema.json). Example: [examples/cli-options.json](../../examples/cli-options.json).
 
-Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData`, `usePercentageOpacity`, `expandEasingPresets` (default `true`, expands Figma's named easing presets into `cubicBezier` values), `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`.
+Key options (all optional): `includedStyles` (include text/effects/grids/colors styles, default all excluded; setting it replaces the whole default object, so give every included type a `customName` or its group is named `"undefined"`), `useDTCG` (default `true`, DTCG 2025.10 `$`-keys), `colorMode` (`hex` default; also `rgba-object`, `rgba-css`, `srgb-dtcg`, `hsla-object`, `hsla-css`, `hsl-dtcg`, `oklch-dtcg`), `includeScopes`, `includeFigmaMetaData` (adds `$extensions.figma` with `variableId`, `codeSyntax` and the collection to variable tokens), `usePercentageOpacity`, `expandEasingPresets` (default `true`, expands Figma's named easing presets into `cubicBezier` values), `storeStyleInCollection`, `splitByCollection`, `splitByMode`, `omitCollectionNames`.
 
 ## Output
 
@@ -160,11 +164,13 @@ Key options (all optional): `includedStyles` (include text/effects/grids/colors 
 - `--split-by-collection`: `{output}/{Collection}.tokens.json` per collection.
 - `--split-by-mode`: `{output}/{Collection}/{Mode}.tokens.json` (unsafe filename chars replaced with `-`).
 - `--stdout`: pure JSON on stdout; all logs on stderr, safe to pipe.
+- Every file gets a top-level `$extensions["tokens-bruecke-meta"]` block with a `createdAt` timestamp, so two runs on the same input are not byte-identical.
 - Format is DTCG only. To convert to CSS/platform outputs, feed the JSON to Style Dictionary or Terrazzo.
 
 ## Errors & exit codes
 
-- Exit `0` on success, `1` on any failure (bad config file, API error, write error).
+- Exit `0` on success, `1` on any failure (bad config file, API error, write error, `init` on an existing file without `--force`).
+- Exit `130` when the `init` prompts are cancelled (`Ctrl+C` / `Esc`); nothing is written.
 - `403` → Enterprise plan or `file_variables:read` scope missing.
 - `404` → wrong `--file-key` or the token has no access to the file.
 - Validation errors (missing/conflicting flags) are printed by yargs with usage help.

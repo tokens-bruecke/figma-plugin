@@ -62,7 +62,11 @@
             "required": ["modeId", "name"],
             "properties": {
               "modeId": { "type": "string" },
-              "name": { "type": "string" }
+              "name": { "type": "string" },
+              "parentModeId": {
+                "type": "string",
+                "description": "Extended collections only: the parent collection's mode this mode inherits from. When missing, the mode is matched by name, then by position."
+              }
             }
           }
         },
@@ -72,8 +76,28 @@
         },
         "variableIds": {
           "type": "array",
-          "description": "Variable ids in the order shown in Figma's Variables panel. Preserves token ordering in the output; without it, output order follows the variables array.",
+          "description": "Variable ids in the order shown in Figma's Variables panel. Preserves token ordering in the output; without it, output order follows the variables array. Required for extended collections: it is the only thing that lists their variables (which belong to the root collection), so an extension without it exports empty.",
           "items": { "type": "string" }
+        },
+        "isExtension": {
+          "type": "boolean",
+          "description": "true for a collection made with \"Extend a variable collection\". Exported as its own collection, with the parent's values plus its overrides."
+        },
+        "parentVariableCollectionId": {
+          "type": "string",
+          "description": "Extended collections only: id of the collection this one extends. The parent must be in the snapshot."
+        },
+        "rootVariableCollectionId": {
+          "type": "string",
+          "description": "Extended collections only: id of the collection at the top of the chain, which owns the variables."
+        },
+        "variableOverrides": {
+          "type": "object",
+          "description": "Extended collections only: values this collection overrides, as { variableId: { modeId: value } }. Copy it verbatim from the Plugin API.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/definitions/variableValue" }
+          }
         }
       }
     },
@@ -109,7 +133,7 @@
         },
         "scopes": {
           "type": "array",
-          "description": "Figma variable scopes. Emitted in $extensions when includeScopes is enabled, and used to refine FLOAT tokens (e.g. FONT_WEIGHT, OPACITY). Defaults to an empty array when omitted.",
+          "description": "Figma variable scopes. Emitted when includeScopes is enabled, and used to refine FLOAT and STRING tokens: FONT_WEIGHT as the only scope gives fontWeight; scopes that are all OPACITY or COLOR_OPACITY give an opacity number. Defaults to an empty array when omitted.",
           "default": [],
           "items": { "type": "string" }
         },
@@ -118,10 +142,13 @@
           "description": "Per-platform code syntax (WEB, ANDROID, iOS). Emitted when includeFigmaMetaData is enabled.",
           "additionalProperties": { "type": "string" }
         },
-        "hiddenFromPublishing": { "type": "boolean" },
+        "hiddenFromPublishing": {
+          "type": "boolean",
+          "description": "Not filtered in snapshot mode (REST mode drops collections hidden from publishing). Leave such variables out of the snapshot if you don't want them exported."
+        },
         "remote": {
           "type": "boolean",
-          "description": "Should be false — remote (library) variables are expected to be filtered out of the snapshot."
+          "description": "Should be false. Remote (library) variables are not resolved; aliases to them export as \"#missing#\" unless the variable is also in the snapshot."
         }
       }
     },
@@ -132,6 +159,7 @@
         { "$ref": "#/definitions/composedColorObject" },
         { "$ref": "#/definitions/composedColor" },
         { "$ref": "#/definitions/rgba" },
+        { "$ref": "#/definitions/motionEasing" },
         { "type": "number" },
         { "type": "string" },
         { "type": "boolean" }
@@ -168,7 +196,7 @@
     },
     "composedColor": {
       "type": "object",
-      "description": "A color variable that aliases another color and applies its own opacity on top (Figma \"Control opacity at scale\", September 2026), as the Plugin API returns it. The first argument is the base color (alias or rgba), the second the opacity in percent (0..100) or an alias to a number variable. Exports as `{ components: \"{color.brand}\", alpha: 0.5 }` — see README, \"Color aliases with opacity\".",
+      "description": "A color variable that aliases another color and applies its own opacity on top (Figma \"Control opacity at scale\", September 2026), as older Figma Desktop builds (126.x) returned it; current runtimes return composedColorObject. The first argument is the base color (alias or rgba), the second the opacity in percent (0..100) or an alias to a number variable. Exports as `{ components: \"{color.brand}\", alpha: 0.5 }` — see README, \"Color aliases with opacity\".",
       "required": ["type", "expressionFunction", "expressionArguments"],
       "properties": {
         "type": { "const": "VARIABLE_EXPRESSION" },
@@ -181,16 +209,81 @@
             {
               "oneOf": [
                 { "$ref": "#/definitions/variableAlias" },
-                { "$ref": "#/definitions/rgba" }
+                { "$ref": "#/definitions/rgba" },
+                {
+                  "type": "object",
+                  "description": "The same argument wrapped as VariableData, as the typings describe it.",
+                  "required": ["value"],
+                  "properties": {
+                    "value": {
+                      "oneOf": [
+                        { "$ref": "#/definitions/variableAlias" },
+                        { "$ref": "#/definitions/rgba" }
+                      ]
+                    }
+                  }
+                }
               ]
             },
             {
               "oneOf": [
                 { "$ref": "#/definitions/variableAlias" },
-                { "type": "number", "minimum": 0, "maximum": 100 }
+                { "type": "number", "minimum": 0, "maximum": 100 },
+                {
+                  "type": "object",
+                  "description": "The same argument wrapped as VariableData, as the typings describe it.",
+                  "required": ["value"],
+                  "properties": {
+                    "value": {
+                      "oneOf": [
+                        { "$ref": "#/definitions/variableAlias" },
+                        { "type": "number", "minimum": 0, "maximum": 100 }
+                      ]
+                    }
+                  }
+                }
               ]
             }
           ]
+        }
+      }
+    },
+    "motionEasing": {
+      "type": "object",
+      "description": "EASING variable value, as the Plugin API returns it. Exports as a cubicBezier or a preset name, see README, \"Motion variables\".",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": [
+            "EASE_IN",
+            "EASE_OUT",
+            "EASE_IN_AND_OUT",
+            "LINEAR",
+            "EASE_IN_BACK",
+            "EASE_OUT_BACK",
+            "EASE_IN_AND_OUT_BACK",
+            "CUSTOM_CUBIC_BEZIER",
+            "GENTLE",
+            "QUICK",
+            "BOUNCY",
+            "SLOW",
+            "CUSTOM_SPRING",
+            "HOLD"
+          ]
+        },
+        "easingFunctionCubicBezier": {
+          "type": "object",
+          "required": ["x1", "y1", "x2", "y2"],
+          "properties": {
+            "x1": { "type": "number" },
+            "y1": { "type": "number" },
+            "x2": { "type": "number" },
+            "y2": { "type": "number" }
+          }
+        },
+        "easingFunctionSpring": {
+          "type": "object",
+          "properties": { "bounce": { "type": "number" } }
         }
       }
     },
