@@ -1,3 +1,9 @@
+## [3.14.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.0...v3.14.1) (2026-10-02)
+
+### Bug Fixes
+
+- **import:** scale RGBA object colors from 0-255 to 0-1 ([1592922](https://github.com/tokens-bruecke/figma-plugin/commit/1592922779b6456996aa8b98b3488b2eb41bbe45))
+
 ## [3.14.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.13.1...v3.14.0) (2026-10-02)
 
 ### Features
