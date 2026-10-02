@@ -1,3 +1,9 @@
+## [3.15.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.15.0...v3.15.1) (2026-10-02)
+
+### Bug Fixes
+
+- **analytics:** send GoatCounter events to the tokens-bruecke site ([af40e2c](https://github.com/tokens-bruecke/figma-plugin/commit/af40e2ce77dccb91b561cb5b8a6de00a0cc33b7a))
+
 ## [3.15.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.2...v3.15.0) (2026-10-02)
 
 ### Features
