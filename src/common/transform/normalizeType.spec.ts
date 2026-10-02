@@ -17,16 +17,10 @@ describe('opacity scopes', () => {
     expect(normalizeType('FLOAT', ['OPACITY'], true)).toBe('string');
   });
   test('COLOR_OPACITY (opacity of a color variable)', () => {
-    expect(normalizeType('FLOAT', ['COLOR_OPACITY' as VariableScope])).toBe(
-      'number'
+    expect(normalizeType('FLOAT', ['COLOR_OPACITY'])).toBe('number');
+    expect(normalizeType('FLOAT', ['OPACITY', 'COLOR_OPACITY'], true)).toBe(
+      'string'
     );
-    expect(
-      normalizeType(
-        'FLOAT',
-        ['OPACITY', 'COLOR_OPACITY' as VariableScope],
-        true
-      )
-    ).toBe('string');
   });
   test('mixed with other scopes stays a dimension', () => {
     expect(normalizeType('FLOAT', ['OPACITY', 'GAP'])).toBe('dimension');

@@ -389,7 +389,7 @@ export const SettingsView = (props: ViewProps) => {
             message: result.message,
             ...(result.composedColorsRejected > 0 && {
               link: {
-                label: 'Figma issue #375: composed colors are read-only',
+                label: 'Figma issue #375: update Figma to import these',
                 url: COMPOSED_COLOR_ISSUE_URL,
               },
             }),

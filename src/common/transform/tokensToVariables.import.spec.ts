@@ -269,7 +269,7 @@ describe('tokensToVariables with composed colors', () => {
     expect(result.composedColorsRejected).toBe(3);
     expect(result.errors).toHaveLength(3);
     expect(result.errors[0]).toMatch(
-      /^Skipped .*shadow.*: this Figma version cannot write color aliases with a separate opacity \(Composed color variable values are not supported\)\. See https:\/\/github\.com\/figma\/plugin-typings\/issues\/375$/
+      /^Skipped .*shadow.*: this Figma version cannot write color aliases with a separate opacity \(Composed color variable values are not supported\)\. Update Figma to the latest version and import again\. See https:\/\/github\.com\/figma\/plugin-typings\/issues\/375$/
     );
     expect(result.success).toBe(true);
     expect(result.message).toMatch(/3 value\(s\) skipped/);
