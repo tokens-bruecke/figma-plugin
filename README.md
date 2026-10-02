@@ -1,4 +1,4 @@
-# TokensBruecke — Figma plugin
+# TokensBruecke — Figma plugin and CLI
 
 <a href="https://www.figma.com/community/plugin/1254538877056388290" target="_blank">
 <img src="./readme-assets/preview.webp" alt="preview" width="100%">
@@ -6,7 +6,7 @@
 
 ## What is this plugin for?
 
-The plugin converts Figma variables into design-tokens JSON that are compatible with the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/).
+TokensBruecke exports Figma variables and styles as design tokens JSON compatible with the [DTCG 2025.10 specification](https://www.designtokens.org/tr/2025.10/format/), and imports tokens back into Figma variables. Use it as a Figma plugin, or as a [CLI](#use-as-cli-tool) in CI and agent workflows.
 
 ---
 
