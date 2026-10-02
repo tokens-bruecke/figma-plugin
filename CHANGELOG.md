@@ -1,3 +1,9 @@
+## [3.14.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.13.1...v3.14.0) (2026-10-02)
+
+### Features
+
+- **color:** import color aliases with opacity now that Figma allows it ([c225d06](https://github.com/tokens-bruecke/figma-plugin/commit/c225d062727d1ab991322df68c3ff0e8d13b98b2)), closes [figma/plugin-typings#375](https://github.com/figma/plugin-typings/issues/375)
+
 ## [3.13.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.13.0...v3.13.1) (2026-10-02)
 
 ### Bug Fixes
