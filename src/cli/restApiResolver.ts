@@ -9,6 +9,20 @@ import { IResolver } from '@common/resolver';
 import { Api } from 'figma-api';
 import { log } from './logger';
 
+/**
+ * The REST API reports the scope of a number variable that is set to "Font
+ * weight" as `FONT_STYLE`, where the Plugin API reports `FONT_WEIGHT`.
+ * `FONT_STYLE` is only a valid scope for string variables, so on a number it
+ * can only be a font weight. Without this, the weights are exported as
+ * dimensions (`700px`) instead of `fontWeight` numbers.
+ */
+const normalizeScopes = (variable: LocalVariable): LocalVariable['scopes'] =>
+  variable.resolvedType === 'FLOAT'
+    ? variable.scopes.map((scope) =>
+        scope === 'FONT_STYLE' ? 'FONT_WEIGHT' : scope
+      )
+    : variable.scopes;
+
 export class RestAPIResolver implements IResolver {
   private fileKey: string;
   private api: Api;
@@ -45,10 +59,15 @@ export class RestAPIResolver implements IResolver {
           .then((response) => {
             const { variables, variableCollections } = response.meta;
             this.variables = Object.fromEntries(
-              Object.entries(variables).filter(
-                ([_, variable]: [string, LocalVariable]) =>
-                  !variable.remote && !variable.deletedButReferenced // exlude deleted variables https://forum.figma.com/ask-the-community-7/rest-api-variables-35406?tid=35406&fid=7
-              )
+              Object.entries(variables)
+                .filter(
+                  ([_, variable]: [string, LocalVariable]) =>
+                    !variable.remote && !variable.deletedButReferenced // exclude deleted variables https://forum.figma.com/ask-the-community-7/rest-api-variables-35406?tid=35406&fid=7
+                )
+                .map(([id, variable]: [string, LocalVariable]) => [
+                  id,
+                  { ...variable, scopes: normalizeScopes(variable) },
+                ])
             ) as Record<string, Variable>;
             this.variableCollections = Object.fromEntries(
               Object.entries(variableCollections).filter(
