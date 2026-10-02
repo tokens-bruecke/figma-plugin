@@ -1,3 +1,9 @@
+## [3.15.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.2...v3.15.0) (2026-10-02)
+
+### Features
+
+- **export:** make export deterministic ([#98](https://github.com/tokens-bruecke/figma-plugin/issues/98)) ([3c0bcf4](https://github.com/tokens-bruecke/figma-plugin/commit/3c0bcf4d98c6f6ea22af335c6af498316d743f86))
+
 ## [3.14.2](https://github.com/tokens-bruecke/figma-plugin/compare/v3.14.1...v3.14.2) (2026-10-02)
 
 ### Bug Fixes
