@@ -34,7 +34,8 @@
     ".": "./bin/cli.js",
     "./api": {
       "types": "./api.d.ts",
-      "default": "./bin/api.js"
+      "import": "./bin/api.mjs",
+      "require": "./bin/api.js"
     },
     "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"

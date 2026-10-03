@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 
-module.exports = {
+const cjs = {
   mode: 'production', // Use production mode for optimized output
   target: 'node', // Target Node.js environment
   entry: {
@@ -53,3 +53,22 @@ module.exports = {
     }),
   ],
 };
+
+// The API is also built as an ES module: Node cannot see the named exports of
+// webpack's CommonJS output, so `import { fetchTokens } from 'tokens-bruecke/api'`
+// needs a real ESM file.
+const esm = {
+  ...cjs,
+  entry: { api: './src/api/index.ts' },
+  output: {
+    filename: '[name].mjs',
+    path: path.resolve(__dirname, 'bin'),
+    module: true,
+    chunkFormat: 'module',
+    library: { type: 'module' },
+  },
+  experiments: { outputModule: true },
+  plugins: [],
+};
+
+module.exports = [cjs, esm];
