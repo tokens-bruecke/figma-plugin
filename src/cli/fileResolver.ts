@@ -1,5 +1,5 @@
 import { IResolver } from '@common/resolver';
-import { log } from './logger';
+import { log as defaultLog, type LogFn } from './logger';
 
 /**
  * A snapshot of a Figma file's local variables and styles, using the raw
@@ -40,6 +40,17 @@ export const parseSnapshot = (raw: string, source: string): TokensSnapshotI => {
     throw new Error(`${source} is not valid JSON: ${error?.message ?? error}`);
   }
 
+  return validateSnapshot(parsed, source);
+};
+
+/**
+ * Validate an already parsed snapshot. `parseSnapshot` is this plus the
+ * JSON parsing; the programmatic API calls it directly.
+ */
+export const validateSnapshot = (
+  parsed: unknown,
+  source: string
+): TokensSnapshotI => {
   if (!isPlainObject(parsed)) {
     throw new Error(
       `${source} must be a JSON object with "variables" and "variableCollections" keys`
@@ -102,7 +113,7 @@ export class FileResolver implements IResolver {
   private variableCollections: Map<string, VariableCollection>;
   private snapshot: TokensSnapshotI;
 
-  constructor(snapshot: TokensSnapshotI) {
+  constructor(snapshot: TokensSnapshotI, log: LogFn = defaultLog) {
     this.snapshot = snapshot;
     this.variables = new Map(
       snapshot.variables.map((variable) => [

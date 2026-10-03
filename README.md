@@ -42,6 +42,7 @@ TokensBruecke exports Figma variables and styles as design tokens JSON compatibl
     - [CLI Configuration File](#cli-configuration-file)
     - [For AI agents](#for-ai-agents)
       - [Agentic usage without the REST API](#agentic-usage-without-the-rest-api)
+  - [Use as a library](#use-as-a-library)
   - [Push to server](#push-to-server)
     - [JSONBin](#jsonbin)
     - [GitHub](#github)
@@ -732,6 +733,34 @@ On a bad snapshot the CLI exits `1` and names the offending key — for example 
 
 > [!NOTE]
 > Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array.
+
+---
+
+## Use as a library
+
+The converter is also available as a module, for build pipelines that want tokens in the same process: no child process, no files on disk, and the token is passed as an argument instead of an environment variable.
+
+```ts
+import { fetchTokens, convertTokens } from 'tokens-bruecke/api';
+import type { ExportOptions, TokensSnapshot } from 'tokens-bruecke/api';
+
+// 1. Fetch from the Figma REST API
+const tokens = await fetchTokens({
+  fileKey: 'abc123',
+  personalAccessToken: myToken, // or oauthToken
+  options: { colorMode: 'hex', splitByMode: true },
+});
+
+// 2. Convert data you already have
+const fromSnapshot = await convertTokens(snapshot, { splitByCollection: true });
+const fromRest = await convertTokens(restResponse); // GET /v1/files/:key/variables/local
+```
+
+- **`options`** takes the same fields as the [CLI configuration file](#cli-configuration-file) and the same defaults, so the API and the CLI give identical output for the same settings.
+- **Result:** one DTCG token tree when nothing is split. With `splitByCollection` it is keyed by collection name, and with `splitByMode` by `collection/mode`. These keys are the file paths the CLI writes, minus `.tokens.json`.
+- **`convertTokens`** accepts a [snapshot](#snapshot-input), or the raw response of the Figma REST variables endpoint (detected by its `meta` key). That response has no styles, so style options have no effect on it.
+- **No side effects:** the API does not write files, read environment variables, log or exit the process.
+- **Errors** are `TokensBrueckeError`s with a `code` (`INVALID_ARGUMENT`, `INVALID_SNAPSHOT`, `FIGMA_FORBIDDEN`, `FIGMA_NOT_FOUND`, `FIGMA_RATE_LIMITED`, `FIGMA_REQUEST_FAILED`, `CONVERSION_FAILED`) and the original error as `cause`. `FIGMA_FORBIDDEN` usually means the file is not on an Enterprise plan, or the token lacks the `file_variables:read` scope.
 
 ---
 

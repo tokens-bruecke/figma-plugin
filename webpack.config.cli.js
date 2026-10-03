@@ -4,9 +4,12 @@ const webpack = require('webpack');
 module.exports = {
   mode: 'production', // Use production mode for optimized output
   target: 'node', // Target Node.js environment
-  entry: './src/cli.ts', // Entry point for the CLI
+  entry: {
+    cli: './src/cli.ts', // Entry point for the CLI
+    api: './src/api/index.ts', // Entry point for `tokens-bruecke/api`
+  },
   output: {
-    filename: 'cli.js', // Output filename
+    filename: '[name].js', // Output filename
     path: path.resolve(__dirname, 'bin'), // Output directory
     libraryTarget: 'commonjs2', // Use CommonJS module format
   },
@@ -46,6 +49,7 @@ module.exports = {
       banner: '#!/usr/bin/env node',
       raw: true,
       entryOnly: true,
+      include: /^cli\.js$/, // the API bundle is a library, not a script
     }),
   ],
 };

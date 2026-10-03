@@ -6,7 +6,7 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["src/cli/**/*.ts", "src/common/**/*.ts", "**/*.d.ts"],
+  "include": ["src/api/**/*.ts", "src/cli/**/*.ts", "src/common/**/*.ts", "**/*.d.ts"],
   "exclude": ["src/app/**"],
   "files": ["src/cli.ts"]
 }
