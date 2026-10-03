@@ -56,8 +56,10 @@ export interface ExportOptions {
  * - keyed by collection name with `splitByCollection`
  * - keyed by `collection/mode` with `splitByMode`
  *
- * The split keys are the file paths the CLI writes, minus the
- * `.tokens.json` extension.
+ * Each split tree is bare: the CLI writes a file as `{ [collection]: tree }`,
+ * and aliases inside the tree are qualified with the collection name. Keys
+ * keep the raw Figma names, which can contain `/`, so splitting a
+ * `collection/mode` key is only safe for simple names.
  */
 export type TokenTree = Record<string, any>;
 
