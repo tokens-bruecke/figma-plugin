@@ -1,7 +1,10 @@
 /// <reference path="../../global.d.ts" />
 
 import { getTokens } from '@common/export';
-import { RestAPIResolver, restVariablesToSnapshot } from '../cli/restApiResolver';
+import {
+  RestAPIResolver,
+  restVariablesToSnapshot,
+} from '../cli/restApiResolver';
 import { FileResolver, validateSnapshot } from '../cli/fileResolver';
 import { resolveExportOptions } from '../cli/options';
 import { silentLog } from '../cli/logger';
@@ -24,6 +27,24 @@ export type {
   TokensBrueckeErrorCode,
   TokensSnapshot,
 } from '../../api';
+
+// `ExportOptions` is written by hand in api.d.ts. Fails to compile when a field
+// is added to or removed from the export settings without updating it.
+type MissingFromExportOptions = Exclude<
+  keyof ExportSettingsI,
+  keyof ExportOptions
+>;
+type UnknownInExportOptions = Exclude<
+  keyof ExportOptions,
+  keyof ExportSettingsI
+>;
+const exportOptionsMatchSettings: [
+  MissingFromExportOptions,
+  UnknownInExportOptions
+] extends [never, never]
+  ? true
+  : false = true;
+void exportOptionsMatchSettings;
 
 export class TokensBrueckeError extends Error {
   readonly code: TokensBrueckeErrorCode;
@@ -48,10 +69,19 @@ const messageOf = (error: any): string => error?.message ?? String(error);
 const isPlainObject = (value: unknown): value is Record<string, any> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
+// figma-api uses axios, so a failed request carries `isAxiosError` (also for
+// network errors, which have no `response`) or a `response` with a status.
+const isRequestError = (error: any): boolean =>
+  Boolean(error?.isAxiosError || error?.response || error?.status);
+
+const toConversionError = (error: any): TokensBrueckeError =>
+  new TokensBrueckeError(
+    'CONVERSION_FAILED',
+    `Error transforming tokens: ${messageOf(error)}`,
+    { cause: error }
+  );
+
 const toFigmaError = (error: any): TokensBrueckeError => {
-  if (error instanceof TokensBrueckeError) {
-    return error;
-  }
   const status: number | undefined = error?.response?.status ?? error?.status;
   const detail = messageOf(error);
 
@@ -109,7 +139,12 @@ export async function fetchTokens({
   try {
     return await getTokens(resolver, resolveExportOptions(options, {}));
   } catch (error) {
-    throw toFigmaError(error);
+    if (error instanceof TokensBrueckeError) {
+      throw error;
+    }
+    throw isRequestError(error)
+      ? toFigmaError(error)
+      : toConversionError(error);
   }
 }
 
@@ -117,9 +152,28 @@ export async function convertTokens(
   input: TokensSnapshot | LocalVariablesResponse,
   options: ExportOptions = {}
 ): Promise<TokenTree> {
+  const settings = resolveExportOptions(options, {});
+  const isRestResponse = isPlainObject(input) && 'meta' in input;
+
+  // The REST variables response has no styles. Exporting it with styles
+  // enabled would give empty style groups, so fail instead.
+  if (isRestResponse) {
+    const enabledStyles = Object.entries(settings.includedStyles)
+      .filter(([, style]) => style.isIncluded)
+      .map(([styleType]) => styleType);
+    if (enabledStyles.length > 0) {
+      throw new TokensBrueckeError(
+        'INVALID_ARGUMENT',
+        `The REST variables response has no styles, but includedStyles enables ${enabledStyles.join(
+          ', '
+        )}. Turn these off, or use fetchTokens or a snapshot that contains styles.`
+      );
+    }
+  }
+
   let resolver: FileResolver;
   try {
-    const snapshot = isPlainObject(input) && 'meta' in input
+    const snapshot = isRestResponse
       ? restVariablesToSnapshot(validateRestResponse(input))
       : input;
     resolver = new FileResolver(
@@ -133,13 +187,9 @@ export async function convertTokens(
   }
 
   try {
-    return await getTokens(resolver, resolveExportOptions(options, {}));
+    return await getTokens(resolver, settings);
   } catch (error) {
-    throw new TokensBrueckeError(
-      'CONVERSION_FAILED',
-      `Error transforming tokens: ${messageOf(error)}`,
-      { cause: error }
-    );
+    throw toConversionError(error);
   }
 }
 

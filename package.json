@@ -37,7 +37,12 @@
       "import": "./bin/api.mjs",
       "require": "./bin/api.js"
     },
+    "./bin/*": "./bin/*",
     "./schemas/*": "./schemas/*",
+    "./skills/*": "./skills/*",
+    "./examples/*": "./examples/*",
+    "./llms.txt": "./llms.txt",
+    "./manifest.json": "./manifest.json",
     "./package.json": "./package.json"
   },
   "files": [

@@ -89,7 +89,7 @@ export interface TokensSnapshot {
 
 /**
  * The response of `GET /v1/files/:key/variables/local`. It holds no styles,
- * so style options have no effect on it.
+ * so converting it with any `includedStyles` enabled throws `INVALID_ARGUMENT`.
  */
 export interface LocalVariablesResponse {
   meta: {
@@ -109,7 +109,10 @@ export interface FetchTokensParams {
 }
 
 export type TokensBrueckeErrorCode =
-  /** A required argument is missing, e.g. the file key or the token. */
+  /**
+   * A required argument is missing (e.g. the file key or the token), or styles
+   * are enabled for a REST variables response, which has none.
+   */
   | 'INVALID_ARGUMENT'
   /** The snapshot or REST response does not have the expected shape. */
   | 'INVALID_SNAPSHOT'

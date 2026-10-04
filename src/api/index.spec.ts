@@ -162,6 +162,25 @@ describe('convertTokens', () => {
     expect(error.cause).toBeInstanceOf(Error);
   });
 
+  it('rejects styles for a REST response, which has none', async () => {
+    const error = await convertTokens(toRestResponse(example), {
+      includedStyles: {
+        colors: { isIncluded: true },
+        text: { isIncluded: true },
+      },
+    }).catch((e) => e);
+    expect(error).toBeInstanceOf(TokensBrueckeError);
+    expect(error.code).toBe('INVALID_ARGUMENT');
+    expect(error.message).toMatch(/text, colors|colors, text/);
+  });
+
+  it('still converts styles from a snapshot', async () => {
+    const tokens = await convertTokens(example, {
+      includedStyles: { colors: { isIncluded: true } },
+    });
+    expect(tokens).toHaveProperty('Color-styles');
+  });
+
   it('rejects a REST response without variables', async () => {
     const error = await convertTokens({ meta: {} } as any).catch((e) => e);
     expect(error.code).toBe('INVALID_SNAPSHOT');
@@ -198,24 +217,53 @@ describe('fetchTokens', () => {
     expect(noToken.code).toBe('INVALID_ARGUMENT');
   });
 
+  it('reports a network error without a status as FIGMA_REQUEST_FAILED', async () => {
+    const original = Object.assign(new Error('socket hang up'), {
+      isAxiosError: true,
+    });
+    getLocalVariables.mockRejectedValue(original);
+
+    const error = await fetchTokens({ fileKey: 'abc', oauthToken: 't' }).catch(
+      (e) => e
+    );
+
+    expect(error.code).toBe('FIGMA_REQUEST_FAILED');
+    expect(error.cause).toBe(original);
+  });
+
+  it('reports a failure after a successful request as CONVERSION_FAILED', async () => {
+    getLocalVariables.mockResolvedValue({ meta: null });
+
+    const error = await fetchTokens({ fileKey: 'abc', oauthToken: 't' }).catch(
+      (e) => e
+    );
+
+    expect(error).toBeInstanceOf(TokensBrueckeError);
+    expect(error.code).toBe('CONVERSION_FAILED');
+    expect(error.cause).toBeInstanceOf(TypeError);
+  });
+
   it.each([
     [403, 'FIGMA_FORBIDDEN'],
     [404, 'FIGMA_NOT_FOUND'],
     [429, 'FIGMA_RATE_LIMITED'],
     [500, 'FIGMA_REQUEST_FAILED'],
-  ])('maps HTTP %i to %s and keeps the original error', async (status, code) => {
-    const original = Object.assign(new Error('failed'), {
-      response: { status },
-    });
-    getLocalVariables.mockRejectedValue(original);
+  ])(
+    'maps HTTP %i to %s and keeps the original error',
+    async (status, code) => {
+      const original = Object.assign(new Error('failed'), {
+        response: { status },
+      });
+      getLocalVariables.mockRejectedValue(original);
 
-    const error = await fetchTokens({
-      fileKey: 'abc',
-      oauthToken: 'token',
-    }).catch((e) => e);
+      const error = await fetchTokens({
+        fileKey: 'abc',
+        oauthToken: 'token',
+      }).catch((e) => e);
 
-    expect(error).toBeInstanceOf(TokensBrueckeError);
-    expect(error.code).toBe(code);
-    expect(error.cause).toBe(original);
-  });
+      expect(error).toBeInstanceOf(TokensBrueckeError);
+      expect(error.code).toBe(code);
+      expect(error.cause).toBe(original);
+    }
+  );
 });
