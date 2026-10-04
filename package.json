@@ -30,8 +30,24 @@
   "bin": {
     "tokens-bruecke": "bin/cli.js"
   },
+  "exports": {
+    ".": "./bin/cli.js",
+    "./api": {
+      "types": "./api.d.ts",
+      "import": "./bin/api.mjs",
+      "require": "./bin/api.js"
+    },
+    "./bin/*": "./bin/*",
+    "./schemas/*": "./schemas/*",
+    "./skills/*": "./skills/*",
+    "./examples/*": "./examples/*",
+    "./llms.txt": "./llms.txt",
+    "./manifest.json": "./manifest.json",
+    "./package.json": "./package.json"
+  },
   "files": [
     "bin",
+    "api.d.ts",
     "schemas",
     "skills",
     "examples/cli-options.json",

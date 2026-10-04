@@ -7,7 +7,7 @@ type LocalVariableCollection = {
 };
 import { IResolver } from '@common/resolver';
 import { Api } from 'figma-api';
-import { log } from './logger';
+import { log as defaultLog, type LogFn } from './logger';
 
 /**
  * The REST API does not return variables, collections, the `variableIds` of
@@ -33,10 +33,83 @@ const byNameThenId = (
  */
 const normalizeScopes = (variable: LocalVariable): LocalVariable['scopes'] =>
   variable.resolvedType === 'FLOAT'
-    ? variable.scopes.map((scope) =>
+    ? (variable.scopes ?? []).map((scope) =>
         scope === 'FONT_STYLE' ? 'FONT_WEIGHT' : scope
       )
-    : variable.scopes;
+    : variable.scopes ?? [];
+
+/**
+ * The `meta` of a `GET /v1/files/:key/variables/local` response.
+ */
+export interface LocalVariablesMeta {
+  variables: Record<string, LocalVariable>;
+  variableCollections: Record<string, LocalVariableCollection>;
+}
+
+/**
+ * Drops what the file does not own (library variables and collections, hidden
+ * collections, deleted variables) and maps the REST scopes to the Plugin API
+ * ones, so the REST response looks like the local variables of the file.
+ */
+export const normalizeLocalVariables = ({
+  variables,
+  variableCollections,
+}: LocalVariablesMeta): {
+  variables: Record<string, Variable>;
+  variableCollections: Record<string, VariableCollection>;
+} => ({
+  variables: Object.fromEntries(
+    Object.entries(variables)
+      .filter(
+        ([_, variable]: [string, LocalVariable]) =>
+          !variable.remote && !variable.deletedButReferenced // exclude deleted variables https://forum.figma.com/ask-the-community-7/rest-api-variables-35406?tid=35406&fid=7
+      )
+      .map(([id, variable]: [string, LocalVariable]) => [
+        id,
+        { ...variable, scopes: normalizeScopes(variable) },
+      ])
+  ) as Record<string, Variable>,
+  variableCollections: Object.fromEntries(
+    Object.entries(variableCollections).filter(
+      ([_, collection]: [string, LocalVariableCollection]) =>
+        !collection.remote && !collection.hiddenFromPublishing
+    )
+  ) as Record<string, VariableCollection>,
+});
+
+/**
+ * Sorts the collections, and the `variableIds` inside them, by name.
+ */
+export const sortCollections = (
+  collections: VariableCollection[],
+  variables: Record<string, Variable>
+): VariableCollection[] =>
+  [...collections].sort(byNameThenId).map((collection) => ({
+    ...collection,
+    variableIds: [...(collection.variableIds ?? [])].sort((a, b) =>
+      byNameThenId(
+        variables[a] ?? { name: '', id: a },
+        variables[b] ?? { name: '', id: b }
+      )
+    ),
+  }));
+
+/**
+ * Turns a REST variables response into a snapshot, with the same filtering
+ * and order as `RestAPIResolver`. Styles are not part of that response.
+ */
+export const restVariablesToSnapshot = (
+  meta: LocalVariablesMeta
+): { variables: Variable[]; variableCollections: VariableCollection[] } => {
+  const { variables, variableCollections } = normalizeLocalVariables(meta);
+  return {
+    variables: Object.values(variables).sort(byNameThenId),
+    variableCollections: sortCollections(
+      Object.values(variableCollections),
+      variables
+    ),
+  };
+};
 
 export class RestAPIResolver implements IResolver {
   private fileKey: string;
@@ -44,14 +117,17 @@ export class RestAPIResolver implements IResolver {
   private variables: Record<string, Variable>;
   private variableCollections: Record<string, VariableCollection>;
   private styles: any[];
+  private log: LogFn;
 
   private fetchLocalVariablesPromise: Promise<void> | null = null;
 
   constructor(
     fileKey: string,
     personalAccessToken?: string,
-    oAuthToken?: string
+    oAuthToken?: string,
+    log: LogFn = defaultLog
   ) {
+    this.log = log;
     this.fileKey = fileKey;
     if (oAuthToken) {
       this.api = new Api({ oAuthToken });
@@ -68,29 +144,16 @@ export class RestAPIResolver implements IResolver {
   async fetchLocalVariables(): Promise<void> {
     if (!this.variables) {
       if (!this.fetchLocalVariablesPromise) {
-        log('⌛ Fetching local variables');
+        this.log('⌛ Fetching local variables');
         this.fetchLocalVariablesPromise = this.api
           .getLocalVariables({ file_key: this.fileKey })
           .then((response) => {
-            const { variables, variableCollections } = response.meta;
-            this.variables = Object.fromEntries(
-              Object.entries(variables)
-                .filter(
-                  ([_, variable]: [string, LocalVariable]) =>
-                    !variable.remote && !variable.deletedButReferenced // exclude deleted variables https://forum.figma.com/ask-the-community-7/rest-api-variables-35406?tid=35406&fid=7
-                )
-                .map(([id, variable]: [string, LocalVariable]) => [
-                  id,
-                  { ...variable, scopes: normalizeScopes(variable) },
-                ])
-            ) as Record<string, Variable>;
-            this.variableCollections = Object.fromEntries(
-              Object.entries(variableCollections).filter(
-                ([_, collection]: [string, LocalVariableCollection]) =>
-                  !collection.remote && !collection.hiddenFromPublishing
-              )
-            ) as Record<string, VariableCollection>;
-            log(
+            const { variables, variableCollections } = normalizeLocalVariables(
+              response.meta as LocalVariablesMeta
+            );
+            this.variables = variables;
+            this.variableCollections = variableCollections;
+            this.log(
               '✅ Found %d local variables in %d collections',
               Object.keys(this.variables).length,
               Object.keys(this.variableCollections).length
@@ -107,7 +170,7 @@ export class RestAPIResolver implements IResolver {
   async fetchFileStyles(): Promise<void> {
     if (this.styles.length === 0) {
       // Fetch file styles only if they are not already fetched
-      log('⌛ Fetching file styles');
+      this.log('⌛ Fetching file styles');
       const styles = await this.api.getFileStyles({
         file_key: this.fileKey,
       });
@@ -117,7 +180,7 @@ export class RestAPIResolver implements IResolver {
 
   async getLocalEffectStyles(): Promise<EffectStyle[]> {
     await this.fetchFileStyles();
-    log('⌛ Fetching effect styles');
+    this.log('⌛ Fetching effect styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'EFFECT')
       .map((style) => style.node_id);
@@ -129,23 +192,16 @@ export class RestAPIResolver implements IResolver {
       .map((node) => node.document as unknown as RectangleNode)
       .map(this.rectangleNodeToEffectStyle)
       .sort(byNameThenId);
-    log('✅ Found %d effect styles', effectStyles.length);
+    this.log('✅ Found %d effect styles', effectStyles.length);
     return effectStyles;
   }
 
   async getLocalVariableCollections(): Promise<VariableCollection[]> {
     await this.fetchLocalVariables();
-    return Object.values(this.variableCollections)
-      .sort(byNameThenId)
-      .map((collection) => ({
-        ...collection,
-        variableIds: [...(collection.variableIds ?? [])].sort((a, b) =>
-          byNameThenId(
-            this.variables[a] ?? { name: '', id: a },
-            this.variables[b] ?? { name: '', id: b }
-          )
-        ),
-      }));
+    return sortCollections(
+      Object.values(this.variableCollections),
+      this.variables
+    );
   }
 
   async getLocalVariables(): Promise<Variable[]> {
@@ -155,7 +211,7 @@ export class RestAPIResolver implements IResolver {
 
   async getLocalGridStyles(): Promise<GridStyle[]> {
     await this.fetchFileStyles();
-    log('⌛ Fetching grid styles');
+    this.log('⌛ Fetching grid styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'GRID')
       .map((style) => style.node_id);
@@ -167,13 +223,13 @@ export class RestAPIResolver implements IResolver {
       .map((node) => node.document as unknown as FrameNode)
       .map(this.frameNodeToGrid)
       .sort(byNameThenId);
-    log('✅ Found %d grid styles', gridStyles.length);
+    this.log('✅ Found %d grid styles', gridStyles.length);
     return gridStyles;
   }
 
   async getLocalTextStyles(): Promise<TextStyle[]> {
     await this.fetchFileStyles();
-    log('⌛ Fetching text styles');
+    this.log('⌛ Fetching text styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'TEXT')
       .map((style) => style.node_id);
@@ -185,13 +241,13 @@ export class RestAPIResolver implements IResolver {
       .map((node) => node.document as TextNode)
       .map(this.textNodeToStyle)
       .sort(byNameThenId);
-    log('✅ Found %d text styles', textStyles.length);
+    this.log('✅ Found %d text styles', textStyles.length);
     return textStyles;
   }
 
   async getLocalPaintStyles(): Promise<PaintStyle[]> {
     await this.fetchFileStyles();
-    log('⌛ Fetching paint styles');
+    this.log('⌛ Fetching paint styles');
     const ids = this.styles
       .filter((style) => style.style_type === 'FILL')
       .map((style) => style.node_id);
@@ -203,7 +259,7 @@ export class RestAPIResolver implements IResolver {
       .map((node) => node.document as unknown as RectangleNode)
       .map(this.rectangleNodeToPaint)
       .sort(byNameThenId);
-    log('✅ Found %d paint styles', paintStyles.length);
+    this.log('✅ Found %d paint styles', paintStyles.length);
     return paintStyles;
   }
 
