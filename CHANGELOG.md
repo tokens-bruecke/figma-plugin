@@ -1,3 +1,13 @@
+## [3.16.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.15.1...v3.16.0) (2026-10-04)
+
+### Features
+
+- **api:** expose the converter as tokens-bruecke/api ([25c340b](https://github.com/tokens-bruecke/figma-plugin/commit/25c340b78c583291bd71c41464a4d0db0012fb9e)), closes [#97](https://github.com/tokens-bruecke/figma-plugin/issues/97)
+
+### Bug Fixes
+
+- **api:** reject styles for REST input and keep deep imports working ([1aacac9](https://github.com/tokens-bruecke/figma-plugin/commit/1aacac9895ed62b813b80eb83fa285353670de05))
+
 ## [3.15.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.15.0...v3.15.1) (2026-10-02)
 
 ### Bug Fixes
