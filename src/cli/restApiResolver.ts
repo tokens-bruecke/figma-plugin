@@ -305,6 +305,17 @@ export class RestAPIResolver implements IResolver {
   }
 
   textNodeToStyle(node: TextNode): TextStyle {
+    // The REST API lists the variables bound to a text field as an array
+    // (`fontSize: [{ id }]`), the plugin API as a single alias (`fontSize: { id }`).
+    const boundVariables = Object.fromEntries(
+      Object.entries(node.boundVariables ?? {})
+        .map(([field, alias]) => [
+          field,
+          Array.isArray(alias) ? alias[0] : alias,
+        ])
+        .filter(([, alias]) => alias)
+    );
+
     return {
       type: 'TEXT',
       id: node.id,
@@ -313,7 +324,7 @@ export class RestAPIResolver implements IResolver {
       name: node.name,
       documentationLinks: [],
       consumers: [],
-      boundVariables: node.boundVariables,
+      boundVariables,
       fontName: {
         family: node.style.fontFamily,
         style: node.style.fontStyle,

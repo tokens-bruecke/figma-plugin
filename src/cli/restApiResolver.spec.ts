@@ -37,6 +37,42 @@ describe('rectangleNodeToPaint', () => {
   });
 });
 
+const toText = (node: any) =>
+  RestAPIResolver.prototype.textNodeToStyle.call(null, node) as any;
+
+describe('textNodeToStyle', () => {
+  const style = {
+    fontFamily: 'Roboto',
+    fontStyle: 'Regular',
+    fontWeight: 400,
+    fontSize: 16,
+    letterSpacing: 0,
+    lineHeightUnit: 'PIXELS',
+    lineHeightPx: 20,
+  };
+
+  it('turns the REST bound variable arrays into single aliases', () => {
+    const result = toText({
+      id: '1:2',
+      name: 'Body',
+      style,
+      boundVariables: {
+        fontSize: [{ type: 'VARIABLE_ALIAS', id: 'VariableID:3:4' }],
+        fontFamily: [{ type: 'VARIABLE_ALIAS', id: 'VariableID:3:5' }],
+      },
+    });
+
+    expect(result.boundVariables.fontSize.id).toBe('VariableID:3:4');
+    expect(result.boundVariables.fontFamily.id).toBe('VariableID:3:5');
+  });
+
+  it('tolerates a node without bound variables', () => {
+    expect(toText({ id: '1:2', name: 'Body', style }).boundVariables).toEqual(
+      {}
+    );
+  });
+});
+
 const resolverWith = (
   variables: Record<string, any>,
   variableCollections: Record<string, any> = {}
