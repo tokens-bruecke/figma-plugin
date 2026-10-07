@@ -40,9 +40,10 @@ const wrapShadowObject = async (
     blur:
       (await getAlias('blur')) ||
       makeDimension(shadowEffect.radius, isDTCGFormat),
+    // The REST API leaves out a spread of 0
     spread:
       (await getAlias('spread')) ||
-      makeDimension(shadowEffect.spread, isDTCGFormat),
+      makeDimension(shadowEffect.spread ?? 0, isDTCGFormat),
   };
 };
 

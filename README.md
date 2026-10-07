@@ -967,9 +967,17 @@ The plugin supports solid colors and gradients (linear, radial, angular, diamond
       "color": "#eae9e8",
       "position": 1
     }
-  ]
+  ],
+  "$extensions": {
+    "gradient": {
+      "type": "linear",
+      "angle": 180
+    }
+  }
 }
 ```
+
+DTCG has no direction or type for a gradient, only the stops, so they are exported in `$extensions.gradient`. `type` is `linear`, `radial`, `angular` or `diamond`. `angle` is only there for a linear gradient, in CSS degrees: `0` is to the top, `90` to the right and `180` to the bottom. It is taken from the handles of the gradient, which are relative to the layer, so it is exact for a gradient along an axis and an approximation for a diagonal one on a layer that is not square.
 
 ### Grids
 
