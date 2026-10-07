@@ -324,11 +324,12 @@ export class RestAPIResolver implements IResolver {
     // (`fontSize: [{ id }]`), the plugin API as a single alias (`fontSize: { id }`).
     const boundVariables = Object.fromEntries(
       Object.entries(node.boundVariables ?? {})
+        .filter(([field]) => TEXT_STYLE_FIELDS.has(field))
         .map(([field, alias]) => [
           field,
           Array.isArray(alias) ? alias[0] : alias,
         ])
-        .filter(([field, alias]) => TEXT_STYLE_FIELDS.has(field) && alias)
+        .filter(([, alias]) => alias)
     );
 
     return {
