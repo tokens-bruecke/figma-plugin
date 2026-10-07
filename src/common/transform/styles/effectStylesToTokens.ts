@@ -8,7 +8,7 @@ import { IResolver } from '@common/resolver';
 const wrapShadowObject = async (
   shadowEffect: DropShadowEffect | InnerShadowEffect,
   colorMode: colorModeType,
-  isDTCGForamt: boolean,
+  isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
@@ -18,7 +18,7 @@ const wrapShadowObject = async (
     if (effectBoundVariables && effectBoundVariables[key]) {
       return await getAliasVariableName(
         effectBoundVariables[key].id,
-        isDTCGForamt,
+        isDTCGFormat,
         includeValueStringKeyToAlias,
         resolver
       );
@@ -33,27 +33,27 @@ const wrapShadowObject = async (
       (await getAlias('color')) || convertRGBA(shadowEffect.color, colorMode),
     offsetX:
       (await getAlias('offsetX')) ||
-      makeDimension(shadowEffect.offset.x, isDTCGForamt),
+      makeDimension(shadowEffect.offset.x, isDTCGFormat),
     offsetY:
       (await getAlias('offsetY')) ||
-      makeDimension(shadowEffect.offset.y, isDTCGForamt),
+      makeDimension(shadowEffect.offset.y, isDTCGFormat),
     blur:
       (await getAlias('blur')) ||
-      makeDimension(shadowEffect.radius, isDTCGForamt),
+      makeDimension(shadowEffect.radius, isDTCGFormat),
     spread:
       (await getAlias('spread')) ||
-      makeDimension(shadowEffect.spread, isDTCGForamt),
+      makeDimension(shadowEffect.spread, isDTCGFormat),
   };
 };
 
 export const effectStylesToTokens = async (
   customName: string,
   colorMode: colorModeType,
-  isDTCGForamt: boolean,
+  isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
-  const keyNames = getTokenKeyName(isDTCGForamt);
+  const keyNames = getTokenKeyName(isDTCGFormat);
   const effectStyles = await resolver.getLocalEffectStyles();
 
   let effectTokens = {};
@@ -72,7 +72,7 @@ export const effectStylesToTokens = async (
             wrapShadowObject(
               effect as DropShadowEffect | InnerShadowEffect,
               colorMode,
-              isDTCGForamt,
+              isDTCGFormat,
               includeValueStringKeyToAlias,
               resolver
             )
@@ -90,7 +90,7 @@ export const effectStylesToTokens = async (
       if (aliasRef) {
         aliasVariable = await getAliasVariableName(
           aliasRef.id,
-          isDTCGForamt,
+          isDTCGFormat,
           includeValueStringKeyToAlias,
           resolver
         );
@@ -100,7 +100,7 @@ export const effectStylesToTokens = async (
         $type: 'blur',
         $value: {
           role: effectType === 'LAYER_BLUR' ? 'layer' : 'background',
-          blur: aliasVariable || makeDimension(effect.radius, isDTCGForamt),
+          blur: aliasVariable || makeDimension(effect.radius, isDTCGFormat),
         },
       } as BlurTokenI;
       allEffectStyles[styleName] = styleObject;
