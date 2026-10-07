@@ -66,6 +66,20 @@ describe('textNodeToStyle', () => {
     expect(result.boundVariables.fontFamily.id).toBe('VariableID:3:5');
   });
 
+  it('leaves out bound variables that are not part of a text style', () => {
+    const result = toText({
+      id: '1:2',
+      name: 'Body',
+      style,
+      boundVariables: {
+        fontSize: [{ type: 'VARIABLE_ALIAS', id: 'VariableID:3:4' }],
+        fills: [{ type: 'VARIABLE_ALIAS', id: 'VariableID:3:6' }],
+      },
+    });
+
+    expect(Object.keys(result.boundVariables)).toEqual(['fontSize']);
+  });
+
   it('tolerates a node without bound variables', () => {
     expect(toText({ id: '1:2', name: 'Body', style }).boundVariables).toEqual(
       {}

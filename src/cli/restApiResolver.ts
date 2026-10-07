@@ -25,6 +25,21 @@ const byNameThenId = (
 };
 
 /**
+ * The fields a text style can bind to a variable. A REST text node can also
+ * bind fields that are not part of the style, such as `fills`.
+ */
+const TEXT_STYLE_FIELDS = new Set<string>([
+  'fontFamily',
+  'fontSize',
+  'fontStyle',
+  'fontWeight',
+  'letterSpacing',
+  'lineHeight',
+  'paragraphSpacing',
+  'paragraphIndent',
+] satisfies VariableBindableTextField[]);
+
+/**
  * The REST API reports the scope of a number variable that is set to "Font
  * weight" as `FONT_STYLE`, where the Plugin API reports `FONT_WEIGHT`.
  * `FONT_STYLE` is only a valid scope for string variables, so on a number it
@@ -313,7 +328,7 @@ export class RestAPIResolver implements IResolver {
           field,
           Array.isArray(alias) ? alias[0] : alias,
         ])
-        .filter(([, alias]) => alias)
+        .filter(([field, alias]) => TEXT_STYLE_FIELDS.has(field) && alias)
     );
 
     return {
