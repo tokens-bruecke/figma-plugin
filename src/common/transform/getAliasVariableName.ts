@@ -3,7 +3,7 @@ import { IResolver } from '@common/resolver';
 
 export const getAliasVariableName = async (
   variableId: string,
-  isDTCGForamt: boolean,
+  isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver,
   omitCollectionNames = false
@@ -23,7 +23,7 @@ export const getAliasVariableName = async (
   const variableName = variableObj.name;
   const collectionName = collectionObj.name;
 
-  const valueKey = getTokenKeyName(isDTCGForamt).value;
+  const valueKey = getTokenKeyName(isDTCGFormat).value;
   const isValueKeyIncluded = includeValueStringKeyToAlias ? `.${valueKey}` : '';
 
   const variableParts = variableName.split('/');

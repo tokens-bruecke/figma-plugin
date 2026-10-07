@@ -10,11 +10,11 @@ import { IResolver } from '@common/resolver';
 
 export const textStylesToTokens = async (
   customName: string,
-  isDTCGForamt: boolean,
+  isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
-  const keyNames = getTokenKeyName(isDTCGForamt);
+  const keyNames = getTokenKeyName(isDTCGFormat);
   const textStyles = await resolver.getLocalTextStyles();
 
   let textTokens = {};
@@ -33,7 +33,7 @@ export const textStylesToTokens = async (
           ...aliasVariables,
           [key]: await getAliasVariableName(
             boundVariables[key].id,
-            isDTCGForamt,
+            isDTCGFormat,
             includeValueStringKeyToAlias,
             resolver
           ),
@@ -50,21 +50,21 @@ export const textStylesToTokens = async (
         fontStyle: aliasVariables.fontStyle || fontStyleWeight.style,
         fontSize:
           aliasVariables.fontSize ||
-          makeDimension(style.fontSize, isDTCGForamt),
+          makeDimension(style.fontSize, isDTCGFormat),
         lineHeight:
           aliasVariables.lineHeight ||
-          getLineHeight(style.lineHeight, isDTCGForamt),
+          getLineHeight(style.lineHeight, isDTCGFormat),
         letterSpacing:
           aliasVariables.letterSpacing ||
-          getLetterSpacing(style.letterSpacing, isDTCGForamt),
+          getLetterSpacing(style.letterSpacing, isDTCGFormat),
         paragraphSpacing:
           aliasVariables.paragraphSpacing ||
-          (isDTCGForamt
+          (isDTCGFormat
             ? makeDimension(style.paragraphSpacing, true)
             : `${style.paragraphSpacing}`),
         paragraphIndent:
           aliasVariables.paragraphIndent ||
-          (isDTCGForamt
+          (isDTCGFormat
             ? makeDimension(style.paragraphIndent, true)
             : `${style.paragraphIndent}`),
         textDecoration: style.textDecoration,

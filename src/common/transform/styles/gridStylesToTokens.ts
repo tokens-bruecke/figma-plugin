@@ -5,10 +5,10 @@ import { IResolver } from '@common/resolver';
 
 export const gridStylesToTokens = async (
   customName: string,
-  isDTCGForamt: boolean,
+  isDTCGFormat: boolean,
   resolver: IResolver
 ) => {
-  const keyNames = getTokenKeyName(isDTCGForamt);
+  const keyNames = getTokenKeyName(isDTCGFormat);
   const gridStyles = await resolver.getLocalGridStyles();
 
   // console.log("gridStyles", gridStyles);
@@ -27,23 +27,23 @@ export const gridStylesToTokens = async (
       [keyNames.value]: {
         columnCount: columnGrid?.count,
         columnGap: columnGrid?.gutterSize
-          ? makeDimension(columnGrid.gutterSize, isDTCGForamt)
+          ? makeDimension(columnGrid.gutterSize, isDTCGFormat)
           : undefined,
         columnWidth: columnGrid?.sectionSize
-          ? makeDimension(columnGrid.sectionSize, isDTCGForamt)
+          ? makeDimension(columnGrid.sectionSize, isDTCGFormat)
           : undefined,
         columnMargin: columnGrid?.offset
-          ? makeDimension(columnGrid.offset, isDTCGForamt)
+          ? makeDimension(columnGrid.offset, isDTCGFormat)
           : undefined,
         rowCount: rowGrid?.count,
         rowGap: rowGrid?.gutterSize
-          ? makeDimension(rowGrid.gutterSize, isDTCGForamt)
+          ? makeDimension(rowGrid.gutterSize, isDTCGFormat)
           : undefined,
         rowHeight: rowGrid?.sectionSize
-          ? makeDimension(rowGrid.sectionSize, isDTCGForamt)
+          ? makeDimension(rowGrid.sectionSize, isDTCGFormat)
           : undefined,
         rowMargin: rowGrid?.offset
-          ? makeDimension(rowGrid.offset, isDTCGForamt)
+          ? makeDimension(rowGrid.offset, isDTCGFormat)
           : undefined,
       },
     } as unknown as GridTokenI;

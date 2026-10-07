@@ -49,11 +49,11 @@ const convertGradientStopsToDTCG = async (
 export const colorStylesToTokens = async (
   customName: string,
   colorMode: colorModeType,
-  isDTCGForamt: boolean,
+  isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver
 ) => {
-  const keyNames = getTokenKeyName(isDTCGForamt);
+  const keyNames = getTokenKeyName(isDTCGFormat);
   const paintStyles = await resolver.getLocalPaintStyles();
 
   let colorTokens = {};
@@ -78,7 +78,7 @@ export const colorStylesToTokens = async (
       if (boundVariables?.paints && boundVariables.paints.length > 0) {
         aliasVariable = await getAliasVariableName(
           boundVariables.paints[0].id,
-          isDTCGForamt,
+          isDTCGFormat,
           includeValueStringKeyToAlias,
           resolver
         );
@@ -112,7 +112,7 @@ export const colorStylesToTokens = async (
       const gradientStops = await convertGradientStopsToDTCG(
         paint.gradientStops,
         colorMode,
-        isDTCGForamt,
+        isDTCGFormat,
         includeValueStringKeyToAlias,
         resolver
       );

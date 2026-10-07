@@ -31,7 +31,7 @@ export const pushToGitlab = async (
   const showError = (message: string) => {
     console.error('Gitlab error:', message);
     toastCallback({
-      title: 'Gitlab: An error occured',
+      title: 'Gitlab: An error occurred',
       message: `Error: ${message}`,
       options: {
         type: 'error',
