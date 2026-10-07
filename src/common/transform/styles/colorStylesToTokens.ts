@@ -1,5 +1,6 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
 import { convertRGBA } from '@common/transform/color/convertRGBA';
+import { getGradientGeometry } from '@common/transform/color/getGradientGeometry';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
 import { IResolver } from '@common/resolver';
@@ -117,9 +118,13 @@ export const colorStylesToTokens = async (
         resolver
       );
 
+      // DTCG has no direction or type for a gradient, only stops
+      const geometry = getGradientGeometry(paint);
+
       const styleObject = {
         [keyNames.type]: 'gradient',
         [keyNames.value]: gradientStops,
+        ...(geometry && { $extensions: { gradient: geometry } }),
       };
 
       allColorStyles[styleName] = styleObject;
