@@ -1,3 +1,15 @@
+## [3.17.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.16.0...v3.17.0) (2026-10-07)
+
+### Features
+
+- **export:** add the type and angle of gradient styles in `$extensions.gradient` ([#115](https://github.com/tokens-bruecke/figma-plugin/issues/115)) ([0677346](https://github.com/tokens-bruecke/figma-plugin/commit/0677346cc2d2ae84b25046d23e5b397f1534e5d9))
+
+### Bug Fixes
+
+- **cli:** export variable-bound text style fields from the REST API instead of `#missing#` ([#115](https://github.com/tokens-bruecke/figma-plugin/issues/115)) ([6ffc967](https://github.com/tokens-bruecke/figma-plugin/commit/6ffc967f36541098c729922c42ae7613b5f9f95a))
+- **cli:** default a shadow spread the REST API leaves out to 0 ([#115](https://github.com/tokens-bruecke/figma-plugin/issues/115)) ([7b79605](https://github.com/tokens-bruecke/figma-plugin/commit/7b796057ff10624a0a63b94be3ce18b26f4fdaaa))
+- **gitlab:** fix a typo in the error toast ([#114](https://github.com/tokens-bruecke/figma-plugin/issues/114)) ([ad0f63f](https://github.com/tokens-bruecke/figma-plugin/commit/ad0f63f35821518c0693346a991ae8fdc549a95c))
+
 ## [3.16.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.15.1...v3.16.0) (2026-10-04)
 
 ### Features
