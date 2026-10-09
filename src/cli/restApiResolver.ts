@@ -131,7 +131,7 @@ export class RestAPIResolver implements IResolver {
   private api: Api;
   private variables: Record<string, Variable>;
   private variableCollections: Record<string, VariableCollection>;
-  private styles: any[];
+  private styles: { nodeId: string; styleType: string }[];
   private log: LogFn;
 
   private fetchLocalVariablesPromise: Promise<void> | null = null;
@@ -183,37 +183,43 @@ export class RestAPIResolver implements IResolver {
     }
   }
 
+  /**
+   * Lists the file's own styles, published or not, which is the set the
+   * plugin exports with `getLocal*StylesAsync`. `GET /v1/files/:key/styles`
+   * is not used because it only lists styles published to a library, so it
+   * is empty for a branch (which can never publish) and misses unpublished
+   * styles. The `styles` map of `GET /v1/files/:key` has every style of the
+   * file, keyed by node id, plus the library styles it uses (`remote`).
+   * `depth=2` keeps the document tree small and still returns the full map;
+   * `depth=1` returns an empty one.
+   */
   async fetchFileStyles(): Promise<void> {
     if (!this.fetchFileStylesPromise) {
       this.log('⌛ Fetching file styles');
       this.fetchFileStylesPromise = this.api
-        .getFileStyles({ file_key: this.fileKey })
+        .getFile({ file_key: this.fileKey }, { depth: 2 })
         .then((response) => {
-          this.styles = response.meta.styles;
+          this.styles = Object.entries(response.styles ?? {})
+            .filter(([_, style]) => !style.remote)
+            .map(([nodeId, style]) => ({
+              nodeId,
+              styleType: style.styleType,
+            }));
         });
     }
     await this.fetchFileStylesPromise;
   }
 
-  /**
-   * `GET /v1/files/:key/styles` only lists styles published to a library, so
-   * a file that has not published a style type (or a branch, which can never
-   * publish) has no ids for it. `/nodes` rejects an empty `ids` with a 400,
-   * so it is skipped and the type exports nothing.
-   */
   private async fetchStyleNodes(
     styleType: 'FILL' | 'TEXT' | 'EFFECT' | 'GRID',
     label: string
   ): Promise<any[]> {
     await this.fetchFileStyles();
     const ids = this.styles
-      .filter((style) => style.style_type === styleType)
-      .map((style) => style.node_id);
+      .filter((style) => style.styleType === styleType)
+      .map((style) => style.nodeId);
+    // `/nodes` rejects an empty `ids` with a 400.
     if (ids.length === 0) {
-      this.log(
-        '⚠️  No published %s styles found. The REST API only lists styles published to a library, and a branch cannot publish.',
-        label
-      );
       return [];
     }
     this.log('⌛ Fetching %s styles', label);

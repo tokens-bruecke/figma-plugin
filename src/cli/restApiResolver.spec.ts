@@ -238,8 +238,8 @@ describe('style order', () => {
     });
 
     (resolver as any).api = {
-      getFileStyles: async () => ({
-        meta: { styles: [{ style_type: 'FILL', node_id: '1' }] },
+      getFile: async () => ({
+        styles: { '1:1': { styleType: 'FILL', remote: false } },
       }),
       getFileNodes: async () => ({
         nodes: {
@@ -258,15 +258,23 @@ describe('style order', () => {
   });
 });
 
-describe('styles without published ids', () => {
-  const resolverWithStyles = (styles: any[]) => {
+describe('file styles', () => {
+  const style = (styleType: string, remote = false) => ({
+    key: 'key',
+    name: 'name',
+    description: '',
+    styleType,
+    remote,
+  });
+
+  const resolverWithStyles = (styles: Record<string, any>) => {
     const resolver = new RestAPIResolver('file-key', 'token');
-    const calls = { styles: 0, nodes: [] as string[] };
+    const calls = { file: [] as any[], nodes: [] as string[] };
 
     (resolver as any).api = {
-      getFileStyles: async () => {
-        calls.styles++;
-        return { meta: { styles } };
+      getFile: async (_: unknown, query: any) => {
+        calls.file.push(query);
+        return { styles };
       },
       getFileNodes: async (_: unknown, { ids }: { ids: string }) => {
         if (!ids) {
@@ -287,30 +295,49 @@ describe('styles without published ids', () => {
     return { resolver, calls };
   };
 
-  it('returns no styles for a file without published styles, such as a branch', async () => {
-    const { resolver, calls } = resolverWithStyles([]);
+  it('reads the styles of the file itself, published or not', async () => {
+    const { resolver, calls } = resolverWithStyles({
+      '1:2': style('FILL'),
+      '1:3': style('FILL'),
+      '1:4': style('TEXT'),
+    });
+
+    expect((await resolver.getLocalPaintStyles()).map((s) => s.id)).toEqual([
+      '1:2',
+      '1:3',
+    ]);
+    expect(calls.nodes).toEqual(['1:2,1:3']);
+    expect(calls.file).toEqual([{ depth: 2 }]);
+  });
+
+  it('leaves out library styles the file uses', async () => {
+    const { resolver } = resolverWithStyles({
+      '1:2': style('FILL'),
+      '9:9': style('FILL', true),
+    });
+
+    expect((await resolver.getLocalPaintStyles()).map((s) => s.id)).toEqual([
+      '1:2',
+    ]);
+  });
+
+  it('returns no styles of a type the file has none of, without calling /nodes', async () => {
+    const { resolver, calls } = resolverWithStyles({ '1:2': style('FILL') });
 
     expect(await resolver.getLocalTextStyles()).toEqual([]);
-    expect(await resolver.getLocalPaintStyles()).toEqual([]);
     expect(await resolver.getLocalEffectStyles()).toEqual([]);
     expect(await resolver.getLocalGridStyles()).toEqual([]);
     expect(calls.nodes).toEqual([]);
   });
 
-  it('still exports the types that are published when another one is not', async () => {
-    const { resolver, calls } = resolverWithStyles([
-      { style_type: 'FILL', node_id: '1:1' },
-    ]);
+  it('tolerates a file response without a styles map', async () => {
+    const { resolver } = resolverWithStyles(undefined as any);
 
-    expect(await resolver.getLocalGridStyles()).toEqual([]);
-    expect((await resolver.getLocalPaintStyles()).map((s) => s.id)).toEqual([
-      '1:1',
-    ]);
-    expect(calls.nodes).toEqual(['1:1']);
+    expect(await resolver.getLocalPaintStyles()).toEqual([]);
   });
 
-  it('lists the styles once, even when none are published', async () => {
-    const { resolver, calls } = resolverWithStyles([]);
+  it('requests the file once for every style type', async () => {
+    const { resolver, calls } = resolverWithStyles({});
 
     await Promise.all([
       resolver.getLocalTextStyles(),
@@ -318,6 +345,6 @@ describe('styles without published ids', () => {
     ]);
     await resolver.getLocalPaintStyles();
 
-    expect(calls.styles).toBe(1);
+    expect(calls.file).toHaveLength(1);
   });
 });
