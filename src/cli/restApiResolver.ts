@@ -135,6 +135,7 @@ export class RestAPIResolver implements IResolver {
   private log: LogFn;
 
   private fetchLocalVariablesPromise: Promise<void> | null = null;
+  private fetchFileStylesPromise: Promise<void> | null = null;
 
   constructor(
     fileKey: string,
@@ -183,28 +184,49 @@ export class RestAPIResolver implements IResolver {
   }
 
   async fetchFileStyles(): Promise<void> {
-    if (this.styles.length === 0) {
-      // Fetch file styles only if they are not already fetched
+    if (!this.fetchFileStylesPromise) {
       this.log('⌛ Fetching file styles');
-      const styles = await this.api.getFileStyles({
-        file_key: this.fileKey,
-      });
-      this.styles = styles.meta.styles;
+      this.fetchFileStylesPromise = this.api
+        .getFileStyles({ file_key: this.fileKey })
+        .then((response) => {
+          this.styles = response.meta.styles;
+        });
     }
+    await this.fetchFileStylesPromise;
   }
 
-  async getLocalEffectStyles(): Promise<EffectStyle[]> {
+  /**
+   * `GET /v1/files/:key/styles` only lists styles published to a library, so
+   * a file that has not published a style type (or a branch, which can never
+   * publish) has no ids for it. `/nodes` rejects an empty `ids` with a 400,
+   * so it is skipped and the type exports nothing.
+   */
+  private async fetchStyleNodes(
+    styleType: 'FILL' | 'TEXT' | 'EFFECT' | 'GRID',
+    label: string
+  ): Promise<any[]> {
     await this.fetchFileStyles();
-    this.log('⌛ Fetching effect styles');
     const ids = this.styles
-      .filter((style) => style.style_type === 'EFFECT')
+      .filter((style) => style.style_type === styleType)
       .map((style) => style.node_id);
+    if (ids.length === 0) {
+      this.log(
+        '⚠️  No published %s styles found. The REST API only lists styles published to a library, and a branch cannot publish.',
+        label
+      );
+      return [];
+    }
+    this.log('⌛ Fetching %s styles', label);
     const r = await this.api.getFileNodes(
       { file_key: this.fileKey },
       { ids: ids.join(',') }
     );
-    const effectStyles = Object.values(r.nodes)
-      .map((node) => node.document as unknown as RectangleNode)
+    return Object.values(r.nodes).map((node) => node.document);
+  }
+
+  async getLocalEffectStyles(): Promise<EffectStyle[]> {
+    const effectStyles = (await this.fetchStyleNodes('EFFECT', 'effect'))
+      .map((node) => node as unknown as RectangleNode)
       .map(this.rectangleNodeToEffectStyle)
       .sort(byNameThenId);
     this.log('✅ Found %d effect styles', effectStyles.length);
@@ -225,17 +247,8 @@ export class RestAPIResolver implements IResolver {
   }
 
   async getLocalGridStyles(): Promise<GridStyle[]> {
-    await this.fetchFileStyles();
-    this.log('⌛ Fetching grid styles');
-    const ids = this.styles
-      .filter((style) => style.style_type === 'GRID')
-      .map((style) => style.node_id);
-    const r = await this.api.getFileNodes(
-      { file_key: this.fileKey },
-      { ids: ids.join(',') }
-    );
-    const gridStyles = Object.values(r.nodes)
-      .map((node) => node.document as unknown as FrameNode)
+    const gridStyles = (await this.fetchStyleNodes('GRID', 'grid'))
+      .map((node) => node as unknown as FrameNode)
       .map(this.frameNodeToGrid)
       .sort(byNameThenId);
     this.log('✅ Found %d grid styles', gridStyles.length);
@@ -243,17 +256,8 @@ export class RestAPIResolver implements IResolver {
   }
 
   async getLocalTextStyles(): Promise<TextStyle[]> {
-    await this.fetchFileStyles();
-    this.log('⌛ Fetching text styles');
-    const ids = this.styles
-      .filter((style) => style.style_type === 'TEXT')
-      .map((style) => style.node_id);
-    const r = await this.api.getFileNodes(
-      { file_key: this.fileKey },
-      { ids: ids.join(',') }
-    );
-    const textStyles = Object.values(r.nodes)
-      .map((node) => node.document as TextNode)
+    const textStyles = (await this.fetchStyleNodes('TEXT', 'text'))
+      .map((node) => node as TextNode)
       .map(this.textNodeToStyle)
       .sort(byNameThenId);
     this.log('✅ Found %d text styles', textStyles.length);
@@ -261,17 +265,8 @@ export class RestAPIResolver implements IResolver {
   }
 
   async getLocalPaintStyles(): Promise<PaintStyle[]> {
-    await this.fetchFileStyles();
-    this.log('⌛ Fetching paint styles');
-    const ids = this.styles
-      .filter((style) => style.style_type === 'FILL')
-      .map((style) => style.node_id);
-    const r = await this.api.getFileNodes(
-      { file_key: this.fileKey },
-      { ids: ids.join(',') }
-    );
-    const paintStyles = Object.values(r.nodes)
-      .map((node) => node.document as unknown as RectangleNode)
+    const paintStyles = (await this.fetchStyleNodes('FILL', 'paint'))
+      .map((node) => node as unknown as RectangleNode)
       .map(this.rectangleNodeToPaint)
       .sort(byNameThenId);
     this.log('✅ Found %d paint styles', paintStyles.length);

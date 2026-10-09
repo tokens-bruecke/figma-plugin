@@ -257,3 +257,67 @@ describe('style order', () => {
     ]);
   });
 });
+
+describe('styles without published ids', () => {
+  const resolverWithStyles = (styles: any[]) => {
+    const resolver = new RestAPIResolver('file-key', 'token');
+    const calls = { styles: 0, nodes: [] as string[] };
+
+    (resolver as any).api = {
+      getFileStyles: async () => {
+        calls.styles++;
+        return { meta: { styles } };
+      },
+      getFileNodes: async (_: unknown, { ids }: { ids: string }) => {
+        if (!ids) {
+          throw new Error('Request failed with status code 400');
+        }
+        calls.nodes.push(ids);
+        return {
+          nodes: Object.fromEntries(
+            ids.split(',').map((id) => [
+              id,
+              { document: { id, name: `style/${id}`, fills: [] } },
+            ])
+          ),
+        };
+      },
+    };
+
+    return { resolver, calls };
+  };
+
+  it('returns no styles for a file without published styles, such as a branch', async () => {
+    const { resolver, calls } = resolverWithStyles([]);
+
+    expect(await resolver.getLocalTextStyles()).toEqual([]);
+    expect(await resolver.getLocalPaintStyles()).toEqual([]);
+    expect(await resolver.getLocalEffectStyles()).toEqual([]);
+    expect(await resolver.getLocalGridStyles()).toEqual([]);
+    expect(calls.nodes).toEqual([]);
+  });
+
+  it('still exports the types that are published when another one is not', async () => {
+    const { resolver, calls } = resolverWithStyles([
+      { style_type: 'FILL', node_id: '1:1' },
+    ]);
+
+    expect(await resolver.getLocalGridStyles()).toEqual([]);
+    expect((await resolver.getLocalPaintStyles()).map((s) => s.id)).toEqual([
+      '1:1',
+    ]);
+    expect(calls.nodes).toEqual(['1:1']);
+  });
+
+  it('lists the styles once, even when none are published', async () => {
+    const { resolver, calls } = resolverWithStyles([]);
+
+    await Promise.all([
+      resolver.getLocalTextStyles(),
+      resolver.getLocalGridStyles(),
+    ]);
+    await resolver.getLocalPaintStyles();
+
+    expect(calls.styles).toBe(1);
+  });
+});
