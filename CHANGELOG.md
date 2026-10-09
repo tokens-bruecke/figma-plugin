@@ -1,3 +1,9 @@
+## [3.17.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.17.0...v3.17.1) (2026-10-09)
+
+### Bug Fixes
+
+- **cli:** skip /nodes for style types with no published styles instead of failing with a 400 ([#117](https://github.com/tokens-bruecke/figma-plugin/issues/117), [#119](https://github.com/tokens-bruecke/figma-plugin/issues/119)) ([32dd4d4](https://github.com/tokens-bruecke/figma-plugin/commit/32dd4d4cf236bc39b870474e8551c02aa43a2afa))
+
 ## [3.17.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.16.0...v3.17.0) (2026-10-07)
 
 ### Features
