@@ -40,6 +40,44 @@ const TEXT_STYLE_FIELDS = new Set<string>([
 ] satisfies VariableBindableTextField[]);
 
 /**
+ * Reshape a REST layout grid into the Plugin API's `LayoutGrid`. The REST API
+ * returns every field for every pattern and writes "Auto" as `count: -1`; the
+ * Plugin API gives a `GRID` only its cell size, writes "Auto" as `Infinity`,
+ * leaves out the fields Figma ignores for an alignment (`sectionSize` when
+ * stretched, `offset` when centered) and calls the bound count `count`, not
+ * `numSections`.
+ */
+export const restLayoutGridToPlugin = (grid: any): LayoutGrid => {
+  const { numSections, ...bound } = grid.boundVariables ?? {};
+
+  if (grid.pattern === 'GRID') {
+    return {
+      pattern: 'GRID',
+      sectionSize: grid.sectionSize,
+      visible: grid.visible,
+      color: grid.color,
+      ...(bound.sectionSize && {
+        boundVariables: { sectionSize: bound.sectionSize },
+      }),
+    };
+  }
+
+  const boundVariables = numSections ? { ...bound, count: numSections } : bound;
+
+  return {
+    pattern: grid.pattern,
+    alignment: grid.alignment,
+    gutterSize: grid.gutterSize,
+    count: grid.count === -1 ? Infinity : grid.count,
+    ...(grid.alignment !== 'STRETCH' && { sectionSize: grid.sectionSize }),
+    ...(grid.alignment !== 'CENTER' && { offset: grid.offset }),
+    visible: grid.visible,
+    color: grid.color,
+    ...(Object.keys(boundVariables).length > 0 && { boundVariables }),
+  };
+};
+
+/**
  * The REST API reports the scope of a number variable that is set to "Font
  * weight" as `FONT_STYLE`, where the Plugin API reports `FONT_WEIGHT`.
  * `FONT_STYLE` is only a valid scope for string variables, so on a number it
@@ -310,7 +348,7 @@ export class RestAPIResolver implements IResolver {
       type: 'GRID',
       id: node.id,
       name: node.name,
-      layoutGrids: node.layoutGrids,
+      layoutGrids: (node.layoutGrids ?? []).map(restLayoutGridToPlugin),
       remote: false,
       key: node.id,
       description: '',
