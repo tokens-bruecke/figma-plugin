@@ -1,3 +1,9 @@
+## [3.18.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.17.1...v3.18.0) (2026-10-09)
+
+### Bug Fixes
+
+- **cli:** export the file's own styles, published or not, the same set the plugin exports. This also works for branches. Files with unpublished styles now export more styles than before ([#117](https://github.com/tokens-bruecke/figma-plugin/issues/117), [#121](https://github.com/tokens-bruecke/figma-plugin/issues/121)) ([6e1be9c](https://github.com/tokens-bruecke/figma-plugin/commit/6e1be9cb7912e5bc20f7f7e1a42fb5a10428679b))
+
 ## [3.17.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.17.0...v3.17.1) (2026-10-09)
 
 ### Bug Fixes
