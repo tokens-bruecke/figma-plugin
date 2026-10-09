@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { gridStylesToTokens } from '@common/transform/styles/gridStylesToTokens';
 import { RestAPIResolver } from './restApiResolver';
 
 const toPaint = (node: any) =>
@@ -346,5 +347,202 @@ describe('file styles', () => {
     await resolver.getLocalPaintStyles();
 
     expect(calls.file).toHaveLength(1);
+  });
+});
+
+const toGrid = (layoutGrids: any[]) =>
+  RestAPIResolver.prototype.frameNodeToGrid.call(null, {
+    id: '1:2',
+    name: 'grid',
+    layoutGrids,
+  } as any) as any;
+
+describe('frameNodeToGrid', () => {
+  const color = { r: 1, g: 0, b: 0, a: 0.1 };
+
+  it('gives a GRID pattern only its cell size, like the Plugin API', () => {
+    const style = toGrid([
+      {
+        pattern: 'GRID',
+        sectionSize: 8,
+        visible: true,
+        color,
+        alignment: 'MIN',
+        gutterSize: 0,
+        offset: 0,
+        count: -1,
+      },
+    ]);
+
+    expect(style.layoutGrids).toEqual([
+      { pattern: 'GRID', sectionSize: 8, visible: true, color },
+    ]);
+  });
+
+  it('turns an "Auto" count of -1 into Infinity', () => {
+    const [grid] = toGrid([
+      {
+        pattern: 'COLUMNS',
+        sectionSize: 80,
+        visible: true,
+        color,
+        alignment: 'MIN',
+        gutterSize: 16,
+        offset: 24,
+        count: -1,
+      },
+    ]).layoutGrids;
+
+    expect(grid).toEqual({
+      pattern: 'COLUMNS',
+      alignment: 'MIN',
+      gutterSize: 16,
+      count: Infinity,
+      sectionSize: 80,
+      offset: 24,
+      visible: true,
+      color,
+    });
+  });
+
+  it('keeps a fixed count', () => {
+    const [grid] = toGrid([
+      {
+        pattern: 'ROWS',
+        sectionSize: 10,
+        visible: true,
+        color,
+        alignment: 'MIN',
+        gutterSize: 8,
+        offset: 0,
+        count: 5,
+      },
+    ]).layoutGrids;
+
+    expect(grid.count).toBe(5);
+  });
+
+  it('leaves out the section size of a stretched grid and the offset of a centered one', () => {
+    const [stretched, centered] = toGrid([
+      {
+        pattern: 'COLUMNS',
+        sectionSize: 10,
+        visible: true,
+        color,
+        alignment: 'STRETCH',
+        gutterSize: 20,
+        offset: 32,
+        count: 12,
+      },
+      {
+        pattern: 'ROWS',
+        sectionSize: 40,
+        visible: true,
+        color,
+        alignment: 'CENTER',
+        gutterSize: 20,
+        offset: 0,
+        count: 4,
+      },
+    ]).layoutGrids;
+
+    expect(stretched).not.toHaveProperty('sectionSize');
+    expect(stretched.offset).toBe(32);
+    expect(centered).not.toHaveProperty('offset');
+    expect(centered.sectionSize).toBe(40);
+  });
+
+  it('renames the bound numSections variable to count', () => {
+    const alias = (id: string) => ({ type: 'VARIABLE_ALIAS', id });
+    const [columns, square] = toGrid([
+      {
+        pattern: 'COLUMNS',
+        sectionSize: 10,
+        visible: true,
+        color,
+        alignment: 'STRETCH',
+        gutterSize: 20,
+        offset: 32,
+        count: 12,
+        boundVariables: {
+          numSections: alias('VariableID:1:1'),
+          gutterSize: alias('VariableID:1:2'),
+        },
+      },
+      {
+        pattern: 'GRID',
+        sectionSize: 8,
+        visible: true,
+        color,
+        alignment: 'MIN',
+        gutterSize: 0,
+        offset: 0,
+        count: -1,
+        boundVariables: { sectionSize: alias('VariableID:1:3') },
+      },
+    ]).layoutGrids;
+
+    expect(columns.boundVariables).toEqual({
+      count: alias('VariableID:1:1'),
+      gutterSize: alias('VariableID:1:2'),
+    });
+    expect(square.boundVariables).toEqual({
+      sectionSize: alias('VariableID:1:3'),
+    });
+  });
+});
+
+describe('grid tokens', () => {
+  const color = { r: 1, g: 0, b: 0, a: 0.1 };
+
+  // Exported and serialized the way the plugin UI and the CLI do it.
+  const exportGrid = async (layoutGrids: any[]) => {
+    const resolver = {
+      getLocalGridStyles: async () => [{ name: 'grid', layoutGrids }],
+    } as any;
+    const tokens: any = await gridStylesToTokens('grids', true, resolver);
+    return JSON.parse(JSON.stringify(tokens.grids.grid.$value));
+  };
+
+  it('match the plugin for a GRID pattern', async () => {
+    const fromRest = await exportGrid(
+      toGrid([
+        {
+          pattern: 'GRID',
+          sectionSize: 8,
+          visible: true,
+          color,
+          alignment: 'MIN',
+          gutterSize: 0,
+          offset: 0,
+          count: -1,
+        },
+      ]).layoutGrids
+    );
+    const fromPlugin = await exportGrid([
+      { pattern: 'GRID', sectionSize: 8, visible: true, color },
+    ]);
+
+    expect(fromRest).toEqual(fromPlugin);
+    expect(fromRest).not.toHaveProperty('columnCount');
+  });
+
+  it('match the plugin for an "Auto" count', async () => {
+    const grid = {
+      pattern: 'COLUMNS',
+      visible: true,
+      color,
+      alignment: 'STRETCH',
+      gutterSize: 16,
+      offset: 24,
+    };
+
+    const fromRest = await exportGrid(
+      toGrid([{ ...grid, sectionSize: 10, count: -1 }]).layoutGrids
+    );
+    const fromPlugin = await exportGrid([{ ...grid, count: Infinity }]);
+
+    expect(fromRest).toEqual(fromPlugin);
+    expect(fromRest.columnCount).not.toBe(-1);
   });
 });
