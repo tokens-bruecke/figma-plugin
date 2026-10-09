@@ -563,6 +563,8 @@ Other export settings are available through a JSON configuration file (see [CLI 
 
 The REST API returns variables, collections and styles in no fixed order, so the CLI sorts them by name in REST mode. Exporting an unchanged file then gives the same output every time, as long as you also pass `--omit-created-at`. This order is alphabetical rather than the order of Figma's Variables panel, which the plugin and snapshot mode keep.
 
+In REST mode the CLI exports the file's own styles, published or not, the same set the plugin exports. This also works for a branch, which can't publish styles. Styles that come from a library are left out, as in the plugin.
+
 ### Snapshot input
 
 `--input <path>` transforms a local JSON snapshot of a Figma file's variables and styles instead of calling the REST API. `--input -` reads stdin, so it composes with anything that can dump the data:
