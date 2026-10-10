@@ -26,6 +26,9 @@ export const normalizeType = (
         if (variableScopes[0] === 'FONT_WEIGHT') {
           return 'fontWeight';
         }
+        if (variableScopes[0] === 'FONT_FAMILY') {
+          return 'fontFamily';
+        }
       }
       return 'string';
     case 'BOOLEAN':
