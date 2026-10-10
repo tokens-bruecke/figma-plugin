@@ -399,6 +399,10 @@ export const convertTokenValueToFigmaValue = (
       }
       return value;
 
+    case 'fontFamily':
+      // DTCG allows a fallback list; a Figma font-family variable holds one name
+      return String(Array.isArray(value) ? value[0] : value);
+
     case 'opacity':
       // Figma stores opacity as a 0-100 percent number.
       // Exports produce either "50%" (percentage setting) or 0.5 (fraction).
@@ -461,6 +465,7 @@ export const mapTokenTypeToFigmaType = (
     opacity: 'FLOAT',
     boolean: 'BOOLEAN',
     string: 'STRING',
+    fontFamily: 'STRING',
     duration: 'TIMING',
     cubicBezier: 'EASING',
   };
@@ -744,7 +749,11 @@ export const tokensToVariables = async (
           try {
             const tokenType = getTokenType(token);
             const tokenDescription = getTokenDescription(token);
-            const tokenScopes = getTokenScopes(token);
+            // `fontFamily` is exported from a variable scoped only to
+            // FONT_FAMILY, so restore that scope when the token has none.
+            const tokenScopes =
+              getTokenScopes(token) ??
+              (tokenType === 'fontFamily' ? ['FONT_FAMILY'] : undefined);
 
             if (!tokenType) {
               result.errors.push(`Token at path "${path}" is missing type`);

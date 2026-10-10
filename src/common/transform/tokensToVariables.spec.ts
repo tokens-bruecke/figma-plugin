@@ -219,6 +219,24 @@ describe('convertTokenValueToFigmaValue', () => {
     });
   });
 
+  describe('fontFamily', () => {
+    test('passes through a single family name', () => {
+      expect(
+        convertTokenValueToFigmaValue('Source Sans 3', 'fontFamily', emptyMap)
+      ).toBe('Source Sans 3');
+    });
+
+    test('keeps the first family of a fallback list', () => {
+      expect(
+        convertTokenValueToFigmaValue(
+          ['Playfair Display', 'serif'],
+          'fontFamily',
+          emptyMap
+        )
+      ).toBe('Playfair Display');
+    });
+  });
+
   describe('opacity', () => {
     test('converts percentage string to Figma 0-100 number', () => {
       expect(convertTokenValueToFigmaValue('50%', 'opacity', emptyMap)).toBe(
@@ -298,6 +316,10 @@ describe('mapTokenTypeToFigmaType', () => {
     expect(mapTokenTypeToFigmaType('fontWeight', 400)).toBe('FLOAT');
     expect(mapTokenTypeToFigmaType('fontWeight', '700')).toBe('FLOAT');
     expect(mapTokenTypeToFigmaType('fontWeight', 'Bold')).toBe('STRING');
+  });
+
+  test('maps fontFamily to STRING', () => {
+    expect(mapTokenTypeToFigmaType('fontFamily', 'Inter')).toBe('STRING');
   });
 
   test('maps opacity to FLOAT', () => {

@@ -1261,6 +1261,7 @@ Unlike design tokens, Figma variables [support only 6 types](https://www.figma.c
 | FLOAT      | opacity scopes (with %) | _string_ (e.g. `"10%"`) \*                                                                       |
 | FLOAT      | all other scopes        | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*                      |
 | STRING     | only `FONT_WEIGHT`      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight)                        |
+| STRING     | only `FONT_FAMILY`      | [fontFamily](https://www.designtokens.org/tr/2025.10/format/#font-family)                        |
 | STRING     | all other scopes        | _string_ \*                                                                                      |
 | TIMING     | —                       | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*                      |
 | EASING     | —                       | [cubicBezier](https://www.designtokens.org/tr/2025.10/format/#cubic-bezier) or _string_ \*\*\*\* |
@@ -1305,9 +1306,10 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 
 ## Scopes limitations
 
-Figma variables have no font weight or opacity type, so the plugin reads the variable's scopes to pick the token type:
+Figma variables have no font weight, font family or opacity type, so the plugin reads the variable's scopes to pick the token type:
 
 - A number or string variable whose only scope is `FONT_WEIGHT` becomes a `fontWeight` token. With any other scope next to it, it stays a `dimension` or `string`.
+- A string variable whose only scope is `FONT_FAMILY` becomes a `fontFamily` token. With any other scope next to it, it stays a `string`. On import, a `fontFamily` token without `scopes` creates a string variable scoped to `FONT_FAMILY`.
 - A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`.
 
 ---

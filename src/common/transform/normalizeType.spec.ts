@@ -11,6 +11,17 @@ describe('getFontStyleAndWeight', () => {
   });
 });
 
+describe('font family scope', () => {
+  test('String scoped only to FONT_FAMILY', () => {
+    expect(normalizeType('STRING', ['FONT_FAMILY'])).toBe('fontFamily');
+  });
+  test('mixed with other scopes stays a string', () => {
+    expect(normalizeType('STRING', ['FONT_FAMILY', 'TEXT_CONTENT'])).toBe(
+      'string'
+    );
+  });
+});
+
 describe('opacity scopes', () => {
   test('OPACITY', () => {
     expect(normalizeType('FLOAT', ['OPACITY'])).toBe('number');
