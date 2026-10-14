@@ -111,6 +111,7 @@ The plugin supports both **exporting** and **importing** design tokens:
 - ✅ Supports these color formats: HEX, RGBA CSS, RGBA Object, DTCG color objects (`srgb-dtcg`, `hsl-dtcg`, `oklch-dtcg`, through their `hex` fallback) and [color aliases with opacity](#color-aliases-with-opacity). HSLA CSS and HSLA Object can't be imported yet
 - ✅ Imports variable descriptions and `scopes`. Invalid scopes are reported, and scopes are skipped on `duration` and `cubicBezier` tokens. `$extensions.figma` (code syntax, variable IDs) is ignored
 - ✅ Imports `duration` and `cubicBezier` tokens as Figma motion variables (see [Motion variables](#motion-variables))
+- ✅ Imports `fontFamily` and `fontWeight` tokens without `scopes` as new variables scoped to "Font family" and "Font weight", so they keep their type on the next export. Existing variables keep their scopes. A `fontFamily` list keeps only its first family, since a string variable holds one
 
 **What to know before importing:**
 
@@ -1309,7 +1310,7 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 Figma variables have no font weight, font family or opacity type, so the plugin reads the variable's scopes to pick the token type:
 
 - A number or string variable whose only scope is `FONT_WEIGHT` becomes a `fontWeight` token. With any other scope next to it, it stays a `dimension` or `string`.
-- A string variable whose only scope is `FONT_FAMILY` becomes a `fontFamily` token. With any other scope next to it, it stays a `string`. On import, a `fontFamily` token without `scopes` creates a string variable scoped to `FONT_FAMILY`.
+- A string variable whose only scope is `FONT_FAMILY` becomes a `fontFamily` token. With any other scope next to it, it stays a `string`.
 - A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`.
 
 ---

@@ -137,6 +137,24 @@ export const isValidVariableScope = (scope: any): scope is VariableScope => {
 };
 
 /**
+ * Scopes for a new variable whose token has none. Font families and weights
+ * are read back from a single scope on export, so the variable gets that scope
+ * and keeps its type through a round trip.
+ */
+export const getDefaultScopes = (
+  tokenType: string | null
+): VariableScope[] | undefined => {
+  switch (tokenType) {
+    case 'fontFamily':
+      return ['FONT_FAMILY'];
+    case 'fontWeight':
+      return ['FONT_WEIGHT'];
+    default:
+      return undefined;
+  }
+};
+
+/**
  * Parses a token to extract scopes (standard format only: `scopes` key).
  */
 export const getTokenScopes = (token: any): string[] | undefined => {
@@ -401,7 +419,7 @@ export const convertTokenValueToFigmaValue = (
 
     case 'fontFamily':
       // DTCG allows a fallback list; a Figma font-family variable holds one name
-      return String(Array.isArray(value) ? value[0] : value);
+      return Array.isArray(value) ? String(value[0] ?? '') : String(value);
 
     case 'opacity':
       // Figma stores opacity as a 0-100 percent number.
@@ -749,11 +767,7 @@ export const tokensToVariables = async (
           try {
             const tokenType = getTokenType(token);
             const tokenDescription = getTokenDescription(token);
-            // `fontFamily` is exported from a variable scoped only to
-            // FONT_FAMILY, so restore that scope when the token has none.
-            const tokenScopes =
-              getTokenScopes(token) ??
-              (tokenType === 'fontFamily' ? ['FONT_FAMILY'] : undefined);
+            let tokenScopes = getTokenScopes(token);
 
             if (!tokenType) {
               result.errors.push(`Token at path "${path}" is missing type`);
@@ -782,6 +796,11 @@ export const tokensToVariables = async (
               result.variablesCreated++;
             } else if (isExisting) {
               result.variablesUpdated++;
+            }
+
+            // Leave the scopes of an existing variable alone
+            if (!isExisting && !tokenScopes) {
+              tokenScopes = getDefaultScopes(tokenType);
             }
 
             if (variable) {
