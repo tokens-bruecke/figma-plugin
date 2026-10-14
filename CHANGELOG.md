@@ -1,3 +1,15 @@
+## [3.19.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.18.0...v3.19.0) (2026-10-14)
+
+### Features
+
+- export FONT_FAMILY-scoped string variables as fontFamily tokens ([78f5d2b](https://github.com/tokens-bruecke/figma-plugin/commit/78f5d2bc37e785b9e64cab3384516e9d27c136e2)), closes [#118](https://github.com/tokens-bruecke/figma-plugin/issues/118)
+
+### Bug Fixes
+
+- **cli:** export REST layout grids like the plugin does ([dda46ff](https://github.com/tokens-bruecke/figma-plugin/commit/dda46ffc8b077b9bcf443887f7dd9005d68f5353))
+- **import:** default font scopes only on new variables ([0ae37ed](https://github.com/tokens-bruecke/figma-plugin/commit/0ae37ed626c1308b5f9c96ac2c8cb114a1fee646))
+- preserve exact font weight in text styles ([4a63036](https://github.com/tokens-bruecke/figma-plugin/commit/4a63036cfbb4664775c862d9bd6756aea8d5fd75))
+
 ## [3.18.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.17.1...v3.18.0) (2026-10-09)
 
 ### Bug Fixes
