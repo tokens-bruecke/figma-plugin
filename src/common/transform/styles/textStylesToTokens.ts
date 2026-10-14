@@ -42,11 +42,17 @@ export const textStylesToTokens = async (
     }
 
     const fontStyleWeight = getFontStyleAndWeight(style.fontName.style);
+    const exactFontWeight =
+      (style as TextStyle & { fontWeight?: number }).fontWeight ??
+      style.fontName.variationSettings?.wght;
     const styleObject = {
       [keyNames.type]: 'typography',
       [keyNames.value]: {
         fontFamily: aliasVariables.fontFamily || style.fontName.family,
-        fontWeight: aliasVariables.fontWeight || fontStyleWeight.weight,
+        fontWeight:
+          aliasVariables.fontWeight ??
+          exactFontWeight ??
+          fontStyleWeight.weight,
         fontStyle: aliasVariables.fontStyle || fontStyleWeight.style,
         fontSize:
           aliasVariables.fontSize ||
