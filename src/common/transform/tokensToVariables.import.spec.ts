@@ -411,6 +411,42 @@ describe('tokensToVariables with composed colors', () => {
     expect(byName('body').scopes).toEqual(['FONT_FAMILY', 'TEXT_CONTENT']);
   });
 
+  test('imports fontWeight tokens scoped to FONT_WEIGHT', async () => {
+    const result = await tokensToVariables(
+      {
+        weights: {
+          regular: { $type: 'fontWeight', $value: 460 },
+          bold: { $type: 'fontWeight', $value: 'Bold' },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(byName('regular').resolvedType).toBe('FLOAT');
+    expect(byName('regular').scopes).toEqual(['FONT_WEIGHT']);
+    expect(byName('bold').resolvedType).toBe('STRING');
+    expect(byName('bold').scopes).toEqual(['FONT_WEIGHT']);
+  });
+
+  test('keeps the scopes of an existing variable when the token has none', async () => {
+    const tokens = {
+      fonts: { heading: { $type: 'fontFamily', $value: 'Inter' } },
+    };
+    await tokensToVariables(tokens, resolver);
+    byName('heading').scopes = ['FONT_FAMILY', 'TEXT_CONTENT'];
+
+    const existing = {
+      getLocalVariableCollections: async () => fake._collections,
+      getLocalVariables: async () => fake._variables,
+    } as unknown as IResolver;
+    const result = await tokensToVariables(tokens, existing);
+
+    expect(result.errors).toEqual([]);
+    expect(result.variablesUpdated).toBe(1);
+    expect(byName('heading').scopes).toEqual(['FONT_FAMILY', 'TEXT_CONTENT']);
+  });
+
   test('keeps the variable when the runtime rejects a scope', async () => {
     const original = fake.variables.createVariable;
     fake.variables.createVariable = (...args: any[]) => {

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  getDefaultScopes,
   getTokenScopes,
   getTokenType,
   isValidVariableScope,
@@ -38,6 +39,19 @@ describe('getTokenScopes', () => {
       type: 'color',
     };
     expect(getTokenScopes(token)).toBeUndefined();
+  });
+});
+
+describe('getDefaultScopes', () => {
+  test('scopes font families and weights to their single scope', () => {
+    expect(getDefaultScopes('fontFamily')).toEqual(['FONT_FAMILY']);
+    expect(getDefaultScopes('fontWeight')).toEqual(['FONT_WEIGHT']);
+  });
+
+  test('leaves other types unscoped', () => {
+    expect(getDefaultScopes('color')).toBeUndefined();
+    expect(getDefaultScopes('string')).toBeUndefined();
+    expect(getDefaultScopes(null)).toBeUndefined();
   });
 });
 
@@ -234,6 +248,10 @@ describe('convertTokenValueToFigmaValue', () => {
           emptyMap
         )
       ).toBe('Playfair Display');
+    });
+
+    test('turns an empty fallback list into an empty name', () => {
+      expect(convertTokenValueToFigmaValue([], 'fontFamily', emptyMap)).toBe('');
     });
   });
 

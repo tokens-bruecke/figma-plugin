@@ -133,7 +133,7 @@
         },
         "scopes": {
           "type": "array",
-          "description": "Figma variable scopes. Emitted when includeScopes is enabled, and used to refine FLOAT and STRING tokens: FONT_WEIGHT as the only scope gives fontWeight; scopes that are all OPACITY or COLOR_OPACITY give an opacity number. Defaults to an empty array when omitted.",
+          "description": "Figma variable scopes. Emitted when includeScopes is enabled, and used to refine FLOAT and STRING tokens: FONT_WEIGHT as the only scope gives fontWeight; FONT_FAMILY as the only scope of a STRING gives fontFamily; scopes that are all OPACITY or COLOR_OPACITY give an opacity number. Defaults to an empty array when omitted.",
           "default": [],
           "items": { "type": "string" }
         },
