@@ -388,6 +388,29 @@ describe('tokensToVariables with composed colors', () => {
     expect(valueOf('label')).toBe('hold');
   });
 
+  test('imports fontFamily tokens as STRING variables scoped to FONT_FAMILY', async () => {
+    const result = await tokensToVariables(
+      {
+        fonts: {
+          heading: { $type: 'fontFamily', $value: 'Playfair Display' },
+          body: {
+            $type: 'fontFamily',
+            $value: 'Inter',
+            scopes: ['FONT_FAMILY', 'TEXT_CONTENT'],
+          },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(byName('heading').resolvedType).toBe('STRING');
+    expect(byName('heading').scopes).toEqual(['FONT_FAMILY']);
+    expect(valueOf('heading')).toBe('Playfair Display');
+    // Explicit scopes win over the default
+    expect(byName('body').scopes).toEqual(['FONT_FAMILY', 'TEXT_CONTENT']);
+  });
+
   test('keeps the variable when the runtime rejects a scope', async () => {
     const original = fake.variables.createVariable;
     fake.variables.createVariable = (...args: any[]) => {
