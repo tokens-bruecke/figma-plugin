@@ -31,18 +31,18 @@ Only for REST API mode:
 ```bash
 # Auth via env var, no install needed:
 export FIGMA_API_KEY=<your-token>
-npx tokens-bruecke --file-key <FILE_KEY> --output tokens.json
+npx tokens-bruecke@latest --file-key <FILE_KEY> --output tokens.json
 
 # Print JSON to stdout instead (progress logs go to stderr):
-npx tokens-bruecke -f <FILE_KEY> --stdout --quiet | jq .
+npx tokens-bruecke@latest -f <FILE_KEY> --stdout --quiet | jq .
 
 # Tokens committed to git: an unchanged file exports to identical output
-npx tokens-bruecke -f <FILE_KEY> --output tokens.json --omit-created-at
+npx tokens-bruecke@latest -f <FILE_KEY> --output tokens.json --omit-created-at
 ```
 
 ```bash
 # Or transform a local snapshot — no token, no Enterprise plan:
-npx tokens-bruecke --input snapshot.json --output tokens.json
+npx tokens-bruecke@latest --input snapshot.json --output tokens.json
 ```
 
 All flags can be set via `FIGMA_`-prefixed env vars: `FIGMA_API_KEY`, `FIGMA_OAUTH_TOKEN`, `FIGMA_FILE_KEY`, `FIGMA_OUTPUT`, etc. Explicit flags override env vars.
@@ -56,8 +56,8 @@ The file key is the segment after `figma.com/design/` in a Figma file URL.
 **For agent and CI use, pass `-y`** — it skips the questions and writes the defaults:
 
 ```bash
-npx tokens-bruecke init -y            # tokens-bruecke.config.json with defaults
-npx tokens-bruecke init -y -p cfg.json --force
+npx tokens-bruecke@latest init -y            # tokens-bruecke.config.json with defaults
+npx tokens-bruecke@latest init -y -p cfg.json --force
 ```
 
 `init` only prompts when both stdin and stdout are terminals, so it will not hang in a pipeline — but passing `-y` makes the intent explicit. Options: `-y/--yes`, `--force` (overwrite an existing file; without it an existing file exits `1`), `-p/--path`.
@@ -92,7 +92,7 @@ Precedence: explicit CLI flags > `FIGMA_*` env vars > config file > defaults.
 `--input <path>` reads a JSON snapshot of a Figma file's local variables and styles instead of calling the REST API. `--input -` reads stdin:
 
 ```bash
-figma-dump-tokens | npx tokens-bruecke --input - --stdout --quiet > tokens.json
+figma-dump-tokens | npx tokens-bruecke@latest --input - --stdout --quiet > tokens.json
 ```
 
 Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY` env vars. Passing `--api-key`, `--oauth-token` or `--file-key` explicitly alongside `--input` is an error. Every other flag (`--config`, `--split-by-collection`, `--split-by-mode`, `--omit-collection-names`, `--stdout`) works identically in both modes, and the output has the same shape. One difference: REST mode drops collections hidden from publishing and deleted-but-referenced variables; snapshot mode exports whatever is in the snapshot.
@@ -168,6 +168,18 @@ Key options (all optional): `includedStyles` (include text/effects/grids/colors 
 - `--stdout`: pure JSON on stdout; all logs on stderr, safe to pipe.
 - Every file gets a top-level `$extensions["tokens-bruecke-meta"]` block with a `createdAt` timestamp. Pass `--omit-created-at` (or `omitCreatedAt: true`) to leave it out, so exporting an unchanged file gives identical output. In REST mode, collections, variables and styles are sorted by name for the same reason.
 - Format is DTCG only. To convert to CSS/platform outputs, feed the JSON to Style Dictionary or Terrazzo.
+
+## Updates
+
+Run the CLI as `npx tokens-bruecke@latest` so every run uses the newest release; plain `npx tokens-bruecke` can reuse an old copy from the npx cache or the project's `node_modules`. If you see the notice below on stderr, switch to `@latest` (or upgrade the project's installed version).
+
+The CLI checks npm at most once a day for a newer version. When there is one, it prints a single line to stderr after the export, even with `--quiet`:
+
+```
+ℹ️  tokens-bruecke 3.20.0 is available (you ran 3.19.0). Use the latest version with: npx tokens-bruecke@latest
+```
+
+It only asks npm for the version number — no tokens, file keys or config are sent — and it never installs anything. The check runs alongside the export with a 1.5s timeout, says nothing when offline, and caches the result in `~/.cache/tokens-bruecke` (or `$XDG_CACHE_HOME`). It is skipped when `CI` is set; set `TOKENS_BRUECKE_NO_UPDATE_CHECK=1` or `NO_UPDATE_NOTIFIER=1` to turn it off elsewhere.
 
 ## Errors & exit codes
 

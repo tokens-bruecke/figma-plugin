@@ -11,6 +11,8 @@ import { getTokens } from '@common/export';
 import { splitTokensIntoFiles } from '@common/transform/splitTokensIntoFiles';
 import { log, setQuiet } from './logger';
 import { getStdoutSplitConflict, resolveExportOptions } from './options';
+import { checkForUpdate } from './updateCheck';
+import packageJson from '@root/package.json';
 
 // Flags that only make sense when fetching from the REST API
 const REST_FLAGS = [
@@ -337,5 +339,11 @@ async function exportFigmaTokens() {
 }
 
 if (!isInitCommand) {
-  exportFigmaTokens();
+  // Runs alongside the export so it adds no time. The notice ignores --quiet:
+  // agents usually pass it, and the line goes to stderr, not stdout.
+  const updateNotice = checkForUpdate(packageJson.version);
+  exportFigmaTokens().then(async () => {
+    const notice = await updateNotice;
+    if (notice) console.error(notice);
+  });
 }
