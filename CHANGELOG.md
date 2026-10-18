@@ -1,3 +1,9 @@
+## [3.20.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.19.0...v3.20.0) (2026-10-18)
+
+### Features
+
+- **cli:** print a notice when a newer version is on npm ([01d9fb6](https://github.com/tokens-bruecke/figma-plugin/commit/01d9fb6699ceb6bd4bb6d40d2e3287a1ef193033))
+
 ## [3.19.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.18.0...v3.19.0) (2026-10-14)
 
 ### Features
