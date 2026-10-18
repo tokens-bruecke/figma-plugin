@@ -1,16 +1,18 @@
 # tokens-bruecke
 
-> Figma plugin + CLI that exports Figma variables and styles as DTCG 2025.10 design tokens JSON. The CLI (`npx tokens-bruecke`) either fetches variables via the Figma REST API (requires a Figma Enterprise plan) or transforms a local snapshot passed with `--input`, and writes tokens to a file or stdout.
+> Figma plugin + CLI that exports Figma variables and styles as DTCG 2025.10 design tokens JSON. The CLI (`npx tokens-bruecke@latest`) either fetches variables via the Figma REST API (requires a Figma Enterprise plan) or transforms a local snapshot passed with `--input`, and writes tokens to a file or stdout.
 
-Set up a config file: `npx tokens-bruecke init` (asks 4 questions; `init -y` writes defaults, and it only prompts when both stdin and stdout are terminals). The export never loads the config on its own: pass it with `-c tokens-bruecke.config.json`.
+Set up a config file: `npx tokens-bruecke@latest init` (asks 4 questions; `init -y` writes defaults, and it only prompts when both stdin and stdout are terminals). The export never loads the config on its own: pass it with `-c tokens-bruecke.config.json`.
 
 Quick CLI usage:
-`npx tokens-bruecke --api-key "$FIGMA_TOKEN" --file-key <FILE_KEY> --output tokens.json`
-or pipe-friendly: `npx tokens-bruecke -a "$FIGMA_TOKEN" -f <FILE_KEY> --stdout --quiet`
+`npx tokens-bruecke@latest --api-key "$FIGMA_TOKEN" --file-key <FILE_KEY> --output tokens.json`
+or pipe-friendly: `npx tokens-bruecke@latest -a "$FIGMA_TOKEN" -f <FILE_KEY> --stdout --quiet`
+Always run `npx tokens-bruecke@latest`: plain `npx tokens-bruecke` can reuse an old cached copy. When a newer version exists, the CLI prints one `tokens-bruecke X.Y.Z is available` line to stderr (even with `--quiet`); turn the daily check off with `TOKENS_BRUECKE_NO_UPDATE_CHECK=1`.
+
 Add `--omit-created-at` when the tokens are committed to git: the export timestamp is left out and REST data is sorted by name, so an unchanged file exports to identical output.
 
 No REST API / no Enterprise plan — transform a snapshot dumped from the Figma Plugin API:
-`npx tokens-bruecke --input snapshot.json --output tokens.json` (use `--input -` to read stdin)
+`npx tokens-bruecke@latest --input snapshot.json --output tokens.json` (use `--input -` to read stdin)
 
 ## Docs
 

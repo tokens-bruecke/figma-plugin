@@ -40,6 +40,7 @@ TokensBruecke exports Figma variables and styles as design tokens JSON compatibl
     - [Options](#options)
     - [Snapshot input](#snapshot-input)
     - [CLI Configuration File](#cli-configuration-file)
+    - [Update notice](#update-notice)
     - [For AI agents](#for-ai-agents)
       - [Agentic usage without the REST API](#agentic-usage-without-the-rest-api)
   - [Use as a library](#use-as-a-library)
@@ -646,6 +647,16 @@ Save this JSON file and pass it to the CLI using the `--config` option. A JSON s
 
 Each style type in `includedStyles` is merged with its default, so `"text": { "isIncluded": true }` is enough: the group keeps its default name (`Typography-styles`) and the other style types stay excluded.
 
+### Update notice
+
+The CLI checks npm at most once a day for a newer version. When there is one, it prints a single line to stderr after the export, even with `--quiet`:
+
+```
+ℹ️  tokens-bruecke 3.20.0 is available (you ran 3.19.0). Use the latest version with: npx tokens-bruecke@latest
+```
+
+It only asks npm for the version number — no tokens, file keys or config are sent — and it never installs anything. The check runs alongside the export with a 1.5s timeout, says nothing when offline, and caches the result in `~/.cache/tokens-bruecke` (or `$XDG_CACHE_HOME`). It is skipped when `CI` is set; set `TOKENS_BRUECKE_NO_UPDATE_CHECK=1` or `NO_UPDATE_NOTIFIER=1` to turn it off elsewhere.
+
 ### For AI agents
 
 This repository and the npm package ship agent-friendly docs:
@@ -655,7 +666,7 @@ This repository and the npm package ship agent-friendly docs:
 - [schemas/cli-options.schema.json](schemas/cli-options.schema.json) — machine-readable config schema
 - [schemas/tokens-snapshot.schema.json](schemas/tokens-snapshot.schema.json) — machine-readable input schema for `--input`
 
-For scripted/agent usage prefer `--stdout --quiet` (pure JSON on stdout, logs on stderr) and pass tokens via environment variables.
+For scripted/agent usage prefer `--stdout --quiet` (pure JSON on stdout, logs on stderr) and pass tokens via environment variables. Run it as `npx tokens-bruecke@latest` so the agent always gets the newest release: plain `npx tokens-bruecke` can reuse an old cached copy. See [Update notice](#update-notice).
 
 #### Agentic usage without the REST API
 
@@ -666,7 +677,7 @@ If your agent can run code inside Figma — a Figma agent, an MCP server with `e
 | Figma Enterprise plan                          | Required                | Not required                        |
 | Personal access / OAuth token                  | Required                | Not required                        |
 | File must be published / shared with the token | Yes                     | No — works on whatever file is open |
-| Network calls                                  | Several per export      | None                                |
+| Network calls to Figma                         | Several per export      | None                                |
 
 The agent's job is only to dump data; the CLI still owns every transform, so aliases, modes, scopes and DTCG formatting behave exactly as they do in REST mode.
 
@@ -721,13 +732,13 @@ Text, effect and grid styles follow the same pattern — see [schemas/tokens-sna
 
 ```bash
 # From a file the agent wrote
-npx tokens-bruecke --input snapshot.json --output tokens.json
+npx tokens-bruecke@latest --input snapshot.json --output tokens.json
 
 # Or straight from stdin, no temp file
-my-figma-agent dump-tokens | npx tokens-bruecke --input - --stdout --quiet > tokens.json
+my-figma-agent dump-tokens | npx tokens-bruecke@latest --input - --stdout --quiet > tokens.json
 
 # All the usual options still apply
-npx tokens-bruecke --input snapshot.json --config config.json --split-by-mode --output ./tokens
+npx tokens-bruecke@latest --input snapshot.json --config config.json --split-by-mode --output ./tokens
 ```
 
 Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY`, so a token exported in the environment won't get in the way. Passing `--api-key`, `--oauth-token` or `--file-key` explicitly alongside `--input` is rejected as a conflict.
