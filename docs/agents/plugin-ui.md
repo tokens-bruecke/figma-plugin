@@ -13,7 +13,7 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 | `JSONSettingsConfig`  | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                           |
 | `activeProfileConfig` | `config: Partial<JSONSettingsConfigI>`                             | _(no sender in the UI today)_                            | merge into the active profile → store                                         |
 | `getTokens`           | `role: 'preview' \| 'download' \| 'push'`, `server?: ServerType[]` | `SettingsView`, `CodePreviewView`                        | `getTokens(PluginAPIResolver, activeProfile)` → reply `setTokens`             |
-| `importTokens`        | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container`, `SettingsView`                              | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success) |
+| `importTokens`        | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container` (for both views)                             | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success) |
 | `resizeUIHeight`      | `height`                                                           | `Container` (ResizeObserver, manual resize)              | `figma.ui.resize(width, height)`                                              |
 | `resizeUIWidth`       | `width`                                                            | `CodePreviewView` drag handle                            | preview width (min 540)                                                       |
 | `resetUIWidth`        |                                                                    | `CodePreviewView` double-click                           | preview width back to 800                                                     |
@@ -21,12 +21,13 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 
 ### Controller → UI
 
-| `type`              | Payload                                         | Handled in                                                                                                                          |
-| ------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `storageConfig`     | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                                                      |
-| `checkForVariables` | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; copies collection names into **every** profile                                     |
-| `setTokens`         | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                                                          |
-| `importResult`      | `result` (see import-pipeline.md)               | `SettingsView` toast. ⚠️ `EmptyView` imports go through `Container`, which doesn't listen for `importResult` (see known-issues.md). |
+| `type`              | Payload                                         | Handled in                                                                                      |
+| ------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `storageConfig`     | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                  |
+| `checkForVariables` | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; copies collection names into **every** profile |
+| `setTokens`         | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                      |
+| `tokensError`       | `role`, `message`                               | `SettingsView` → error toast, stops the push spinner. Sent when `getTokens` throws              |
+| `importResult`      | `result` (see import-pipeline.md)               | `Container` → its own toast, which survives the switch from the empty view to the settings view |
 
 Message shapes are typed loosely as `TokensMessageI` in global.d.ts. To add a message: add the `type` to `TokensMessageI` if it carries tokens, add an `if` block in the controller, and a listener in the component that needs the reply.
 
@@ -72,9 +73,9 @@ They all run in the **UI iframe** after `setTokens` with `role: 'push'`, one aft
 | GitHub     | `pushToGithub.ts`      | Octokit git data API: ref → commit → tree (all files) → commit → PATCH ref. One commit for all files.                                                                                                   | yes (`fileName` becomes a folder) |
 | GitHub PR  | `githubPullRequest.ts` | Commit on top of `baseBranch`, create or **force-update** `branch` (default `tokens-bruecke/update-tokens`), reuse an open PR (`head: owner:branch`) or open one. The toast links to the PR.            | yes                               |
 | GitLab     | `pushToGitlab.ts`      | `HEAD /repository/files/:path` to choose create/update, then `POST /repository/commits` with all actions; retries with the flipped action when a check was inconclusive. Host defaults to `gitlab.com`. | yes                               |
-| Custom URL | `pushToCustomURL.ts`   | `fetch(url, { method, headers: JSON.parse(headers), body })`                                                                                                                                            | no                                |
+| Custom URL | `pushToCustomURL.ts`   | `fetch(url, { method, headers, body })`; `headers` is an optional JSON object string (empty → `{}`)                                                                                                     | no                                |
 
-The Git servers take `(credentials, tokens, toastCallback, splitOptions?)` and report through the toast callback. `pushToJSONBin` takes no `splitOptions`, and `pushToCustomURL` takes only `(credentials, tokens)` and shows no toast. To add one, see [recipes.md](recipes.md#add-a-push-server).
+Each server function takes `(credentials, tokens, toastCallback, splitOptions?)` (`splitOptions` only for the Git servers) and reports success and failure through the toast callback. `SettingsView` runs each one in `runPush`, which turns an unexpected throw into an error toast, so one failing server doesn't stop the others, and the button always stops spinning. To add one, see [recipes.md](recipes.md#add-a-push-server).
 
 ## Download and import helpers (src/app/api/)
 

@@ -852,7 +852,7 @@ If a pull request from that branch is already open, the plugin updates it instea
 
 ### Custom server
 
-There is a possibility to connect a custom server. In order to do that you need to specify a URL, a method (`POST` or `PUT`, by default it's `POST`) and optional headers.
+There is a possibility to connect a custom server. In order to do that you need to specify a URL, a method (`POST` or `PUT`, by default it's `POST`) and optional headers, written as a JSON object, e.g. `{"Authorization": "Bearer <token>"}`.
 
 JSONBin and custom servers always receive the whole JSON in one request: the [split into separate files](#split-collections-into-separate-files) settings only apply to downloads, the CLI and the Git servers.
 

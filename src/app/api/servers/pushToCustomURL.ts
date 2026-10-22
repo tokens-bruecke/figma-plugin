@@ -1,23 +1,52 @@
 export const pushToCustomURL = async (
   credentials: CustomURLCredentialsI,
-  tokens: any
+  tokens: any,
+  toastCallback: (props: ToastIPropsI) => void
 ) => {
-  // upload JSON to custom URL
-  const url = credentials.url;
-  const method = credentials.method;
-  const headers = JSON.parse(credentials.headers);
-  const body = JSON.stringify(tokens, null, 2);
-
-  fetch(url, {
-    method: method,
-    headers: headers,
-    body: body,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log('Success:', data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
+  const showError = (message: string) => {
+    console.error('Custom URL error:', message);
+    toastCallback({
+      title: 'Custom URL: An error occurred',
+      message,
+      options: {
+        type: 'error',
+      },
     });
+  };
+
+  // The headers field is optional, so it is often empty
+  let headers: Record<string, string> = {};
+  try {
+    headers = credentials.headers?.trim()
+      ? JSON.parse(credentials.headers)
+      : {};
+  } catch (error) {
+    showError(
+      `The headers are not valid JSON (${error.message}). Use an object, e.g. {"Authorization": "Bearer …"}.`
+    );
+    return;
+  }
+
+  try {
+    const response = await fetch(credentials.url, {
+      method: credentials.method || 'POST',
+      headers,
+      body: JSON.stringify(tokens, null, 2),
+    });
+
+    if (!response.ok) {
+      showError(`Request failed: ${response.status} ${response.statusText}`);
+      return;
+    }
+
+    toastCallback({
+      title: 'Custom URL: Pushed successfully',
+      message: 'Tokens have been sent to the custom URL',
+      options: {
+        type: 'success',
+      },
+    });
+  } catch (error) {
+    showError(error.message);
+  }
 };
