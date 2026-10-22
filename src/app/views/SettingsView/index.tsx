@@ -558,7 +558,17 @@ export const SettingsView = (props: ViewProps) => {
           onClick={handleShowOutput}
           iconButtons={[
             {
-              children: <Icon name="sidebar" size="32" />,
+              // In the panel layout the preview replaces the settings like a
+              // subview, so the sidebar icon would be misleading there.
+              children: isPanel ? (
+                <Icon
+                  name="caret-right"
+                  size="16"
+                  customIcon={advancedSettingsIcon}
+                />
+              ) : (
+                <Icon name="sidebar" size="32" />
+              ),
               onClick: handleShowOutput,
             },
           ]}
