@@ -120,6 +120,7 @@ The plugin supports both **exporting** and **importing** design tokens:
 - An existing collection's first mode is renamed to the first mode in the tokens.
 - Units are dropped from dimensions, since Figma number variables have no unit: `1rem` imports as `1`.
 - Extended collections are imported as regular collections.
+- An existing variable keeps its type. A token of another type, for example a `dimension` token for a color variable, is skipped and listed in the import result.
 
 > [!WARNING]  
 > **Styles Export Limitation**: If you exported tokens with styles included (typography, grids, shadows, or blur), these cannot be imported back as Figma styles. Figma variables only have color, number, string and boolean types, plus timing and easing for motion. Solid color styles import as color variables. Typography, grid, shadow and blur tokens fall back to `STRING` variables, but their object values can't be written, so they are reported as errors in the import result.
@@ -151,7 +152,7 @@ There is an option to rename each style's group and give it a custom name for be
 
 ### Add styles to
 
-Shown once at least one style type is included. Allows you to choose where to put styles in the generated JSON. By default, the selected value is `Keep separate`. In this case styles will be added into the root of the JSON and will be treated as collections. There is also an option to add styles into the corresponding collection (fig.4).
+Shown once at least one style type is included. Allows you to choose where to put styles in the generated JSON. By default, the selected value is `Keep separate`. In this case styles will be added into the root of the JSON and will be treated as collections. There is also an option to add styles into the corresponding collection (fig.4). If that collection isn't in the export (for example in another file, or with [Omit collection names](#omit-collection-names)), the styles are kept separate.
 
 ![fig.4](readme-assets/fig4.webp)
 
@@ -393,7 +394,7 @@ Is `off` by default. When enabled, the plugin drops the top-level collection nam
 }
 ```
 
-Alias references are also rewritten so they point to the flat path (the collection prefix is removed).
+Alias references, including the ones in styles, are also rewritten so they point to the flat path (the collection prefix is removed).
 
 > [!WARNING]  
 > If two variables in different collections share the same name, the last one wins and a collision warning is logged to the console. Rename conflicting variables (or keep this option off) to avoid losing values.
@@ -775,6 +776,7 @@ const fromRest = await convertTokens(restResponse); // GET /v1/files/:key/variab
 - **`convertTokens`** accepts a [snapshot](#snapshot-input), or the raw response of the Figma REST variables endpoint (detected by its `meta` key). That response has no styles, so enabling any `includedStyles` with it throws `INVALID_ARGUMENT`.
 - **Module formats:** the package ships an ESM and a CommonJS build of `tokens-bruecke/api`, so both `import` and `require` work. Each build has its own `TokensBrueckeError` class, so check `error.code` rather than `instanceof` if your code mixes the two.
 - **No side effects:** the API does not write files, read environment variables, log or exit the process.
+- **Warnings** (skipped variables and styles, aliases to variables missing from the data, name collisions) are not printed. Pass `onWarning` to receive them: `fetchTokens({ …, onWarning })` or `convertTokens(input, options, { onWarning })`.
 - **Errors** are `TokensBrueckeError`s with a `code` (`INVALID_ARGUMENT`, `INVALID_SNAPSHOT`, `FIGMA_FORBIDDEN`, `FIGMA_NOT_FOUND`, `FIGMA_RATE_LIMITED`, `FIGMA_REQUEST_FAILED`, `CONVERSION_FAILED`) and the original error as `cause`. `FIGMA_FORBIDDEN` usually means the file is not on an Enterprise plan, or the token lacks the `file_variables:read` scope.
 
 ### Split results
@@ -924,6 +926,8 @@ Supported styles:
 - Shadows (including `inset` shadows)
 - Blur (including `background` and `layer` blur)
 
+A style the plugin can't export, such as an image fill or a color style with several paints, is left out and the rest of the export continues. The plugin logs a `[tokens-bruecke] Skipped style …` warning to the console (`Plugins → Development → Open console`, or stderr for the CLI).
+
 ### Typography
 
 ```json
@@ -995,7 +999,7 @@ DTCG has no direction or type for a gradient, only the stops, so they are export
 
 ### Grids
 
-In Figma you can add as many grids in the style as you want. But the plugin will take only first two grids and treat the first one as `column` grid and the second one as `row` grid.
+In Figma you can add as many grids in the style as you want. The plugin exports the first `Columns` grid as `column*` values and the first `Rows` grid as `row*` values; further grids of the same kind are left out. A square `Grid` only has a cell size, which is exported as `columnWidth` when the style has no columns. Sizes of `0` are kept, and an `Auto` count is left out.
 
 ```json
 // Column grid
@@ -1036,6 +1040,8 @@ In Figma you can add as many grids in the style as you want. But the plugin will
 
 The plugin supports `drop-shadow` and `inner-shadow` effects. If the effect is `inner-shadow`, the plugin will set the `inset` property to `true`. The value is always an array, even when the style has a single shadow.
 
+The first effect of a style decides its type: a style that starts with a shadow is exported as a `shadow` token, and blur effects in it are left out with a warning. A style that starts with a blur is exported as a `blur` token.
+
 ```json
 "xl": {
   "type": "shadow",
@@ -1054,7 +1060,7 @@ The plugin supports `drop-shadow` and `inner-shadow` effects. If the effect is `
 
 ### Blur
 
-The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported, and blur tokens always use the `$type` / `$value` keys, whatever the [DTCG 2025.10 format](#dtcg-202510-format) setting.
+The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported. Like all other tokens, blur tokens use the `$type` / `$value` keys with the [DTCG 2025.10 format](#dtcg-202510-format) setting on, and `type` / `value` with it off.
 
 ```json
 // Background blur

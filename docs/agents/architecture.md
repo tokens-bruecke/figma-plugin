@@ -17,7 +17,7 @@ How the pieces fit together. Start with [AGENTS.md](../../AGENTS.md); this file 
                          │  splitTokensIntoFiles(tree) → files      │
                          │  tokensToVariables(json)  (import, figma)│
                          └──────────────▲───────────────────────────┘
-                                        │ IResolver (8 async methods)
+                                        │ IResolver (8 async methods + warn?)
        ┌─────────────────────┬──────────┴──────────┬────────────────────────┐
        │                     │                     │                        │
  PluginAPIResolver     RestAPIResolver        FileResolver            createExtensionResolver
@@ -37,6 +37,7 @@ getLocalVariables(): Promise<Variable[]>
 getLocalPaintStyles() / getLocalTextStyles() / getLocalEffectStyles() / getLocalGridStyles()
 getVariableById(id): Promise<Variable | null>            // alias resolution
 getVariableCollectionById(id): Promise<VariableCollection | null>
+warn?(message): void                                     // optional: receives warnings, else console.warn
 ```
 
 Every resolver returns **Plugin API object shapes** (the `@figma/plugin-typings` types). The REST resolver converts REST nodes into those shapes, so the transform code has a single data model.

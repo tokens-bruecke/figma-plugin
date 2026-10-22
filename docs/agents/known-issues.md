@@ -15,21 +15,7 @@ Found while analysing v3.20.0 (2026-10-22). Entries marked **(reproduced)** were
 
 ## Export: correctness and parity
 
-1. **An effect style that mixes a shadow and a blur breaks the whole export (reproduced).** `effectStylesToTokens` decides by `effects[0].type`. If that is a shadow, it maps _every_ effect through `wrapShadowObject`, and a blur has no `color` → `TypeError`. Styles are not wrapped in a per-item try/catch like variables, so the error aborts `getTokens` (API: `CONVERSION_FAILED … reading 'a'`). An effect style with `effects: []` would fail the same way on `effects[0].type`.
-2. **`storeStyleInCollection` naming a collection that isn't in the output breaks the export (reproduced).** `mergeStylesIntoTokens` does `Object.assign(variableTokens[name], …)` → `Cannot convert undefined or null to object`. This happens when the stored name belongs to another file or a renamed collection (plugin settings persist across files), or with `omitCollectionNames` (no collection keys exist).
-3. **Style aliases ignore `omitCollectionNames` (reproduced).** The style converters call `getAliasVariableName` without that flag, so with `omitCollectionNames` a color style gives `"{Core.color.brand}"` while the token sits at `color.brand`, and the reference doesn't resolve.
-4. **REST mode drops style descriptions.** `RestAPIResolver` sets `description: ''` (paint/effect/grid) or leaves it out (text). The plugin exports the real descriptions. The REST `styles` map has `description`, so the data is available but not wired up.
-5. **Grid styles:** only the first two layout grids are read; the first is always treated as columns and the second as rows, whatever their `pattern`. Sizes of `0` are left out (truthy checks).
-6. **Blur tokens always use `$type`/`$value`**, even with `useDTCG: false` (documented in the README as current behaviour). Only the first blur effect is exported.
-7. **Color styles** export only a single SOLID paint or a first-paint gradient; other paint stacks are skipped without a warning.
-8. **The library API "doesn't log"**, but the core's `console.warn` calls (skipped variables, `cannot find variable` for `#missing#`, collisions, extended-collection skips) still write to stderr when used as a library.
 9. **Stale comment:** `PluginTokenI.$type` in global.d.ts says `$type` is omitted for string/boolean in DTCG mode. It isn't anymore: tests assert that `$type` is always written. The import still understands the old `figmaType` fallback.
-
-## Import
-
-10. `referenceToFigmaPath` turns every `.` into `/`, so collection or variable names containing dots can't be alias targets.
-11. Values without a mode name are written to `collection.modes[0]`, not to `defaultModeId`.
-12. Existing variables keep their `resolvedType`; a token of another type fails on `setValueForMode` and is reported per token.
 
 ## Plugin (controller and UI)
 

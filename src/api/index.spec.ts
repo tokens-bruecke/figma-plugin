@@ -267,3 +267,63 @@ describe('fetchTokens', () => {
     }
   );
 });
+
+describe('warnings', () => {
+  // A variable whose alias points at a variable that is not in the data
+  const withMissingAlias = () => {
+    const snapshot = JSON.parse(exampleRaw);
+    const [first] = snapshot.variables;
+    snapshot.variables.push({
+      ...first,
+      id: 'VariableID:8:8',
+      name: 'broken/alias',
+      valuesByMode: Object.fromEntries(
+        Object.keys(first.valuesByMode).map((modeId) => [
+          modeId,
+          { type: 'VARIABLE_ALIAS', id: 'VariableID:404' },
+        ])
+      ),
+    });
+    return snapshot;
+  };
+
+  it('are not written to the console', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await convertTokens(withMissingAlias());
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('reach onWarning when the caller asks for them', async () => {
+    const warnings: string[] = [];
+
+    const tokens = await convertTokens(
+      withMissingAlias(),
+      {},
+      { onWarning: (message) => warnings.push(message) }
+    );
+
+    expect(JSON.stringify(tokens)).toContain('#missing#');
+    expect(warnings).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Cannot find variable VariableID:404'),
+      ])
+    );
+  });
+
+  it('reach onWarning from fetchTokens', async () => {
+    getLocalVariables.mockResolvedValue(toRestResponse(withMissingAlias()));
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const onWarning = vi.fn();
+
+    await fetchTokens({ fileKey: 'abc', oauthToken: 't', onWarning });
+
+    expect(onWarning).toHaveBeenCalledWith(
+      expect.stringContaining('Cannot find variable VariableID:404')
+    );
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});

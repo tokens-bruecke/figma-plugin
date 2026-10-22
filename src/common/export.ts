@@ -98,7 +98,9 @@ export const getTokens = async (
   const mergedVariables = mergeStylesIntoTokens(
     variableTokens,
     styleTokens,
-    config.storeStyleInCollection
+    // Without collection groups there is no collection to add the styles to
+    config.omitCollectionNames ? 'none' : config.storeStyleInCollection,
+    resolver
   );
 
   const metaData = buildMeta(config, variableCollection);

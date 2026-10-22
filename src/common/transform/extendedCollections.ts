@@ -164,5 +164,6 @@ export const createExtensionResolver = (
       id === rootId
         ? Promise.resolve(extension)
         : resolver.getVariableCollectionById(id),
+    ...(resolver.warn && { warn: (message) => resolver.warn(message) }),
   };
 };

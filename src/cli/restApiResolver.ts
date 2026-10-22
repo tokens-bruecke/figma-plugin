@@ -77,6 +77,10 @@ export const restLayoutGridToPlugin = (grid: any): LayoutGrid => {
   };
 };
 
+/** Set on style nodes by `fetchStyleNodes`, from the file's `styles` map. */
+const descriptionOf = (node: object): string =>
+  (node as { description?: string }).description ?? '';
+
 /**
  * The REST API reports the scope of a number variable that is set to "Font
  * weight" as `FONT_STYLE`, where the Plugin API reports `FONT_WEIGHT`.
@@ -169,8 +173,9 @@ export class RestAPIResolver implements IResolver {
   private api: Api;
   private variables: Record<string, Variable>;
   private variableCollections: Record<string, VariableCollection>;
-  private styles: { nodeId: string; styleType: string }[];
+  private styles: { nodeId: string; styleType: string; description: string }[];
   private log: LogFn;
+  warn?: (message: string) => void;
 
   private fetchLocalVariablesPromise: Promise<void> | null = null;
   private fetchFileStylesPromise: Promise<void> | null = null;
@@ -179,9 +184,11 @@ export class RestAPIResolver implements IResolver {
     fileKey: string,
     personalAccessToken?: string,
     oAuthToken?: string,
-    log: LogFn = defaultLog
+    log: LogFn = defaultLog,
+    warn?: (message: string) => void
   ) {
     this.log = log;
+    this.warn = warn;
     this.fileKey = fileKey;
     if (oAuthToken) {
       this.api = new Api({ oAuthToken });
@@ -242,6 +249,7 @@ export class RestAPIResolver implements IResolver {
             .map(([nodeId, style]) => ({
               nodeId,
               styleType: style.styleType,
+              description: style.description ?? '',
             }));
         });
     }
@@ -253,9 +261,8 @@ export class RestAPIResolver implements IResolver {
     label: string
   ): Promise<any[]> {
     await this.fetchFileStyles();
-    const ids = this.styles
-      .filter((style) => style.styleType === styleType)
-      .map((style) => style.nodeId);
+    const styles = this.styles.filter((style) => style.styleType === styleType);
+    const ids = styles.map((style) => style.nodeId);
     // `/nodes` rejects an empty `ids` with a 400.
     if (ids.length === 0) {
       return [];
@@ -265,7 +272,15 @@ export class RestAPIResolver implements IResolver {
       { file_key: this.fileKey },
       { ids: ids.join(',') }
     );
-    return Object.values(r.nodes).map((node) => node.document);
+    // The description belongs to the style, not to its node, so it comes
+    // from the file's `styles` map.
+    const descriptions = new Map(
+      styles.map((style) => [style.nodeId, style.description])
+    );
+    return Object.entries(r.nodes).map(([nodeId, node]) => ({
+      ...node.document,
+      description: descriptions.get(nodeId) ?? '',
+    }));
   }
 
   async getLocalEffectStyles(): Promise<EffectStyle[]> {
@@ -336,7 +351,7 @@ export class RestAPIResolver implements IResolver {
       effects: node.effects,
       remote: false,
       key: node.id,
-      description: '',
+      description: descriptionOf(node),
       documentationLinks: [],
       consumers: [],
       boundVariables: node.boundVariables,
@@ -351,7 +366,7 @@ export class RestAPIResolver implements IResolver {
       layoutGrids: (node.layoutGrids ?? []).map(restLayoutGridToPlugin),
       remote: false,
       key: node.id,
-      description: '',
+      description: descriptionOf(node),
       documentationLinks: [],
       consumers: [],
       boundVariables: node.boundVariables,
@@ -377,6 +392,7 @@ export class RestAPIResolver implements IResolver {
       remote: false,
       key: node.id,
       name: node.name,
+      description: descriptionOf(node),
       documentationLinks: [],
       consumers: [],
       boundVariables,
@@ -421,7 +437,7 @@ export class RestAPIResolver implements IResolver {
       paints,
       remote: false,
       key: node.id,
-      description: '',
+      description: descriptionOf(node),
       documentationLinks: [],
       consumers: [],
       ...(boundPaints.length > 0 && {
