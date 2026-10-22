@@ -6,6 +6,13 @@ import { getTokens } from '@common/export';
 import { tokensToVariables } from '@common/transform/tokensToVariables';
 import { PluginAPIResolver } from '@app/api/pluginApiResolver';
 import { sanitizeMultiTenantConfig } from './storageConfig';
+import {
+  parseSharedProfiles,
+  serializeSharedProfiles,
+  shareProfile,
+  sharedProfilesKey,
+  unshareProfile,
+} from './sharedProfiles';
 
 // clear console on reload
 console.clear();
@@ -59,6 +66,23 @@ const loadStorageConfig = async () => {
 
 loadStorageConfig();
 
+const postSharedProfiles = (sharedProfiles: SharedProfilesI) => {
+  figma.ui.postMessage({ type: 'sharedProfiles', sharedProfiles });
+};
+
+const readSharedProfiles = () =>
+  parseSharedProfiles(figma.root.getPluginData(sharedProfilesKey));
+
+// pluginData is one of the few things a plugin may write in Dev Mode, so
+// developers can share profiles too
+const writeSharedProfiles = (sharedProfiles: SharedProfilesI) => {
+  figma.root.setPluginData(
+    sharedProfilesKey,
+    serializeSharedProfiles(sharedProfiles)
+  );
+  postSharedProfiles(sharedProfiles);
+};
+
 // listen for messages from the UI
 figma.ui.onmessage = async (msg) => {
   await checkForVariables(msg.type);
@@ -71,6 +95,34 @@ figma.ui.onmessage = async (msg) => {
   // target="_blank" link does nothing
   if (msg.type === 'openExternal' && /^https?:\/\//.test(msg.url)) {
     figma.openExternal(msg.url);
+  }
+
+  if (msg.type === 'getSharedProfiles') {
+    postSharedProfiles(readSharedProfiles());
+  }
+
+  if (msg.type === 'shareProfile' || msg.type === 'unshareProfile') {
+    try {
+      const sharedProfiles = readSharedProfiles();
+
+      writeSharedProfiles(
+        msg.type === 'shareProfile'
+          ? shareProfile(
+              sharedProfiles,
+              msg.sharedId,
+              msg.profile,
+              msg.updatedAt
+            )
+          : unshareProfile(sharedProfiles, msg.sharedId)
+      );
+    } catch (error) {
+      console.error('Shared profile error:', error);
+
+      figma.ui.postMessage({
+        type: 'sharedProfilesError',
+        message: error?.message ?? String(error),
+      });
+    }
   }
 
   // UI asks for the stored config once it is ready to receive it

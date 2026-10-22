@@ -16,6 +16,7 @@ import {
   createProfileFromConfig,
   sanitizeMultiTenantConfig,
 } from './controller/storageConfig';
+import { mergeSharedProfile } from './controller/sharedProfiles';
 import {
   PluginEnvironmentContext,
   canImportTokens,
@@ -55,6 +56,7 @@ const Container = () => {
     null
   );
   const isPanel = !!environment && isPanelLayout(environment);
+  const [sharedProfiles, setSharedProfiles] = useState<SharedProfilesI>({});
 
   const [multiTenantConfig, setMultiTenantConfig] =
     useState<MultiTenantConfigI>(createDefaultConfig());
@@ -181,6 +183,100 @@ const Container = () => {
     });
   };
 
+  // A copy of a profile shared in the file. The developer only adds their
+  // own credentials
+  const adoptSharedProfile = (sharedId: string) => {
+    const shared = sharedProfiles[sharedId];
+
+    if (!shared) return;
+
+    setMultiTenantConfig((prev) => {
+      const profileId = `profile-${Date.now()}`;
+
+      return {
+        ...prev,
+        activeProfileId: profileId,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: mergeSharedProfile(undefined, shared, sharedId),
+        },
+      };
+    });
+
+    toastRef.current?.show({
+      title: 'Profile added',
+      message: `"${shared.profileName}" is now a local profile. Credentials are not shared: add your own token in the server settings before you push.`,
+      options: { type: 'success', timeout: 8000 },
+    });
+  };
+
+  const updateFromSharedProfile = (profileId: string) => {
+    setMultiTenantConfig((prev) => {
+      const local = prev.profiles[profileId];
+      const shared = local?.sharedId && sharedProfiles[local.sharedId];
+
+      if (!shared) return prev;
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: mergeSharedProfile(local, shared, local.sharedId),
+        },
+      };
+    });
+  };
+
+  const linkSharedProfile = (
+    profileId: string,
+    link: Pick<SettingsProfileI, 'sharedId' | 'sharedUpdatedAt'>
+  ) => {
+    setMultiTenantConfig((prev) => {
+      if (!prev.profiles[profileId]) return prev;
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: { ...prev.profiles[profileId], ...link },
+        },
+      };
+    });
+  };
+
+  const shareProfileInFile = (profileId: string) => {
+    const profile = multiTenantConfig.profiles[profileId];
+
+    if (!profile) return;
+
+    const sharedId = profile.sharedId ?? `shared-${Date.now()}`;
+    const updatedAt = Date.now();
+
+    // The controller strips the credentials before it stores anything
+    parent.postMessage(
+      {
+        pluginMessage: { type: 'shareProfile', sharedId, profile, updatedAt },
+      },
+      '*'
+    );
+    linkSharedProfile(profileId, { sharedId, sharedUpdatedAt: updatedAt });
+  };
+
+  const unshareProfileInFile = (profileId: string) => {
+    const sharedId = multiTenantConfig.profiles[profileId]?.sharedId;
+
+    if (!sharedId) return;
+
+    parent.postMessage(
+      { pluginMessage: { type: 'unshareProfile', sharedId } },
+      '*'
+    );
+    linkSharedProfile(profileId, {
+      sharedId: undefined,
+      sharedUpdatedAt: undefined,
+    });
+  };
+
   const commonProps = {
     JSONsettingsConfig,
     setJSONsettingsConfig,
@@ -190,6 +286,11 @@ const Container = () => {
     addProfile,
     renameProfile,
     deleteProfile,
+    sharedProfiles,
+    adoptSharedProfile,
+    updateFromSharedProfile,
+    shareProfileInFile,
+    unshareProfileInFile,
   };
 
   //////////////////////
@@ -247,6 +348,18 @@ const Container = () => {
 
       if (type === 'pluginEnvironment') {
         setEnvironment(message.environment);
+      }
+
+      if (type === 'sharedProfiles') {
+        setSharedProfiles(message.sharedProfiles || {});
+      }
+
+      if (type === 'sharedProfilesError') {
+        toastRef.current?.show({
+          title: 'Could not update the shared profiles',
+          message: message.message,
+          options: { type: 'error' },
+        });
       }
 
       if (type === 'importResult') {
@@ -309,6 +422,7 @@ const Container = () => {
       '*'
     );
     parent.postMessage({ pluginMessage: { type: 'getStorageConfig' } }, '*');
+    parent.postMessage({ pluginMessage: { type: 'getSharedProfiles' } }, '*');
     parent.postMessage({ pluginMessage: { type: 'checkForVariables' } }, '*');
 
     return () => {

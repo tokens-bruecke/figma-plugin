@@ -10,6 +10,9 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 | ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `getPluginEnvironment` |                                                                    | `Container` on mount                                     | reply `pluginEnvironment`                                                                                           |
 | `getStorageConfig`     |                                                                    | `Container` on mount                                     | load from `clientStorage`, reply `storageConfig`                                                                    |
+| `getSharedProfiles`    |                                                                    | `Container` on mount                                     | read `figma.root` pluginData, reply `sharedProfiles`                                                                |
+| `shareProfile`         | `sharedId`, `profile: SettingsProfileI`, `updatedAt`               | `Container` (ProfileDetailView)                          | `stripCredentials` → `figma.root.setPluginData`, reply `sharedProfiles`                                             |
+| `unshareProfile`       | `sharedId`                                                         | `Container` (ProfileDetailView)                          | remove it, reply `sharedProfiles`                                                                                   |
 | `openExternal`         | `url` (http/https only)                                            | `Container`, for `target="_blank"` clicks in VS Code     | `figma.openExternal(url)`                                                                                           |
 | `checkForVariables`    |                                                                    | `Container` on mount                                     | reply `checkForVariables`                                                                                           |
 | `JSONSettingsConfig`   | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                                                                 |
@@ -22,14 +25,16 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 
 ### Controller → UI
 
-| `type`              | Payload                                         | Handled in                                                                                                       |
-| ------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `pluginEnvironment` | `environment: PluginEnvironmentI`               | `Container` → `PluginEnvironmentContext`. Views wait for it (`LoadingView`)                                      |
-| `storageConfig`     | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                                   |
-| `checkForVariables` | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; keeps the collection names in its own state for "Add styles to" |
-| `setTokens`         | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                                       |
-| `tokensError`       | `role`, `message`                               | `SettingsView` → error toast, stops the push spinner. Sent when `getTokens` throws                               |
-| `importResult`      | `result` (see import-pipeline.md)               | `Container` → its own toast, which survives the switch from the empty view to the settings view                  |
+| `type`                | Payload                                         | Handled in                                                                                                       |
+| --------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pluginEnvironment`   | `environment: PluginEnvironmentI`               | `Container` → `PluginEnvironmentContext`. Views wait for it (`LoadingView`)                                      |
+| `storageConfig`       | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                                   |
+| `sharedProfiles`      | `sharedProfiles: SharedProfilesI`               | `Container` → profile dropdown section "Shared in this file", Update banner                                      |
+| `sharedProfilesError` | `message`                                       | `Container` → error toast (e.g. over the 100 kB pluginData limit)                                                |
+| `checkForVariables`   | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; keeps the collection names in its own state for "Add styles to" |
+| `setTokens`           | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                                       |
+| `tokensError`         | `role`, `message`                               | `SettingsView` → error toast, stops the push spinner. Sent when `getTokens` throws                               |
+| `importResult`        | `result` (see import-pipeline.md)               | `Container` → its own toast, which survives the switch from the empty view to the settings view                  |
 
 Message shapes are typed loosely as `TokensMessageI` in global.d.ts. To add a message: add the `type` to `TokensMessageI` if it carries tokens, add an `if` block in the controller, and a listener in the component that needs the reply.
 
@@ -41,6 +46,7 @@ Message shapes are typed loosely as `TokensMessageI` in global.d.ts. To add a me
 - **Flow:** the controller loads the config at startup and on `getStorageConfig`. The UI holds the state (`Container.multiTenantConfig`), and `useDidUpdate` posts every change back. It waits for `isStorageLoaded` so the defaults don't overwrite what is stored. `getTokens` always uses the active profile the controller last received.
 - **Collection names** of the open file are not part of the profile. Up to v3.20 they were, and the two startup replies (`storageConfig`, `checkForVariables`) raced: a stored list arriving last replaced the current one and left "Add styles to" empty. `sanitizeProfileConfig` now drops the old field.
 - **Profiles:** ids are `'default'` and `profile-<Date.now()>`. New profiles start from the defaults. The last profile can't be deleted.
+- **Shared profiles** ([sharedProfiles.ts](../../src/app/controller/sharedProfiles.ts)): stored in the file with `figma.root.setPluginData('sharedProfiles', JSON)`, as `SharedProfilesI` keyed by `shared-<Date.now()>`. pluginData is private to the plugin id for stability, not security, so `stripCredentials` empties every token, key and Custom URL header, both when writing and when reading. A local profile follows a shared one through `sharedId`; `sharedUpdatedAt` is the shared `updatedAt` it last applied, and a newer one shows the Update banner. `mergeSharedProfile` takes the settings from the file and keeps the local name and credentials. pluginData may be written in Dev Mode too. The entry must stay under 100 kB (`serializeSharedProfiles` throws above 90 000 characters).
 
 ## UI structure
 

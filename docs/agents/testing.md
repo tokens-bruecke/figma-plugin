@@ -71,6 +71,7 @@ Dev Mode checklist (no automated tests cover it):
 2. Export works: Show output (back header), Copy, Download (one file and a split ZIP), a push.
 3. No import button in the settings or the empty view; the hints are shown instead.
 4. Drag the panel narrow and wide: no horizontal scrolling, the settings scroll vertically, toasts fit.
-5. Figma for VS Code: the plugin opens, links open in the browser, Download and Copy work.
+5. Shared profiles: share one in Figma Design, pick it in Dev Mode, add a token, push. Change and re-share it in Design; Dev Mode shows Update and keeps the token.
+6. Figma for VS Code: the plugin opens, links open in the browser, Download and Copy work.
 
 The CLI can be tested without Figma: `pnpm run build:cli && node bin/cli.js --input examples/tokens-snapshot.json --stdout --quiet`.
