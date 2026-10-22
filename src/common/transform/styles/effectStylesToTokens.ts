@@ -14,7 +14,8 @@ const wrapShadowObject = async (
   colorMode: colorModeType,
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
-  resolver: IResolver
+  resolver: IResolver,
+  omitCollectionNames = false
 ) => {
   const effectBoundVariables = shadowEffect.boundVariables;
 
@@ -24,7 +25,8 @@ const wrapShadowObject = async (
         effectBoundVariables[key].id,
         isDTCGFormat,
         includeValueStringKeyToAlias,
-        resolver
+        resolver,
+        omitCollectionNames
       );
     }
     return null;
@@ -56,7 +58,8 @@ export const effectStylesToTokens = async (
   colorMode: colorModeType,
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
-  resolver: IResolver
+  resolver: IResolver,
+  omitCollectionNames = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const effectStyles = await resolver.getLocalEffectStyles();
@@ -118,7 +121,8 @@ export const effectStylesToTokens = async (
               colorMode,
               isDTCGFormat,
               includeValueStringKeyToAlias,
-              resolver
+              resolver,
+              omitCollectionNames
             )
           )
         ),
@@ -135,7 +139,8 @@ export const effectStylesToTokens = async (
         aliasRef.id,
         isDTCGFormat,
         includeValueStringKeyToAlias,
-        resolver
+        resolver,
+        omitCollectionNames
       );
     }
 

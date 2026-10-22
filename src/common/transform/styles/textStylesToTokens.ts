@@ -13,7 +13,8 @@ export const textStylesToTokens = async (
   customName: string,
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
-  resolver: IResolver
+  resolver: IResolver,
+  omitCollectionNames = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const textStyles = await resolver.getLocalTextStyles();
@@ -44,7 +45,8 @@ export const textStylesToTokens = async (
             boundVariables[key].id,
             isDTCGFormat,
             includeValueStringKeyToAlias,
-            resolver
+            resolver,
+            omitCollectionNames
           ),
         };
       }

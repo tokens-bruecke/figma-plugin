@@ -15,7 +15,6 @@ Found while analysing v3.20.0 (2026-10-22). Entries marked **(reproduced)** were
 
 ## Export: correctness and parity
 
-3. **Style aliases ignore `omitCollectionNames` (reproduced).** The style converters call `getAliasVariableName` without that flag, so with `omitCollectionNames` a color style gives `"{Core.color.brand}"` while the token sits at `color.brand`, and the reference doesn't resolve.
 4. **REST mode drops style descriptions.** `RestAPIResolver` sets `description: ''` (paint/effect/grid) or leaves it out (text). The plugin exports the real descriptions. The REST `styles` map has `description`, so the data is available but not wired up.
 5. **Grid styles:** only the first two layout grids are read; the first is always treated as columns and the second as rows, whatever their `pattern`. Sizes of `0` are left out (truthy checks).
 6. **Blur tokens always use `$type`/`$value`**, even with `useDTCG: false` (documented in the README as current behaviour). Only the first blur effect is exported.

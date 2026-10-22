@@ -8,8 +8,13 @@ export const stylesToTokens = async (
   props: ExportSettingsI,
   resolver: IResolver
 ) => {
-  const { includedStyles, colorMode, useDTCG, includeValueStringKeyToAlias } =
-    props;
+  const {
+    includedStyles,
+    colorMode,
+    useDTCG,
+    includeValueStringKeyToAlias,
+    omitCollectionNames = false,
+  } = props;
   let styleTokens: object[] = [];
 
   if (!includedStyles) {
@@ -22,7 +27,8 @@ export const stylesToTokens = async (
       includedStyles.text.customName,
       useDTCG,
       includeValueStringKeyToAlias,
-      resolver
+      resolver,
+      omitCollectionNames
     );
 
     styleTokens.push(textTokens);
@@ -46,7 +52,8 @@ export const stylesToTokens = async (
       colorMode,
       useDTCG,
       includeValueStringKeyToAlias,
-      resolver
+      resolver,
+      omitCollectionNames
     );
 
     styleTokens.push(effectTokens);
@@ -59,7 +66,8 @@ export const stylesToTokens = async (
       colorMode,
       useDTCG,
       includeValueStringKeyToAlias,
-      resolver
+      resolver,
+      omitCollectionNames
     );
 
     styleTokens.push(colorTokens);
