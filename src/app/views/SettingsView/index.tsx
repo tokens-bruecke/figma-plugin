@@ -972,14 +972,30 @@ export const SettingsView = (props: ViewProps) => {
           topBorder
           bottomBorder={false}
         >
-          <Stack direction="row" className={styles.about}>
-            <a href={config.docsLink} target="_blank">
-              <Text>Documentation</Text>
-            </a>
-            <a href={config.changelogLink} target="_blank">
-              <Text>v.{version}</Text>
-            </a>
-          </Stack>
+          {/* the Inspect panel can be narrow, so stack the links there */}
+          {isPanel ? (
+            <Stack
+              direction="column"
+              gap={4}
+              className={[styles.about, styles.panelAbout].join(' ')}
+            >
+              <a href={config.changelogLink} target="_blank">
+                <Text>v.{version}</Text>
+              </a>
+              <a href={config.docsLink} target="_blank">
+                <Text>Documentation</Text>
+              </a>
+            </Stack>
+          ) : (
+            <Stack direction="row" className={styles.about}>
+              <a href={config.docsLink} target="_blank">
+                <Text>Documentation</Text>
+              </a>
+              <a href={config.changelogLink} target="_blank">
+                <Text>v.{version}</Text>
+              </a>
+            </Stack>
+          )}
         </Panel>
 
         {/* the Inspect panel is resized by the user, not the plugin */}
