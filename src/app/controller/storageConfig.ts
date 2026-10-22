@@ -207,29 +207,6 @@ export const parseStoredConfig = (rawValue: unknown): MultiTenantConfigI => {
   }
 };
 
-export const updateActiveProfile = (
-  config: MultiTenantConfigI,
-  profile: Partial<JSONSettingsConfigI>
-): MultiTenantConfigI => {
-  const activeProfileId = config.activeProfileId;
-  const currentProfile =
-    config.profiles[activeProfileId] || createProfile('Default profile', {});
-
-  return {
-    ...config,
-    profiles: {
-      ...config.profiles,
-      [activeProfileId]: {
-        ...createProfile(currentProfile.profileName, {
-          ...currentProfile,
-          ...profile,
-        }),
-        profileName: currentProfile.profileName,
-      },
-    },
-  };
-};
-
 export const createProfileFromConfig = (
   profileName: string,
   config: JSONSettingsConfigI

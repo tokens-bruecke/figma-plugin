@@ -79,7 +79,6 @@ export const pushToGithub = async (
       sha: commit.sha,
     });
 
-    console.log('Files pushed successfully:', commit.sha);
     toastCallback({
       title: 'Github: Updated successfully',
       message:

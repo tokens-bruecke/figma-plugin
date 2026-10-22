@@ -77,8 +77,7 @@ const buildMeta = (
 
 export const getTokens = async (
   resolver: IResolver,
-  config: ExportSettingsI,
-  _state?: PluginStateI
+  config: ExportSettingsI
 ) => {
   const variableCollection = await resolver.getLocalVariableCollections();
   const variables = await resolver.getLocalVariables();
