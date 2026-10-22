@@ -130,7 +130,6 @@ export const pushToGitlab = async (
       return;
     }
 
-    console.log('Gitlab response', data);
     toastCallback({
       title: 'Gitlab: Updated successfully',
       message:

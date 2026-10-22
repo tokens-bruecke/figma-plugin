@@ -18,7 +18,6 @@
     "paths": {
       "@app/*": ["./src/app/*"],
       "@common/*": ["./src/common/*"],
-      "@utils/*": ["./src/utils/*"],
       "@cli/*": ["./src/cli/*"],
       "@root/*": ["./*"]
     }

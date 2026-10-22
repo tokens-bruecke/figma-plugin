@@ -6,6 +6,9 @@
     "jsx": "react",
     "lib": ["dom", "es2021"], // Extends lib from base
     "declaration": false,
+    // The DOM lib and the Figma plugin typings both declare fetch, console
+    // and Navigation; skip checking the declaration files against each other
+    "skipLibCheck": true,
     "emitDeclarationOnly": false
   },
   "include": ["src/**/*", "**/*.d.ts"],

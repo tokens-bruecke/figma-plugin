@@ -1,19 +1,5 @@
 /// <reference path="./node_modules/@figma/plugin-typings/index.d.ts" />
 
-type nameConventionType =
-  | 'none'
-  | 'PascalCase'
-  | 'camelCase'
-  | 'snake_case'
-  | 'kebab-case'
-  | 'UPPERCASE'
-  | 'lowercase'
-  | 'MACRO_CASE'
-  | 'COBOL-CASE'
-  | 'Cobol case'
-  | 'Ada_Case'
-  | 'dot.notation';
-
 type colorModeType =
   | 'hex'
   | 'rgba-object'
@@ -25,8 +11,6 @@ type colorModeType =
   | 'oklch-dtcg';
 
 type stylesType = 'text' | 'colors' | 'effects' | 'grids';
-
-type variableFeatureType = 'scope' | 'hidden';
 
 type JSONSettingsStyleType = {
   isIncluded: boolean;
@@ -134,13 +118,14 @@ type MultiTenantConfigI = {
 
 interface PluginTokenI {
   $value: string;
-  // Omitted in DTCG format for types outside the DTCG 2025.10 type set
-  // (string/boolean); the original Figma type is kept in $extensions.figmaType
   $type?: TokenType;
   $description: string;
   scopes?: VariableScope[];
   $extensions: {
     mode: Object;
+    // Marks easings exported as strings, so the import recreates an EASING
+    // variable. Older exports also used it for string, boolean and
+    // percentage-opacity tokens; the import still reads those.
     figmaType?: VariableResolvedDataType;
     figma?: {
       variableId: string;
@@ -201,12 +186,5 @@ interface ToastIPropsI {
     type?: 'success' | 'error' | 'warn' | 'info';
     timeout?: number;
     onClose?: () => void;
-  };
-}
-
-// Extend Figmas PaintStyle interface
-interface PaintStyleExtended extends PaintStyle {
-  readonly boundVariables?: {
-    readonly paints: VariableAlias[];
   };
 }
