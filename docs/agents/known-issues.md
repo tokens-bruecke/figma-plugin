@@ -18,12 +18,6 @@ Found while analysing v3.20.0 (2026-10-22). Entries marked **(reproduced)** were
 8. **The library API "doesn't log"**, but the core's `console.warn` calls (skipped variables, `cannot find variable` for `#missing#`, collisions, extended-collection skips) still write to stderr when used as a library.
 9. **Stale comment:** `PluginTokenI.$type` in global.d.ts says `$type` is omitted for string/boolean in DTCG mode. It isn't anymore: tests assert that `$type` is always written. The import still understands the old `figmaType` fallback.
 
-## Import
-
-10. `referenceToFigmaPath` turns every `.` into `/`, so collection or variable names containing dots can't be alias targets.
-11. Values without a mode name are written to `collection.modes[0]`, not to `defaultModeId`.
-12. Existing variables keep their `resolvedType`; a token of another type fails on `setValueForMode` and is reported per token.
-
 ## Plugin (controller and UI)
 
 13. **No error handling around `getTokens` in the controller.** If the export throws, no `setTokens` reply is sent. Download and preview silently do nothing, and the push button spins until its 10 s fallback.

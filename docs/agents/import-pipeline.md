@@ -24,15 +24,16 @@ for each top-level key (= collection name, object values only):
   PASS 1  for each token:
     type = getTokenType(token)               (missing → error "missing type")
     variable = variableMap[collection/path] or createVariable(path, collection, mapTokenTypeToFigmaType(type, value))
+    an existing variable of another type → error, token skipped (fontWeight fits FLOAT and STRING)
     description (if not empty); scopes (validated; never on TIMING/EASING;
     new fontFamily/fontWeight variables without scopes get ['FONT_FAMILY'] / ['FONT_WEIGHT'])
   PASS 2  for each variable:
-    $value → collection.modes[0]; each $extensions.mode[name] → the mode with that name
+    $value → collection.defaultModeId; each $extensions.mode[name] → the mode with that name
     convertTokenValueToFigmaValue(); an unresolved reference → deferred
 PASS 3  after all collections: deferred values again; still unresolved → error "Alias reference not found"
 ```
 
-Values for a mode go to `collection.modes[0]` (the first mode), not to `defaultModeId`.
+`$value` goes to `collection.defaultModeId` (Figma's first mode).
 
 ## Type detection (`getTokenType`)
 
@@ -50,17 +51,17 @@ In this order:
 
 ## Value conversion (`convertTokenValueToFigmaValue`)
 
-| Type                 | Accepted input                                                                                                                                                                  | Figma value                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| any                  | `"{a.b.c}"` / `"{a.b.c.$value}"`                                                                                                                                                | `VARIABLE_ALIAS` to `variableMap["a/b/c"]`; not found yet → kept as a string (deferred) |
-| `color`              | `#rrggbb[aa]`, `rgb()/rgba()`, DTCG object (uses `hex` first, else sRGB `components`), `{r,g,b,a}` (0..1, or 0..255 if any channel > 1), composed color `{ components, alpha }` | `RGBA`, or `{ color, opacity }` for composed colors                                     |
-| `opacity`            | `0.5`, `"50%"`, `50`                                                                                                                                                            | 0..100 percent (values ≤ 1 are treated as fractions)                                    |
-| `number`/`dimension` | `{ value, unit }`, `"16px"`, `"1rem"`, number                                                                                                                                   | number (**unit dropped**)                                                               |
-| `fontWeight`         | number or numeric string → number; other string unchanged                                                                                                                       |                                                                                         |
-| `fontFamily`         | string or array (first entry)                                                                                                                                                   | string                                                                                  |
-| `duration`           | `{ value, unit: 'ms'\|'s' }`, `"300ms"`, `"0.3s"`, number (ms)                                                                                                                  | seconds                                                                                 |
-| `cubicBezier`        | `[x1,y1,x2,y2]` (matched to a preset ±0.02), preset name, `"spring(bounce n)"`, Figma easing object                                                                             | `MotionEasing`                                                                          |
-| `boolean` / `string` |                                                                                                                                                                                 | `Boolean(v)` / `String(v)`                                                              |
+| Type                 | Accepted input                                                                                                                                                                  | Figma value                                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| any                  | `"{a.b.c}"` / `"{a.b.c.$value}"`                                                                                                                                                | `VARIABLE_ALIAS` to `variableMap["a/b/c"]` (or the entry whose dotted path matches, for names with dots); not found yet → kept as a string (deferred) |
+| `color`              | `#rrggbb[aa]`, `rgb()/rgba()`, DTCG object (uses `hex` first, else sRGB `components`), `{r,g,b,a}` (0..1, or 0..255 if any channel > 1), composed color `{ components, alpha }` | `RGBA`, or `{ color, opacity }` for composed colors                                                                                                   |
+| `opacity`            | `0.5`, `"50%"`, `50`                                                                                                                                                            | 0..100 percent (values ≤ 1 are treated as fractions)                                                                                                  |
+| `number`/`dimension` | `{ value, unit }`, `"16px"`, `"1rem"`, number                                                                                                                                   | number (**unit dropped**)                                                                                                                             |
+| `fontWeight`         | number or numeric string → number; other string unchanged                                                                                                                       |                                                                                                                                                       |
+| `fontFamily`         | string or array (first entry)                                                                                                                                                   | string                                                                                                                                                |
+| `duration`           | `{ value, unit: 'ms'\|'s' }`, `"300ms"`, `"0.3s"`, number (ms)                                                                                                                  | seconds                                                                                                                                               |
+| `cubicBezier`        | `[x1,y1,x2,y2]` (matched to a preset ±0.02), preset name, `"spring(bounce n)"`, Figma easing object                                                                             | `MotionEasing`                                                                                                                                        |
+| `boolean` / `string` |                                                                                                                                                                                 | `Boolean(v)` / `String(v)`                                                                                                                            |
 
 **Not importable:** HSLA CSS and HSLA object colors (they throw "Unsupported color format"), and all style tokens.
 
@@ -83,7 +84,7 @@ These don't round-trip (they are documented as limitations in the README): expor
 
 ## Things to watch
 
-- `referenceToFigmaPath` turns **every** `.` into `/`. A collection or variable name that contains a dot can't be resolved as an alias target.
-- Existing variables keep their type: the import doesn't change `resolvedType`. A value of the wrong type fails in `setValueForMode` and is reported.
+- A reference can't tell a dot in a name from a group separator. `findReferencedVariable` tries the plain `a/b/c` path first, then compares the map keys in their dotted form, so `{Core.spacing.1.5}` finds `spacing/1.5`.
+- Existing variables keep their type: the import doesn't change `resolvedType`. A token of another type is skipped with an error that names both types.
 - Scopes the runtime doesn't know (e.g. `COLOR_OPACITY` on an old client) give a "Failed to set scopes" error, not a crash.
 - Tests for this file run against a fake `figma` global (`vi.stubGlobal`), see [testing.md](testing.md).
