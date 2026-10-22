@@ -151,7 +151,7 @@ There is an option to rename each style's group and give it a custom name for be
 
 ### Add styles to
 
-Shown once at least one style type is included. Allows you to choose where to put styles in the generated JSON. By default, the selected value is `Keep separate`. In this case styles will be added into the root of the JSON and will be treated as collections. There is also an option to add styles into the corresponding collection (fig.4).
+Shown once at least one style type is included. Allows you to choose where to put styles in the generated JSON. By default, the selected value is `Keep separate`. In this case styles will be added into the root of the JSON and will be treated as collections. There is also an option to add styles into the corresponding collection (fig.4). If that collection isn't in the export (for example in another file, or with [Omit collection names](#omit-collection-names)), the styles are kept separate.
 
 ![fig.4](readme-assets/fig4.webp)
 
