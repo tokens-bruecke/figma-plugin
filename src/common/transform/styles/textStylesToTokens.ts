@@ -27,7 +27,7 @@ export const textStylesToTokens = async (
     try {
       allTextStyles[style.name] = await textStyleToToken(style);
     } catch (error) {
-      warnSkippedStyle(style.name, error);
+      warnSkippedStyle(resolver, style.name, error);
     }
   }
 

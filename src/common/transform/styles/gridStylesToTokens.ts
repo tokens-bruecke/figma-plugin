@@ -56,7 +56,7 @@ export const gridStylesToTokens = async (
     try {
       result[style.name] = gridStyleToToken(style);
     } catch (error) {
-      warnSkippedStyle(style.name, error);
+      warnSkippedStyle(resolver, style.name, error);
     }
 
     return result;

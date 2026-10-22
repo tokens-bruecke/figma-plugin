@@ -53,7 +53,7 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
   ```
   `$extensions` is always written with the `$` prefix, even when `useDTCG` is false.
 - Placed at `tree[collectionName][variable.name]`; finally `groupObjectNamesIntoCategories` splits names on `/` into nested groups. If a token and a group share a path (`border/brand` and `border/brand/subtle`), they are merged rather than overwritten.
-- **Errors:** any throw in `addVariable` → `console.warn('[tokens-bruecke] Skipped variable "<name>" (<type>): <msg>. Values: <json>')`, and the variable is left out.
+- **Errors:** any throw in `addVariable` → `warn(resolver, '[tokens-bruecke] Skipped variable "<name>" (<type>): <msg>. Values: <json>')`, and the variable is left out.
 
 **omitCollectionNames:** everything goes into one flat map; on a duplicate name the last one wins, with a collision warning. Extended collections are skipped with a warning.
 
@@ -76,7 +76,7 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
 
 Checked in this order:
 
-1. **Alias** `{ type: 'VARIABLE_ALIAS', id }` → `getAliasVariableName` → `"{Collection.group.name}"` (dots replace `/`). With `includeValueStringKeyToAlias` it gets a `.$value` / `.value` suffix; with `omitCollectionNames` there is no collection prefix. A target missing from the resolver → `"#missing#"` plus `console.warn('cannot find variable', id)` (expected for library variables).
+1. **Alias** `{ type: 'VARIABLE_ALIAS', id }` → `getAliasVariableName` → `"{Collection.group.name}"` (dots replace `/`). With `includeValueStringKeyToAlias` it gets a `.$value` / `.value` suffix; with `omitCollectionNames` there is no collection prefix. A target missing from the resolver → `"#missing#"` plus a `[tokens-bruecke] Cannot find variable <id>` warning (expected for library variables).
 2. **Composed color** (Figma "Control opacity at scale", Sept 2026): `{ color, opacity }` or the legacy `{ type: 'VARIABLE_EXPRESSION', expressionFunction: 'COMPOSE_COLOR', expressionArguments }` → `normalizeComposedColor` (color/composeColor.ts):
    - aliased base → `{ components: "{ref}", alpha: 0.5 | "50%" | "{opacityRef}" }`
    - literal base and literal opacity → a normal color value with the opacity as alpha

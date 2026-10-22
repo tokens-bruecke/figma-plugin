@@ -112,9 +112,15 @@ export class FileResolver implements IResolver {
   private variables: Map<string, Variable>;
   private variableCollections: Map<string, VariableCollection>;
   private snapshot: TokensSnapshotI;
+  warn?: (message: string) => void;
 
-  constructor(snapshot: TokensSnapshotI, log: LogFn = defaultLog) {
+  constructor(
+    snapshot: TokensSnapshotI,
+    log: LogFn = defaultLog,
+    warn?: (message: string) => void
+  ) {
     this.snapshot = snapshot;
+    this.warn = warn;
     this.variables = new Map(
       snapshot.variables.map((variable) => [
         variable.id,
