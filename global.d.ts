@@ -111,6 +111,13 @@ type MultiTenantConfigI = {
   profiles: Record<ProfileId, SettingsProfileI>;
 };
 
+/** Where the plugin runs. Dev Mode is read-only and shows the UI in the Inspect panel */
+interface PluginEnvironmentI {
+  editorType: 'figma' | 'figjam' | 'dev' | 'slides' | 'buzz';
+  mode: string;
+  isVSCode: boolean;
+}
+
 interface PluginTokenI {
   $value: string;
   $type?: TokenType;

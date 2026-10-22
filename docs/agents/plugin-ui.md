@@ -6,22 +6,25 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 
 ### UI → controller
 
-| `type`               | Payload                                                            | Sender                                                   | Effect                                                                        |
-| -------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `getStorageConfig`   |                                                                    | `Container` on mount                                     | load from `clientStorage`, reply `storageConfig`                              |
-| `checkForVariables`  |                                                                    | `Container` on mount                                     | reply `checkForVariables`                                                     |
-| `JSONSettingsConfig` | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                           |
-| `getTokens`          | `role: 'preview' \| 'download' \| 'push'`, `server?: ServerType[]` | `SettingsView`, `CodePreviewView`                        | `getTokens(PluginAPIResolver, activeProfile)` → reply `setTokens`             |
-| `importTokens`       | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container` (for both views)                             | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success) |
-| `resizeUIHeight`     | `height`                                                           | `Container` (ResizeObserver, manual resize)              | `figma.ui.resize(width, height)`                                              |
-| `resizeUIWidth`      | `width`                                                            | `CodePreviewView` drag handle                            | preview width (min 540)                                                       |
-| `resetUIWidth`       |                                                                    | `CodePreviewView` double-click                           | preview width back to 800                                                     |
-| `openCodePreview`    | `isCodePreviewOpen`, `height`                                      | `Container`                                              | width 800/custom with preview, else 300                                       |
+| `type`                 | Payload                                                            | Sender                                                   | Effect                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `getPluginEnvironment` |                                                                    | `Container` on mount                                     | reply `pluginEnvironment`                                                                                           |
+| `getStorageConfig`     |                                                                    | `Container` on mount                                     | load from `clientStorage`, reply `storageConfig`                                                                    |
+| `openExternal`         | `url` (http/https only)                                            | `Container`, for `target="_blank"` clicks in VS Code     | `figma.openExternal(url)`                                                                                           |
+| `checkForVariables`    |                                                                    | `Container` on mount                                     | reply `checkForVariables`                                                                                           |
+| `JSONSettingsConfig`   | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                                                                 |
+| `getTokens`            | `role: 'preview' \| 'download' \| 'push'`, `server?: ServerType[]` | `SettingsView`, `CodePreviewView`                        | `getTokens(PluginAPIResolver, activeProfile)` → reply `setTokens`                                                   |
+| `importTokens`         | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container` (for both views)                             | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success). In Dev Mode: an `importResult` error |
+| `resizeUIHeight`       | `height`                                                           | `Container` (ResizeObserver, manual resize)              | `figma.ui.resize(width, height)`. All four resize messages are ignored in Dev Mode                                  |
+| `resizeUIWidth`        | `width`                                                            | `CodePreviewView` drag handle                            | preview width (min 540)                                                                                             |
+| `resetUIWidth`         |                                                                    | `CodePreviewView` double-click                           | preview width back to 800                                                                                           |
+| `openCodePreview`      | `isCodePreviewOpen`, `height`                                      | `Container`                                              | width 800/custom with preview, else 300                                                                             |
 
 ### Controller → UI
 
 | `type`              | Payload                                         | Handled in                                                                                                       |
 | ------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pluginEnvironment` | `environment: PluginEnvironmentI`               | `Container` → `PluginEnvironmentContext`. Views wait for it (`LoadingView`)                                      |
 | `storageConfig`     | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                                   |
 | `checkForVariables` | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; keeps the collection names in its own state for "Add styles to" |
 | `setTokens`         | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                                       |
@@ -61,6 +64,7 @@ index.tsx  createRoot(#react-page) + react-figma-ui styles
 - UI kit: [`react-figma-ui`](https://github.com/PavelLaptev/react-figma-ui), pinned to a git commit in package.json (`Panel`, `PanelHeader`, `Stack`, `Dropdown`, `Toggle`, `Input`, `Button`, `IconButton`, `Icon`, `Text`, `OverlayList`). Use these components and Figma's CSS variables (`var(--figma-color-…)`, `var(--space-…)`) so the UI follows the Figma theme (`showUI(..., { themeColors: true })`).
 - Styles are SCSS modules (`styles.module.scss` next to each view or component), typed by `declaration.d.ts`.
 - Window: width 300 (`config.frameWidth`), 800 with the preview (user-resizable, min 540). Height follows the content through ResizeObserver; manual resizing is between 360 and the content height, and a double-click resets it.
+- Panel layout (Dev Mode, `isPanelLayout` in [pluginEnvironment.ts](../../src/app/pluginEnvironment.ts)): no ResizeObserver, no resize handles, everything `width: 100%` and `height: 100vh` with vertical scrolling. The preview replaces the settings (back header via `onClose`) instead of sitting beside them; `SettingsView` stays mounted but hidden, because its listener receives the preview tokens. `canImportTokens` hides the import buttons; `onImportTokens` is then `undefined`.
 - Toasts: `toastRef.current?.show({ title, message, link?, options: { type, timeout } })`. Error toasts stay until clicked.
 
 ## Push servers (src/app/api/servers/)

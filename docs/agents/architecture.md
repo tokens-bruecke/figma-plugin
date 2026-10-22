@@ -51,6 +51,11 @@ Every resolver returns **Plugin API object shapes** (the `@figma/plugin-typings`
 | Has    | `figma.*`, `figma.clientStorage`, `__html__`                                                  | DOM, `fetch`, `Blob`, file input, React                                       |
 | Does   | builds tokens (`getTokens`), imports (`tokensToVariables`), stores config, resizes the window | renders settings, previews JSON, downloads/zips, pushes to servers, analytics |
 
+The plugin runs in two editors, read from `figma.editorType` at startup and sent to the UI as `pluginEnvironment`:
+
+- **Figma Design** (`'figma'`): a floating window that the controller sizes with `figma.ui.resize`. Everything works, including the import.
+- **Dev Mode** (`'dev'`, `figma.mode === 'inspect'`), also in Figma for VS Code (`figma.vscode` is set): the iframe fills the Inspect panel and the user sizes it, so `resizeUI` is a no-op. The document is read-only for every plugin, even with edit access; only pluginData, relaunchData and `exportAsync` may write. So the UI hides the import, and the controller rejects `importTokens`. In VS Code, links must open through `figma.openExternal`.
+
 They talk only through `figma.ui.postMessage` ⇄ `parent.postMessage({ pluginMessage }, '*')`. The full protocol is in [plugin-ui.md](plugin-ui.md#message-protocol).
 
 Typical export ("Download JSON"):
@@ -109,7 +114,8 @@ TypeScript projects: `tsconfig.plugin.json` (includes all `src/**` except `src/c
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"],
+  "editorType": ["figma", "dev"],
+  "capabilities": ["inspect", "vscode"],
   "documentAccess": "dynamic-page",
   "networkAccess": { "allowedDomains": ["*"], "reasoning": "…custom URL…" }
 }
@@ -117,6 +123,7 @@ TypeScript projects: `tsconfig.plugin.json` (includes all `src/**` except `src/c
 
 - `main`/`ui` are relative to the manifest, so load **`dist/figma-plugin/manifest.json`** in Figma, not the root one (the root copy has no `code.js` next to it).
 - `dynamic-page` → async Plugin APIs only.
+- `editorType` `dev` with `capabilities: ["inspect"]` makes it an Inspect panel plugin in Dev Mode; `vscode` also allows it in Figma for VS Code. Don't add anything to the controller that writes to the document outside the import, or it fails in Dev Mode.
 - `allowedDomains: ["*"]` exists because of the custom-URL push target. If you add a fixed endpoint, nothing needs to change here.
 
 ## Release pipeline

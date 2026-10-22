@@ -16,6 +16,12 @@ import {
   createProfileFromConfig,
   sanitizeMultiTenantConfig,
 } from './controller/storageConfig';
+import {
+  PluginEnvironmentContext,
+  canImportTokens,
+  defaultPluginEnvironment,
+  isPanelLayout,
+} from './pluginEnvironment';
 
 import styles from './styles.module.scss';
 
@@ -42,6 +48,13 @@ const Container = () => {
   // the stored config can't overwrite them when it arrives later
   const [variableCollections, setVariableCollections] = useState<string[]>([]);
   const [isImporting, setIsImporting] = useState(false);
+
+  // Unknown until the controller answers. The views wait for it so that
+  // Design-only controls (import) never flash up in Dev Mode
+  const [environment, setEnvironment] = useState<PluginEnvironmentI | null>(
+    null
+  );
+  const isPanel = !!environment && isPanelLayout(environment);
 
   const [multiTenantConfig, setMultiTenantConfig] =
     useState<MultiTenantConfigI>(createDefaultConfig());
@@ -232,6 +245,10 @@ const Container = () => {
       const { type, hasVariables, variableCollections, storageConfig, result } =
         message;
 
+      if (type === 'pluginEnvironment') {
+        setEnvironment(message.environment);
+      }
+
       if (type === 'importResult') {
         setIsImporting(false);
 
@@ -287,6 +304,10 @@ const Container = () => {
 
     track('/', false);
 
+    parent.postMessage(
+      { pluginMessage: { type: 'getPluginEnvironment' } },
+      '*'
+    );
     parent.postMessage({ pluginMessage: { type: 'getStorageConfig' } }, '*');
     parent.postMessage({ pluginMessage: { type: 'checkForVariables' } }, '*');
 
@@ -297,6 +318,9 @@ const Container = () => {
 
   // Check if the view was changed
   useEffect(() => {
+    // The Inspect panel can't be resized by the plugin
+    if (!environment || isPanel) return;
+
     const resizeObserver = new ResizeObserver((entries) => {
       const { height } = entries[0].contentRect;
 
@@ -327,7 +351,7 @@ const Container = () => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [isCodePreviewOpen, manualFrameHeight]);
+  }, [isCodePreviewOpen, manualFrameHeight, environment, isPanel]);
 
   useEffect(() => {
     if (manualFrameHeight === null) {
@@ -376,6 +400,8 @@ const Container = () => {
 
   // handle code preview
   useDidUpdate(() => {
+    if (isPanel) return;
+
     parent.postMessage(
       {
         pluginMessage: {
@@ -416,24 +442,33 @@ const Container = () => {
   /////////////////////
 
   const renderView = () => {
-    if (isLoading) {
+    if (isLoading || !environment) {
       return <LoadingView />;
     }
+
+    const onImportTokens = canImportTokens(environment)
+      ? handleImportTokens
+      : undefined;
 
     if (!fileHasVariables) {
       return (
         <EmptyView
           setFileHasVariables={setFileHasVariables}
-          onImportTokens={handleImportTokens}
+          onImportTokens={onImportTokens}
           isImporting={isImporting}
         />
       );
     }
 
+    // In the panel the preview replaces the settings instead of sitting
+    // beside them. The settings stay mounted: they receive the tokens
+    const isSettingsHidden = isPanel && isCodePreviewOpen;
+
     return (
       <SettingsView
         {...commonProps}
-        onImportTokens={handleImportTokens}
+        isHidden={isSettingsHidden}
+        onImportTokens={onImportTokens}
         isImporting={isImporting}
         variableCollections={variableCollections}
         isCodePreviewOpen={isCodePreviewOpen}
@@ -447,14 +482,43 @@ const Container = () => {
     );
   };
 
+  // In Figma for VS Code, target="_blank" links do nothing. Route them all
+  // through figma.openExternal instead of touching every link
+  const handleLinkClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!environment?.isVSCode) return;
+
+    const link = (event.target as HTMLElement).closest?.(
+      'a[target="_blank"]'
+    ) as HTMLAnchorElement | null;
+
+    if (!link?.href) return;
+
+    event.preventDefault();
+    parent.postMessage(
+      { pluginMessage: { type: 'openExternal', url: link.href } },
+      '*'
+    );
+  };
+
   return (
-    <div ref={wrapperRef} className={styles.container}>
-      <Toast ref={toastRef} />
-      {renderView()}
-      {isCodePreviewOpen && (
-        <CodePreviewView generatedTokens={generatedTokens} />
-      )}
-    </div>
+    <PluginEnvironmentContext.Provider
+      value={environment ?? defaultPluginEnvironment}
+    >
+      <div
+        ref={wrapperRef}
+        className={`${styles.container} ${isPanel ? styles.panelLayout : ''}`}
+        onClickCapture={handleLinkClick}
+      >
+        <Toast ref={toastRef} />
+        {renderView()}
+        {isCodePreviewOpen && (
+          <CodePreviewView
+            generatedTokens={generatedTokens}
+            onClose={isPanel ? () => setIsCodePreviewOpen(false) : undefined}
+          />
+        )}
+      </div>
+    </PluginEnvironmentContext.Provider>
   );
 };
 

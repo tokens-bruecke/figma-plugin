@@ -32,6 +32,7 @@ import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
 import { track } from '@app/api/analytics';
+import { isPanelLayout, usePluginEnvironment } from '@app/pluginEnvironment';
 
 type StyleListItemType = {
   id: stylesType;
@@ -57,10 +58,12 @@ interface ViewProps {
   frameHeight: number;
   onResizeHeight: (height: number) => void;
   onResetHeight: () => void;
-  onImportTokens: () => Promise<void>;
+  /** Undefined where the import can't run (Dev Mode) */
+  onImportTokens?: () => Promise<void>;
   isImporting: boolean;
   /** Collection names of the open file */
   variableCollections: string[];
+  isHidden: boolean;
 }
 
 const version = pkg.version;
@@ -137,7 +140,9 @@ export const SettingsView = (props: ViewProps) => {
     onImportTokens,
     isImporting,
     variableCollections,
+    isHidden,
   } = props;
+  const isPanel = isPanelLayout(usePluginEnvironment());
   const [isPushing, setIsPushing] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
 
@@ -778,13 +783,20 @@ export const SettingsView = (props: ViewProps) => {
             fullWidth
             secondary
           />
-          <Button
-            label="Import tokens (Beta)"
-            onClick={onImportTokens}
-            loading={isImporting}
-            fullWidth
-            secondary
-          />
+          {onImportTokens ? (
+            <Button
+              label="Import tokens (Beta)"
+              onClick={onImportTokens}
+              loading={isImporting}
+              fullWidth
+              secondary
+            />
+          ) : (
+            <Text className={styles.hint}>
+              Importing tokens into variables needs Figma Design and edit
+              access. Dev Mode is read-only.
+            </Text>
+          )}
         </Stack>
       </Panel>
     </>
@@ -864,9 +876,12 @@ export const SettingsView = (props: ViewProps) => {
     <>
       <Toast ref={toastRef} />
       <Stack
-        className={`${styles.settingView} ${
-          isCodePreviewOpen ? styles.fitHighToFrame : ''
-        }`}
+        className={[
+          styles.settingView,
+          isPanel ? styles.panelSettingView : '',
+          isCodePreviewOpen && !isPanel ? styles.fitHighToFrame : '',
+          isHidden ? styles.hidden : '',
+        ].join(' ')}
         hasLeftRightPadding={false}
       >
         <div className={styles.dynamicContent}>{selectRender()}</div>
@@ -887,12 +902,15 @@ export const SettingsView = (props: ViewProps) => {
           </Stack>
         </Panel>
 
-        <div
-          className={styles.heightResizer}
-          onMouseDown={startHeightResize}
-          onDoubleClick={onResetHeight}
-          title="Drag to resize. Double-click to auto-fit"
-        />
+        {/* the Inspect panel is resized by the user, not the plugin */}
+        {!isPanel && (
+          <div
+            className={styles.heightResizer}
+            onMouseDown={startHeightResize}
+            onDoubleClick={onResetHeight}
+            title="Drag to resize. Double-click to auto-fit"
+          />
+        )}
       </Stack>
     </>
   );

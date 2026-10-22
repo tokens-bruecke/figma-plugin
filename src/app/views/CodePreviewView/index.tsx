@@ -6,15 +6,21 @@ import { getTokensStat } from '@common/transform/getTokensStat';
 import { JsonViewer } from '@app/components/JsonViewer';
 import { track } from '@app/api/analytics';
 
-import { Text, Icon } from 'react-figma-ui/ui';
+import { Text, Icon, PanelHeader } from 'react-figma-ui/ui';
 
 interface CodePreviewViewProps {
   generatedTokens: any;
+  /** Set in Dev Mode, where the preview fills the panel and needs a way back */
+  onClose?: () => void;
 }
 
 const copy = require('clipboard-copy');
 
-export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
+export const CodePreviewView = ({
+  generatedTokens,
+  onClose,
+}: CodePreviewViewProps) => {
+  const isPanel = !!onClose;
   const [isUpdateButtonAnimated, setIsUpdateButtonAnimated] =
     React.useState<boolean>(false);
   const [tokensStat, setTokensStat] = React.useState<any>(null);
@@ -111,7 +117,15 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
   }
 
   return (
-    <section className={styles.codePreview}>
+    <section
+      className={`${styles.codePreview} ${
+        isPanel ? styles.panelCodePreview : ''
+      }`}
+    >
+      {isPanel && (
+        <PanelHeader title="Output" isActive hasBackButton onClick={onClose} />
+      )}
+
       <section className={styles.previewToolbar}>
         <button
           className={`${styles.toolbarItem} ${styles.previewToolbarButton} ${
@@ -142,14 +156,18 @@ export const CodePreviewView = ({ generatedTokens }: CodePreviewViewProps) => {
         </div>
       </section>
 
-      <JsonViewer code={JSON.stringify(generatedTokens, null, 2)} />
+      <div className={styles.viewer}>
+        <JsonViewer code={JSON.stringify(generatedTokens, null, 2)} />
+      </div>
 
-      <div
-        className={styles.widthResizer}
-        onMouseDown={startWidthResize}
-        onDoubleClick={resetWidth}
-        title="Drag to resize. Double-click to reset"
-      />
+      {!isPanel && (
+        <div
+          className={styles.widthResizer}
+          onMouseDown={startWidthResize}
+          onDoubleClick={resetWidth}
+          title="Drag to resize. Double-click to reset"
+        />
+      )}
     </section>
   );
 };

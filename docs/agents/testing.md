@@ -65,4 +65,12 @@ For end-to-end tests through `getTokens`, use a complete `IResolver` (see `expor
 4. After a rebuild, re-run the plugin (or use "Hot reload plugin" in the Development menu).
 5. Checklist for UI changes: light and dark theme, the empty file view, preview open/closed, window resize, switching profiles (settings persist after closing and reopening the plugin), import of a file you just exported.
 
+Dev Mode checklist (no automated tests cover it):
+
+1. Open a file with variables, press <kbd>Shift</kbd>+<kbd>D</kbd>, open **Plugins** in the right sidebar and run the development plugin. Test with a real Dev seat if you can, not only a Full seat in Dev Mode.
+2. Export works: Show output (back header), Copy, Download (one file and a split ZIP), a push.
+3. No import button in the settings or the empty view; the hints are shown instead.
+4. Drag the panel narrow and wide: no horizontal scrolling, the settings scroll vertically, toasts fit.
+5. Figma for VS Code: the plugin opens, links open in the browser, Download and Copy work.
+
 The CLI can be tested without Figma: `pnpm run build:cli && node bin/cli.js --input examples/tokens-snapshot.json --stdout --quiet`.
