@@ -3,19 +3,26 @@ export const mergeStylesIntoTokens = (
   styleTokens: any,
   storeStyleInCollection: string
 ) => {
-  if (!storeStyleInCollection || storeStyleInCollection === 'none') {
-    // Object.assign(variableTokens, styleTokens);
-    styleTokens.forEach((styleToken) => {
-      Object.assign(variableTokens, styleToken);
-    });
-  } else {
-    // Object.assign(variableTokens[storeStyleInCollection], styleTokens);
-    styleTokens.forEach((styleToken) => {
-      Object.assign(variableTokens[storeStyleInCollection], styleToken);
-    });
+  let target = variableTokens;
+
+  if (storeStyleInCollection && storeStyleInCollection !== 'none') {
+    const collection = variableTokens[storeStyleInCollection];
+
+    // The setting outlives the file it was picked in, and there are no
+    // collection groups with omitCollectionNames, so the collection may be
+    // missing: keep the styles separate rather than failing the export.
+    if (collection && typeof collection === 'object') {
+      target = collection;
+    } else {
+      console.warn(
+        `[tokens-bruecke] Collection "${storeStyleInCollection}" to add the styles to was not found in the tokens, so the styles are kept separate.`
+      );
+    }
   }
 
-  // console.log("variableTokens", variableTokens);
+  styleTokens.forEach((styleToken) => {
+    Object.assign(target, styleToken);
+  });
 
   return variableTokens;
 };
