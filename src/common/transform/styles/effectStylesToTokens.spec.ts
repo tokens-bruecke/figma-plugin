@@ -127,3 +127,41 @@ describe('effect styles the plugin cannot fully export', () => {
     );
   });
 });
+
+describe('blur styles', () => {
+  const exportBlur = async (isDTCGFormat: boolean) => {
+    const resolver = {
+      getLocalEffectStyles: async () => [
+        {
+          id: '1:2',
+          name: 'blur',
+          effects: [{ type: 'BACKGROUND_BLUR', radius: 4 }],
+        },
+      ],
+    } as any;
+
+    const tokens: any = await effectStylesToTokens(
+      'effects',
+      'hex',
+      isDTCGFormat,
+      false,
+      resolver
+    );
+
+    return tokens.effects.blur;
+  };
+
+  it('uses the $-prefixed keys in the DTCG format', async () => {
+    expect(await exportBlur(true)).toEqual({
+      $type: 'blur',
+      $value: { role: 'background', blur: { value: 4, unit: 'px' } },
+    });
+  });
+
+  it('uses the plain keys without the DTCG format, like other tokens', async () => {
+    expect(await exportBlur(false)).toEqual({
+      type: 'blur',
+      value: { role: 'background', blur: '4px' },
+    });
+  });
+});

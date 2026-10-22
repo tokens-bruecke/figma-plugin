@@ -1058,7 +1058,7 @@ The first effect of a style decides its type: a style that starts with a shadow 
 
 ### Blur
 
-The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported, and blur tokens always use the `$type` / `$value` keys, whatever the [DTCG 2025.10 format](#dtcg-202510-format) setting.
+The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported. Like all other tokens, blur tokens use the `$type` / `$value` keys with the [DTCG 2025.10 format](#dtcg-202510-format) setting on, and `type` / `value` with it off.
 
 ```json
 // Background blur

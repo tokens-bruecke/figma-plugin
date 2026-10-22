@@ -145,12 +145,12 @@ export const effectStylesToTokens = async (
     }
 
     return {
-      $type: 'blur',
-      $value: {
+      [keyNames.type]: 'blur',
+      [keyNames.value]: {
         role: blurEffect.type === 'LAYER_BLUR' ? 'layer' : 'background',
         blur: aliasVariable || makeDimension(blurEffect.radius, isDTCGFormat),
       },
-    } as BlurTokenI;
+    } as unknown as BlurTokenI;
   }
 
   // console.log("allEffectStyles", allEffectStyles);
