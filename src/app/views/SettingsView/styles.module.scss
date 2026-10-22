@@ -72,6 +72,12 @@
   }
 }
 
+// Dev Mode: no extra top padding, the Panel padding is enough
+.panelAbout {
+  padding-top: 0;
+  align-items: flex-start;
+}
+
 .codeLine {
   display: inline-block;
   // font-weight: 500;
