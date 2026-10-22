@@ -230,23 +230,45 @@ const rgbaToRgb = (
 const isReference = (value: any): value is string =>
   typeof value === 'string' && value.startsWith('{') && value.endsWith('}');
 
+/** The `collection.group.name` inside `{…}`, without a `.value` suffix. */
+const referenceBody = (reference: string): string =>
+  reference.slice(1, -1).replace(/\.\$?value$/, '');
+
 /**
  * Turns a `{collection.group.name}` reference into the `collection/group/name`
  * path used as key in the variable map.
  */
 const referenceToFigmaPath = (reference: string): string =>
-  reference
-    .slice(1, -1)
-    // Remove .value / .$value suffix if present
-    .replace(/\.\$?value$/, '')
-    // Convert dots to slashes for Figma variable name format
-    .replace(/\./g, '/');
+  referenceBody(reference).replace(/\./g, '/');
+
+/**
+ * Finds the variable a reference points at. A reference cannot tell a dot in
+ * a name (`spacing/1.5`) from a group separator, so when the plain path does
+ * not match, the map keys are compared in their dotted form instead.
+ */
+const findReferencedVariable = (
+  reference: string,
+  variableMap: Map<string, Variable>
+): Variable | undefined => {
+  const variable = variableMap.get(referenceToFigmaPath(reference));
+  if (variable) {
+    return variable;
+  }
+
+  const body = referenceBody(reference);
+  for (const [path, candidate] of variableMap) {
+    if (path.split('/').join('.') === body) {
+      return candidate;
+    }
+  }
+  return undefined;
+};
 
 const resolveReference = (
   reference: string,
   variableMap: Map<string, Variable>
 ): VariableAlias | null => {
-  const referencedVariable = variableMap.get(referenceToFigmaPath(reference));
+  const referencedVariable = findReferencedVariable(reference, variableMap);
   return referencedVariable
     ? { type: 'VARIABLE_ALIAS', id: referencedVariable.id }
     : null;
@@ -779,13 +801,28 @@ export const tokensToVariables = async (
             // Check if variable already exists
             let variable = variableMap.get(fullPath);
             const isExisting = !!variable;
+            const figmaType = mapTokenTypeToFigmaType(
+              tokenType,
+              getTokenValue(token)
+            );
+
+            // The import does not change the type of a variable, so a value
+            // of another type could not be written to it. A font weight can
+            // be a number or a string variable in Figma.
+            const fitsVariable =
+              variable?.resolvedType === figmaType ||
+              (tokenType === 'fontWeight' &&
+                ['FLOAT', 'STRING'].includes(variable?.resolvedType));
+
+            if (isExisting && !fitsVariable) {
+              result.errors.push(
+                `Variable "${path}" is ${variable.resolvedType} in Figma, but the token is ${figmaType} (${tokenType}): skipped. Rename or delete the variable to import this token.`
+              );
+              continue;
+            }
 
             if (!variable && typeof figma !== 'undefined' && collection) {
               // Create new variable - pass collection object, not ID
-              const figmaType = mapTokenTypeToFigmaType(
-                tokenType,
-                getTokenValue(token)
-              );
               variable = figma.variables.createVariable(
                 path,
                 collection,
@@ -856,8 +893,9 @@ export const tokensToVariables = async (
             const tokenType = getTokenType(token);
 
             if (typeof figma !== 'undefined') {
-              // Set the default mode value
-              const defaultMode = collection!.modes[0];
+              // `$value` is the value of the default mode
+              const defaultModeId =
+                collection!.defaultModeId ?? collection!.modes[0].modeId;
               const figmaValue = convertTokenValueToFigmaValue(
                 tokenValue,
                 tokenType,
@@ -867,7 +905,7 @@ export const tokensToVariables = async (
               if (hasUnresolvedReference(figmaValue)) {
                 deferredValues.push({
                   variable,
-                  modeId: defaultMode.modeId,
+                  modeId: defaultModeId,
                   value: tokenValue,
                   type: tokenType,
                   path: `${collectionName}/${path}`,
@@ -875,7 +913,7 @@ export const tokensToVariables = async (
               } else {
                 setVariableValue(
                   variable,
-                  defaultMode.modeId,
+                  defaultModeId,
                   figmaValue,
                   `variable "${path}"`,
                   result
