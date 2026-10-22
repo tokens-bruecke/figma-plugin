@@ -4,6 +4,7 @@ import { getGradientGeometry } from '@common/transform/color/getGradientGeometry
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
 import { IResolver } from '@common/resolver';
+import { warnSkippedStyle } from './warnSkippedStyle';
 
 const convertGradientStopsToDTCG = async (
   gradientStops: ReadonlyArray<ColorStop>,
@@ -62,10 +63,19 @@ export const colorStylesToTokens = async (
   const allColorStyles = {};
 
   for (const style of paintStyles) {
-    const styleName = style.name;
+    try {
+      allColorStyles[style.name] = await paintStyleToToken(style);
+    } catch (error) {
+      warnSkippedStyle(style.name, error);
+    }
+  }
+
+  async function paintStyleToToken(style: PaintStyle) {
     const paints = style.paints;
 
-    if (paints.length === 0) continue;
+    if (paints.length === 0) {
+      throw new Error('it has no paints');
+    }
 
     const boundVariables = (style as any).boundVariables;
 
@@ -92,17 +102,15 @@ export const colorStylesToTokens = async (
         a: paint.opacity !== undefined ? paint.opacity : 1,
       };
 
-      const styleObject = {
+      return {
         [keyNames.type]: 'color',
         [keyNames.value]:
           aliasVariable || convertRGBA(colorWithOpacity, colorMode),
       };
-
-      allColorStyles[styleName] = styleObject;
     }
 
     // Handle gradient paints (LINEAR, RADIAL, ANGULAR, DIAMOND)
-    else if (
+    if (
       paints[0].type === 'GRADIENT_LINEAR' ||
       paints[0].type === 'GRADIENT_RADIAL' ||
       paints[0].type === 'GRADIENT_ANGULAR' ||
@@ -121,14 +129,18 @@ export const colorStylesToTokens = async (
       // DTCG has no direction or type for a gradient, only stops
       const geometry = getGradientGeometry(paint);
 
-      const styleObject = {
+      return {
         [keyNames.type]: 'gradient',
         [keyNames.value]: gradientStops,
         ...(geometry && { $extensions: { gradient: geometry } }),
       };
-
-      allColorStyles[styleName] = styleObject;
     }
+
+    throw new Error(
+      `only a single solid paint or a gradient can be exported, it has ${paints
+        .map((paint) => paint.type)
+        .join(', ')}`
+    );
   }
 
   colorTokens[customName] = groupObjectNamesIntoCategories(allColorStyles);
