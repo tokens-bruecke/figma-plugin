@@ -19,10 +19,6 @@ Found while analysing v3.20.0 (2026-10-22). Entries marked **(reproduced)** were
 
 ## Plugin (controller and UI)
 
-13. **No error handling around `getTokens` in the controller.** If the export throws, no `setTokens` reply is sent. Download and preview silently do nothing, and the push button spins until its 10 s fallback.
-14. **Import from the empty-file view has no result feedback.** `Container.handleImportTokens` sends `importTokens`, but only `SettingsView` listens for `importResult`. On success the view switches to Settings after the reply was sent, so there is no toast. If the import fails or creates nothing, the Import button keeps spinning.
-15. **Push error handling:** `SettingsView` awaits the servers one after another without try/catch. `pushToCustomURL` runs `JSON.parse(credentials.headers)`, which throws on the default empty headers field, and it shows no success or error toast. Because it runs last, the throw only skips `setIsPushing(false)`, so the button spins until its 10 s fallback. `pushToJSONBin` has no try/catch, so a network error there also stops every server after it.
-16. **Credentials in logs:** `SettingsView` logs the whole active profile (`'JSONsettingsConfig Settings View >>>>'`) on every change, and the profile contains server tokens. They appear in the Figma developer console. Credentials are also stored unencrypted in `figma.clientStorage`, which is local to the machine.
 17. The `activeProfileConfig` message is handled in the controller, but nothing sends it.
 
 ## Dead code (safe to ignore; remove only in a dedicated cleanup)

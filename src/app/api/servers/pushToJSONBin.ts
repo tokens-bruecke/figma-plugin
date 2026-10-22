@@ -7,22 +7,36 @@ export const pushToJSONBin = async (
 
   let response = null;
 
-  // update existing bin
-  if (credentials.id) {
-    response = await fetch(`https://api.jsonbin.io/v3/b/${credentials.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': credentials.secretKey,
-        'X-Bin-Name': credentials.name,
+  try {
+    response = await requestBin();
+  } catch (error) {
+    // A network error rejects instead of returning a response
+    toastCallback({
+      title: 'JSONBin: Error pushing tokens',
+      message: `Error pushing tokens to JSONBin: ${error.message}`,
+      options: {
+        type: 'error',
       },
-      body: JSON.stringify(tokens),
     });
+    return;
   }
 
-  // create new bin
-  if (!credentials.id) {
-    response = await fetch(`https://api.jsonbin.io/v3/b`, {
+  async function requestBin() {
+    // update existing bin
+    if (credentials.id) {
+      return fetch(`https://api.jsonbin.io/v3/b/${credentials.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': credentials.secretKey,
+          'X-Bin-Name': credentials.name,
+        },
+        body: JSON.stringify(tokens),
+      });
+    }
+
+    // create new bin
+    return fetch(`https://api.jsonbin.io/v3/b`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

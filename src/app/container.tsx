@@ -7,6 +7,8 @@ import { EmptyView } from './views/EmptyView';
 import { SettingsView } from './views/SettingsView';
 
 import { CodePreviewView } from './views/CodePreviewView';
+import { Toast, ToastRefI } from './components/Toast';
+import { COMPOSED_COLOR_ISSUE_URL } from '@common/transform/tokensToVariables';
 import { importTokensFile } from './api/importTokensFile';
 import { track } from './api/analytics';
 import {
@@ -19,6 +21,9 @@ import styles from './styles.module.scss';
 
 const Container = () => {
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
+  // Lives here rather than in a view: an import from the empty view switches
+  // to the settings view, and the result has to survive that switch
+  const toastRef = React.useRef<ToastRefI>(null);
 
   const [generatedTokens, setGeneratedTokens] = useState({});
 
@@ -199,6 +204,14 @@ const Container = () => {
       }
     } catch (error) {
       console.error('Import error:', error);
+      toastRef.current?.show({
+        title: 'Import Error',
+        message: error instanceof Error ? error.message : String(error),
+        options: {
+          type: 'error',
+          timeout: 5000,
+        },
+      });
       setIsImporting(false);
     }
   };
@@ -213,8 +226,40 @@ const Container = () => {
       const message = event.data?.pluginMessage;
       if (!message) return;
 
-      const { type, hasVariables, variableCollections, storageConfig } =
+      const { type, hasVariables, variableCollections, storageConfig, result } =
         message;
+
+      if (type === 'importResult') {
+        setIsImporting(false);
+
+        if (result) {
+          const hasIssues = result.errors.length > 0;
+          toastRef.current?.show({
+            title: result.success
+              ? hasIssues
+                ? 'Imported with issues'
+                : 'Import Successful'
+              : 'Import Failed',
+            message: result.message,
+            ...(result.composedColorsRejected > 0 && {
+              link: {
+                label: 'Figma issue #375: update Figma to import these',
+                url: COMPOSED_COLOR_ISSUE_URL,
+              },
+            }),
+            options: {
+              type: result.success ? (hasIssues ? 'warn' : 'success') : 'error',
+              // leave time to read the issues
+              timeout: hasIssues ? 60000 : 10000,
+            },
+          });
+
+          // Log errors if any
+          if (result.errors.length > 0) {
+            console.error('Import errors:', result.errors);
+          }
+        }
+      }
 
       // stored config arrives first; only then may the UI write back
       if (type === 'storageConfig') {
@@ -234,16 +279,13 @@ const Container = () => {
         if (hasVariables) {
           setMultiTenantConfig((prev) => ({
             ...prev,
-            profiles: Object.keys(prev.profiles).reduce(
-              (acc, profileId) => {
-                acc[profileId] = {
-                  ...prev.profiles[profileId],
-                  variableCollections,
-                };
-                return acc;
-              },
-              {} as Record<ProfileId, SettingsProfileI>
-            ),
+            profiles: Object.keys(prev.profiles).reduce((acc, profileId) => {
+              acc[profileId] = {
+                ...prev.profiles[profileId],
+                variableCollections,
+              };
+              return acc;
+            }, {} as Record<ProfileId, SettingsProfileI>),
           }));
         }
       }
@@ -399,6 +441,8 @@ const Container = () => {
     return (
       <SettingsView
         {...commonProps}
+        onImportTokens={handleImportTokens}
+        isImporting={isImporting}
         isCodePreviewOpen={isCodePreviewOpen}
         setIsCodePreviewOpen={setIsCodePreviewOpen}
         setGeneratedTokens={setGeneratedTokens}
@@ -412,6 +456,7 @@ const Container = () => {
 
   return (
     <div ref={wrapperRef} className={styles.container}>
+      <Toast ref={toastRef} />
       {renderView()}
       {isCodePreviewOpen && (
         <CodePreviewView generatedTokens={generatedTokens} />
