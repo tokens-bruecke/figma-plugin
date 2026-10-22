@@ -95,14 +95,9 @@ interface ServerSettingsI {
   gitlab: GitlabCredentialsI;
   customURL: CustomURLCredentialsI;
 }
-type PluginStateI = {
-  variableCollections: string[];
+type JSONSettingsConfigI = ExportSettingsI & {
+  servers: ServerSettingsI;
 };
-
-type JSONSettingsConfigI = ExportSettingsI &
-  PluginStateI & {
-    servers: ServerSettingsI;
-  };
 
 type ProfileId = string;
 

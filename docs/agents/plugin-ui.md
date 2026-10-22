@@ -20,22 +20,23 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 
 ### Controller → UI
 
-| `type`              | Payload                                         | Handled in                                                                                      |
-| ------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `storageConfig`     | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                  |
-| `checkForVariables` | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; copies collection names into **every** profile |
-| `setTokens`         | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                      |
-| `tokensError`       | `role`, `message`                               | `SettingsView` → error toast, stops the push spinner. Sent when `getTokens` throws              |
-| `importResult`      | `result` (see import-pipeline.md)               | `Container` → its own toast, which survives the switch from the empty view to the settings view |
+| `type`              | Payload                                         | Handled in                                                                                                       |
+| ------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `storageConfig`     | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                                   |
+| `checkForVariables` | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; keeps the collection names in its own state for "Add styles to" |
+| `setTokens`         | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                                       |
+| `tokensError`       | `role`, `message`                               | `SettingsView` → error toast, stops the push spinner. Sent when `getTokens` throws                               |
+| `importResult`      | `result` (see import-pipeline.md)               | `Container` → its own toast, which survives the switch from the empty view to the settings view                  |
 
 Message shapes are typed loosely as `TokensMessageI` in global.d.ts. To add a message: add the `type` to `TokensMessageI` if it carries tokens, add an `if` block in the controller, and a listener in the component that needs the reply.
 
 ## Settings, profiles, storage
 
-- **Types** (global.d.ts): `JSONSettingsConfigI = ExportSettingsI & { variableCollections: string[] } & { servers: ServerSettingsI }`; `SettingsProfileI = JSONSettingsConfigI & { profileName, updatedAt }`; `MultiTenantConfigI = { activeProfileId, profiles: Record<id, SettingsProfileI> }`.
+- **Types** (global.d.ts): `JSONSettingsConfigI = ExportSettingsI & { servers: ServerSettingsI }`; `SettingsProfileI = JSONSettingsConfigI & { profileName, updatedAt }`; `MultiTenantConfigI = { activeProfileId, profiles: Record<id, SettingsProfileI> }`.
 - **Storage:** `figma.clientStorage` key **`'tokenbrücke-config'`**, value `JSON.stringify(MultiTenantConfigI)`. clientStorage is local to the user's machine and plugin, and it isn't shared through the file. **Server tokens and passwords are stored here in plain text.**
 - **Defaults and migration** ([storageConfig.ts](../../src/app/controller/storageConfig.ts)): `createDefaultJSONSettingsConfig()` holds the plugin defaults. `sanitizeProfileConfig` deep-merges each stored profile with the defaults (includedStyles, each server), migrates the legacy `useDTCGKeys` → `useDTCG`, and backfills new booleans. `parseStoredConfig` falls back to a fresh `{ activeProfileId: 'default', profiles: { default: <default profile named 'Default profile'> } }` for anything unreadable. **When you add a setting, add its default here, or old profiles will have `undefined`.**
 - **Flow:** the controller loads the config at startup and on `getStorageConfig`. The UI holds the state (`Container.multiTenantConfig`), and `useDidUpdate` posts every change back. It waits for `isStorageLoaded` so the defaults don't overwrite what is stored. `getTokens` always uses the active profile the controller last received.
+- **Collection names** of the open file are not part of the profile. Up to v3.20 they were, and the two startup replies (`storageConfig`, `checkForVariables`) raced: a stored list arriving last replaced the current one and left "Add styles to" empty. `sanitizeProfileConfig` now drops the old field.
 - **Profiles:** ids are `'default'` and `profile-<Date.now()>`. New profiles start from the defaults. The last profile can't be deleted.
 
 ## UI structure

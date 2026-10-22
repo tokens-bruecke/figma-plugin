@@ -38,6 +38,9 @@ const Container = () => {
 
   const [currentView, setCurrentView] = useState('main');
   const [fileHasVariables, setFileHasVariables] = useState(false);
+  // Collection names of the open file. Kept out of the stored profile, so
+  // the stored config can't overwrite them when it arrives later
+  const [variableCollections, setVariableCollections] = useState<string[]>([]);
   const [isImporting, setIsImporting] = useState(false);
 
   const [multiTenantConfig, setMultiTenantConfig] =
@@ -276,18 +279,7 @@ const Container = () => {
 
         track(hasVariables ? '/ready' : '/empty');
 
-        if (hasVariables) {
-          setMultiTenantConfig((prev) => ({
-            ...prev,
-            profiles: Object.keys(prev.profiles).reduce((acc, profileId) => {
-              acc[profileId] = {
-                ...prev.profiles[profileId],
-                variableCollections,
-              };
-              return acc;
-            }, {} as Record<ProfileId, SettingsProfileI>),
-          }));
-        }
+        setVariableCollections(variableCollections || []);
       }
     };
 
@@ -443,6 +435,7 @@ const Container = () => {
         {...commonProps}
         onImportTokens={handleImportTokens}
         isImporting={isImporting}
+        variableCollections={variableCollections}
         isCodePreviewOpen={isCodePreviewOpen}
         setIsCodePreviewOpen={setIsCodePreviewOpen}
         setGeneratedTokens={setGeneratedTokens}
