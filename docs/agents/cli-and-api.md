@@ -73,7 +73,7 @@ class TokensBrueckeError extends Error { code; cause? }
 - `options` is `ExportOptions` (all optional), resolved with the same `resolveExportOptions(options, {})` as the CLI, so the output is identical.
 - `convertTokens` detects a REST response by its `meta` key → `restVariablesToSnapshot` (same filtering and sorting as `RestAPIResolver`). That input has no styles, so any `includedStyles.*.isIncluded` → `INVALID_ARGUMENT`.
 - Error mapping: missing args → `INVALID_ARGUMENT`; snapshot or REST shape → `INVALID_SNAPSHOT`; axios errors → `FIGMA_FORBIDDEN` (403), `FIGMA_NOT_FOUND` (404), `FIGMA_RATE_LIMITED` (429), `FIGMA_REQUEST_FAILED`; anything else during conversion → `CONVERSION_FAILED`. The original error is in `cause`.
-- Uses `silentLog` and never touches `process` or the file system. The core's `console.warn` calls (skipped variables, `#missing#` aliases, collisions) still go to stderr (see known-issues.md).
+- Uses `silentLog` and never touches `process` or the file system. The core reports warnings through the resolver's `warn` (`src/common/warn.ts`). The API passes `onWarning` there and ignores warnings by default, so nothing reaches the console. `FetchTokensParams.onWarning`, and `convertTokens(input, options, { onWarning })` (`WarningOptions` in api.d.ts).
 - **Type contract:** [api.d.ts](../../api.d.ts) is hand-written, self-contained and shipped as is. `src/api/index.ts` imports its types, and the `exportOptionsMatchSettings` compile-time check fails if `ExportOptions` and `ExportSettingsI` have different keys.
 - Built twice (CJS `bin/api.js` and ESM `bin/api.mjs`). Each build has its own `TokensBrueckeError` class, so consumers should check `error.code` rather than `instanceof`.
 

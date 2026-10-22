@@ -4,6 +4,7 @@ import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
 import { IResolver } from '@common/resolver';
+import { warn } from '@common/warn';
 import {
   createExtensionResolver,
   createExtensionValuesByMode,
@@ -132,7 +133,8 @@ export const variablesToTokens = async (
   const extensions = collections.filter(isExtendedCollection);
 
   if (omitCollectionNames && extensions.length > 0) {
-    console.warn(
+    warn(
+      resolver,
       `[tokens-bruecke] Skipped ${extensions.length} extended collection(s): they repeat the variables of their root collection, which collide in a single namespace.`
     );
   } else {
@@ -162,7 +164,8 @@ export const variablesToTokens = async (
       // e.g. an extension of a library collection: the inherited variables
       // live in the library file, not in this one.
       if (missingVariables > 0) {
-        console.warn(
+        warn(
+          resolver,
           `[tokens-bruecke] Skipped ${missingVariables} variable(s) of extended collection "${extension.name}": they are not local to this file (is it extending a library collection?).`
         );
       }
@@ -177,7 +180,8 @@ export const variablesToTokens = async (
     } catch (error) {
       // One variable the plugin cannot convert must not abort the whole
       // export: leave it out, say so, and keep going.
-      console.warn(
+      warn(
+        resolver,
         `[tokens-bruecke] Skipped variable "${variable.name}" (${
           variable.resolvedType
         }): ${error?.message ?? error}. Values: ${JSON.stringify(
@@ -257,7 +261,7 @@ export const variablesToTokens = async (
             if (modeName) {
               return [[modeName, await getValue(index)]];
             }
-            console.warn(`ModeId ${modeId} not found in ${collectionId}`);
+            warn(resolver, `ModeId ${modeId} not found in ${collectionId}`);
             return [];
           })
         )
@@ -315,7 +319,8 @@ export const variablesToTokens = async (
     if (omitCollectionNames) {
       // Place variable into flat object; warn on collision
       if (seenVariableNames.has(variable.name)) {
-        console.warn(
+        warn(
+          resolver,
           `[tokens-bruecke] Collision: variable "${variable.name}" exists in multiple collections. Last value wins.`
         );
       }

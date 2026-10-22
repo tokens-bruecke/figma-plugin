@@ -44,7 +44,7 @@ For end-to-end tests through `getTokens`, use a complete `IResolver` (see `expor
 
 **Fake `figma` global for the import.** `tokensToVariables.import.spec.ts` defines `createFakeFigma()` (collections with `renameMode`/`addMode`, variables with `setValueForMode`) and installs it with `vi.stubGlobal('figma', fake)` in `beforeEach`, then removes it with `vi.unstubAllGlobals()` in `afterEach`. Reuse or extend that fake for import tests; don't call the real API.
 
-**Console noise.** The transforms warn with `console.warn`. When a test checks a warning, spy on it with `vi.spyOn(console, 'warn').mockImplementation(() => {})` and assert the `[tokens-bruecke]` message.
+**Console noise.** The transforms warn through `warn()` (src/common/warn.ts), which falls back to `console.warn` when the resolver has no `warn`. To check a warning, give the test resolver a `warn: vi.fn()`, or spy on `console.warn` with `vi.spyOn(console, 'warn').mockImplementation(() => {})`, and assert the `[tokens-bruecke]` message.
 
 **CLI and update check.** `init.spec.ts` and `updateCheck.spec.ts` inject their dependencies (`ask`, `isTTY`, `env`, `now`, `fetch`, `cacheFile`) and don't touch the real terminal, network or home directory. Do the same for new CLI code: take side effects as parameters with production defaults.
 
