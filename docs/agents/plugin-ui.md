@@ -6,27 +6,35 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 
 ### UI → controller
 
-| `type`               | Payload                                                            | Sender                                                   | Effect                                                                        |
-| -------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `getStorageConfig`   |                                                                    | `Container` on mount                                     | load from `clientStorage`, reply `storageConfig`                              |
-| `checkForVariables`  |                                                                    | `Container` on mount                                     | reply `checkForVariables`                                                     |
-| `JSONSettingsConfig` | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                           |
-| `getTokens`          | `role: 'preview' \| 'download' \| 'push'`, `server?: ServerType[]` | `SettingsView`, `CodePreviewView`                        | `getTokens(PluginAPIResolver, activeProfile)` → reply `setTokens`             |
-| `importTokens`       | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container` (for both views)                             | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success) |
-| `resizeUIHeight`     | `height`                                                           | `Container` (ResizeObserver, manual resize)              | `figma.ui.resize(width, height)`                                              |
-| `resizeUIWidth`      | `width`                                                            | `CodePreviewView` drag handle                            | preview width (min 540)                                                       |
-| `resetUIWidth`       |                                                                    | `CodePreviewView` double-click                           | preview width back to 800                                                     |
-| `openCodePreview`    | `isCodePreviewOpen`, `height`                                      | `Container`                                              | width 800/custom with preview, else 300                                       |
+| `type`                 | Payload                                                            | Sender                                                   | Effect                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `getPluginEnvironment` |                                                                    | `Container` on mount                                     | reply `pluginEnvironment`                                                                                           |
+| `getStorageConfig`     |                                                                    | `Container` on mount                                     | load from `clientStorage`, reply `storageConfig`                                                                    |
+| `getSharedProfiles`    |                                                                    | `Container` on mount                                     | read `figma.root` pluginData, reply `sharedProfiles`                                                                |
+| `shareProfile`         | `sharedId`, `profile: SettingsProfileI`, `updatedAt`               | `Container` (ProfileDetailView)                          | `stripCredentials` → `figma.root.setPluginData`, reply `sharedProfiles`                                             |
+| `unshareProfile`       | `sharedId`                                                         | `Container` (ProfileDetailView)                          | remove it, reply `sharedProfiles`                                                                                   |
+| `openExternal`         | `url` (http/https only)                                            | `Container`, for `target="_blank"` clicks in VS Code     | `figma.openExternal(url)`                                                                                           |
+| `checkForVariables`    |                                                                    | `Container` on mount                                     | reply `checkForVariables`                                                                                           |
+| `JSONSettingsConfig`   | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                                                                 |
+| `getTokens`            | `role: 'preview' \| 'download' \| 'push'`, `server?: ServerType[]` | `SettingsView`, `CodePreviewView`                        | `getTokens(PluginAPIResolver, activeProfile)` → reply `setTokens`                                                   |
+| `importTokens`         | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container` (for both views)                             | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success). In Dev Mode: an `importResult` error |
+| `resizeUIHeight`       | `height`                                                           | `Container` (ResizeObserver, manual resize)              | `figma.ui.resize(width, height)`. All four resize messages are ignored in Dev Mode                                  |
+| `resizeUIWidth`        | `width`                                                            | `CodePreviewView` drag handle                            | preview width (min 540)                                                                                             |
+| `resetUIWidth`         |                                                                    | `CodePreviewView` double-click                           | preview width back to 800                                                                                           |
+| `openCodePreview`      | `isCodePreviewOpen`, `height`                                      | `Container`                                              | width 800/custom with preview, else 300                                                                             |
 
 ### Controller → UI
 
-| `type`              | Payload                                         | Handled in                                                                                                       |
-| ------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `storageConfig`     | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                                   |
-| `checkForVariables` | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; keeps the collection names in its own state for "Add styles to" |
-| `setTokens`         | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                                       |
-| `tokensError`       | `role`, `message`                               | `SettingsView` → error toast, stops the push spinner. Sent when `getTokens` throws                               |
-| `importResult`      | `result` (see import-pipeline.md)               | `Container` → its own toast, which survives the switch from the empty view to the settings view                  |
+| `type`                | Payload                                         | Handled in                                                                                                       |
+| --------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pluginEnvironment`   | `environment: PluginEnvironmentI`               | `Container` → `PluginEnvironmentContext`. Views wait for it (`LoadingView`)                                      |
+| `storageConfig`       | `storageConfig: MultiTenantConfigI`             | `Container` → `setMultiTenantConfig`, `isStorageLoaded = true`                                                   |
+| `sharedProfiles`      | `sharedProfiles: SharedProfilesI`               | `Container` → profile dropdown section "Shared in this file", Update banner                                      |
+| `sharedProfilesError` | `message`                                       | `Container` → error toast (e.g. over the 100 kB pluginData limit)                                                |
+| `checkForVariables`   | `hasVariables`, `variableCollections: string[]` | `Container` → `Loading`/`Empty`/`Settings` view; keeps the collection names in its own state for "Add styles to" |
+| `setTokens`           | `tokens`, `role`, `server`                      | `SettingsView` → preview / download / push                                                                       |
+| `tokensError`         | `role`, `message`                               | `SettingsView` → error toast, stops the push spinner. Sent when `getTokens` throws                               |
+| `importResult`        | `result` (see import-pipeline.md)               | `Container` → its own toast, which survives the switch from the empty view to the settings view                  |
 
 Message shapes are typed loosely as `TokensMessageI` in global.d.ts. To add a message: add the `type` to `TokensMessageI` if it carries tokens, add an `if` block in the controller, and a listener in the component that needs the reply.
 
@@ -38,6 +46,7 @@ Message shapes are typed loosely as `TokensMessageI` in global.d.ts. To add a me
 - **Flow:** the controller loads the config at startup and on `getStorageConfig`. The UI holds the state (`Container.multiTenantConfig`), and `useDidUpdate` posts every change back. It waits for `isStorageLoaded` so the defaults don't overwrite what is stored. `getTokens` always uses the active profile the controller last received.
 - **Collection names** of the open file are not part of the profile. Up to v3.20 they were, and the two startup replies (`storageConfig`, `checkForVariables`) raced: a stored list arriving last replaced the current one and left "Add styles to" empty. `sanitizeProfileConfig` now drops the old field.
 - **Profiles:** ids are `'default'` and `profile-<Date.now()>`. New profiles start from the defaults. The last profile can't be deleted.
+- **Shared profiles** ([sharedProfiles.ts](../../src/app/controller/sharedProfiles.ts)): stored in the file with `figma.root.setPluginData('sharedProfiles', JSON)`, as `SharedProfilesI` keyed by `shared-<Date.now()>`. pluginData is private to the plugin id for stability, not security, so `stripCredentials` empties every token, key and Custom URL header, both when writing and when reading. A local profile follows a shared one through `sharedId`; `sharedUpdatedAt` is the shared `updatedAt` it last applied, and a newer one shows the Update banner. `mergeSharedProfile` takes the settings from the file and keeps the local name and credentials. pluginData may be written in Dev Mode too. The entry must stay under 100 kB (`serializeSharedProfiles` throws above 90 000 characters).
 
 ## UI structure
 
@@ -61,6 +70,7 @@ index.tsx  createRoot(#react-page) + react-figma-ui styles
 - UI kit: [`react-figma-ui`](https://github.com/PavelLaptev/react-figma-ui), pinned to a git commit in package.json (`Panel`, `PanelHeader`, `Stack`, `Dropdown`, `Toggle`, `Input`, `Button`, `IconButton`, `Icon`, `Text`, `OverlayList`). Use these components and Figma's CSS variables (`var(--figma-color-…)`, `var(--space-…)`) so the UI follows the Figma theme (`showUI(..., { themeColors: true })`).
 - Styles are SCSS modules (`styles.module.scss` next to each view or component), typed by `declaration.d.ts`.
 - Window: width 300 (`config.frameWidth`), 800 with the preview (user-resizable, min 540). Height follows the content through ResizeObserver; manual resizing is between 360 and the content height, and a double-click resets it.
+- Panel layout (Dev Mode, `isPanelLayout` in [pluginEnvironment.ts](../../src/app/pluginEnvironment.ts)): no ResizeObserver, no resize handles, everything `width: 100%` and `height: 100vh` with vertical scrolling. The preview replaces the settings (back header via `onClose`) instead of sitting beside them; `SettingsView` stays mounted but hidden, because its listener receives the preview tokens. `canImportTokens` hides the import buttons; `onImportTokens` is then `undefined`.
 - Toasts: `toastRef.current?.show({ title, message, link?, options: { type, timeout } })`. Error toasts stay until clicked.
 
 ## Push servers (src/app/api/servers/)

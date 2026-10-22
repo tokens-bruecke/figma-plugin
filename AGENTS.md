@@ -94,7 +94,8 @@ Path aliases (tsconfig, webpack and vitest): `@common/*`, `@app/*`, `@cli/*`, `@
 6. **Plugin sandbox versus UI:** `figma.*` exists only in the controller. `fetch`, DOM, file download/upload and all push servers run in the **UI** iframe. They communicate only through `postMessage` (see [plugin-ui.md](docs/agents/plugin-ui.md)).
 7. **The manifest uses `"documentAccess": "dynamic-page"`**, so use only the async Plugin API variants (`getLocalVariablesAsync`, `getVariableByIdAsync`, `getLocalPaintStylesAsync`, …). The sync versions throw.
 8. **CLI stdout belongs to the JSON.** In `src/cli/`, log progress with `log()` from `logger.ts` (stderr, silenced by `--quiet`) and errors with `console.error`. Never use `console.log` on the export path. The library API (`src/api`) must not log, exit or read env vars: inject `silentLog`, and pass `onWarning` (default: ignore) as the resolver's `warn`.
-9. **Privacy:** analytics (`src/app/api/analytics.ts`) may only send fixed event paths, never token data, names, URLs or credentials. A new event must be added to the "Privacy and analytics" list in README.md.
+9. **The plugin also runs in Dev Mode** (`editorType: ["figma", "dev"]`), where every document write throws, even for users with edit access. Only the import may write to the document, and it is hidden there (`canImportTokens`). Writing pluginData is allowed. The UI must work in a user-sized panel (`isPanelLayout`); don't rely on `figma.ui.resize` there. See [plugin-ui.md](docs/agents/plugin-ui.md).
+10. **Privacy:** analytics (`src/app/api/analytics.ts`) may only send fixed event paths, never token data, names, URLs or credentials. A new event must be added to the "Privacy and analytics" list in README.md.
 
 ### Export settings live in many places
 

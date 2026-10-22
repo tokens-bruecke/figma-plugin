@@ -8,6 +8,23 @@
   container-type: inline-size;
 }
 
+.viewer {
+  height: 100%;
+}
+
+// Dev Mode: the preview takes the whole Inspect panel, below a back header
+.panelCodePreview {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-left: none;
+
+  .viewer {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
 .codePreviewOpen {
   height: 100vh;
 

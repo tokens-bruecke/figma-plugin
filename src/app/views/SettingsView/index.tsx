@@ -32,6 +32,7 @@ import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
 import { track } from '@app/api/analytics';
+import { isPanelLayout, usePluginEnvironment } from '@app/pluginEnvironment';
 
 type StyleListItemType = {
   id: stylesType;
@@ -57,11 +58,20 @@ interface ViewProps {
   frameHeight: number;
   onResizeHeight: (height: number) => void;
   onResetHeight: () => void;
-  onImportTokens: () => Promise<void>;
+  /** Undefined where the import can't run (Dev Mode) */
+  onImportTokens?: () => Promise<void>;
   isImporting: boolean;
   /** Collection names of the open file */
   variableCollections: string[];
+  isHidden: boolean;
+  sharedProfiles: SharedProfilesI;
+  adoptSharedProfile: (sharedId: string) => void;
+  updateFromSharedProfile: (profileId: string) => void;
+  shareProfileInFile: (profileId: string) => void;
+  unshareProfileInFile: (profileId: string) => void;
 }
+
+const sharedOptionPrefix = 'shared:';
 
 const version = pkg.version;
 const stylesList = [
@@ -137,11 +147,32 @@ export const SettingsView = (props: ViewProps) => {
     onImportTokens,
     isImporting,
     variableCollections,
+    isHidden,
+    sharedProfiles,
+    adoptSharedProfile,
+    updateFromSharedProfile,
+    shareProfileInFile,
+    unshareProfileInFile,
   } = props;
+  const isPanel = isPanelLayout(usePluginEnvironment());
   const [isPushing, setIsPushing] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
 
   const profileEntries = Object.entries(multiTenantConfig.profiles || {});
+
+  // Shared profiles that have no local copy yet
+  const linkedSharedIds = profileEntries.map(([, profile]) => profile.sharedId);
+  const unlinkedSharedEntries = Object.entries(sharedProfiles).filter(
+    ([sharedId]) => !linkedSharedIds.includes(sharedId)
+  );
+
+  const activeProfile =
+    multiTenantConfig.profiles[multiTenantConfig.activeProfileId];
+  const activeSharedProfile =
+    activeProfile?.sharedId && sharedProfiles[activeProfile.sharedId];
+  const hasSharedProfileUpdate =
+    !!activeSharedProfile &&
+    activeSharedProfile.updatedAt > (activeProfile.sharedUpdatedAt ?? 0);
 
   const serversHeaderRef = React.useRef(null);
 
@@ -451,6 +482,13 @@ export const SettingsView = (props: ViewProps) => {
               leftIcon={<Icon name="profile" size="32" />}
               value={multiTenantConfig.activeProfileId}
               onChange={(profileId: string) => {
+                if (profileId.startsWith(sharedOptionPrefix)) {
+                  adoptSharedProfile(
+                    profileId.slice(sharedOptionPrefix.length)
+                  );
+                  return;
+                }
+
                 setActiveProfileId(profileId);
               }}
               optionsSections={[
@@ -460,6 +498,19 @@ export const SettingsView = (props: ViewProps) => {
                     label: profile.profileName,
                   })),
                 },
+                ...(unlinkedSharedEntries.length
+                  ? [
+                      {
+                        title: 'Shared in this file',
+                        options: unlinkedSharedEntries.map(
+                          ([sharedId, profile]) => ({
+                            id: `${sharedOptionPrefix}${sharedId}`,
+                            label: profile.profileName,
+                          })
+                        ),
+                      },
+                    ]
+                  : []),
               ]}
             />
           </Stack>
@@ -478,6 +529,27 @@ export const SettingsView = (props: ViewProps) => {
             children={<Icon name="plus" size="32" />}
           />
         </Stack>
+
+        {hasSharedProfileUpdate && (
+          <Stack
+            hasLeftRightPadding
+            hasTopBottomPadding
+            direction="row"
+            gap="var(--space-extra-small)"
+            className={styles.rowItem}
+          >
+            <Text className={styles.rowItemText}>
+              The shared profile changed in this file.
+            </Text>
+            <Button
+              label="Update"
+              secondary
+              onClick={() => {
+                updateFromSharedProfile(multiTenantConfig.activeProfileId);
+              }}
+            />
+          </Stack>
+        )}
       </Panel>
 
       <Panel>
@@ -778,13 +850,20 @@ export const SettingsView = (props: ViewProps) => {
             fullWidth
             secondary
           />
-          <Button
-            label="Import tokens (Beta)"
-            onClick={onImportTokens}
-            loading={isImporting}
-            fullWidth
-            secondary
-          />
+          {onImportTokens ? (
+            <Button
+              label="Import tokens (Beta)"
+              onClick={onImportTokens}
+              loading={isImporting}
+              fullWidth
+              secondary
+            />
+          ) : (
+            <Text className={styles.hint}>
+              Importing tokens into variables needs Figma Design and edit
+              access. Dev Mode is read-only.
+            </Text>
+          )}
         </Stack>
       </Panel>
     </>
@@ -813,8 +892,11 @@ export const SettingsView = (props: ViewProps) => {
             multiTenantConfig.profiles[activeProfileId]?.profileName || ''
           }
           profileCount={profileEntries.length}
+          isShared={!!activeSharedProfile}
           renameProfile={renameProfile}
           deleteProfile={deleteProfile}
+          shareProfileInFile={shareProfileInFile}
+          unshareProfileInFile={unshareProfileInFile}
           setCurrentView={setCurrentView}
         />
       );
@@ -864,9 +946,12 @@ export const SettingsView = (props: ViewProps) => {
     <>
       <Toast ref={toastRef} />
       <Stack
-        className={`${styles.settingView} ${
-          isCodePreviewOpen ? styles.fitHighToFrame : ''
-        }`}
+        className={[
+          styles.settingView,
+          isPanel ? styles.panelSettingView : '',
+          isCodePreviewOpen && !isPanel ? styles.fitHighToFrame : '',
+          isHidden ? styles.hidden : '',
+        ].join(' ')}
         hasLeftRightPadding={false}
       >
         <div className={styles.dynamicContent}>{selectRender()}</div>
@@ -887,12 +972,15 @@ export const SettingsView = (props: ViewProps) => {
           </Stack>
         </Panel>
 
-        <div
-          className={styles.heightResizer}
-          onMouseDown={startHeightResize}
-          onDoubleClick={onResetHeight}
-          title="Drag to resize. Double-click to auto-fit"
-        />
+        {/* the Inspect panel is resized by the user, not the plugin */}
+        {!isPanel && (
+          <div
+            className={styles.heightResizer}
+            onMouseDown={startHeightResize}
+            onDoubleClick={onResetHeight}
+            title="Drag to resize. Double-click to auto-fit"
+          />
+        )}
       </Stack>
     </>
   );

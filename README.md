@@ -52,7 +52,9 @@ TokensBruecke exports Figma variables and styles as design tokens JSON compatibl
     - [Custom server](#custom-server)
   - [Show output](#show-output)
   - [Plugin window height](#plugin-window-height)
+  - [Dev Mode](#dev-mode)
   - [Multiple profiles](#multiple-profiles)
+    - [Shared profiles](#shared-profiles)
   - [Config autosaving](#config-autosaving)
   - [Styles support](#styles-support)
     - [Typography](#typography)
@@ -97,7 +99,7 @@ The plugin supports both **exporting** and **importing** design tokens:
 
 #### Import (JSON → Variables)
 
-- Click **"Import tokens (Beta)"** to import design tokens from a JSON file back into Figma. The button is in the settings and on the "No variables found" screen
+- Click **"Import tokens (Beta)"** to import design tokens from a JSON file back into Figma. The button is in the settings and on the "No variables found" screen. The import runs in Figma Design only, not in [Dev Mode](#dev-mode)
 - The plugin will create variable collections, modes, and variables based on the JSON structure
 - Supports both DTCG format (`$value`, `$type`) and standard format (`value`, `type`)
 - Handles alias references between variables
@@ -886,6 +888,25 @@ The plugin window auto-fits the height of its content, but you can adjust it man
 - **Double-click** the handle to reset back to auto-fit. The window snaps to match the content height again.
 - Your manual height is preserved while the output preview is open, so you can resize both with and without the preview showing.
 
+In [Dev Mode](#dev-mode) the plugin fills the Inspect panel instead, so there is no resizer.
+
+---
+
+## Dev Mode
+
+The plugin also runs in Dev Mode and in [Figma for VS Code](https://help.figma.com/hc/en-us/articles/15023121296151), so developers with a Dev seat can export tokens themselves. Open a file in Dev Mode, go to **Plugins** in the right sidebar and run TokensBruecke.
+
+| Feature                                    | Figma Design | Dev Mode                                                         |
+| ------------------------------------------ | ------------ | ---------------------------------------------------------------- |
+| Export: settings, download, push, profiles | ✅           | ✅                                                               |
+| Show output                                | ✅ sidebar   | ✅ fills the panel, with a back button                           |
+| Import tokens into variables               | ✅           | ❌ Dev Mode is read-only for every plugin, even with edit access |
+| Window resizing                            | ✅           | the panel is resized by you, not the plugin                      |
+
+To import tokens, someone with a Full seat and edit access to the file runs the plugin in Figma Design. Which seats can run plugins where is listed in Figma's [plugin help article](https://help.figma.com/hc/en-us/articles/360042532714): a Dev seat runs plugins in Dev Mode only, and Dev Mode needs a paid plan.
+
+Set-up is personal: profiles and server credentials are stored per user. To give developers the same settings, [share a profile in the file](#shared-profiles).
+
 ---
 
 ## Multiple profiles
@@ -905,6 +926,15 @@ The plugin supports multiple named profiles. Each profile stores its own complet
 > The last remaining profile cannot be deleted.
 
 ![fig.14](readme-assets/fig14.webp)
+
+### Shared profiles
+
+Profiles are stored on your machine. To hand your settings to others, for example developers in [Dev Mode](#dev-mode), open the profile with `⋮` and click **Share in this file**.
+
+- The profile is saved in the Figma file, without any credentials: tokens, access keys and Custom URL headers are removed. Everything else is shared, including repository, branch, file name and the Custom URL itself, so don't put secrets in the URL.
+- Everyone who runs the plugin on the file sees it in the profile dropdown under **Shared in this file**. Picking it creates a local copy. Add your own token in the server settings before you push.
+- When the shared profile changes, the local copy shows **Update**. Updating takes the settings from the file and keeps your credentials and profile name.
+- **Update shared profile** and **Stop sharing** change the profile for everyone who uses the file.
 
 ---
 
