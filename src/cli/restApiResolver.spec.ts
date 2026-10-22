@@ -284,10 +284,12 @@ describe('file styles', () => {
         calls.nodes.push(ids);
         return {
           nodes: Object.fromEntries(
-            ids.split(',').map((id) => [
-              id,
-              { document: { id, name: `style/${id}`, fills: [] } },
-            ])
+            ids
+              .split(',')
+              .map((id) => [
+                id,
+                { document: { id, name: `style/${id}`, fills: [], style: {} } },
+              ])
           ),
         };
       },
@@ -329,6 +331,25 @@ describe('file styles', () => {
     expect(await resolver.getLocalEffectStyles()).toEqual([]);
     expect(await resolver.getLocalGridStyles()).toEqual([]);
     expect(calls.nodes).toEqual([]);
+  });
+
+  it('gives each style the description from the styles map', async () => {
+    const { resolver } = resolverWithStyles({
+      '1:2': { ...style('FILL'), description: 'Brand color' },
+      '1:3': { ...style('TEXT'), description: 'Body copy' },
+      '1:4': { ...style('EFFECT'), description: 'Card shadow' },
+      '1:5': { ...style('GRID'), description: 'Desktop' },
+    });
+
+    const [paint] = await resolver.getLocalPaintStyles();
+    const [text] = await resolver.getLocalTextStyles();
+    const [effect] = await resolver.getLocalEffectStyles();
+    const [grid] = await resolver.getLocalGridStyles();
+
+    expect(paint.description).toBe('Brand color');
+    expect(text.description).toBe('Body copy');
+    expect(effect.description).toBe('Card shadow');
+    expect(grid.description).toBe('Desktop');
   });
 
   it('tolerates a file response without a styles map', async () => {
