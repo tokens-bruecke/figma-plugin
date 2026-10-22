@@ -997,7 +997,7 @@ DTCG has no direction or type for a gradient, only the stops, so they are export
 
 ### Grids
 
-In Figma you can add as many grids in the style as you want. But the plugin will take only first two grids and treat the first one as `column` grid and the second one as `row` grid.
+In Figma you can add as many grids in the style as you want. The plugin exports the first `Columns` grid as `column*` values and the first `Rows` grid as `row*` values; further grids of the same kind are left out. A square `Grid` only has a cell size, which is exported as `columnWidth` when the style has no columns. Sizes of `0` are kept, and an `Auto` count is left out.
 
 ```json
 // Column grid
