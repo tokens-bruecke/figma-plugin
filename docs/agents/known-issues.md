@@ -15,7 +15,6 @@ Found while analysing v3.20.0 (2026-10-22). Entries marked **(reproduced)** were
 
 ## Export: correctness and parity
 
-4. **REST mode drops style descriptions.** `RestAPIResolver` sets `description: ''` (paint/effect/grid) or leaves it out (text). The plugin exports the real descriptions. The REST `styles` map has `description`, so the data is available but not wired up.
 8. **The library API "doesn't log"**, but the core's `console.warn` calls (skipped variables, `cannot find variable` for `#missing#`, collisions, extended-collection skips) still write to stderr when used as a library.
 9. **Stale comment:** `PluginTokenI.$type` in global.d.ts says `$type` is omitted for string/boolean in DTCG mode. It isn't anymore: tests assert that `$type` is always written. The import still understands the old `figmaType` fallback.
 
