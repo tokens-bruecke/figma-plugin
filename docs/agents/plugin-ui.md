@@ -6,18 +6,17 @@ The UI sends `parent.postMessage({ pluginMessage: msg }, '*')`. The controller h
 
 ### UI → controller
 
-| `type`                | Payload                                                            | Sender                                                   | Effect                                                                        |
-| --------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `getStorageConfig`    |                                                                    | `Container` on mount                                     | load from `clientStorage`, reply `storageConfig`                              |
-| `checkForVariables`   |                                                                    | `Container` on mount                                     | reply `checkForVariables`                                                     |
-| `JSONSettingsConfig`  | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                           |
-| `activeProfileConfig` | `config: Partial<JSONSettingsConfigI>`                             | _(no sender in the UI today)_                            | merge into the active profile → store                                         |
-| `getTokens`           | `role: 'preview' \| 'download' \| 'push'`, `server?: ServerType[]` | `SettingsView`, `CodePreviewView`                        | `getTokens(PluginAPIResolver, activeProfile)` → reply `setTokens`             |
-| `importTokens`        | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container` (for both views)                             | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success) |
-| `resizeUIHeight`      | `height`                                                           | `Container` (ResizeObserver, manual resize)              | `figma.ui.resize(width, height)`                                              |
-| `resizeUIWidth`       | `width`                                                            | `CodePreviewView` drag handle                            | preview width (min 540)                                                       |
-| `resetUIWidth`        |                                                                    | `CodePreviewView` double-click                           | preview width back to 800                                                     |
-| `openCodePreview`     | `isCodePreviewOpen`, `height`                                      | `Container`                                              | width 800/custom with preview, else 300                                       |
+| `type`               | Payload                                                            | Sender                                                   | Effect                                                                        |
+| -------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `getStorageConfig`   |                                                                    | `Container` on mount                                     | load from `clientStorage`, reply `storageConfig`                              |
+| `checkForVariables`  |                                                                    | `Container` on mount                                     | reply `checkForVariables`                                                     |
+| `JSONSettingsConfig` | `config: MultiTenantConfigI`                                       | `Container`, on every config change after storage loaded | `sanitizeMultiTenantConfig` → store                                           |
+| `getTokens`          | `role: 'preview' \| 'download' \| 'push'`, `server?: ServerType[]` | `SettingsView`, `CodePreviewView`                        | `getTokens(PluginAPIResolver, activeProfile)` → reply `setTokens`             |
+| `importTokens`       | `tokens: any` (parsed JSON), `role: 'import'`                      | `Container` (for both views)                             | `tokensToVariables` → reply `importResult` (+ `checkForVariables` on success) |
+| `resizeUIHeight`     | `height`                                                           | `Container` (ResizeObserver, manual resize)              | `figma.ui.resize(width, height)`                                              |
+| `resizeUIWidth`      | `width`                                                            | `CodePreviewView` drag handle                            | preview width (min 540)                                                       |
+| `resetUIWidth`       |                                                                    | `CodePreviewView` double-click                           | preview width back to 800                                                     |
+| `openCodePreview`    | `isCodePreviewOpen`, `height`                                      | `Container`                                              | width 800/custom with preview, else 300                                       |
 
 ### Controller → UI
 

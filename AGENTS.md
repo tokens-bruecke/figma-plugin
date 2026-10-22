@@ -19,20 +19,20 @@ All four read Figma data through one interface, `IResolver` ([src/common/resolve
 
 Package manager: **pnpm** (`packageManager: pnpm@9.11.0`). Node: CI uses `lts/*`.
 
-| Task                      | Command                                                                  | Notes                                                                                                                                       |
-| ------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Install                   | `pnpm install`                                                           |                                                                                                                                             |
-| Run all tests once        | `pnpm test -- --run` or `npx vitest run`                                 | ⚠️ Plain `pnpm test` starts vitest in **watch mode** in a TTY and never exits.                                                              |
-| Run one test file         | `npx vitest run src/common/transform/motion.spec.ts`                     |                                                                                                                                             |
-| Run tests by name         | `npx vitest run -t "composed colors"`                                    |                                                                                                                                             |
-| Build everything          | `pnpm run build`                                                         | `build:cli` (→ `bin/`) then `build:plugin` (→ `dist/`). About 10 s.                                                                         |
-| Plugin dev build (watch)  | `pnpm dev`                                                               | Webpack watch with inline source maps; only the plugin, not the CLI.                                                                        |
-| Type-check CLI/API/common | `npx tsc -p tsconfig.cli.json --noEmit`                                  | Must be clean.                                                                                                                              |
-| Type-check plugin         | `npx tsc -p tsconfig.plugin.json --noEmit --skipLibCheck`                | Without `--skipLibCheck` you get 10 errors from conflicting DOM and Figma typings in `node_modules`. They are pre-existing, so ignore them. |
-| Format                    | `npx prettier --write <files>`                                           | Uses `.prettierrc`. Format **only the files you touched**; 7 files are already off-format upstream.                                         |
-| Run local CLI build       | `node bin/cli.js --input examples/tokens-snapshot.json --stdout --quiet` | Needs `pnpm run build:cli` first.                                                                                                           |
+| Task                      | Command                                                                  | Notes                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Install                   | `pnpm install`                                                           |                                                                                                     |
+| Run all tests once        | `pnpm test`                                                              | Runs once (`vitest run`). `pnpm test:watch` for watch mode; don't start it from an agent.           |
+| Run one test file         | `npx vitest run src/common/transform/motion.spec.ts`                     |                                                                                                     |
+| Run tests by name         | `npx vitest run -t "composed colors"`                                    |                                                                                                     |
+| Build everything          | `pnpm run build`                                                         | `build:cli` (→ `bin/`) then `build:plugin` (→ `dist/`). About 10 s.                                 |
+| Plugin dev build (watch)  | `pnpm dev`                                                               | Webpack watch with inline source maps; only the plugin, not the CLI.                                |
+| Type-check CLI/API/common | `npx tsc -p tsconfig.cli.json --noEmit`                                  | Must be clean.                                                                                      |
+| Type-check plugin         | `npx tsc -p tsconfig.plugin.json --noEmit`                               | Must be clean (`skipLibCheck` is set: the DOM and Figma typings conflict).                          |
+| Format                    | `npx prettier --write <files>`                                           | Uses `.prettierrc`. Format **only the files you touched**; 6 files are already off-format upstream. |
+| Run local CLI build       | `node bin/cli.js --input examples/tokens-snapshot.json --stdout --quiet` | Needs `pnpm run build:cli` first.                                                                   |
 
-CI ([.github/workflows/ci.yaml](.github/workflows/ci.yaml)) runs `pnpm run build && pnpm run test`. Before you say a change is done, run **tests (`--run`), both type-checks and the build**.
+CI ([.github/workflows/ci.yaml](.github/workflows/ci.yaml)) runs `pnpm run build && pnpm run test`. Before you say a change is done, run **tests, both type-checks and the build**.
 
 There is no linter (no ESLint). `tsconfig.base.json` is **not strict** (`strictNullChecks: false`, `noImplicitAny: false`) but has `noUnusedLocals` and `noUnusedParameters`. Prefix intentionally unused parameters with `_`.
 
@@ -69,7 +69,7 @@ llms.txt                   LLM entry point for *using* the CLI (shipped in the n
 docs/agents/               Deep-dive docs for *developing* this repo (not shipped)
 ```
 
-Path aliases (tsconfig, webpack and vitest): `@common/*`, `@app/*`, `@cli/*`, `@root/*`. `@utils/*` is declared only in tsconfig and vitest, and `src/utils` does not exist. If you add an alias, add it to all four files: [tsconfig.base.json](tsconfig.base.json), [webpack.config.js](webpack.config.js), [webpack.config.cli.js](webpack.config.cli.js) and [vitest.config.ts](vitest.config.ts).
+Path aliases (tsconfig, webpack and vitest): `@common/*`, `@app/*`, `@cli/*`, `@root/*`. If you add an alias, add it to all four files: [tsconfig.base.json](tsconfig.base.json), [webpack.config.js](webpack.config.js), [webpack.config.cli.js](webpack.config.cli.js) and [vitest.config.ts](vitest.config.ts).
 
 ## Deep-dive docs (read the one that matches your task)
 
@@ -114,7 +114,7 @@ User-facing behaviour is documented in **README.md**, **skills/tokens-bruecke/SK
 
 ## Code conventions
 
-- **Formatting:** Prettier 2 with `.prettierrc`: single quotes, semicolons, 2 spaces, `trailingComma: es5`. (`.prettierrc.yml` with `singleQuote: false` exists but is shadowed by `.prettierrc`, so ignore it.)
+- **Formatting:** Prettier 2 with `.prettierrc`: single quotes, semicolons, 2 spaces, `trailingComma: es5`.
 - **Naming:** interfaces and types often end in `I` (`ExportSettingsI`, `TokenFileI`, `PropsI`). Files are camelCase and named after their main export (`normalizeValue.ts` exports `normalizeValue`). React views live in `views/<Name>View/index.tsx` with a `styles.module.scss` beside them. Use named exports; `Container` is the only default export.
 - **Comments explain _why_**, often with the Figma quirk or issue behind it (e.g. "The REST API reports … as `FONT_STYLE`"). Keep that density. Don't add comments that restate the code. There are commented-out `console.log` lines; don't add more.
 - **Warnings** from the transform core use the prefix `[tokens-bruecke]`.
@@ -131,8 +131,8 @@ User-facing behaviour is documented in **README.md**, **skills/tokens-bruecke/SK
 
 ## Before you finish a change
 
-1. `npx vitest run`: all green (328 tests at v3.20.0).
-2. `npx tsc -p tsconfig.cli.json --noEmit` and `npx tsc -p tsconfig.plugin.json --noEmit --skipLibCheck`: no errors.
+1. `pnpm test`: all green.
+2. `npx tsc -p tsconfig.cli.json --noEmit` and `npx tsc -p tsconfig.plugin.json --noEmit`: no errors.
 3. `pnpm run build`: succeeds (the two webpack size warnings are expected).
 4. Prettier on the files you touched.
 5. Docs updated (README / SKILL.md / llms.txt / schemas / docs/agents) where behaviour changed.

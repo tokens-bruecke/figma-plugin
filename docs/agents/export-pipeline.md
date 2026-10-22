@@ -143,8 +143,6 @@ Dimensions in styles use `makeDimension(…, useDTCG)`, so they become `{ value,
 
 ## Other helpers
 
-| File                                 | Purpose                                                    | Used by                                                   |
-| ------------------------------------ | ---------------------------------------------------------- | --------------------------------------------------------- |
-| `getTokensStat.ts`, `countTokens.ts` | lines / groups / tokens / bytes for the preview toolbar    | `CodePreviewView`                                         |
-| `removeDollarSign.ts`                | strips `$` from the value/type/description/extensions keys | only a commented-out import in the controller (dead code) |
-| `findByVariableId.ts`                | deep search by `$extensions.variableId`                    | unused (dead code)                                        |
+| File                                 | Purpose                                                 | Used by           |
+| ------------------------------------ | ------------------------------------------------------- | ----------------- |
+| `getTokensStat.ts`, `countTokens.ts` | lines / groups / tokens / bytes for the preview toolbar | `CodePreviewView` |

@@ -3,10 +3,10 @@
 ## Running
 
 ```bash
-npx vitest run                                   # all tests once (328 at v3.20.0, about 7 s)
+pnpm test                                        # all tests once (about 7 s)
 npx vitest run src/common/transform/motion.spec.ts
 npx vitest run -t "extended collections"
-pnpm test                                        # watch mode in a terminal: don't use it from an agent
+pnpm test:watch                                  # watch mode: don't start it from an agent
 ```
 
 [vitest.config.ts](../../vitest.config.ts) only sets the path aliases. The environment is Node; there is no DOM and no jsdom.
@@ -60,7 +60,7 @@ For end-to-end tests through `getTokens`, use a complete `IResolver` (see `expor
 ## Manual testing in Figma
 
 1. `pnpm dev` (watch build of the plugin into `dist/figma-plugin/`).
-2. In Figma Desktop: **Plugins → Development → Import plugin from manifest…** → choose **`dist/figma-plugin/manifest.json`**. (CONTRIBUTING.md says `manifest.json`; the root copy has no `code.js` beside it.)
+2. In Figma Desktop: **Plugins → Development → Import plugin from manifest…** → choose **`dist/figma-plugin/manifest.json`**.
 3. Run the plugin in a file with variables. Use **Plugins → Development → Open console** for controller and UI logs (`[tokens-bruecke]` warnings, import errors).
 4. After a rebuild, re-run the plugin (or use "Hot reload plugin" in the Development menu).
 5. Checklist for UI changes: light and dark theme, the empty file view, preview open/closed, window resize, switching profiles (settings persist after closing and reopening the plugin), import of a file you just exported.
