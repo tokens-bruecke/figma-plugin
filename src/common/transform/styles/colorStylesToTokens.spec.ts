@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { colorStylesToTokens } from './colorStylesToTokens';
 
 const exportStyle = async (paint: Record<string, any>) => {
@@ -50,5 +50,42 @@ describe('colorStylesToTokens gradients', () => {
     });
 
     expect(style.$extensions).toEqual({ gradient: { type: 'radial' } });
+  });
+});
+
+describe('color styles the plugin cannot export', () => {
+  it('skips them with a warning instead of leaving them out silently', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const resolver = {
+      getLocalPaintStyles: async () => [
+        { id: '1:2', name: 'photo', paints: [{ type: 'IMAGE' }] },
+        { id: '1:3', name: 'empty', paints: [] },
+        {
+          id: '1:4',
+          name: 'red',
+          paints: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 }, opacity: 1 }],
+        },
+      ],
+    } as any;
+
+    const tokens: any = await colorStylesToTokens(
+      'colors',
+      'hex',
+      true,
+      false,
+      resolver
+    );
+
+    expect(tokens.colors).toEqual({
+      red: { $type: 'color', $value: '#ff0000' },
+    });
+    expect(warn).toHaveBeenCalledWith(
+      '[tokens-bruecke] Skipped style "photo": only a single solid paint or a gradient can be exported, it has IMAGE'
+    );
+    expect(warn).toHaveBeenCalledWith(
+      '[tokens-bruecke] Skipped style "empty": it has no paints'
+    );
+
+    warn.mockRestore();
   });
 });
