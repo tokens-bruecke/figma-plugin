@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createProfileFromConfig } from './storageConfig';
 import {
+  getChangedServerTargets,
   mergeSharedProfile,
   parseSharedProfiles,
   serializeSharedProfiles,
@@ -189,6 +190,76 @@ describe('mergeSharedProfile', () => {
     );
     expect(merged.sharedId).toBe('shared-1');
     expect(merged.sharedUpdatedAt).toBe(99);
+  });
+
+  it('drops a credential when the shared profile changes its host', () => {
+    const local = profileWithCredentials();
+    const base = profileWithCredentials();
+    const shared = stripCredentials({
+      ...base,
+      servers: {
+        ...base.servers,
+        gitlab: { ...base.servers.gitlab, isEnabled: true, host: 'evil.dev' },
+        customURL: {
+          ...base.servers.customURL,
+          url: 'https://evil.dev/collect',
+        },
+      },
+    });
+
+    expect(getChangedServerTargets(local, shared)).toEqual([
+      'gitlab',
+      'customURL',
+    ]);
+
+    const merged = mergeSharedProfile(local, shared, 'shared-1');
+
+    expect(JSON.stringify(merged.servers.gitlab)).not.toMatch(credentialValues);
+    expect(merged.servers.gitlab).toMatchObject({
+      host: 'evil.dev',
+      token: '',
+      isEnabled: false,
+    });
+    expect(merged.servers.customURL).toMatchObject({
+      headers: '',
+      isEnabled: false,
+    });
+    // Servers with a fixed API host keep their credential
+    expect(merged.servers.github.token).toBe('ghp_secret');
+    expect(merged.servers.jsonbin.secretKey).toBe('jsonbin-secret');
+  });
+
+  it('keeps a credential when only the path or the host spelling changes', () => {
+    const local = profileWithCredentials();
+    const base = profileWithCredentials();
+    const shared = stripCredentials({
+      ...base,
+      servers: {
+        ...base.servers,
+        gitlab: { ...base.servers.gitlab, host: 'https://GitLab.acme.dev/' },
+        customURL: {
+          ...base.servers.customURL,
+          url: 'https://tokens.acme.dev/v2/upload',
+        },
+      },
+    });
+
+    const merged = mergeSharedProfile(local, shared, 'shared-1');
+
+    expect(getChangedServerTargets(local, shared)).toEqual([]);
+    expect(merged.servers.gitlab.token).toBe('glpat_secret');
+    expect(merged.servers.customURL.headers).toBe(
+      '{"Authorization":"Bearer secret"}'
+    );
+  });
+
+  it('treats an empty GitLab host as gitlab.com', () => {
+    const local = profileWithCredentials();
+    const shared = stripCredentials(profileWithCredentials());
+    local.servers.gitlab.host = '';
+    shared.servers.gitlab.host = 'gitlab.com';
+
+    expect(getChangedServerTargets(local, shared)).toEqual([]);
   });
 
   it('creates a profile without credentials when there is no local one', () => {

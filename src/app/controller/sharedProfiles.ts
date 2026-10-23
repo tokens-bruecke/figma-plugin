@@ -115,9 +115,53 @@ export const unshareProfile = (
   return rest;
 };
 
+const normalizeHost = (host: string | undefined) =>
+  (host || 'gitlab.com')
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/\/+$/, '');
+
+const getOrigin = (url: string | undefined) => {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return url ?? '';
+  }
+};
+
+// Where a server sends its credential. GitHub and JSONBin always send it to
+// their own API, so only servers with a configurable host are listed
+const credentialTargets: {
+  [S in ServerType]?: (server: ServerSettingsI[S]) => string;
+} = {
+  gitlab: (server) => normalizeHost(server?.host),
+  customURL: (server) => getOrigin(server?.url),
+};
+
+/**
+ * The servers whose credential would go to another host after applying the
+ * shared profile. Anyone who can open the file can change a shared profile,
+ * so a local credential must never follow a host that came from the file.
+ */
+export const getChangedServerTargets = (
+  local: SettingsProfileI,
+  shared: SettingsProfileI
+): ServerType[] =>
+  (Object.keys(credentialTargets) as ServerType[]).filter((serverId) => {
+    const getTarget = credentialTargets[serverId] as (
+      server: unknown
+    ) => string;
+
+    return (
+      getTarget(local.servers[serverId]) !== getTarget(shared.servers[serverId])
+    );
+  });
+
 /**
  * Applies a shared profile to a local one: settings come from the file,
- * the local name and credentials stay.
+ * the local name and credentials stay. A credential whose server now points
+ * to another host is dropped and the server is turned off.
  */
 export const mergeSharedProfile = (
   local: SettingsProfileI | undefined,
@@ -127,12 +171,21 @@ export const mergeSharedProfile = (
   const servers = { ...shared.servers };
 
   if (local) {
+    const changedTargets = getChangedServerTargets(local, shared);
+
     serverIds.forEach((serverId) => {
       const server = { ...servers[serverId] };
+      const isTargetChanged = changedTargets.includes(serverId);
 
       credentialFields[serverId].forEach((field) => {
-        server[field as string] = local.servers[serverId][field as string];
+        server[field as string] = isTargetChanged
+          ? ''
+          : local.servers[serverId][field as string];
       });
+
+      if (isTargetChanged) {
+        server.isEnabled = false;
+      }
 
       servers[serverId] = server as never;
     });

@@ -933,7 +933,7 @@ Profiles are stored on your machine. To hand your settings to others, for exampl
 
 - The profile is saved in the Figma file, without any credentials: tokens, access keys and Custom URL headers are removed. Everything else is shared, including repository, branch, file name and the Custom URL itself, so don't put secrets in the URL.
 - Everyone who runs the plugin on the file sees it in the profile dropdown under **Shared in this file**. Picking it creates a local copy. Add your own token in the server settings before you push.
-- When the shared profile changes, the local copy shows **Update**. Updating takes the settings from the file and keeps your credentials and profile name.
+- When the shared profile changes, the local copy shows **Update**. Updating takes the settings from the file and keeps your credentials and profile name. If the update points GitLab or the Custom URL to another host, your credential for that server is removed and the server is turned off, so a changed file can't send your token somewhere else. Check the host and add the credential again.
 - **Update shared profile** and **Stop sharing** change the profile for everyone who uses the file.
 
 ---
