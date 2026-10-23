@@ -7,6 +7,7 @@ import {
   toComposedColorObject,
 } from './color/composeColor';
 import { isOpacityScope } from './opacityScopes';
+import { ROOT_TOKEN_KEY } from './rootTokens';
 import { parseDurationToSeconds, parseEasing } from './motion';
 
 interface ImportResult {
@@ -255,9 +256,15 @@ const rgbaToRgb = (
 const isReference = (value: any): value is string =>
   typeof value === 'string' && value.startsWith('{') && value.endsWith('}');
 
-/** The `collection.group.name` inside `{…}`, without a `.value` suffix. */
+/**
+ * The `collection.group.name` inside `{…}`, without a `.value` suffix and
+ * without the `.$root` of a group's own token.
+ */
 const referenceBody = (reference: string): string =>
-  reference.slice(1, -1).replace(/\.\$?value$/, '');
+  reference
+    .slice(1, -1)
+    .replace(/\.\$?value$/, '')
+    .replace(/\.\$root$/, '');
 
 /**
  * Turns a `{collection.group.name}` reference into the `collection/group/name`
@@ -565,6 +572,13 @@ const extractTokens = (
     (obj.value !== undefined && !isToken(obj.value));
 
   for (const key in obj) {
+    // DTCG 2025.10: the token of the group itself, i.e. the variable named
+    // like the group ("border/brand" next to "border/brand/subtle")
+    if (key === ROOT_TOKEN_KEY && path.length > 0 && isToken(obj[key])) {
+      tokens.push({ path: path.join('/'), token: obj[key], collectionName });
+      continue;
+    }
+
     if (key.startsWith('$') || (isTokenLike && legacyTokenKeys.includes(key))) {
       continue; // Skip metadata keys
     }
@@ -574,6 +588,9 @@ const extractTokens = (
     if (isToken(value)) {
       const tokenPath = [...path, key].join('/');
       tokens.push({ path: tokenPath, token: value, collectionName });
+      // Older exports, and the legacy format, put such child tokens into
+      // the token object itself
+      tokens.push(...extractTokens(value, [...path, key], collectionName));
     } else if (typeof value === 'object' && value !== null) {
       // Recursively extract from nested objects
       tokens.push(...extractTokens(value, [...path, key], collectionName));

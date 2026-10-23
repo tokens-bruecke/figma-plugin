@@ -52,7 +52,7 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
   { $type, $value, $description, scopes?, $extensions: { mode, figmaType?: 'EASING', figmaScopes?, figma?: { codeSyntax, variableId, collection: { id, name, defaultModeId } } } }
   ```
   `$extensions` is always written with the `$` prefix, even when `useDTCG` is false.
-- Placed at `tree[collectionName][variable.name]`; finally `groupObjectNamesIntoCategories` splits names on `/` into nested groups. If a token and a group share a path (`border/brand` and `border/brand/subtle`), they are merged rather than overwritten.
+- Placed at `tree[collectionName][variable.name]`; finally `groupObjectNamesIntoCategories` splits names on `/` into nested groups. If a token and a group share a path (`border/brand` and `border/brand/subtle`), the token goes into the group as `$root` with DTCG on (DTCG §6.1 forbids a token with child tokens), and `getTokens` then rewrites every reference to it to `….$root` (`addRootToReferences` in rootTokens.ts). With DTCG off they are merged into one object, as in the legacy format.
 - **Errors:** any throw in `addVariable` → `warn(resolver, '[tokens-bruecke] Skipped variable "<name>" (<type>): <msg>. Values: <json>')`, and the variable is left out.
 
 **omitCollectionNames:** everything goes into one flat map; on a duplicate name the last one wins, with a collision warning. Extended collections are skipped with a warning.

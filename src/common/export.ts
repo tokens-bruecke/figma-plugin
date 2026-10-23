@@ -2,6 +2,7 @@ import { stylesToTokens } from './transform/styles/stylesToTokens';
 
 import { variablesToTokens } from './transform/variablesToTokens';
 import { mergeStylesIntoTokens } from './transform/mergeStylesIntoTokens';
+import { addRootToReferences } from './transform/rootTokens';
 import { IResolver } from './resolver';
 
 /**
@@ -101,6 +102,10 @@ export const getTokens = async (
     config.omitCollectionNames ? 'none' : config.storeStyleInCollection,
     resolver
   );
+
+  if (config.useDTCG) {
+    addRootToReferences(mergedVariables);
+  }
 
   const metaData = buildMeta(config, variableCollection);
 

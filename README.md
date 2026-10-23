@@ -232,6 +232,7 @@ Is `on` by default. Aligns the output with the [DTCG 2025.10 specification](http
 - All token keys are prefixed with the `$` symbol (`$value`, `$type`, `$description`).
 - Dimensions are exported as objects per [§8.2 Dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) — `{ "value": 6, "unit": "px" }` instead of `"6px"`. This also applies to sub-values in shadows, typography, and grids.
 - The root `$extensions["tokens-bruecke-meta"]` includes a `spec` field with the canonical spec URL, so downstream tools know which format to expect.
+- A variable named like a group of other variables (`border/brand` next to `border/brand/subtle`) becomes the group's root token per DTCG 2025.10 §6.2: `border.brand.$root`. References to it point at `{….border.brand.$root}`. With the format off, the token and the group share one object, as before. The import reads both shapes.
 
 ```json
 // Off — native Figma format

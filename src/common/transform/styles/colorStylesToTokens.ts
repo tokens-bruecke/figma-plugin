@@ -1,4 +1,5 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from '@common/transform/rootTokens';
 import { convertRGBA } from '@common/transform/color/convertRGBA';
 import { getGradientGeometry } from '@common/transform/color/getGradientGeometry';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
@@ -148,7 +149,10 @@ export const colorStylesToTokens = async (
     );
   }
 
-  colorTokens[customName] = groupObjectNamesIntoCategories(allColorStyles);
+  colorTokens[customName] = groupObjectNamesIntoCategories(
+    allColorStyles,
+    isDTCGFormat ? ROOT_TOKEN_KEY : undefined
+  );
 
   return colorTokens;
 };

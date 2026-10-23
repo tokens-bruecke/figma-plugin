@@ -185,3 +185,71 @@ describe('style aliases', () => {
     );
   });
 });
+
+describe('variables named like a group', () => {
+  const variable = (id: string, name: string, values: any) => ({
+    id,
+    name,
+    variableCollectionId: 'c1',
+    resolvedType: 'FLOAT',
+    scopes: ['ALL_SCOPES'],
+    valuesByMode: values,
+  });
+  const variables = [
+    variable('v1', 'border/brand', { light: 1, dark: 2 }),
+    variable('v2', 'border/brand/subtle', { light: 3, dark: 4 }),
+    variable('v3', 'gap', {
+      light: { type: 'VARIABLE_ALIAS', id: 'v1' },
+      dark: { type: 'VARIABLE_ALIAS', id: 'v1' },
+    }),
+  ] as unknown as Variable[];
+  const collection = {
+    id: 'c1',
+    name: 'Core',
+    defaultModeId: 'light',
+    modes: [
+      { modeId: 'light', name: 'Light' },
+      { modeId: 'dark', name: 'Dark' },
+    ],
+    variableIds: ['v1', 'v2', 'v3'],
+  } as unknown as VariableCollection;
+  const resolver: IResolver = {
+    ...emptyResolver,
+    getLocalVariableCollections: async () => [collection],
+    getLocalVariables: async () => variables,
+    getVariableById: async (id) => variables.find((v) => v.id === id),
+    getVariableCollectionById: async () => collection,
+  };
+  const config = { ...defaultConfig, omitCreatedAt: true };
+
+  it('exports the variable as the $root token of the group, with aliases to it', async () => {
+    const tokens = await getTokens(resolver, config);
+
+    expect(tokens.Core.border.brand.$root.$value).toEqual({
+      value: 1,
+      unit: 'px',
+    });
+    expect(tokens.Core.border.brand.subtle.$value).toEqual({
+      value: 3,
+      unit: 'px',
+    });
+    expect(tokens.Core.border.brand).not.toHaveProperty('$value');
+    expect(tokens.Core.gap.$value).toBe('{Core.border.brand.$root}');
+  });
+
+  it('applies the mode to the $root token and its siblings with splitByMode', async () => {
+    const tokens = await getTokens(resolver, { ...config, splitByMode: true });
+    const dark = tokens['Core/Dark'];
+
+    expect(dark.border.brand.$root.$value).toEqual({ value: 2, unit: 'px' });
+    expect(dark.border.brand.subtle.$value).toEqual({ value: 4, unit: 'px' });
+    expect(dark.border.brand.subtle).not.toHaveProperty('$extensions');
+  });
+
+  it('keeps the legacy merged shape without DTCG', async () => {
+    const tokens = await getTokens(resolver, { ...config, useDTCG: false });
+
+    expect(tokens.Core.border.brand.value).toBe('1px');
+    expect(tokens.Core.border.brand.subtle.value).toBe('3px');
+  });
+});

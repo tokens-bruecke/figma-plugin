@@ -553,6 +553,45 @@ describe('tokensToVariables references and existing variables', () => {
     expect(defaultValueOf('type/body/size')).toBe(16);
   });
 
+  test.each([
+    [
+      'a $root token',
+      {
+        brand: {
+          $root: { $type: 'number', $value: 1 },
+          subtle: { $type: 'number', $value: 3 },
+        },
+        gap: { $type: 'number', $value: '{Core.brand.$root}' },
+      },
+    ],
+    [
+      'a token with child tokens (older exports)',
+      {
+        brand: {
+          $type: 'number',
+          $value: 1,
+          subtle: { $type: 'number', $value: 3 },
+        },
+        gap: { $type: 'number', $value: '{Core.brand}' },
+      },
+    ],
+  ])('imports a variable named like a group from %s', async (_, Core) => {
+    const result = await tokensToVariables({ Core }, resolver);
+
+    expect(result.errors).toEqual([]);
+    expect(fake._variables.map((v) => v.name).sort()).toEqual([
+      'brand',
+      'brand/subtle',
+      'gap',
+    ]);
+    expect(defaultValueOf('brand')).toBe(1);
+    expect(defaultValueOf('brand/subtle')).toBe(3);
+    expect(defaultValueOf('gap')).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('brand').id,
+    });
+  });
+
   test('still reads tokens in the legacy format', async () => {
     const result = await tokensToVariables(
       {

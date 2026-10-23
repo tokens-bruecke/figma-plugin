@@ -1,4 +1,16 @@
-export const groupObjectNamesIntoCategories = (inputObject: any) => {
+import { isTokenObject } from './rootTokens';
+
+/**
+ * Turns `{ "a/b": token }` into `{ a: { b: token } }`. A variable can be
+ * named like a group of other variables ("border/brand" next to
+ * "border/brand/subtle"). With `rootKey` (`$root` for DTCG) such a token
+ * goes into the group under that key; without it, the token and the group
+ * are merged into one object as in the legacy format.
+ */
+export const groupObjectNamesIntoCategories = (
+  inputObject: any,
+  rootKey?: string
+) => {
   const result = {};
 
   for (const key in inputObject) {
@@ -15,22 +27,28 @@ export const groupObjectNamesIntoCategories = (inputObject: any) => {
         if (
           existing &&
           typeof existing === 'object' &&
+          !(rootKey && isTokenObject(existing)) &&
           !Array.isArray(existing) &&
           value &&
           typeof value === 'object' &&
           !Array.isArray(value)
         ) {
           // A group with this name was already created (e.g. a variable named
-          // "border/brand" alongside "border/brand/subtle"). Merge the token
-          // into the existing group instead of overwriting it, so sibling
-          // tokens are not silently dropped.
-          current[part] = { ...value, ...existing };
+          // "border/brand" alongside "border/brand/subtle"). Add the token to
+          // the existing group instead of overwriting it, so sibling tokens
+          // are not silently dropped.
+          current[part] = rootKey
+            ? { ...existing, [rootKey]: value }
+            : { ...value, ...existing };
         } else {
           current[part] = value;
         }
       } else {
         if (!current[part]) {
           current[part] = {};
+        } else if (rootKey && isTokenObject(current[part])) {
+          // The token came first: turn it into the root of a new group
+          current[part] = { [rootKey]: current[part] };
         }
         current = current[part];
       }
@@ -39,7 +57,7 @@ export const groupObjectNamesIntoCategories = (inputObject: any) => {
 
   for (const prop in result) {
     if (typeof result[prop] === 'object' && !Array.isArray(result[prop])) {
-      result[prop] = groupObjectNamesIntoCategories(result[prop]);
+      result[prop] = groupObjectNamesIntoCategories(result[prop], rootKey);
     }
   }
 

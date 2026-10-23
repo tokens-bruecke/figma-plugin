@@ -1,4 +1,5 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from '@common/transform/rootTokens';
 import { convertRGBA } from '@common/transform/color/convertRGBA';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
@@ -158,7 +159,10 @@ export const effectStylesToTokens = async (
 
   // console.log("allEffectStyles", allEffectStyles);
 
-  effectTokens[customName] = groupObjectNamesIntoCategories(allEffectStyles);
+  effectTokens[customName] = groupObjectNamesIntoCategories(
+    allEffectStyles,
+    isDTCGFormat ? ROOT_TOKEN_KEY : undefined
+  );
 
   return effectTokens;
 };
