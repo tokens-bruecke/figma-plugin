@@ -361,5 +361,12 @@ export const variablesToTokens = async (
     };
   }, {});
 
-  return groupObjectNamesIntoCategories(mergedVariables, rootKey);
+  // Group the variables of each collection. The collection name is a single
+  // key even when it contains a slash ("Brand/Core")
+  return Object.fromEntries(
+    Object.entries(mergedVariables).map(([collectionName, collection]) => [
+      collectionName,
+      groupObjectNamesIntoCategories(collection, rootKey),
+    ])
+  );
 };

@@ -754,3 +754,91 @@ describe('tokensToVariables opacity round trip', () => {
     }
   );
 });
+
+describe('tokensToVariables names with a slash', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test('round-trips collection and mode names that contain a slash', async () => {
+    const variables = [
+      {
+        id: 'v1',
+        name: 'space/1',
+        variableCollectionId: 'c1',
+        resolvedType: 'FLOAT',
+        scopes: ['ALL_SCOPES'],
+        valuesByMode: { light: 4, dark: 8 },
+        description: '',
+        codeSyntax: {},
+      },
+      {
+        id: 'v2',
+        name: 'gap',
+        variableCollectionId: 'c1',
+        resolvedType: 'FLOAT',
+        scopes: ['ALL_SCOPES'],
+        valuesByMode: {
+          light: { type: 'VARIABLE_ALIAS', id: 'v1' },
+          dark: { type: 'VARIABLE_ALIAS', id: 'v1' },
+        },
+        description: '',
+        codeSyntax: {},
+      },
+    ] as unknown as Variable[];
+    const collection = {
+      id: 'c1',
+      name: 'Brand/Core',
+      defaultModeId: 'light',
+      modes: [
+        { modeId: 'light', name: 'Brand A/Light' },
+        { modeId: 'dark', name: 'Brand A/Dark' },
+      ],
+      variableIds: ['v1', 'v2'],
+    } as unknown as VariableCollection;
+    const tokens = await variablesToTokens(
+      variables,
+      [collection],
+      {
+        colorMode: 'hex',
+        useDTCG: true,
+        includeScopes: false,
+        includeValueStringKeyToAlias: false,
+        includeFigmaMetaData: false,
+        usePercentageOpacity: false,
+        expandEasingPresets: true,
+        omitCollectionNames: false,
+      } as ExportSettingsI,
+      {
+        getVariableById: async (id: string) =>
+          variables.find((v) => v.id === id),
+        getVariableCollectionById: async () => collection,
+      } as unknown as IResolver
+    );
+
+    const result = await tokensToVariables(tokens, resolver);
+
+    expect(result.errors).toEqual([]);
+    expect(fake._collections.map((c) => c.name)).toEqual(['Brand/Core']);
+    const [imported] = fake._collections;
+    expect(imported.modes.map((m: any) => m.name)).toEqual([
+      'Brand A/Light',
+      'Brand A/Dark',
+    ]);
+    const byName = (name: string) =>
+      fake._variables.find((v) => v.name === name);
+    const darkModeId = imported.modes[1].modeId;
+    expect(byName('space/1').valuesByMode[darkModeId]).toBe(8);
+    expect(byName('gap').valuesByMode[darkModeId]).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('space/1').id,
+    });
+  });
+});

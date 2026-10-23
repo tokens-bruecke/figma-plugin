@@ -793,7 +793,7 @@ for (const [key, tree] of Object.entries(tokens)) {
 ```
 
 - **Aliases** inside a tree are qualified with the collection name (for example `{Semantic.spacing.md}`), so the tree has to be wrapped in `{ [collection]: tree }` for references to resolve.
-- **Names are raw.** The CLI replaces characters that are illegal in file names (such as `/`) in collection and mode names. The API keys keep the Figma names as they are. A collection or mode name can contain `/`, so splitting a key at the first `/` is only safe for simple names.
+- **Names are raw.** The CLI replaces characters that are illegal in file names (such as `/`) in collection and mode names. The API keys keep the Figma names as they are. A collection or mode name can contain `/`, so splitting a key at the first `/` is only safe for simple names. Match the key against the collection names in `$extensions["tokens-bruecke-meta"].variableCollections` instead, as the CLI does.
 
 ---
 

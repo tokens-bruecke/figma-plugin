@@ -1,7 +1,9 @@
 import { isTokenObject } from './rootTokens';
 
 /**
- * Turns `{ "a/b": token }` into `{ a: { b: token } }`. A variable can be
+ * Turns `{ "a/b": token }` into `{ a: { b: token } }`. Only the keys of
+ * `inputObject` are split, never keys further down, so mode names inside a
+ * token can contain `/`. A variable can be
  * named like a group of other variables ("border/brand" next to
  * "border/brand/subtle"). With `rootKey` (`$root` for DTCG) such a token
  * goes into the group under that key; without it, the token and the group
@@ -52,12 +54,6 @@ export const groupObjectNamesIntoCategories = (
         }
         current = current[part];
       }
-    }
-  }
-
-  for (const prop in result) {
-    if (typeof result[prop] === 'object' && !Array.isArray(result[prop])) {
-      result[prop] = groupObjectNamesIntoCategories(result[prop], rootKey);
     }
   }
 
