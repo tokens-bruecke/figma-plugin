@@ -609,7 +609,6 @@ Things worth knowing when building a snapshot:
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
 - [Extended collections](#extended-collections) need `isExtension`, `parentVariableCollectionId`, `variableOverrides`, `modes[].parentModeId` and `variableIds`. Their variables belong to the root collection, so `variableIds` is the only list of what they contain: without it the extension exports as an empty group.
-- Unlike REST mode, snapshot mode doesn't drop collections hidden from publishing. Leave out anything you don't want exported.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
 - Color aliases with their own opacity come back from the Plugin API as `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` (older Figma Desktop builds used `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`) — pass either through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
 
@@ -749,7 +748,7 @@ Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY`, so a token exported in
 On a bad snapshot the CLI exits `1` and names the offending key — for example `variables[3] is missing a string "variableCollectionId"` — so an agent can correct its dump and retry without guesswork.
 
 > [!NOTE]
-> Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array.
+> Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array and their collections in `variableCollections`.
 
 ---
 

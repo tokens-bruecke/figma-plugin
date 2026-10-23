@@ -76,7 +76,7 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
 
 Checked in this order:
 
-1. **Alias** `{ type: 'VARIABLE_ALIAS', id }` → `getAliasVariableName` → `"{Collection.group.name}"` (dots replace `/`). With `includeValueStringKeyToAlias` it gets a `.$value` / `.value` suffix; with `omitCollectionNames` there is no collection prefix. A target missing from the resolver → `"#missing#"` plus a `[tokens-bruecke] Cannot find variable <id>` warning (expected for library variables).
+1. **Alias** `{ type: 'VARIABLE_ALIAS', id }` → `getAliasVariableName` → `"{Collection.group.name}"` (dots replace `/`). With `includeValueStringKeyToAlias` it gets a `.$value` / `.value` suffix; with `omitCollectionNames` there is no collection prefix. A target, or its collection, missing from the resolver → `"#missing#"` plus a `[tokens-bruecke] Cannot find …` warning (expected for library variables); the aliasing variable is still exported.
 2. **Composed color** (Figma "Control opacity at scale", Sept 2026): `{ color, opacity }` or the legacy `{ type: 'VARIABLE_EXPRESSION', expressionFunction: 'COMPOSE_COLOR', expressionArguments }` → `normalizeComposedColor` (color/composeColor.ts):
    - aliased base → `{ components: "{ref}", alpha: 0.5 | "50%" | "{opacityRef}" }`
    - literal base and literal opacity → a normal color value with the opacity as alpha

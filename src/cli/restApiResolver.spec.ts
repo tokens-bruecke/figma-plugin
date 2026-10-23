@@ -191,6 +191,37 @@ describe('order', () => {
   });
 });
 
+describe('hidden collections', () => {
+  // The plugin exports them too, and semantic collections usually alias the
+  // primitives in a collection hidden from publishing
+  it('keeps collections hidden from publishing and their variables', async () => {
+    const resolver = resolverWith(
+      {
+        a: {
+          ...variable('a', 'FLOAT', ['ALL_SCOPES']),
+          variableCollectionId: 'hidden',
+        },
+      },
+      {
+        hidden: {
+          id: 'hidden',
+          name: 'Primitives',
+          remote: false,
+          hiddenFromPublishing: true,
+          variableIds: ['a'],
+        },
+      }
+    );
+
+    const collections = await resolver.getLocalVariableCollections();
+
+    expect(collections.map((c) => c.name)).toEqual(['Primitives']);
+    expect((await resolver.getVariableCollectionById('hidden')).name).toBe(
+      'Primitives'
+    );
+  });
+});
+
 describe('getLocalVariables scopes', () => {
   it('reads a number reported as FONT_STYLE as FONT_WEIGHT', async () => {
     const [weight] = await resolverWith({
