@@ -104,9 +104,11 @@ export interface LocalVariablesMeta {
 }
 
 /**
- * Drops what the file does not own (library variables and collections, hidden
- * collections, deleted variables) and maps the REST scopes to the Plugin API
- * ones, so the REST response looks like the local variables of the file.
+ * Drops what the file does not own (library variables and collections,
+ * deleted variables) and maps the REST scopes to the Plugin API ones, so the
+ * REST response looks like the local variables of the file. Collections
+ * hidden from publishing stay, as in the plugin: they usually hold the
+ * primitives that the published collections alias.
  */
 export const normalizeLocalVariables = ({
   variables,
@@ -128,8 +130,7 @@ export const normalizeLocalVariables = ({
   ) as Record<string, Variable>,
   variableCollections: Object.fromEntries(
     Object.entries(variableCollections).filter(
-      ([_, collection]: [string, LocalVariableCollection]) =>
-        !collection.remote && !collection.hiddenFromPublishing
+      ([_, collection]: [string, LocalVariableCollection]) => !collection.remote
     )
   ) as Record<string, VariableCollection>,
 });

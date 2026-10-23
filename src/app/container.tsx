@@ -16,7 +16,10 @@ import {
   createProfileFromConfig,
   sanitizeMultiTenantConfig,
 } from './controller/storageConfig';
-import { mergeSharedProfile } from './controller/sharedProfiles';
+import {
+  getChangedServerTargets,
+  mergeSharedProfile,
+} from './controller/sharedProfiles';
 import {
   PluginEnvironmentContext,
   canImportTokens,
@@ -25,6 +28,11 @@ import {
 } from './pluginEnvironment';
 
 import styles from './styles.module.scss';
+
+const sharedTargetServerNames: { [S in ServerType]?: string } = {
+  gitlab: 'GitLab',
+  customURL: 'Custom URL',
+};
 
 const Container = () => {
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
@@ -211,6 +219,25 @@ const Container = () => {
   };
 
   const updateFromSharedProfile = (profileId: string) => {
+    const currentLocal = multiTenantConfig.profiles[profileId];
+    const currentShared =
+      currentLocal?.sharedId && sharedProfiles[currentLocal.sharedId];
+    const changedTargets = currentShared
+      ? getChangedServerTargets(currentLocal, currentShared)
+      : [];
+
+    if (changedTargets.length) {
+      const serverNames = changedTargets
+        .map((serverId) => sharedTargetServerNames[serverId] ?? serverId)
+        .join(' and ');
+
+      toastRef.current?.show({
+        title: 'Check your server settings',
+        message: `The shared profile sends ${serverNames} to another host. Your credentials were removed and the server was turned off: check the host, then add your credentials again.`,
+        options: { type: 'warn', timeout: 10000 },
+      });
+    }
+
     setMultiTenantConfig((prev) => {
       const local = prev.profiles[profileId];
       const shared = local?.sharedId && sharedProfiles[local.sharedId];

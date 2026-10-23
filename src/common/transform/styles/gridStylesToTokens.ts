@@ -1,4 +1,5 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from '@common/transform/rootTokens';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
@@ -64,7 +65,10 @@ export const gridStylesToTokens = async (
 
   // console.log("allTextStyles", allTextStyles);
 
-  textTokens[customName] = groupObjectNamesIntoCategories(allGridStyles);
+  textTokens[customName] = groupObjectNamesIntoCategories(
+    allGridStyles,
+    isDTCGFormat ? ROOT_TOKEN_KEY : undefined
+  );
 
   return textTokens;
 };

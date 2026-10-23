@@ -7,6 +7,7 @@ import {
   toComposedColorObject,
 } from './color/composeColor';
 import { isOpacityScope } from './opacityScopes';
+import { ROOT_TOKEN_KEY } from './rootTokens';
 import { parseDurationToSeconds, parseEasing } from './motion';
 
 interface ImportResult {
@@ -155,13 +156,38 @@ export const getDefaultScopes = (
 };
 
 /**
- * Parses a token to extract scopes (standard format only: `scopes` key).
+ * Parses a token to extract scopes: the `scopes` key (`includeScopes`), or
+ * the `$extensions.figmaScopes` marker that opacity tokens always carry.
  */
 export const getTokenScopes = (token: any): string[] | undefined => {
   if (token.scopes !== undefined && Array.isArray(token.scopes)) {
     return token.scopes;
   }
+  if (Array.isArray(token.$extensions?.figmaScopes)) {
+    return token.$extensions.figmaScopes;
+  }
   return undefined;
+};
+
+/**
+ * Tokens exported without any scopes (older exports, or other tools) can't
+ * be told apart from plain numbers. When they update an existing opacity
+ * variable, its scopes decide, so 0.5 is written as 50 and not as 0.5.
+ */
+export const resolveTypeForExistingVariable = (
+  tokenType: string | null,
+  token: any,
+  variable: Pick<Variable, 'resolvedType' | 'scopes'> | undefined
+): string | null => {
+  if (
+    variable?.resolvedType === 'FLOAT' &&
+    isOpacityScope(variable.scopes) &&
+    (tokenType === 'number' ||
+      (tokenType === 'string' && /%\s*$/.test(String(getTokenValue(token)))))
+  ) {
+    return 'opacity';
+  }
+  return tokenType;
 };
 
 /**
@@ -230,9 +256,15 @@ const rgbaToRgb = (
 const isReference = (value: any): value is string =>
   typeof value === 'string' && value.startsWith('{') && value.endsWith('}');
 
-/** The `collection.group.name` inside `{…}`, without a `.value` suffix. */
+/**
+ * The `collection.group.name` inside `{…}`, without a `.value` suffix and
+ * without the `.$root` of a group's own token.
+ */
 const referenceBody = (reference: string): string =>
-  reference.slice(1, -1).replace(/\.\$?value$/, '');
+  reference
+    .slice(1, -1)
+    .replace(/\.\$?value$/, '')
+    .replace(/\.\$root$/, '');
 
 /**
  * Turns a `{collection.group.name}` reference into the `collection/group/name`
@@ -513,6 +545,14 @@ export const mapTokenTypeToFigmaType = (
   return typeMap[tokenType] || 'STRING';
 };
 
+const legacyTokenKeys = [
+  'value',
+  'type',
+  'description',
+  'scopes',
+  'extensions',
+];
+
 /**
  * Extracts all tokens from a nested object structure
  */
@@ -524,14 +564,22 @@ const extractTokens = (
   const tokens: Array<{ path: string; token: any; collectionName: string }> =
     [];
 
+  // In the legacy format these keys belong to a token. In a group they are
+  // ordinary names, e.g. the variable "type/body/size", or a token named
+  // "value"
+  const isTokenLike =
+    obj.$value !== undefined ||
+    (obj.value !== undefined && !isToken(obj.value));
+
   for (const key in obj) {
-    if (
-      key.startsWith('$') ||
-      key === 'value' ||
-      key === 'type' ||
-      key === 'description' ||
-      key === 'scopes'
-    ) {
+    // DTCG 2025.10: the token of the group itself, i.e. the variable named
+    // like the group ("border/brand" next to "border/brand/subtle")
+    if (key === ROOT_TOKEN_KEY && path.length > 0 && isToken(obj[key])) {
+      tokens.push({ path: path.join('/'), token: obj[key], collectionName });
+      continue;
+    }
+
+    if (key.startsWith('$') || (isTokenLike && legacyTokenKeys.includes(key))) {
       continue; // Skip metadata keys
     }
 
@@ -540,6 +588,9 @@ const extractTokens = (
     if (isToken(value)) {
       const tokenPath = [...path, key].join('/');
       tokens.push({ path: tokenPath, token: value, collectionName });
+      // Older exports, and the legacy format, put such child tokens into
+      // the token object itself
+      tokens.push(...extractTokens(value, [...path, key], collectionName));
     } else if (typeof value === 'object' && value !== null) {
       // Recursively extract from nested objects
       tokens.push(...extractTokens(value, [...path, key], collectionName));
@@ -784,10 +835,11 @@ export const tokensToVariables = async (
           variable: Variable;
           token: any;
           path: string;
+          tokenType: string;
         }> = [];
         for (const { path, token } of tokens) {
           try {
-            const tokenType = getTokenType(token);
+            let tokenType = getTokenType(token);
             const tokenDescription = getTokenDescription(token);
             let tokenScopes = getTokenScopes(token);
 
@@ -801,6 +853,11 @@ export const tokensToVariables = async (
             // Check if variable already exists
             let variable = variableMap.get(fullPath);
             const isExisting = !!variable;
+            tokenType = resolveTypeForExistingVariable(
+              tokenType,
+              token,
+              variable
+            );
             const figmaType = mapTokenTypeToFigmaType(
               tokenType,
               getTokenValue(token)
@@ -877,7 +934,7 @@ export const tokensToVariables = async (
 
             // Store for second pass (value setting)
             if (variable) {
-              createdVariables.push({ variable, token, path });
+              createdVariables.push({ variable, token, path, tokenType });
             }
           } catch (error) {
             result.errors.push(
@@ -887,10 +944,9 @@ export const tokensToVariables = async (
         }
 
         // Second pass: Set values for all variables (now all variables exist for alias resolution)
-        for (const { variable, token, path } of createdVariables) {
+        for (const { variable, token, path, tokenType } of createdVariables) {
           try {
             const tokenValue = getTokenValue(token);
-            const tokenType = getTokenType(token);
 
             if (typeof figma !== 'undefined') {
               // `$value` is the value of the default mode

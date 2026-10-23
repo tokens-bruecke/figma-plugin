@@ -144,7 +144,7 @@
         },
         "hiddenFromPublishing": {
           "type": "boolean",
-          "description": "Not filtered in snapshot mode (REST mode drops collections hidden from publishing). Leave such variables out of the snapshot if you don't want them exported."
+          "description": "Not filtered: collections hidden from publishing are exported, as in the plugin and in REST mode. Leave such variables out of the snapshot if you don't want them exported."
         },
         "remote": {
           "type": "boolean",

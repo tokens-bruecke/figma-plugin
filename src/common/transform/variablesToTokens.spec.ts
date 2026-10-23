@@ -390,3 +390,57 @@ describe('variables the plugin cannot convert', () => {
     warn.mockRestore();
   });
 });
+
+describe('variablesToTokens opacity marker', () => {
+  const opacity = [
+    {
+      name: 'opacity/half',
+      resolvedType: 'FLOAT',
+      scopes: ['OPACITY'],
+      variableCollectionId: 'c1',
+      valuesByMode: { m1: 50 },
+      description: '',
+      codeSyntax: {},
+      id: 'o1',
+    },
+  ] as unknown as Variable[];
+
+  test('marks opacity tokens with their scopes when scopes are not exported', async () => {
+    const tokens = await variablesToTokens(
+      opacity,
+      collections,
+      { ...baseConfig, useDTCG: true },
+      resolver
+    );
+    const half = tokens['core']['opacity']['half'];
+
+    expect(half.$value).toBe(0.5);
+    expect(half.$extensions.figmaScopes).toEqual(['OPACITY']);
+  });
+
+  test('leaves the marker out when the scopes are exported anyway', async () => {
+    const tokens = await variablesToTokens(
+      opacity,
+      collections,
+      { ...baseConfig, useDTCG: true, includeScopes: true },
+      resolver
+    );
+    const half = tokens['core']['opacity']['half'];
+
+    expect(half.scopes).toEqual(['OPACITY']);
+    expect(half.$extensions.figmaScopes).toBeUndefined();
+  });
+
+  test('does not mark other numbers', async () => {
+    const tokens = await variablesToTokens(
+      variables,
+      collections,
+      { ...baseConfig, useDTCG: true },
+      resolver
+    );
+
+    expect(
+      tokens['core']['spacing']['sm'].$extensions.figmaScopes
+    ).toBeUndefined();
+  });
+});

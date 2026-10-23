@@ -42,6 +42,44 @@ const toFolder = (target: string) => {
 };
 
 /**
+ * Splits a "CollectionName/ModeName" key. Both names can contain a slash, so
+ * the longest collection name from the meta that prefixes the key wins; the
+ * first slash is only the fallback.
+ */
+const splitModeKey = (
+  key: string,
+  modeTokens: any
+): [string, string | undefined] => {
+  const metaNames: unknown =
+    modeTokens?.$extensions?.['tokens-bruecke-meta']?.variableCollections;
+  const collectionNames = Array.isArray(metaNames) ? metaNames : [];
+
+  // A collection with a single mode is not split, so its key has no mode
+  if (collectionNames.includes(key)) {
+    return [key, undefined];
+  }
+
+  const collectionName = collectionNames
+    .filter(
+      (name) =>
+        typeof name === 'string' &&
+        key.startsWith(`${name}/`) &&
+        key.length > name.length + 1
+    )
+    .sort((a, b) => b.length - a.length)[0];
+
+  if (collectionName) {
+    return [collectionName, key.slice(collectionName.length + 1)];
+  }
+
+  const slashIndex = key.indexOf('/');
+
+  return slashIndex === -1
+    ? [key, undefined]
+    : [key.slice(0, slashIndex), key.slice(slashIndex + 1)];
+};
+
+/**
  * Turns the generated tokens object into the list of files that should be
  * written, downloaded or committed.
  *
@@ -78,17 +116,14 @@ export const splitTokensIntoFiles = (
   if (splitByMode) {
     // Keys are "CollectionName/ModeName" — write as {CollectionName}/{ModeName}.tokens.json
     return Object.keys(tokens).map((key) => {
-      const slashIndex = key.indexOf('/');
+      const [collectionName, modeName] = splitModeKey(key, tokens[key]);
 
-      if (slashIndex === -1) {
+      if (modeName === undefined) {
         return {
           path: joinPath(folder, `${safeName(key)}.tokens.json`),
           content: stringify({ [key]: tokens[key] }),
         };
       }
-
-      const collectionName = key.slice(0, slashIndex);
-      const modeName = key.slice(slashIndex + 1);
 
       return {
         path: joinPath(

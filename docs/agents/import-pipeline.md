@@ -17,7 +17,7 @@ existing collections and variables → variableMap: "Collection/var/name" → Va
 drop root $extensions
 for each top-level key (= collection name, object values only):
   find collection by name, or figma.variables.createVariableCollection(name)
-  tokens = extractTokens(group)              recursive; skips $-keys, value/type/description/scopes;
+  tokens = extractTokens(group)              recursive; skips $-keys except `$root` (the group's own token), and value/type/description/scopes/extensions only inside a token (in a group they are names); also descends into tokens, for child tokens of older exports; references drop a trailing `.$root`;
                                              a "token" has a value ($value|value) AND a determinable type
   modes  = union of $extensions.mode (or extensions.mode) keys, in first-seen order
     rename collection.modes[0] to the first mode name; addMode() for the missing ones; re-fetch collection
@@ -39,7 +39,7 @@ PASS 3  after all collections: deferred values again; still unresolved → error
 
 In this order:
 
-1. scopes are all opacity scopes and the declared type is missing, `number` or `string` → `opacity`
+1. scopes (`scopes`, else `$extensions.figmaScopes`) are all opacity scopes and the declared type is missing, `number` or `string` → `opacity`. When the token has no scopes at all and updates an existing FLOAT variable with opacity scopes, `resolveTypeForExistingVariable` turns a `number`, or a `string` ending in `%`, into `opacity` too.
 2. `$extensions.figmaType === 'EASING'` → `cubicBezier` (easing presets exported as strings)
 3. `$type`, then `type`
 4. `$extensions.figmaType` `STRING` → `string`, `BOOLEAN` → `boolean`, `FLOAT` → `opacity` (legacy strict-DTCG exports)

@@ -27,7 +27,7 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
 4. `mergeStylesIntoTokens(variableTokens, styleTokens, storeStyleInCollection)`: `'none'` → style groups become top-level keys; otherwise they are `Object.assign`ed into that collection's group. A missing collection falls back to the top level with a warning, and `omitCollectionNames` always keeps them separate
 5. `meta = { useDTCG, spec?, colorMode, variableCollections: names[], createdAt? }`
 6. Result shape:
-   - **splitByMode** (wins over splitByCollection): `{ "Collection/Mode": tree }`. Mode names come from `$extensions.mode` keys; `applyModeToTokens` replaces each `$value` with that mode's value and drops `$extensions.mode`. A top-level group without modes stays a single `"Collection"` entry. ⚠️ It only finds tokens by the `$value` key, so with `useDTCG: false` nothing is split by mode (documented: "Splitting by mode needs the DTCG format").
+   - **splitByMode** (wins over splitByCollection): `{ "Collection/Mode": tree }`. Mode names come from `$extensions.mode` keys; `applyModeToTokens` replaces each `$value` with that mode's value and drops `$extensions.mode`. A top-level group without modes stays a single `"Collection"` entry. `splitTokensIntoFiles` splits the key at the longest collection name from `meta.variableCollections` (both names may contain `/`), and only falls back to the first `/`. ⚠️ It only finds tokens by the `$value` key, so with `useDTCG: false` nothing is split by mode (documented: "Splitting by mode needs the DTCG format").
    - **splitByCollection**: `{ "Collection": tree }`
    - Each split entry gets its own `$extensions['tokens-bruecke-meta']`. Otherwise it is added once at the root: `tree.$extensions['tokens-bruecke-meta']`.
    - Style groups are top-level keys too, so they become their own "collection" files when splitting.
@@ -49,10 +49,10 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
 - Type = `normalizeType(resolvedType, scopes, usePercentageOpacity, rawDefaultValue, expandEasingPresets)`. For `EASING`, an alias chain is followed first (`resolveAliasedValue`, max depth 10) because the preset decides the type.
 - Token object (key names from `getTokenKeyName(useDTCG)`):
   ```
-  { $type, $value, $description, scopes?, $extensions: { mode, figmaType?: 'EASING', figma?: { codeSyntax, variableId, collection: { id, name, defaultModeId } } } }
+  { $type, $value, $description, scopes?, $extensions: { mode, figmaType?: 'EASING', figmaScopes?, figma?: { codeSyntax, variableId, collection: { id, name, defaultModeId } } } }
   ```
   `$extensions` is always written with the `$` prefix, even when `useDTCG` is false.
-- Placed at `tree[collectionName][variable.name]`; finally `groupObjectNamesIntoCategories` splits names on `/` into nested groups. If a token and a group share a path (`border/brand` and `border/brand/subtle`), they are merged rather than overwritten.
+- Placed at `tree[collectionName][variable.name]`; finally `groupObjectNamesIntoCategories` runs per collection and splits the variable names on `/` into nested groups. It splits only the keys it is given, so collection names and the mode names in `$extensions.mode` keep their `/`. If a token and a group share a path (`border/brand` and `border/brand/subtle`), the token goes into the group as `$root` with DTCG on (DTCG §6.1 forbids a token with child tokens), and `getTokens` then rewrites every reference to it to `….$root` (`addRootToReferences` in rootTokens.ts). With DTCG off they are merged into one object, as in the legacy format.
 - **Errors:** any throw in `addVariable` → `warn(resolver, '[tokens-bruecke] Skipped variable "<name>" (<type>): <msg>. Values: <json>')`, and the variable is left out.
 
 **omitCollectionNames:** everything goes into one flat map; on a duplicate name the last one wins, with a collision warning. Extended collections are skipped with a warning.
@@ -76,13 +76,13 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
 
 Checked in this order:
 
-1. **Alias** `{ type: 'VARIABLE_ALIAS', id }` → `getAliasVariableName` → `"{Collection.group.name}"` (dots replace `/`). With `includeValueStringKeyToAlias` it gets a `.$value` / `.value` suffix; with `omitCollectionNames` there is no collection prefix. A target missing from the resolver → `"#missing#"` plus a `[tokens-bruecke] Cannot find variable <id>` warning (expected for library variables).
+1. **Alias** `{ type: 'VARIABLE_ALIAS', id }` → `getAliasVariableName` → `"{Collection.group.name}"` (dots replace `/`). With `includeValueStringKeyToAlias` it gets a `.$value` / `.value` suffix; with `omitCollectionNames` there is no collection prefix. A target, or its collection, missing from the resolver → `"#missing#"` plus a `[tokens-bruecke] Cannot find …` warning (expected for library variables); the aliasing variable is still exported.
 2. **Composed color** (Figma "Control opacity at scale", Sept 2026): `{ color, opacity }` or the legacy `{ type: 'VARIABLE_EXPRESSION', expressionFunction: 'COMPOSE_COLOR', expressionArguments }` → `normalizeComposedColor` (color/composeColor.ts):
    - aliased base → `{ components: "{ref}", alpha: 0.5 | "50%" | "{opacityRef}" }`
    - literal base and literal opacity → a normal color value with the opacity as alpha
    - literal base and aliased opacity → the color in `colorMode` with `alpha` (DTCG modes) or `a` (object modes) set to the reference, or `{ components: <string color>, alpha }` for string modes
 3. `COLOR` → `convertRGBA(value, colorMode)`. A value without numeric `r` throws `Unsupported color value: …`, so the variable is skipped and reported.
-4. `FLOAT`: font weight → `Number(v)`; opacity scope → `"${v}%"` or `v / 100`; otherwise `makeDimension(round6(v), useDTCG)` → `{ value, unit: 'px' }` or `"6px"`.
+4. `FLOAT`: font weight → `Number(v)`; opacity scope → `"${v}%"` or `v / 100` (and, without `includeScopes`, `$extensions.figmaScopes` so the import can recognize it); otherwise `makeDimension(round6(v), useDTCG)` → `{ value, unit: 'px' }` or `"6px"`.
 5. `TIMING` → `makeDuration(seconds, useDTCG)` → `{ value: ms, unit: 'ms' }` or `"300ms"` (rounded to 3 decimals to remove float32 noise).
 6. `EASING` → `normalizeEasing(value, expandEasingPresets).value`.
 7. Otherwise (`STRING`, `BOOLEAN`) the raw value.

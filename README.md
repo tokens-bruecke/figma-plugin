@@ -232,6 +232,7 @@ Is `on` by default. Aligns the output with the [DTCG 2025.10 specification](http
 - All token keys are prefixed with the `$` symbol (`$value`, `$type`, `$description`).
 - Dimensions are exported as objects per [§8.2 Dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) — `{ "value": 6, "unit": "px" }` instead of `"6px"`. This also applies to sub-values in shadows, typography, and grids.
 - The root `$extensions["tokens-bruecke-meta"]` includes a `spec` field with the canonical spec URL, so downstream tools know which format to expect.
+- A variable named like a group of other variables (`border/brand` next to `border/brand/subtle`) becomes the group's root token per DTCG 2025.10 §6.2: `border.brand.$root`. References to it point at `{….border.brand.$root}`. With the format off, the token and the group share one object, as before. The import reads both shapes.
 
 ```json
 // Off — native Figma format
@@ -609,7 +610,6 @@ Things worth knowing when building a snapshot:
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
 - [Extended collections](#extended-collections) need `isExtension`, `parentVariableCollectionId`, `variableOverrides`, `modes[].parentModeId` and `variableIds`. Their variables belong to the root collection, so `variableIds` is the only list of what they contain: without it the extension exports as an empty group.
-- Unlike REST mode, snapshot mode doesn't drop collections hidden from publishing. Leave out anything you don't want exported.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
 - Color aliases with their own opacity come back from the Plugin API as `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` (older Figma Desktop builds used `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`) — pass either through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
 
@@ -749,7 +749,7 @@ Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY`, so a token exported in
 On a bad snapshot the CLI exits `1` and names the offending key — for example `variables[3] is missing a string "variableCollectionId"` — so an agent can correct its dump and retry without guesswork.
 
 > [!NOTE]
-> Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array.
+> Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array and their collections in `variableCollections`.
 
 ---
 
@@ -793,7 +793,7 @@ for (const [key, tree] of Object.entries(tokens)) {
 ```
 
 - **Aliases** inside a tree are qualified with the collection name (for example `{Semantic.spacing.md}`), so the tree has to be wrapped in `{ [collection]: tree }` for references to resolve.
-- **Names are raw.** The CLI replaces characters that are illegal in file names (such as `/`) in collection and mode names. The API keys keep the Figma names as they are. A collection or mode name can contain `/`, so splitting a key at the first `/` is only safe for simple names.
+- **Names are raw.** The CLI replaces characters that are illegal in file names (such as `/`) in collection and mode names. The API keys keep the Figma names as they are. A collection or mode name can contain `/`, so splitting a key at the first `/` is only safe for simple names. Match the key against the collection names in `$extensions["tokens-bruecke-meta"].variableCollections` instead, as the CLI does.
 
 ---
 
@@ -844,9 +844,9 @@ If a pull request from that branch is already open, the plugin updates it instea
 
 ### [GitLab](https://gitlab.com)
 
-1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope. For a self-hosted GitLab, fill in the host field; it defaults to `gitlab.com`.
+1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope. To push to a protected branch such as `main`, the token needs the Maintainer role; otherwise use a branch of its own and merge it with a merge request. For a self-hosted GitLab, fill in the host field, e.g. `gitlab.acme.com` (a leading `https://` and a trailing `/` are ignored); it defaults to `gitlab.com`.
 2. In the plugin settings paste the token into the `Project access token` field.
-3. Add an owner name, repository name and a branch name.
+3. Add the owner, the repository name and a branch name. The owner is the user or group from the project URL, including subgroups: for `https://gitlab.acme.com/acme/frontend/design-system` it is `acme/frontend` and the repository is `design-system`. The branch must exist.
 4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
 5. You can also specify a commit message.
 
@@ -933,7 +933,7 @@ Profiles are stored on your machine. To hand your settings to others, for exampl
 
 - The profile is saved in the Figma file, without any credentials: tokens, access keys and Custom URL headers are removed. Everything else is shared, including repository, branch, file name and the Custom URL itself, so don't put secrets in the URL.
 - Everyone who runs the plugin on the file sees it in the profile dropdown under **Shared in this file**. Picking it creates a local copy. Add your own token in the server settings before you push.
-- When the shared profile changes, the local copy shows **Update**. Updating takes the settings from the file and keeps your credentials and profile name.
+- When the shared profile changes, the local copy shows **Update**. Updating takes the settings from the file and keeps your credentials and profile name. If the update points GitLab or the Custom URL to another host, your credential for that server is removed and the server is turned off, so a changed file can't send your token somewhere else. Check the host and add the credential again.
 - **Update shared profile** and **Stop sharing** change the profile for everyone who uses the file.
 
 ---
@@ -1358,7 +1358,7 @@ Figma variables have no font weight, font family or opacity type, so the plugin 
 
 - A number or string variable whose only scope is `FONT_WEIGHT` becomes a `fontWeight` token. With any other scope next to it, it stays a `dimension` or `string`.
 - A string variable whose only scope is `FONT_FAMILY` becomes a `fontFamily` token. With any other scope next to it, it stays a `string`.
-- A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`.
+- A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`. Unless [scopes are included](#include-variable-scopes), such a token carries its scopes in `$extensions.figmaScopes`, so the [import](#import-json--variables) recreates an opacity variable (50, not 0.5).
 
 ---
 

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { IResolver } from '@common/resolver';
 import { tokensToVariables } from './tokensToVariables';
+import { variablesToTokens } from './variablesToTokens';
 
 /**
  * Minimal in-memory stand-in for the parts of the Figma Plugin API the
@@ -527,6 +528,85 @@ describe('tokensToVariables references and existing variables', () => {
     });
   });
 
+  test('imports groups named like the keys of the legacy format', async () => {
+    const result = await tokensToVariables(
+      {
+        Core: {
+          type: {
+            body: { size: { $type: 'number', $value: 16 } },
+          },
+          value: { $type: 'string', $value: 'a' },
+          description: { short: { $type: 'string', $value: 'b' } },
+          scopes: { $type: 'boolean', $value: true },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(fake._variables.map((v) => v.name).sort()).toEqual([
+      'description/short',
+      'scopes',
+      'type/body/size',
+      'value',
+    ]);
+    expect(defaultValueOf('type/body/size')).toBe(16);
+  });
+
+  test.each([
+    [
+      'a $root token',
+      {
+        brand: {
+          $root: { $type: 'number', $value: 1 },
+          subtle: { $type: 'number', $value: 3 },
+        },
+        gap: { $type: 'number', $value: '{Core.brand.$root}' },
+      },
+    ],
+    [
+      'a token with child tokens (older exports)',
+      {
+        brand: {
+          $type: 'number',
+          $value: 1,
+          subtle: { $type: 'number', $value: 3 },
+        },
+        gap: { $type: 'number', $value: '{Core.brand}' },
+      },
+    ],
+  ])('imports a variable named like a group from %s', async (_, Core) => {
+    const result = await tokensToVariables({ Core }, resolver);
+
+    expect(result.errors).toEqual([]);
+    expect(fake._variables.map((v) => v.name).sort()).toEqual([
+      'brand',
+      'brand/subtle',
+      'gap',
+    ]);
+    expect(defaultValueOf('brand')).toBe(1);
+    expect(defaultValueOf('brand/subtle')).toBe(3);
+    expect(defaultValueOf('gap')).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('brand').id,
+    });
+  });
+
+  test('still reads tokens in the legacy format', async () => {
+    const result = await tokensToVariables(
+      {
+        Core: {
+          gap: { type: 'number', value: 8, description: 'Gap' },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(fake._variables.map((v) => v.name)).toEqual(['gap']);
+    expect(byName('gap').description).toBe('Gap');
+  });
+
   test('skips a token whose type does not fit the existing variable', async () => {
     const collection = fake.variables.createVariableCollection('Core');
     fake.variables.createVariable('size', collection, 'COLOR');
@@ -569,6 +649,196 @@ describe('tokensToVariables references and existing variables', () => {
     expect(defaultValueOf('weight/heading')).toEqual({
       type: 'VARIABLE_ALIAS',
       id: byName('weight/bold').id,
+    });
+  });
+});
+
+describe('tokensToVariables opacity round trip', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const byName = (name: string) => fake._variables.find((v) => v.name === name);
+  const defaultValueOf = (name: string) => {
+    const variable = byName(name);
+    const collection = fake._collections.find(
+      (c) => c.id === variable.variableCollectionId
+    );
+    return variable.valuesByMode[collection.defaultModeId];
+  };
+
+  const fileResolver = {
+    getLocalVariableCollections: async () => fake._collections,
+    getLocalVariables: async () => fake._variables,
+  } as unknown as IResolver;
+
+  const exportOpacity = (usePercentageOpacity: boolean) =>
+    variablesToTokens(
+      [
+        {
+          id: 'v1',
+          name: 'opacity/half',
+          resolvedType: 'FLOAT',
+          scopes: ['OPACITY'],
+          variableCollectionId: 'c1',
+          valuesByMode: { m1: 50 },
+          description: '',
+          codeSyntax: {},
+        },
+      ] as unknown as Variable[],
+      [
+        {
+          id: 'c1',
+          name: 'Core',
+          defaultModeId: 'm1',
+          modes: [{ modeId: 'm1', name: 'Mode 1' }],
+          variableIds: ['v1'],
+        },
+      ] as unknown as VariableCollection[],
+      {
+        colorMode: 'hex',
+        useDTCG: true,
+        includeScopes: false,
+        includeValueStringKeyToAlias: false,
+        includeFigmaMetaData: false,
+        usePercentageOpacity,
+        expandEasingPresets: true,
+        omitCollectionNames: false,
+      } as ExportSettingsI,
+      {} as IResolver
+    );
+
+  test.each([false, true])(
+    'recreates an opacity variable from the default export (percentage: %s)',
+    async (usePercentageOpacity) => {
+      const tokens = await exportOpacity(usePercentageOpacity);
+
+      const result = await tokensToVariables(tokens, resolver);
+
+      expect(result.errors).toEqual([]);
+      expect(byName('opacity/half').resolvedType).toBe('FLOAT');
+      expect(byName('opacity/half').scopes).toEqual(['OPACITY']);
+      expect(defaultValueOf('opacity/half')).toBe(50);
+    }
+  );
+
+  test.each([
+    ['a fraction', { $type: 'number', $value: 0.5 }],
+    ['a percentage', { $type: 'string', $value: '50%' }],
+  ])(
+    'writes %s without scopes into an existing opacity variable as percent',
+    async (_, token) => {
+      const collection = fake.variables.createVariableCollection('Core');
+      const variable = fake.variables.createVariable(
+        'opacity/half',
+        collection,
+        'FLOAT'
+      );
+      variable.scopes = ['OPACITY'];
+
+      const result = await tokensToVariables(
+        { Core: { opacity: { half: token } } },
+        fileResolver
+      );
+
+      expect(result.errors).toEqual([]);
+      expect(result.variablesUpdated).toBe(1);
+      expect(defaultValueOf('opacity/half')).toBe(50);
+    }
+  );
+});
+
+describe('tokensToVariables names with a slash', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test('round-trips collection and mode names that contain a slash', async () => {
+    const variables = [
+      {
+        id: 'v1',
+        name: 'space/1',
+        variableCollectionId: 'c1',
+        resolvedType: 'FLOAT',
+        scopes: ['ALL_SCOPES'],
+        valuesByMode: { light: 4, dark: 8 },
+        description: '',
+        codeSyntax: {},
+      },
+      {
+        id: 'v2',
+        name: 'gap',
+        variableCollectionId: 'c1',
+        resolvedType: 'FLOAT',
+        scopes: ['ALL_SCOPES'],
+        valuesByMode: {
+          light: { type: 'VARIABLE_ALIAS', id: 'v1' },
+          dark: { type: 'VARIABLE_ALIAS', id: 'v1' },
+        },
+        description: '',
+        codeSyntax: {},
+      },
+    ] as unknown as Variable[];
+    const collection = {
+      id: 'c1',
+      name: 'Brand/Core',
+      defaultModeId: 'light',
+      modes: [
+        { modeId: 'light', name: 'Brand A/Light' },
+        { modeId: 'dark', name: 'Brand A/Dark' },
+      ],
+      variableIds: ['v1', 'v2'],
+    } as unknown as VariableCollection;
+    const tokens = await variablesToTokens(
+      variables,
+      [collection],
+      {
+        colorMode: 'hex',
+        useDTCG: true,
+        includeScopes: false,
+        includeValueStringKeyToAlias: false,
+        includeFigmaMetaData: false,
+        usePercentageOpacity: false,
+        expandEasingPresets: true,
+        omitCollectionNames: false,
+      } as ExportSettingsI,
+      {
+        getVariableById: async (id: string) =>
+          variables.find((v) => v.id === id),
+        getVariableCollectionById: async () => collection,
+      } as unknown as IResolver
+    );
+
+    const result = await tokensToVariables(tokens, resolver);
+
+    expect(result.errors).toEqual([]);
+    expect(fake._collections.map((c) => c.name)).toEqual(['Brand/Core']);
+    const [imported] = fake._collections;
+    expect(imported.modes.map((m: any) => m.name)).toEqual([
+      'Brand A/Light',
+      'Brand A/Dark',
+    ]);
+    const byName = (name: string) =>
+      fake._variables.find((v) => v.name === name);
+    const darkModeId = imported.modes[1].modeId;
+    expect(byName('space/1').valuesByMode[darkModeId]).toBe(8);
+    expect(byName('gap').valuesByMode[darkModeId]).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('space/1').id,
     });
   });
 });
