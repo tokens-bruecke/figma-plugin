@@ -1357,7 +1357,7 @@ Figma variables have no font weight, font family or opacity type, so the plugin 
 
 - A number or string variable whose only scope is `FONT_WEIGHT` becomes a `fontWeight` token. With any other scope next to it, it stays a `dimension` or `string`.
 - A string variable whose only scope is `FONT_FAMILY` becomes a `fontFamily` token. With any other scope next to it, it stays a `string`.
-- A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`.
+- A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`. Unless [scopes are included](#include-variable-scopes), such a token carries its scopes in `$extensions.figmaScopes`, so the [import](#import-json--variables) recreates an opacity variable (50, not 0.5).
 
 ---
 

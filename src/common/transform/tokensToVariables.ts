@@ -155,13 +155,38 @@ export const getDefaultScopes = (
 };
 
 /**
- * Parses a token to extract scopes (standard format only: `scopes` key).
+ * Parses a token to extract scopes: the `scopes` key (`includeScopes`), or
+ * the `$extensions.figmaScopes` marker that opacity tokens always carry.
  */
 export const getTokenScopes = (token: any): string[] | undefined => {
   if (token.scopes !== undefined && Array.isArray(token.scopes)) {
     return token.scopes;
   }
+  if (Array.isArray(token.$extensions?.figmaScopes)) {
+    return token.$extensions.figmaScopes;
+  }
   return undefined;
+};
+
+/**
+ * Tokens exported without any scopes (older exports, or other tools) can't
+ * be told apart from plain numbers. When they update an existing opacity
+ * variable, its scopes decide, so 0.5 is written as 50 and not as 0.5.
+ */
+export const resolveTypeForExistingVariable = (
+  tokenType: string | null,
+  token: any,
+  variable: Pick<Variable, 'resolvedType' | 'scopes'> | undefined
+): string | null => {
+  if (
+    variable?.resolvedType === 'FLOAT' &&
+    isOpacityScope(variable.scopes) &&
+    (tokenType === 'number' ||
+      (tokenType === 'string' && /%\s*$/.test(String(getTokenValue(token)))))
+  ) {
+    return 'opacity';
+  }
+  return tokenType;
 };
 
 /**
@@ -784,10 +809,11 @@ export const tokensToVariables = async (
           variable: Variable;
           token: any;
           path: string;
+          tokenType: string;
         }> = [];
         for (const { path, token } of tokens) {
           try {
-            const tokenType = getTokenType(token);
+            let tokenType = getTokenType(token);
             const tokenDescription = getTokenDescription(token);
             let tokenScopes = getTokenScopes(token);
 
@@ -801,6 +827,11 @@ export const tokensToVariables = async (
             // Check if variable already exists
             let variable = variableMap.get(fullPath);
             const isExisting = !!variable;
+            tokenType = resolveTypeForExistingVariable(
+              tokenType,
+              token,
+              variable
+            );
             const figmaType = mapTokenTypeToFigmaType(
               tokenType,
               getTokenValue(token)
@@ -877,7 +908,7 @@ export const tokensToVariables = async (
 
             // Store for second pass (value setting)
             if (variable) {
-              createdVariables.push({ variable, token, path });
+              createdVariables.push({ variable, token, path, tokenType });
             }
           } catch (error) {
             result.errors.push(
@@ -887,10 +918,9 @@ export const tokensToVariables = async (
         }
 
         // Second pass: Set values for all variables (now all variables exist for alias resolution)
-        for (const { variable, token, path } of createdVariables) {
+        for (const { variable, token, path, tokenType } of createdVariables) {
           try {
             const tokenValue = getTokenValue(token);
-            const tokenType = getTokenType(token);
 
             if (typeof figma !== 'undefined') {
               // `$value` is the value of the default mode

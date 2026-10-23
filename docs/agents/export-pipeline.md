@@ -49,7 +49,7 @@ All of this is in `src/common/`, so it applies equally to plugin, CLI and API. T
 - Type = `normalizeType(resolvedType, scopes, usePercentageOpacity, rawDefaultValue, expandEasingPresets)`. For `EASING`, an alias chain is followed first (`resolveAliasedValue`, max depth 10) because the preset decides the type.
 - Token object (key names from `getTokenKeyName(useDTCG)`):
   ```
-  { $type, $value, $description, scopes?, $extensions: { mode, figmaType?: 'EASING', figma?: { codeSyntax, variableId, collection: { id, name, defaultModeId } } } }
+  { $type, $value, $description, scopes?, $extensions: { mode, figmaType?: 'EASING', figmaScopes?, figma?: { codeSyntax, variableId, collection: { id, name, defaultModeId } } } }
   ```
   `$extensions` is always written with the `$` prefix, even when `useDTCG` is false.
 - Placed at `tree[collectionName][variable.name]`; finally `groupObjectNamesIntoCategories` splits names on `/` into nested groups. If a token and a group share a path (`border/brand` and `border/brand/subtle`), they are merged rather than overwritten.
@@ -82,7 +82,7 @@ Checked in this order:
    - literal base and literal opacity → a normal color value with the opacity as alpha
    - literal base and aliased opacity → the color in `colorMode` with `alpha` (DTCG modes) or `a` (object modes) set to the reference, or `{ components: <string color>, alpha }` for string modes
 3. `COLOR` → `convertRGBA(value, colorMode)`. A value without numeric `r` throws `Unsupported color value: …`, so the variable is skipped and reported.
-4. `FLOAT`: font weight → `Number(v)`; opacity scope → `"${v}%"` or `v / 100`; otherwise `makeDimension(round6(v), useDTCG)` → `{ value, unit: 'px' }` or `"6px"`.
+4. `FLOAT`: font weight → `Number(v)`; opacity scope → `"${v}%"` or `v / 100` (and, without `includeScopes`, `$extensions.figmaScopes` so the import can recognize it); otherwise `makeDimension(round6(v), useDTCG)` → `{ value, unit: 'px' }` or `"6px"`.
 5. `TIMING` → `makeDuration(seconds, useDTCG)` → `{ value: ms, unit: 'ms' }` or `"300ms"` (rounded to 3 decimals to remove float32 noise).
 6. `EASING` → `normalizeEasing(value, expandEasingPresets).value`.
 7. Otherwise (`STRING`, `BOOLEAN`) the raw value.

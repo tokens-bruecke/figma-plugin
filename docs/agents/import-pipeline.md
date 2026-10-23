@@ -39,7 +39,7 @@ PASS 3  after all collections: deferred values again; still unresolved → error
 
 In this order:
 
-1. scopes are all opacity scopes and the declared type is missing, `number` or `string` → `opacity`
+1. scopes (`scopes`, else `$extensions.figmaScopes`) are all opacity scopes and the declared type is missing, `number` or `string` → `opacity`. When the token has no scopes at all and updates an existing FLOAT variable with opacity scopes, `resolveTypeForExistingVariable` turns a `number`, or a `string` ending in `%`, into `opacity` too.
 2. `$extensions.figmaType === 'EASING'` → `cubicBezier` (easing presets exported as strings)
 3. `$type`, then `type`
 4. `$extensions.figmaType` `STRING` → `string`, `BOOLEAN` → `boolean`, `FLOAT` → `opacity` (legacy strict-DTCG exports)

@@ -1,5 +1,6 @@
 import { normalizeValue } from './normalizeValue';
 import { normalizeType } from './normalizeType';
+import { isOpacityScope } from './opacityScopes';
 import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
@@ -306,6 +307,14 @@ export const variablesToTokens = async (
         // strings; the marker lets the import recreate an EASING variable.
         ...(variable.resolvedType === 'EASING' &&
           tokenType === 'string' && { figmaType: 'EASING' }),
+        // Opacities export as plain `number` or `string` tokens, which the
+        // import can only tell from dimensions by their scopes. Without
+        // `includeScopes` they would come back as 0.5 instead of 50.
+        ...(!config.includeScopes &&
+          variable.resolvedType === 'FLOAT' &&
+          isOpacityScope(variable.scopes) && {
+            figmaScopes: variable.scopes,
+          }),
         ...(includeFigmaMetaData && {
           figma: {
             codeSyntax: variable.codeSyntax,

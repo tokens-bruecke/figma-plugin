@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { IResolver } from '@common/resolver';
 import { tokensToVariables } from './tokensToVariables';
+import { variablesToTokens } from './variablesToTokens';
 
 /**
  * Minimal in-memory stand-in for the parts of the Figma Plugin API the
@@ -571,4 +572,106 @@ describe('tokensToVariables references and existing variables', () => {
       id: byName('weight/bold').id,
     });
   });
+});
+
+describe('tokensToVariables opacity round trip', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const byName = (name: string) => fake._variables.find((v) => v.name === name);
+  const defaultValueOf = (name: string) => {
+    const variable = byName(name);
+    const collection = fake._collections.find(
+      (c) => c.id === variable.variableCollectionId
+    );
+    return variable.valuesByMode[collection.defaultModeId];
+  };
+
+  const fileResolver = {
+    getLocalVariableCollections: async () => fake._collections,
+    getLocalVariables: async () => fake._variables,
+  } as unknown as IResolver;
+
+  const exportOpacity = (usePercentageOpacity: boolean) =>
+    variablesToTokens(
+      [
+        {
+          id: 'v1',
+          name: 'opacity/half',
+          resolvedType: 'FLOAT',
+          scopes: ['OPACITY'],
+          variableCollectionId: 'c1',
+          valuesByMode: { m1: 50 },
+          description: '',
+          codeSyntax: {},
+        },
+      ] as unknown as Variable[],
+      [
+        {
+          id: 'c1',
+          name: 'Core',
+          defaultModeId: 'm1',
+          modes: [{ modeId: 'm1', name: 'Mode 1' }],
+          variableIds: ['v1'],
+        },
+      ] as unknown as VariableCollection[],
+      {
+        colorMode: 'hex',
+        useDTCG: true,
+        includeScopes: false,
+        includeValueStringKeyToAlias: false,
+        includeFigmaMetaData: false,
+        usePercentageOpacity,
+        expandEasingPresets: true,
+        omitCollectionNames: false,
+      } as ExportSettingsI,
+      {} as IResolver
+    );
+
+  test.each([false, true])(
+    'recreates an opacity variable from the default export (percentage: %s)',
+    async (usePercentageOpacity) => {
+      const tokens = await exportOpacity(usePercentageOpacity);
+
+      const result = await tokensToVariables(tokens, resolver);
+
+      expect(result.errors).toEqual([]);
+      expect(byName('opacity/half').resolvedType).toBe('FLOAT');
+      expect(byName('opacity/half').scopes).toEqual(['OPACITY']);
+      expect(defaultValueOf('opacity/half')).toBe(50);
+    }
+  );
+
+  test.each([
+    ['a fraction', { $type: 'number', $value: 0.5 }],
+    ['a percentage', { $type: 'string', $value: '50%' }],
+  ])(
+    'writes %s without scopes into an existing opacity variable as percent',
+    async (_, token) => {
+      const collection = fake.variables.createVariableCollection('Core');
+      const variable = fake.variables.createVariable(
+        'opacity/half',
+        collection,
+        'FLOAT'
+      );
+      variable.scopes = ['OPACITY'];
+
+      const result = await tokensToVariables(
+        { Core: { opacity: { half: token } } },
+        fileResolver
+      );
+
+      expect(result.errors).toEqual([]);
+      expect(result.variablesUpdated).toBe(1);
+      expect(defaultValueOf('opacity/half')).toBe(50);
+    }
+  );
 });
