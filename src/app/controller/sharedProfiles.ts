@@ -1,4 +1,5 @@
 import { createProfileFromConfig } from './storageConfig';
+import { normalizeGitlabHost } from '../api/servers/gitlabProject';
 
 export const sharedProfilesKey = 'sharedProfiles';
 
@@ -115,13 +116,6 @@ export const unshareProfile = (
   return rest;
 };
 
-const normalizeHost = (host: string | undefined) =>
-  (host || 'gitlab.com')
-    .trim()
-    .toLowerCase()
-    .replace(/^https?:\/\//, '')
-    .replace(/\/+$/, '');
-
 const getOrigin = (url: string | undefined) => {
   try {
     return new URL(url).origin;
@@ -135,7 +129,7 @@ const getOrigin = (url: string | undefined) => {
 const credentialTargets: {
   [S in ServerType]?: (server: ServerSettingsI[S]) => string;
 } = {
-  gitlab: (server) => normalizeHost(server?.host),
+  gitlab: (server) => normalizeGitlabHost(server?.host).toLowerCase(),
   customURL: (server) => getOrigin(server?.url),
 };
 
