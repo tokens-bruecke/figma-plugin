@@ -528,6 +528,46 @@ describe('tokensToVariables references and existing variables', () => {
     });
   });
 
+  test('imports groups named like the keys of the legacy format', async () => {
+    const result = await tokensToVariables(
+      {
+        Core: {
+          type: {
+            body: { size: { $type: 'number', $value: 16 } },
+          },
+          value: { $type: 'string', $value: 'a' },
+          description: { short: { $type: 'string', $value: 'b' } },
+          scopes: { $type: 'boolean', $value: true },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(fake._variables.map((v) => v.name).sort()).toEqual([
+      'description/short',
+      'scopes',
+      'type/body/size',
+      'value',
+    ]);
+    expect(defaultValueOf('type/body/size')).toBe(16);
+  });
+
+  test('still reads tokens in the legacy format', async () => {
+    const result = await tokensToVariables(
+      {
+        Core: {
+          gap: { type: 'number', value: 8, description: 'Gap' },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(fake._variables.map((v) => v.name)).toEqual(['gap']);
+    expect(byName('gap').description).toBe('Gap');
+  });
+
   test('skips a token whose type does not fit the existing variable', async () => {
     const collection = fake.variables.createVariableCollection('Core');
     fake.variables.createVariable('size', collection, 'COLOR');

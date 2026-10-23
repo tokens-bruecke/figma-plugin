@@ -538,6 +538,14 @@ export const mapTokenTypeToFigmaType = (
   return typeMap[tokenType] || 'STRING';
 };
 
+const legacyTokenKeys = [
+  'value',
+  'type',
+  'description',
+  'scopes',
+  'extensions',
+];
+
 /**
  * Extracts all tokens from a nested object structure
  */
@@ -549,14 +557,15 @@ const extractTokens = (
   const tokens: Array<{ path: string; token: any; collectionName: string }> =
     [];
 
+  // In the legacy format these keys belong to a token. In a group they are
+  // ordinary names, e.g. the variable "type/body/size", or a token named
+  // "value"
+  const isTokenLike =
+    obj.$value !== undefined ||
+    (obj.value !== undefined && !isToken(obj.value));
+
   for (const key in obj) {
-    if (
-      key.startsWith('$') ||
-      key === 'value' ||
-      key === 'type' ||
-      key === 'description' ||
-      key === 'scopes'
-    ) {
+    if (key.startsWith('$') || (isTokenLike && legacyTokenKeys.includes(key))) {
       continue; // Skip metadata keys
     }
 

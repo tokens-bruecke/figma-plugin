@@ -17,7 +17,7 @@ existing collections and variables → variableMap: "Collection/var/name" → Va
 drop root $extensions
 for each top-level key (= collection name, object values only):
   find collection by name, or figma.variables.createVariableCollection(name)
-  tokens = extractTokens(group)              recursive; skips $-keys, value/type/description/scopes;
+  tokens = extractTokens(group)              recursive; skips $-keys, and value/type/description/scopes/extensions only inside an untyped token (in a group they are names);
                                              a "token" has a value ($value|value) AND a determinable type
   modes  = union of $extensions.mode (or extensions.mode) keys, in first-seen order
     rename collection.modes[0] to the first mode name; addMode() for the missing ones; re-fetch collection
