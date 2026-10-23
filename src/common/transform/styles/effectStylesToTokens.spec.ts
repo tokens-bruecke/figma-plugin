@@ -44,6 +44,51 @@ describe('effectStylesToTokens', () => {
   });
 });
 
+describe('effect style aliases', () => {
+  const resolver = {
+    getLocalEffectStyles: async () => [
+      {
+        id: '1:2',
+        name: 'shadow',
+        effects: [
+          {
+            type: 'DROP_SHADOW',
+            color: { r: 0, g: 0, b: 0, a: 0.24 },
+            offset: { x: 0, y: 2 },
+            radius: 4,
+            spread: 0,
+            boundVariables: {
+              radius: { type: 'VARIABLE_ALIAS', id: 'v1' },
+              spread: { type: 'VARIABLE_ALIAS', id: 'v2' },
+            },
+          },
+        ],
+      },
+    ],
+    getVariableById: async (id: string) => ({
+      id,
+      name: id === 'v1' ? 'shadow/blur' : 'shadow/spread',
+      variableCollectionId: 'c1',
+    }),
+    getVariableCollectionById: async () => ({ id: 'c1', name: 'Effects' }),
+  } as any;
+
+  it('exports a bound shadow blur as an alias', async () => {
+    const tokens: any = await effectStylesToTokens(
+      'effects',
+      'hex',
+      true,
+      false,
+      resolver
+    );
+    const shadow = tokens.effects.shadow.$value[0];
+
+    // Figma binds the blur as `radius`
+    expect(shadow.blur).toBe('{Effects.shadow.blur}');
+    expect(shadow.spread).toBe('{Effects.shadow.spread}');
+  });
+});
+
 describe('effect styles the plugin cannot fully export', () => {
   const shadow = {
     type: 'DROP_SHADOW',
