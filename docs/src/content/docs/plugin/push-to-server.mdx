@@ -9,40 +9,44 @@ With this feature you can connect a server and push the generated JSON directly 
 
 <Screenshot name="servers-menu" alt="The list of supported servers" />
 
-If you connected multiple servers, the plugin will try to push the tokens to all of them one by one.
-In order to test if your credentials are valid you can make a test request by clicking the `Push to server` button.
+If you connected multiple servers, the plugin will try to push the tokens to all of them one by one. The server list shows where each one pushes to, e.g. `acme/tokens · main`; click a server to change its settings.
+
+Every field in a server form has a visible label. The ⓘ next to a label explains the field when you hover or focus it. Tokens and keys are masked; the eye in the field shows them. Optional fields such as the commit message are under **More options**. If you go back with unsaved changes, the form asks whether to save or discard them, and **Remove** at the bottom deletes the server's settings and token from the profile after a confirmation.
+
+For GitHub, GitHub PR and GitLab, **Test connection** checks the token, the repository and the branch with read-only requests, so you find a typo before the first push. A problem is shown at the field it belongs to. Otherwise, `Push to server` reports the result of each server in a toast.
 
 <Screenshot name="server-added" alt="A connected JSONBin server and the Push to server button" />
 
 ## JSONBin
 
 1. Open [JSONBin](https://jsonbin.io) and create an account.
-2. Generate a [new API key](https://jsonbin.io/api-reference/access-keys/create).
-3. If you want to use an existing bin, copy its ID. Otherwise just leave the ID field empty in the plugin settings.
-4. Add a name for the bin.
+2. Copy your **Master key** from the [API keys](https://jsonbin.io/app/app/api-keys) page into the `Master key` field. The plugin sends it as `X-Master-Key`, so an access key doesn't work here.
+3. Add a name for the bin.
+4. Leave `Bin ID` empty to create a new bin on the first push. The plugin saves the new bin's ID, so later pushes update the same bin. To use an existing bin, paste its ID.
 
 <Screenshot name="jsonbin" alt="JSONBin credentials" />
 
 ## GitHub
 
-1. You need to create a [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with `repo` scope.
-2. In the plugin settings paste the token into the `Personal access token` field.
-3. Add an owner name, repository name and a branch name.
-4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
-5. You can also specify a commit message.
+1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with **Contents: Read and write** for the repository (a classic token with `repo` scope works too). The `Create token ↗` link in the form opens that page.
+2. **Repository:** `owner/repository`, or paste the repository URL from your browser. A URL that points at a branch (`…/tree/develop`) fills in the branch too.
+3. **Branch:** it must already exist.
+4. **File path:** the path of the file in the repository, e.g. `tokens/design.tokens.json`. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
+5. **Personal access token:** paste the token.
+6. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
-> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file name field is treated as a folder instead, and every file is written in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode.
+> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path.
 
 <Screenshot name="github" alt="GitHub credentials" />
 
 ## GitHub PR
 
-Instead of committing to a branch directly, the plugin commits the tokens to a separate branch and opens a pull request. The token, owner, repo, file name and commit message fields work the same as for the [GitHub](#github) server. The other fields:
+Instead of committing to a branch directly, the plugin commits the tokens to a separate branch and opens a pull request. Repository, file path and token work the same as for the [GitHub](#github) server; the token also needs **Pull requests: Read and write**. The other fields:
 
 - **Base branch** (required). The branch the pull request targets, e.g. `main`.
-- **Branch name** (optional). The branch the tokens are committed to. Defaults to `tokens-bruecke/update-tokens`. It is reset to a new commit on top of the base branch on every push, so don't commit anything else to it.
-- **PR title**. You can specify a title for the PR. If you leave it empty, the plugin will use `chore(tokens): update tokens` as a default title.
-- **PR body**. You can specify a body for the PR. If you leave it empty, the plugin won't add any body to the PR.
+- **Pull request branch** (optional, under More options). The branch the tokens are committed to. Defaults to `tokens-bruecke/update-tokens`. It is reset to a new commit on top of the base branch on every push, so don't commit anything else to it. The form doesn't accept the base branch here.
+- **Pull request title** (optional). Defaults to `chore(tokens): update tokens`.
+- **Pull request description** (optional). If you leave it empty, the plugin won't add a body to the PR.
 
 If a pull request from that branch is already open, the plugin updates it instead of opening a new one. After a push, the toast shows an **Open Pull Request** link.
 
@@ -50,19 +54,20 @@ If a pull request from that branch is already open, the plugin updates it instea
 
 ## GitLab
 
-1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope. To push to a protected branch such as `main`, the token needs the Maintainer role; otherwise use a branch of its own and merge it with a merge request. For a self-hosted GitLab, fill in the host field, e.g. `gitlab.acme.com` (a leading `https://` and a trailing `/` are ignored); it defaults to `gitlab.com`.
-2. In the plugin settings paste the token into the `Project access token` field.
-3. Add the owner, the repository name and a branch name. The owner is the user or group from the project URL, including subgroups: for `https://gitlab.acme.com/acme/frontend/design-system` it is `acme/frontend` and the repository is `design-system`. The branch must exist.
-4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
-5. You can also specify a commit message.
+1. You need a [project access token](https://docs.gitlab.com/user/project/settings/project_access_tokens/) with `api` scope. To push to a protected branch such as `main`, the token needs the Maintainer role; otherwise use a branch of its own and merge it with a merge request. Once the project is filled in, the `Create token ↗` link opens the project's token settings.
+2. **Project:** paste the project URL from your browser, e.g. `https://gitlab.acme.com/acme/frontend/design-system` for a self-managed GitLab, or write `group/project` for gitlab.com. Subgroups and the SSH clone URL work too, and a URL that points at a branch (`…/-/tree/develop`) fills in the branch. The ⓘ next to the label shows how the plugin read host and project.
+3. **Branch:** it must already exist.
+4. **File path:** the path of the file in the repository, e.g. `tokens/design.tokens.json`. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
+5. **Project access token:** paste the token.
+6. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
-> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file name field is treated as a folder instead, and every file is written in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode.
+> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path.
 
 <Screenshot name="gitlab" alt="GitLab credentials" />
 
 ## Custom server
 
-There is a possibility to connect a custom server. In order to do that you need to specify a URL, a method (`POST` or `PUT`, by default it's `POST`) and optional headers, written as a JSON object, e.g. `{"Authorization": "Bearer <token>"}`.
+There is a possibility to connect a custom server. In order to do that you need to specify an **Endpoint URL** starting with `https://` (or `http://`), a **Method** (`POST` or `PUT`, by default it's `POST`) and optional **Headers**, written as a JSON object, e.g. `{"Authorization": "Bearer <token>"}`. The form checks the URL and the headers when you leave the field.
 
 JSONBin and custom servers always receive the whole JSON in one request: the [split into separate files](../advanced-settings/#split-collections-into-separate-files) settings only apply to downloads, the CLI and the Git servers.
 

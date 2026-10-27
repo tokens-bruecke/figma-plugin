@@ -1,8 +1,36 @@
 .description {
   opacity: 0.9;
   color: var(--figma-color-text);
+  padding: 0 var(--space-extra-small);
 
   a {
     color: var(--figma-color-text);
   }
+}
+
+.status {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 0 var(--space-extra-small);
+
+  i {
+    flex-shrink: 0;
+  }
+}
+
+.statusSuccess {
+  color: var(--figma-color-text-success);
+}
+
+.statusError {
+  color: var(--figma-color-text-danger);
+}
+
+.rowItem {
+  align-items: center;
+}
+
+.rowItemText {
+  flex: 1;
 }

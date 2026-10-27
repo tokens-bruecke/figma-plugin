@@ -43,12 +43,31 @@
   width: 100%;
 }
 
+// Wide enough for the captions that tell the two GitHub targets apart
 .overlayServerList {
   position: absolute;
   z-index: var(--z-index-2);
-  width: 130px;
+  width: 180px;
   bottom: 0;
   right: 0;
+}
+
+// A configured server: its name and, below it, where it pushes to
+.serverText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 4px;
+
+  span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.serverSummary {
+  color: var(--figma-color-text-secondary);
 }
 
 .profileDropdown {
