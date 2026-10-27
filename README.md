@@ -842,9 +842,9 @@ If a pull request from that branch is already open, the plugin updates it instea
 
 ### [GitLab](https://gitlab.com)
 
-1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope. For a self-hosted GitLab, fill in the host field; it defaults to `gitlab.com`.
+1. You need to create a [project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `api` scope. To push to a protected branch such as `main`, the token needs the Maintainer role; otherwise use a branch of its own and merge it with a merge request. For a self-hosted GitLab, fill in the host field, e.g. `gitlab.acme.com` (a leading `https://` and a trailing `/` are ignored); it defaults to `gitlab.com`.
 2. In the plugin settings paste the token into the `Project access token` field.
-3. Add an owner name, repository name and a branch name.
+3. Add the owner, the repository name and a branch name. The owner is the user or group from the project URL, including subgroups: for `https://gitlab.acme.com/acme/frontend/design-system` it is `acme/frontend` and the repository is `design-system`. The branch must exist.
 4. In the file name field you can specify a path to the file. If the file doesn't exist, it will be created. If the file exists, it will be overwritten. File name should include the file extension, e.g. `tokens.json`.
 5. You can also specify a commit message.
 

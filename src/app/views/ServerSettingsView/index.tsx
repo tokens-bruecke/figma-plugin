@@ -256,7 +256,7 @@ const viewsConfig = {
       },
       {
         id: 'owner',
-        placeholder: 'Owner',
+        placeholder: 'Owner: user or group, e.g. group/subgroup',
         type: 'input',
         value: '',
         required: true,
