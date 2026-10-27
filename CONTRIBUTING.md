@@ -20,12 +20,13 @@ pnpm install
 pnpm dev
 ```
 
-Load the plugin in Figma: **Plugins → Development → Import plugin from manifest** and point it to `manifest.json`.
+Load the plugin in Figma: **Plugins → Development → Import plugin from manifest** and point it to `dist/figma-plugin/manifest.json` (the build output, next to `code.js` and `ui.html`).
 
 **Run tests:**
 
 ```bash
-pnpm test
+pnpm test         # once
+pnpm test:watch   # watch mode
 ```
 
 ---
