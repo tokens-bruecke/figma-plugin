@@ -7,6 +7,7 @@ import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
 import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
+import { warnSkippedStyle } from './warnSkippedStyle';
 
 export const textStylesToTokens = async (
   customName: string,
@@ -22,6 +23,14 @@ export const textStylesToTokens = async (
   const allTextStyles = {};
 
   for (const style of textStyles) {
+    try {
+      allTextStyles[style.name] = await textStyleToToken(style);
+    } catch (error) {
+      warnSkippedStyle(style.name, error);
+    }
+  }
+
+  async function textStyleToToken(style: TextStyle) {
     let aliasVariables = {} as TextStyle['boundVariables'];
     const boundVariables = style.boundVariables;
 
@@ -45,7 +54,7 @@ export const textStylesToTokens = async (
     const exactFontWeight =
       (style as TextStyle & { fontWeight?: number }).fontWeight ??
       style.fontName.variationSettings?.wght;
-    const styleObject = {
+    return {
       [keyNames.type]: 'typography',
       [keyNames.value]: {
         fontFamily: aliasVariables.fontFamily || style.fontName.family,
@@ -81,8 +90,6 @@ export const textStylesToTokens = async (
         styleId: style.id,
       },
     } as unknown as TypographyTokenI;
-
-    allTextStyles[style.name] = styleObject;
   }
 
   textTokens[customName] = groupObjectNamesIntoCategories(allTextStyles);

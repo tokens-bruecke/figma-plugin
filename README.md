@@ -924,6 +924,8 @@ Supported styles:
 - Shadows (including `inset` shadows)
 - Blur (including `background` and `layer` blur)
 
+A style the plugin can't export, such as an image fill or a color style with several paints, is left out and the rest of the export continues. The plugin logs a `[tokens-bruecke] Skipped style …` warning to the console (`Plugins → Development → Open console`, or stderr for the CLI).
+
 ### Typography
 
 ```json
@@ -1035,6 +1037,8 @@ In Figma you can add as many grids in the style as you want. But the plugin will
 ### Shadows
 
 The plugin supports `drop-shadow` and `inner-shadow` effects. If the effect is `inner-shadow`, the plugin will set the `inset` property to `true`. The value is always an array, even when the style has a single shadow.
+
+The first effect of a style decides its type: a style that starts with a shadow is exported as a `shadow` token, and blur effects in it are left out with a warning. A style that starts with a blur is exported as a `blur` token.
 
 ```json
 "xl": {

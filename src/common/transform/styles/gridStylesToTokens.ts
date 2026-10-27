@@ -2,6 +2,7 @@ import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNam
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
+import { warnSkippedStyle } from './warnSkippedStyle';
 
 export const gridStylesToTokens = async (
   customName: string,
@@ -15,14 +16,13 @@ export const gridStylesToTokens = async (
 
   let textTokens = {};
 
-  const allGridStyles = gridStyles.reduce((result, style) => {
-    const styleName = style.name;
+  const gridStyleToToken = (style: GridStyle) => {
     const firstTwoGrids = style.layoutGrids.slice(0, 2) as RowsColsLayoutGrid[];
 
     const columnGrid = firstTwoGrids[0];
     const rowGrid = firstTwoGrids[1];
 
-    const styleObject = {
+    return {
       [keyNames.type]: 'grid',
       [keyNames.value]: {
         columnCount: columnGrid?.count,
@@ -47,8 +47,14 @@ export const gridStylesToTokens = async (
           : undefined,
       },
     } as unknown as GridTokenI;
+  };
 
-    result[styleName] = styleObject;
+  const allGridStyles = gridStyles.reduce((result, style) => {
+    try {
+      result[style.name] = gridStyleToToken(style);
+    } catch (error) {
+      warnSkippedStyle(style.name, error);
+    }
 
     return result;
   }, {});
