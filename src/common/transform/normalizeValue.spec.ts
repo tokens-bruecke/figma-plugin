@@ -313,7 +313,7 @@ describe('composed colors (color alias with opacity)', () => {
       colorSpace: 'srgb',
       components: [1, 0, 0],
       alpha: 0.5,
-      hex: '#ff000080',
+      hex: '#ff0000',
     });
   });
 

@@ -1,4 +1,5 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from '@common/transform/rootTokens';
 
 import { getLineHeight } from '@common/transform/text/getLineHeight';
 import { getLetterSpacing } from '@common/transform/text/getLetterSpacing';
@@ -94,7 +95,10 @@ export const textStylesToTokens = async (
     } as unknown as TypographyTokenI;
   }
 
-  textTokens[customName] = groupObjectNamesIntoCategories(allTextStyles);
+  textTokens[customName] = groupObjectNamesIntoCategories(
+    allTextStyles,
+    isDTCGFormat ? ROOT_TOKEN_KEY : undefined
+  );
 
   return textTokens;
 };

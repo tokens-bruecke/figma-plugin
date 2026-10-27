@@ -122,6 +122,9 @@ interface PluginTokenI {
     // variable. Older exports also used it for string, boolean and
     // percentage-opacity tokens; the import still reads those.
     figmaType?: VariableResolvedDataType;
+    // The scopes of an opacity variable when `includeScopes` is off, so the
+    // import can tell it from a plain number
+    figmaScopes?: VariableScope[];
     figma?: {
       variableId: string;
       codeSyntax: {
@@ -167,6 +170,8 @@ interface MetaPropsI {
   spec?: string;
   colorMode: colorModeType;
   variableCollections: string[] | undefined;
+  // The mode of a split-by-mode file, so the import writes to that mode
+  mode?: string;
   createdAt?: string;
 }
 

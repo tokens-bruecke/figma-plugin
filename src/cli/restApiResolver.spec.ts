@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { gridStylesToTokens } from '@common/transform/styles/gridStylesToTokens';
-import { RestAPIResolver } from './restApiResolver';
+import { getTokens } from '@common/export';
+import { defaultConfig } from './defaults';
+import { RestAPIResolver, restLineHeightToPlugin } from './restApiResolver';
 
 const toPaint = (node: any) =>
   RestAPIResolver.prototype.rectangleNodeToPaint.call(null, node) as any;
@@ -14,7 +16,9 @@ describe('rectangleNodeToPaint', () => {
         {
           type: 'SOLID',
           color: { r: 1, g: 0, b: 0 },
-          boundVariables: { color: { type: 'VARIABLE_ALIAS', id: 'VariableID:3:4' } },
+          boundVariables: {
+            color: { type: 'VARIABLE_ALIAS', id: 'VariableID:3:4' },
+          },
         },
       ],
     });
@@ -191,6 +195,37 @@ describe('order', () => {
   });
 });
 
+describe('hidden collections', () => {
+  // The plugin exports them too, and semantic collections usually alias the
+  // primitives in a collection hidden from publishing
+  it('keeps collections hidden from publishing and their variables', async () => {
+    const resolver = resolverWith(
+      {
+        a: {
+          ...variable('a', 'FLOAT', ['ALL_SCOPES']),
+          variableCollectionId: 'hidden',
+        },
+      },
+      {
+        hidden: {
+          id: 'hidden',
+          name: 'Primitives',
+          remote: false,
+          hiddenFromPublishing: true,
+          variableIds: ['a'],
+        },
+      }
+    );
+
+    const collections = await resolver.getLocalVariableCollections();
+
+    expect(collections.map((c) => c.name)).toEqual(['Primitives']);
+    expect((await resolver.getVariableCollectionById('hidden')).name).toBe(
+      'Primitives'
+    );
+  });
+});
+
 describe('getLocalVariables scopes', () => {
   it('reads a number reported as FONT_STYLE as FONT_WEIGHT', async () => {
     const [weight] = await resolverWith({
@@ -284,10 +319,12 @@ describe('file styles', () => {
         calls.nodes.push(ids);
         return {
           nodes: Object.fromEntries(
-            ids.split(',').map((id) => [
-              id,
-              { document: { id, name: `style/${id}`, fills: [] } },
-            ])
+            ids
+              .split(',')
+              .map((id) => [
+                id,
+                { document: { id, name: `style/${id}`, fills: [], style: {} } },
+              ])
           ),
         };
       },
@@ -329,6 +366,25 @@ describe('file styles', () => {
     expect(await resolver.getLocalEffectStyles()).toEqual([]);
     expect(await resolver.getLocalGridStyles()).toEqual([]);
     expect(calls.nodes).toEqual([]);
+  });
+
+  it('gives each style the description from the styles map', async () => {
+    const { resolver } = resolverWithStyles({
+      '1:2': { ...style('FILL'), description: 'Brand color' },
+      '1:3': { ...style('TEXT'), description: 'Body copy' },
+      '1:4': { ...style('EFFECT'), description: 'Card shadow' },
+      '1:5': { ...style('GRID'), description: 'Desktop' },
+    });
+
+    const [paint] = await resolver.getLocalPaintStyles();
+    const [text] = await resolver.getLocalTextStyles();
+    const [effect] = await resolver.getLocalEffectStyles();
+    const [grid] = await resolver.getLocalGridStyles();
+
+    expect(paint.description).toBe('Brand color');
+    expect(text.description).toBe('Body copy');
+    expect(effect.description).toBe('Card shadow');
+    expect(grid.description).toBe('Desktop');
   });
 
   it('tolerates a file response without a styles map', async () => {
@@ -544,5 +600,133 @@ describe('grid tokens', () => {
 
     expect(fromRest).toEqual(fromPlugin);
     expect(fromRest.columnCount).not.toBe(-1);
+  });
+});
+
+describe('restLineHeightToPlugin', () => {
+  it.each([
+    [
+      { lineHeightUnit: 'PIXELS', lineHeightPx: 24 },
+      { value: 24, unit: 'PIXELS' },
+    ],
+    [
+      { lineHeightUnit: 'FONT_SIZE_%', lineHeightPercentFontSize: 150 },
+      { value: 150, unit: 'PERCENT' },
+    ],
+    [{ lineHeightUnit: 'FONT_SIZE_%' }, { value: 100, unit: 'PERCENT' }],
+    [{ lineHeightUnit: 'INTRINSIC_%' }, { unit: 'AUTO' }],
+    [
+      { lineHeightUnit: 'INTRINSIC_%', lineHeightPercent: 100 },
+      { unit: 'AUTO' },
+    ],
+  ])('maps %j to %j', (style, expected) => {
+    expect(restLineHeightToPlugin(style)).toEqual(expected);
+  });
+
+  it('exports "Auto" line height as "auto", as the plugin does', () => {
+    const style = toText({
+      id: '1:2',
+      name: 'Body',
+      style: {
+        fontFamily: 'Roboto',
+        fontStyle: 'Regular',
+        fontWeight: 400,
+        fontSize: 16,
+        letterSpacing: 0,
+        lineHeightUnit: 'INTRINSIC_%',
+        lineHeightPx: 18.75,
+      },
+    });
+
+    expect(style.lineHeight).toEqual({ unit: 'AUTO' });
+  });
+});
+
+describe('textNodeToStyle defaults', () => {
+  it('fills in the text case and decoration that REST leaves out', () => {
+    const style = toText({
+      id: '1:2',
+      name: 'Body',
+      style: {
+        fontFamily: 'Roboto',
+        fontStyle: 'Regular',
+        fontWeight: 400,
+        fontSize: 16,
+        letterSpacing: 0,
+        lineHeightUnit: 'PIXELS',
+        lineHeightPx: 20,
+      },
+    });
+
+    expect(style.textCase).toBe('ORIGINAL');
+    expect(style.textDecoration).toBe('NONE');
+  });
+});
+
+describe('library and deleted variables', () => {
+  const collection = (id: string, name: string, extra = {}) => ({
+    id,
+    name,
+    remote: false,
+    hiddenFromPublishing: false,
+    defaultModeId: 'm1',
+    modes: [{ modeId: 'm1', name: 'Value' }],
+    ...extra,
+  });
+  const color = (
+    id: string,
+    name: string,
+    collectionId: string,
+    extra = {}
+  ) => ({
+    id,
+    name,
+    variableCollectionId: collectionId,
+    resolvedType: 'COLOR',
+    scopes: ['ALL_SCOPES'],
+    remote: false,
+    valuesByMode: { m1: { r: 0, g: 0, b: 1, a: 1 } },
+    ...extra,
+  });
+
+  const resolver = () =>
+    resolverWith(
+      {
+        lib: color('lib', 'blue', 'libC', { remote: true }),
+        link: color('link', 'link', 'local', {
+          valuesByMode: { m1: { type: 'VARIABLE_ALIAS', id: 'lib' } },
+        }),
+        old: color('old', 'gone', 'oldC', { deletedButReferenced: true }),
+      },
+      {
+        libC: collection('libC', 'Library', {
+          remote: true,
+          variableIds: ['lib'],
+        }),
+        local: collection('local', 'Semantic', { variableIds: ['link'] }),
+        oldC: collection('oldC', 'Old', {
+          deletedButReferenced: true,
+          variableIds: ['old'],
+        }),
+      }
+    );
+
+  it('resolves aliases to library variables without exporting them', async () => {
+    const tokens = await getTokens(resolver(), {
+      ...defaultConfig,
+      omitCreatedAt: true,
+    });
+
+    expect(tokens.Semantic.link.$value).toBe('{Library.blue}');
+    expect(Object.keys(tokens)).toEqual(['Semantic', '$extensions']);
+    expect(
+      tokens.$extensions['tokens-bruecke-meta'].variableCollections
+    ).toEqual(['Semantic']);
+  });
+
+  it('leaves out deleted collections', async () => {
+    const collections = await resolver().getLocalVariableCollections();
+
+    expect(collections.map((c) => c.name)).toEqual(['Semantic']);
   });
 });

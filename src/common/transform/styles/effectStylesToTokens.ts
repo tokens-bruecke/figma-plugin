@@ -1,4 +1,5 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from '@common/transform/rootTokens';
 import { convertRGBA } from '@common/transform/color/convertRGBA';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
@@ -148,17 +149,20 @@ export const effectStylesToTokens = async (
     }
 
     return {
-      $type: 'blur',
-      $value: {
+      [keyNames.type]: 'blur',
+      [keyNames.value]: {
         role: blurEffect.type === 'LAYER_BLUR' ? 'layer' : 'background',
         blur: aliasVariable || makeDimension(blurEffect.radius, isDTCGFormat),
       },
-    } as BlurTokenI;
+    } as unknown as BlurTokenI;
   }
 
   // console.log("allEffectStyles", allEffectStyles);
 
-  effectTokens[customName] = groupObjectNamesIntoCategories(allEffectStyles);
+  effectTokens[customName] = groupObjectNamesIntoCategories(
+    allEffectStyles,
+    isDTCGFormat ? ROOT_TOKEN_KEY : undefined
+  );
 
   return effectTokens;
 };

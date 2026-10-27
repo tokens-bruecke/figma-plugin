@@ -1,4 +1,5 @@
 import { getTokenKeyName } from './getTokenKeyName';
+import { toTokenName } from './tokenName';
 import { IResolver } from '@common/resolver';
 import { warn } from '@common/warn';
 
@@ -25,13 +26,13 @@ export const getAliasVariableName = async (
   if (!collectionObj) {
     warn(
       resolver,
-      `[tokens-bruecke] Cannot find the collection of variable "${variableObj.name}", so its alias is exported as "#missing#" (is the collection hidden from publishing, or in a library?)`
+      `[tokens-bruecke] Cannot find the collection of variable "${variableObj.name}", so its alias is exported as "#missing#" (was the collection deleted, or is it missing from the snapshot?)`
     );
     return '#missing#';
   }
 
   const variableName = variableObj.name;
-  const collectionName = collectionObj.name;
+  const collectionName = toTokenName(collectionObj.name);
 
   const valueKey = getTokenKeyName(isDTCGFormat).value;
   const isValueKeyIncluded = includeValueStringKeyToAlias ? `.${valueKey}` : '';

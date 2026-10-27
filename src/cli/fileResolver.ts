@@ -1,6 +1,9 @@
 import { IResolver } from '@common/resolver';
 import { log as defaultLog, type LogFn } from './logger';
 
+/** Variables and collections of the file itself, not of a library. */
+export const isLocal = (item: { remote?: boolean }) => !item.remote;
+
 /**
  * A snapshot of a Figma file's local variables and styles, using the raw
  * Plugin API object shapes verbatim. Anything that can produce these objects —
@@ -104,9 +107,9 @@ export const validateSnapshot = (
 
 /**
  * Resolves tokens from a local snapshot instead of the Figma REST API.
- * Mirrors RestAPIResolver's behaviour: aliases pointing at variables outside
- * the snapshot (e.g. library variables) resolve to `#missing#`, same as the
- * REST path.
+ * Mirrors RestAPIResolver's behaviour: library (`remote`) variables in the
+ * snapshot only resolve aliases, and aliases pointing at variables outside
+ * the snapshot resolve to `#missing#`, same as the REST path.
  */
 export class FileResolver implements IResolver {
   private variables: Map<string, Variable>;
@@ -142,12 +145,13 @@ export class FileResolver implements IResolver {
     );
   }
 
+  // Library variables and collections in the snapshot only resolve aliases
   async getLocalVariableCollections(): Promise<VariableCollection[]> {
-    return [...this.variableCollections.values()];
+    return [...this.variableCollections.values()].filter(isLocal);
   }
 
   async getLocalVariables(): Promise<Variable[]> {
-    return [...this.variables.values()];
+    return [...this.variables.values()].filter(isLocal);
   }
 
   async getLocalPaintStyles(): Promise<PaintStyle[]> {
