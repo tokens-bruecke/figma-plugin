@@ -11,7 +11,8 @@ const convertGradientStopsToDTCG = async (
   colorMode: colorModeType,
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
-  resolver: IResolver
+  resolver: IResolver,
+  omitCollectionNames = false
 ) => {
   const stops: { color: string | undefined; position: number }[] = [];
 
@@ -27,7 +28,8 @@ const convertGradientStopsToDTCG = async (
         stopBoundVariable.id,
         isDTCGFormat,
         includeValueStringKeyToAlias,
-        resolver
+        resolver,
+        omitCollectionNames
       );
     } else {
       const colorWithOpacity = {
@@ -53,7 +55,8 @@ export const colorStylesToTokens = async (
   colorMode: colorModeType,
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
-  resolver: IResolver
+  resolver: IResolver,
+  omitCollectionNames = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const paintStyles = await resolver.getLocalPaintStyles();
@@ -91,7 +94,8 @@ export const colorStylesToTokens = async (
           boundVariables.paints[0].id,
           isDTCGFormat,
           includeValueStringKeyToAlias,
-          resolver
+          resolver,
+          omitCollectionNames
         );
       }
 
@@ -123,7 +127,8 @@ export const colorStylesToTokens = async (
         colorMode,
         isDTCGFormat,
         includeValueStringKeyToAlias,
-        resolver
+        resolver,
+        omitCollectionNames
       );
 
       // DTCG has no direction or type for a gradient, only stops

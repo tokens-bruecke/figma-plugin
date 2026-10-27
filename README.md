@@ -393,7 +393,7 @@ Is `off` by default. When enabled, the plugin drops the top-level collection nam
 }
 ```
 
-Alias references are also rewritten so they point to the flat path (the collection prefix is removed).
+Alias references, including the ones in styles, are also rewritten so they point to the flat path (the collection prefix is removed).
 
 > [!WARNING]  
 > If two variables in different collections share the same name, the last one wins and a collision warning is logged to the console. Rename conflicting variables (or keep this option off) to avoid losing values.
