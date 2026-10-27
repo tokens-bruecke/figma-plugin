@@ -59,6 +59,8 @@ interface ViewProps {
   onResetHeight: () => void;
   onImportTokens: () => Promise<void>;
   isImporting: boolean;
+  /** Collection names of the open file */
+  variableCollections: string[];
 }
 
 const version = pkg.version;
@@ -134,6 +136,7 @@ export const SettingsView = (props: ViewProps) => {
     onResetHeight,
     onImportTokens,
     isImporting,
+    variableCollections,
   } = props;
   const [isPushing, setIsPushing] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
@@ -403,6 +406,28 @@ export const SettingsView = (props: ViewProps) => {
     (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
   );
 
+  // The setting is stored in the profile and can name a collection of
+  // another file. The export then keeps the styles separate; list it anyway
+  // so the dropdown doesn't show an empty value
+  const { storeStyleInCollection } = JSONsettingsConfig;
+  const styleCollectionOptions = [
+    ...variableCollections.map((collection) => ({
+      id: collection,
+      label: collection,
+    })),
+    ...(storeStyleInCollection &&
+    storeStyleInCollection !== 'none' &&
+    !variableCollections.includes(storeStyleInCollection)
+      ? [
+          {
+            id: storeStyleInCollection,
+            label: storeStyleInCollection,
+            caption: 'Not in this file',
+          },
+        ]
+      : []),
+  ];
+
   const dynamicServerList = serverList.filter((server) => {
     if (!JSONsettingsConfig.servers[server.id]?.isEnabled) {
       return server;
@@ -614,16 +639,10 @@ export const SettingsView = (props: ViewProps) => {
                     },
                   ],
                 },
-                {
-                  options: JSONsettingsConfig.variableCollections.map(
-                    (collection) => {
-                      return {
-                        id: collection,
-                        label: collection,
-                      };
-                    }
-                  ),
-                },
+                // an empty section would still draw its divider
+                ...(styleCollectionOptions.length
+                  ? [{ options: styleCollectionOptions }]
+                  : []),
               ]}
             />
           </Stack>
