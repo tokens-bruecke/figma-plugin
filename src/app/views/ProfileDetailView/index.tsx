@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
 
-import { Panel, PanelHeader, Stack, Button, Input } from 'react-figma-ui/ui';
+import {
+  Panel,
+  PanelHeader,
+  Stack,
+  Button,
+  Input,
+  Text,
+} from 'react-figma-ui/ui';
 
 interface ProfileDetailViewProps {
   profileId: string;
   profileName: string;
   profileCount: number;
+  /** The profile is linked to a profile shared in this file */
+  isShared: boolean;
   renameProfile: (profileId: string, profileName: string) => void;
   deleteProfile: (profileId: string) => void;
+  shareProfileInFile: (profileId: string) => void;
+  unshareProfileInFile: (profileId: string) => void;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -15,8 +26,11 @@ export const ProfileDetailView = ({
   profileId,
   profileName: initialProfileName,
   profileCount,
+  isShared,
   renameProfile,
   deleteProfile,
+  shareProfileInFile,
+  unshareProfileInFile,
   setCurrentView,
 }: ProfileDetailViewProps) => {
   const [profileName, setProfileName] = useState(initialProfileName);
@@ -63,6 +77,28 @@ export const ProfileDetailView = ({
           />
 
           <Button
+            label={isShared ? 'Update shared profile' : 'Share in this file'}
+            fullWidth
+            secondary
+            onClick={() => {
+              shareProfileInFile(profileId);
+              setCurrentView('main');
+            }}
+          />
+
+          {isShared && (
+            <Button
+              label="Stop sharing"
+              fullWidth
+              secondary
+              onClick={() => {
+                unshareProfileInFile(profileId);
+                setCurrentView('main');
+              }}
+            />
+          )}
+
+          <Button
             label="Remove"
             fullWidth
             secondary
@@ -74,6 +110,15 @@ export const ProfileDetailView = ({
             }}
           />
         </Stack>
+
+        <Text style={{ opacity: 0.6 }}>
+          {isShared
+            ? 'Updating or removing the shared profile changes it for everyone who opens this file. '
+            : ''}
+          Everyone with access to this file can use a shared profile and see its
+          settings, including repository, branch and URL. Tokens, keys and
+          custom headers are never shared.
+        </Text>
       </Stack>
     </Panel>
   );

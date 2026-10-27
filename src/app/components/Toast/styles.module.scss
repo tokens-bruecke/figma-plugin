@@ -9,6 +9,11 @@
   pointer-events: none;
 }
 
+// Dev Mode: the panel has no fixed settings column to align with
+.panelToastContainer {
+  width: 100%;
+}
+
 .toastWrapper {
   position: absolute;
   bottom: 0;

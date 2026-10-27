@@ -3,7 +3,8 @@
   "id": "1254538877056388290",
   "api": "1.0.0",
   "main": "code.js",
-  "editorType": ["figma"],
+  "editorType": ["figma", "dev"],
+  "capabilities": ["inspect", "vscode"],
   "ui": "ui.html",
   "documentAccess": "dynamic-page",
   "networkAccess": {
