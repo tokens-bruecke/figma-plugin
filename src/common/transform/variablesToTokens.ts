@@ -97,6 +97,7 @@ export const variablesToTokens = async (
   );
 
   // let mergedVariables = {};
+  const collectionNamesByTokenName = new Map<string, string>();
   let emptyCollection = collections.map((collection) => {
     const tokenName = toTokenName(collection.name);
     if (tokenName !== collection.name && !omitCollectionNames) {
@@ -105,6 +106,19 @@ export const variablesToTokens = async (
         `[tokens-bruecke] Collection "${collection.name}" is exported as "${tokenName}": DTCG names can't contain ".", "{" or "}".`
       );
     }
+    // "1. Primitives" and "1- Primitives" get the same group
+    const sameTokenName = collectionNamesByTokenName.get(tokenName);
+    if (
+      sameTokenName !== undefined &&
+      sameTokenName !== collection.name &&
+      !omitCollectionNames
+    ) {
+      warn(
+        resolver,
+        `[tokens-bruecke] Collision: collections "${sameTokenName}" and "${collection.name}" are both exported as "${tokenName}". Their variables are merged; last value wins.`
+      );
+    }
+    collectionNamesByTokenName.set(tokenName, collection.name);
     return {
       [tokenName]: {},
     };

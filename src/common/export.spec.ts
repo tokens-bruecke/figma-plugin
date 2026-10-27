@@ -422,4 +422,31 @@ describe('collection names with a dot', () => {
       expect.stringContaining('"1. Primitives" is exported as "1- Primitives"'),
     ]);
   });
+
+  it('warns when two collections get the same group name', async () => {
+    const other = {
+      ...collection,
+      id: 'c2',
+      name: '1- Primitives',
+      variableIds: [],
+    } as unknown as VariableCollection;
+    const warnings: string[] = [];
+    await getTokens(
+      {
+        ...emptyResolver,
+        getLocalVariableCollections: async () => [collection, other],
+        getLocalVariables: async () => variables,
+        getVariableById: async (id) => variables.find((v) => v.id === id),
+        getVariableCollectionById: async () => collection,
+        warn: (message) => warnings.push(message),
+      },
+      { ...defaultConfig, omitCreatedAt: true }
+    );
+
+    expect(warnings).toContainEqual(
+      expect.stringContaining(
+        'collections "1. Primitives" and "1- Primitives" are both exported as "1- Primitives"'
+      )
+    );
+  });
 });

@@ -797,7 +797,7 @@ export const tokensToVariables = async (
     // to its root collection. Its tokens update those variables, with the
     // values written as overrides for the extension's modes
     existingCollections
-      .filter((collection) => (collection as any).isExtension)
+      .filter((collection) => collection.isExtension)
       .forEach((extension) => {
         extension.variableIds?.forEach((variableId) => {
           const variable = existingVariables.find((v) => v.id === variableId);
@@ -926,7 +926,7 @@ export const tokensToVariables = async (
 
         // An extended collection inherits its modes: they can't be renamed
         // or added, so the tokens have to use the existing mode names
-        const isExtension = (collection as any).isExtension === true;
+        const isExtension = collection.isExtension === true;
         const missingModes = [
           ...Array.from(modesData.keys()),
           ...(fileModeName ? [fileModeName] : []),
