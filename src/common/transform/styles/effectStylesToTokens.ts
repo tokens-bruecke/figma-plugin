@@ -44,8 +44,9 @@ const wrapShadowObject = async (
     offsetY:
       (await getAlias('offsetY')) ||
       makeDimension(shadowEffect.offset.y, isDTCGFormat),
+    // Figma binds the shadow's blur as `radius`, like the field it sets
     blur:
-      (await getAlias('blur')) ||
+      (await getAlias('radius')) ||
       makeDimension(shadowEffect.radius, isDTCGFormat),
     // The REST API leaves out a spread of 0
     spread:
