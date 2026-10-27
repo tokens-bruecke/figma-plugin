@@ -99,7 +99,16 @@ export interface LocalVariablesResponse {
   [key: string]: any;
 }
 
-export interface FetchTokensParams {
+export interface WarningOptions {
+  /**
+   * Receives the warnings of the export: variables and styles that were
+   * skipped, aliases to variables that are not in the data (`#missing#`),
+   * name collisions. Without it they are dropped: the API prints nothing.
+   */
+  onWarning?: (message: string) => void;
+}
+
+export interface FetchTokensParams extends WarningOptions {
   fileKey: string;
   /** Figma personal access token. Either this or `oauthToken` is required. */
   personalAccessToken?: string;
@@ -148,5 +157,6 @@ export declare function fetchTokens(
  */
 export declare function convertTokens(
   input: TokensSnapshot | LocalVariablesResponse,
-  options?: ExportOptions
+  options?: ExportOptions,
+  warnings?: WarningOptions
 ): Promise<TokenTree>;

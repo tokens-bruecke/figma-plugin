@@ -69,7 +69,7 @@ export const colorStylesToTokens = async (
     try {
       allColorStyles[style.name] = await paintStyleToToken(style);
     } catch (error) {
-      warnSkippedStyle(style.name, error);
+      warnSkippedStyle(resolver, style.name, error);
     }
   }
 

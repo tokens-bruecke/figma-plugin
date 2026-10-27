@@ -5,6 +5,7 @@ import { getAliasVariableName } from '@common/transform/getAliasVariableName';
 import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
 import { warnSkippedStyle } from './warnSkippedStyle';
+import { warn } from '@common/warn';
 
 const SHADOW_TYPES: Effect['type'][] = ['DROP_SHADOW', 'INNER_SHADOW'];
 const BLUR_TYPES: Effect['type'][] = ['LAYER_BLUR', 'BACKGROUND_BLUR'];
@@ -72,7 +73,7 @@ export const effectStylesToTokens = async (
     try {
       allEffectStyles[style.name] = await effectStyleToToken(style);
     } catch (error) {
-      warnSkippedStyle(style.name, error);
+      warnSkippedStyle(resolver, style.name, error);
     }
   }
 
@@ -102,7 +103,8 @@ export const effectStylesToTokens = async (
     const leftOut = style.effects.length - effects.length;
 
     if (leftOut > 0) {
-      console.warn(
+      warn(
+        resolver,
         `[tokens-bruecke] Style "${
           style.name
         }": left out ${leftOut} effect(s) that are not a ${

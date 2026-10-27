@@ -1,7 +1,11 @@
+import { IResolver } from '@common/resolver';
+import { warn } from '@common/warn';
+
 export const mergeStylesIntoTokens = (
   variableTokens: any,
   styleTokens: any,
-  storeStyleInCollection: string
+  storeStyleInCollection: string,
+  resolver?: Pick<IResolver, 'warn'>
 ) => {
   let target = variableTokens;
 
@@ -14,7 +18,8 @@ export const mergeStylesIntoTokens = (
     if (collection && typeof collection === 'object') {
       target = collection;
     } else {
-      console.warn(
+      warn(
+        resolver,
         `[tokens-bruecke] Collection "${storeStyleInCollection}" to add the styles to was not found in the tokens, so the styles are kept separate.`
       );
     }
