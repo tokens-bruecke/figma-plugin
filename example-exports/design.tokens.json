@@ -1,0 +1,4932 @@
+{
+  "Primitives": {
+    "color": {
+      "sto-yellow": {
+        "50": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.9842,
+              0.02418,
+              94.062
+            ],
+            "alpha": 1,
+            "hex": "#fffae8"
+          },
+          "$description": "Primitive colour, Sto yellow 50. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-50)"
+              },
+              "variableId": "VariableID:1:3",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "100": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.9449,
+              0.08799,
+              95.066
+            ],
+            "alpha": 1,
+            "hex": "#ffeda9"
+          },
+          "$description": "Primitive colour, Sto yellow 100. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-100)"
+              },
+              "variableId": "VariableID:1:4",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "200": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.8868,
+              0.1822,
+              95.33
+            ],
+            "alpha": 1,
+            "hex": "#ffd700"
+          },
+          "$description": "Primitive colour, Sto yellow 200. Original brand colour, measured on sto.de (16.10.2026), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-200)"
+              },
+              "variableId": "VariableID:1:5",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "300": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.8188,
+              0.1681,
+              94.988
+            ],
+            "alpha": 1,
+            "hex": "#e6c100"
+          },
+          "$description": "Primitive colour, Sto yellow 300. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-300)"
+              },
+              "variableId": "VariableID:1:6",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "400": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.732,
+              0.1503,
+              95.07
+            ],
+            "alpha": 1,
+            "hex": "#c6a600"
+          },
+          "$description": "Primitive colour, Sto yellow 400. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-400)"
+              },
+              "variableId": "VariableID:1:7",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "500": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.6352,
+              0.1305,
+              95.541
+            ],
+            "alpha": 1,
+            "hex": "#a38900"
+          },
+          "$description": "Primitive colour, Sto yellow 500. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-500)"
+              },
+              "variableId": "VariableID:69:31",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "600": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.5389,
+              0.1108,
+              95.664
+            ],
+            "alpha": 1,
+            "hex": "#826d00"
+          },
+          "$description": "Primitive colour, Sto yellow 600. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-600)"
+              },
+              "variableId": "VariableID:69:32",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "700": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.4507,
+              0.09249,
+              94.576
+            ],
+            "alpha": 1,
+            "hex": "#665400"
+          },
+          "$description": "Primitive colour, Sto yellow 700. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-700)"
+              },
+              "variableId": "VariableID:69:33",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "800": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.363,
+              0.0746,
+              95.446
+            ],
+            "alpha": 1,
+            "hex": "#4a3d00"
+          },
+          "$description": "Primitive colour, Sto yellow 800. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-800)"
+              },
+              "variableId": "VariableID:69:34",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "900": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.276,
+              0.05661,
+              94.159
+            ],
+            "alpha": 1,
+            "hex": "#312700"
+          },
+          "$description": "Primitive colour, Sto yellow 900. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-900)"
+              },
+              "variableId": "VariableID:69:35",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "950": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.18,
+              0.03689,
+              93.756
+            ],
+            "alpha": 1,
+            "hex": "#171100"
+          },
+          "$description": "Primitive colour, Sto yellow 950. Generated ramp 50-950 (OKLCH, balanced, original at 200), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-sto-yellow-950)"
+              },
+              "variableId": "VariableID:69:36",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        }
+      },
+      "demo-blue": {
+        "100": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.9529,
+              0.0195,
+              260.17
+            ],
+            "alpha": 1,
+            "hex": "#e8f0fd"
+          },
+          "$description": "Primitive colour, demo brand blue 100. Fictional workshop value for Brand B (Demo).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-demo-blue-100)"
+              },
+              "variableId": "VariableID:1:8",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "300": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.7551,
+              0.09779,
+              261.55
+            ],
+            "alpha": 1,
+            "hex": "#8db0ee"
+          },
+          "$description": "Primitive colour, demo brand blue 300. Fictional workshop value for Brand B (Demo).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-demo-blue-300)"
+              },
+              "variableId": "VariableID:1:9",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "500": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.5196,
+              0.1943,
+              261.46
+            ],
+            "alpha": 1,
+            "hex": "#1f5fd6"
+          },
+          "$description": "Primitive colour, demo brand blue 500. Fictional workshop value for Brand B (Demo).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-demo-blue-500)"
+              },
+              "variableId": "VariableID:1:10",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "600": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.4853,
+              0.1827,
+              261.35
+            ],
+            "alpha": 1,
+            "hex": "#1a56c4"
+          },
+          "$description": "Primitive colour, demo brand blue 600. Fictional workshop value for Brand B (Demo).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-demo-blue-600)"
+              },
+              "variableId": "VariableID:1:11",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "700": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.4409,
+              0.1636,
+              261.39
+            ],
+            "alpha": 1,
+            "hex": "#174bab"
+          },
+          "$description": "Primitive colour, demo brand blue 700. Fictional workshop value for Brand B (Demo).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-demo-blue-700)"
+              },
+              "variableId": "VariableID:1:12",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        }
+      },
+      "white": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            1,
+            4.996e-16,
+            180
+          ],
+          "alpha": 1,
+          "hex": "#ffffff"
+        },
+        "$description": "Primitive colour, white. Measured on sto.de (16.10.2026), align with Sto CD manual.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--color-white)"
+            },
+            "variableId": "VariableID:1:13",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "black": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "alpha": 1,
+          "hex": "#000000"
+        },
+        "$description": "Primitive colour, black. Measured on sto.de (16.10.2026), align with Sto CD manual.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--color-black)"
+            },
+            "variableId": "VariableID:1:14",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "gray": {
+        "100": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.9461,
+              8.4e-16,
+              172.41
+            ],
+            "alpha": 1,
+            "hex": "#ededed"
+          },
+          "$description": "Primitive colour, gray 100. Measured on sto.de (16.10.2026), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-gray-100)"
+              },
+              "variableId": "VariableID:1:15",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "300": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.8452,
+              6.206e-16,
+              169.7
+            ],
+            "alpha": 1,
+            "hex": "#cccccc"
+          },
+          "$description": "Primitive colour, gray 300. Measured on sto.de (16.10.2026), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-gray-300)"
+              },
+              "variableId": "VariableID:1:16",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "500": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.5658,
+              6.206e-16,
+              169.7
+            ],
+            "alpha": 1,
+            "hex": "#767676"
+          },
+          "$description": "Primitive colour, gray 500. Measured on sto.de (16.10.2026), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-gray-500)"
+              },
+              "variableId": "VariableID:1:17",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "700": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.4611,
+              0.003196,
+              286.27
+            ],
+            "alpha": 1,
+            "hex": "#58585a"
+          },
+          "$description": "Primitive colour, gray 700. Measured on sto.de (16.10.2026), align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-gray-700)"
+              },
+              "variableId": "VariableID:1:18",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        }
+      },
+      "red": {
+        "300": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.7594,
+              0.1435,
+              26.078
+            ],
+            "alpha": 1,
+            "hex": "#ff8a80"
+          },
+          "$description": "Primitive colour, red 300 for error on dark surfaces (9.2:1 on black). Proposal, align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-red-300)"
+              },
+              "variableId": "VariableID:1:19",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        },
+        "600": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.5304,
+              0.2074,
+              22.317
+            ],
+            "alpha": 1,
+            "hex": "#c8102e"
+          },
+          "$description": "Primitive colour, red 600 for error on light surfaces (5.88:1 on white). Proposal, align with Sto CD manual.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-red-600)"
+              },
+              "variableId": "VariableID:1:20",
+              "collection": {
+                "id": "VariableCollectionId:1:2",
+                "name": "Primitives",
+                "defaultModeId": "1:0"
+              }
+            }
+          }
+        }
+      },
+      "transparent": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            1,
+            4.996e-16,
+            180
+          ],
+          "alpha": 0,
+          "hex": "#ffffff00"
+        },
+        "$description": "Primitive colour, fully transparent.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--color-transparent)"
+            },
+            "variableId": "VariableID:1:21",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "space": {
+      "0": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 0 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-0)"
+            },
+            "variableId": "VariableID:1:22",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "1": {
+        "$type": "dimension",
+        "$value": {
+          "value": 4,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 4 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-1)"
+            },
+            "variableId": "VariableID:1:25",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "2": {
+        "$type": "dimension",
+        "$value": {
+          "value": 8,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 8 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-2)"
+            },
+            "variableId": "VariableID:1:27",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "3": {
+        "$type": "dimension",
+        "$value": {
+          "value": 12,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 12 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-3)"
+            },
+            "variableId": "VariableID:1:29",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "4": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 16 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-4)"
+            },
+            "variableId": "VariableID:1:31",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 20 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-5)"
+            },
+            "variableId": "VariableID:1:32",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "6": {
+        "$type": "dimension",
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 24 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-6)"
+            },
+            "variableId": "VariableID:1:33",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "8": {
+        "$type": "dimension",
+        "$value": {
+          "value": 32,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 32 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-8)"
+            },
+            "variableId": "VariableID:1:35",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "10": {
+        "$type": "dimension",
+        "$value": {
+          "value": 40,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 40 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-10)"
+            },
+            "variableId": "VariableID:1:36",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "12": {
+        "$type": "dimension",
+        "$value": {
+          "value": 48,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 48 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-12)"
+            },
+            "variableId": "VariableID:1:37",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "14": {
+        "$type": "dimension",
+        "$value": {
+          "value": 56,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 56 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-14)"
+            },
+            "variableId": "VariableID:1:38",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "16": {
+        "$type": "dimension",
+        "$value": {
+          "value": 64,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 64 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-16)"
+            },
+            "variableId": "VariableID:1:39",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "20": {
+        "$type": "dimension",
+        "$value": {
+          "value": 80,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 80 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-20)"
+            },
+            "variableId": "VariableID:1:40",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "px": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 1 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-px)"
+            },
+            "variableId": "VariableID:1:23",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "0p5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 2 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-0p5)"
+            },
+            "variableId": "VariableID:1:24",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "1p5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 6,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 6 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-1p5)"
+            },
+            "variableId": "VariableID:1:26",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "2p5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 10,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 10 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-2p5)"
+            },
+            "variableId": "VariableID:1:28",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "3p5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 14,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 14 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-3p5)"
+            },
+            "variableId": "VariableID:1:30",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "7p5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 30,
+          "unit": "px"
+        },
+        "$description": "Primitive spacing, 30 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--space-7p5)"
+            },
+            "variableId": "VariableID:1:34",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "size": {
+      "4": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        },
+        "$description": "Primitive size, 16 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--size-4)"
+            },
+            "variableId": "VariableID:1:41",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "5": {
+        "$type": "dimension",
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
+        "$description": "Primitive size, 20 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--size-5)"
+            },
+            "variableId": "VariableID:1:42",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "6": {
+        "$type": "dimension",
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        },
+        "$description": "Primitive size, 24 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--size-6)"
+            },
+            "variableId": "VariableID:1:43",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "10": {
+        "$type": "dimension",
+        "$value": {
+          "value": 40,
+          "unit": "px"
+        },
+        "$description": "Primitive size, 40 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--size-10)"
+            },
+            "variableId": "VariableID:1:44",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "12": {
+        "$type": "dimension",
+        "$value": {
+          "value": 48,
+          "unit": "px"
+        },
+        "$description": "Primitive size, 48 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--size-12)"
+            },
+            "variableId": "VariableID:1:45",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "radius": {
+      "none": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0,
+          "unit": "px"
+        },
+        "$description": "Primitive corner radius, 0 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--radius-none)"
+            },
+            "variableId": "VariableID:1:46",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": {
+          "value": 4,
+          "unit": "px"
+        },
+        "$description": "Primitive corner radius, 4 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--radius-sm)"
+            },
+            "variableId": "VariableID:1:47",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": {
+          "value": 8,
+          "unit": "px"
+        },
+        "$description": "Primitive corner radius, 8 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--radius-md)"
+            },
+            "variableId": "VariableID:1:48",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "full": {
+        "$type": "dimension",
+        "$value": {
+          "value": 9999,
+          "unit": "px"
+        },
+        "$description": "Primitive corner radius, 9999 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--radius-full)"
+            },
+            "variableId": "VariableID:1:49",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "border-width": {
+      "1": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1,
+          "unit": "px"
+        },
+        "$description": "Primitive stroke width, 1 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--border-width-1)"
+            },
+            "variableId": "VariableID:1:50",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "2": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        },
+        "$description": "Primitive stroke width, 2 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--border-width-2)"
+            },
+            "variableId": "VariableID:1:51",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "font-family": {
+      "stoweb": {
+        "$type": "string",
+        "$value": "Barlow",
+        "$description": "Primitive font family for Sto. STAND-IN: StoWeb is not installed on this machine, Barlow is used as placeholder. Set the value to \"StoWeb\" once the font is installed.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-family-stoweb)"
+            },
+            "variableId": "VariableID:1:52",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "demo-serif": {
+        "$type": "string",
+        "$value": "Lora",
+        "$description": "Primitive font family for Brand B (Demo). Serif on purpose, so the brand switch is visible.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-family-demo-serif)"
+            },
+            "variableId": "VariableID:1:53",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "font-weight": {
+      "regular": {
+        "$type": "string",
+        "$value": "Regular",
+        "$description": "Primitive font style, Regular (400). Bound directly by text styles, therefore scoped.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-weight-regular)"
+            },
+            "variableId": "VariableID:1:54",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "bold": {
+        "$type": "string",
+        "$value": "Bold",
+        "$description": "Primitive font style, Bold (700). Bound directly by text styles, therefore scoped.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-weight-bold)"
+            },
+            "variableId": "VariableID:1:55",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "font-size": {
+      "xs": {
+        "$type": "dimension",
+        "$value": {
+          "value": 12,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 12 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-xs)"
+            },
+            "variableId": "VariableID:1:56",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": {
+          "value": 14,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 14 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-sm)"
+            },
+            "variableId": "VariableID:1:57",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "base": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 16 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-base)"
+            },
+            "variableId": "VariableID:1:58",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": {
+          "value": 18,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 18 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-lg)"
+            },
+            "variableId": "VariableID:1:59",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 20 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-xl)"
+            },
+            "variableId": "VariableID:1:60",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "2xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 24 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-2xl)"
+            },
+            "variableId": "VariableID:1:61",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "3xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 28,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 28 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-3xl)"
+            },
+            "variableId": "VariableID:1:62",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "4xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 35,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 35 px. Matches the H1 measured on sto.de at tablet width.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-4xl)"
+            },
+            "variableId": "VariableID:1:63",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "5xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 42,
+          "unit": "px"
+        },
+        "$description": "Primitive font size, 42 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--font-size-5xl)"
+            },
+            "variableId": "VariableID:1:64",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    },
+    "line-height": {
+      "xs": {
+        "$type": "dimension",
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 16 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-xs)"
+            },
+            "variableId": "VariableID:1:65",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 20 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-sm)"
+            },
+            "variableId": "VariableID:1:66",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "base": {
+        "$type": "dimension",
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 24 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-base)"
+            },
+            "variableId": "VariableID:1:67",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": {
+          "value": 28,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 28 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-lg)"
+            },
+            "variableId": "VariableID:1:68",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "2xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 32,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 32 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-2xl)"
+            },
+            "variableId": "VariableID:1:69",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "3xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 36,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 36 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-3xl)"
+            },
+            "variableId": "VariableID:1:70",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "4xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 45,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 45 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-4xl)"
+            },
+            "variableId": "VariableID:1:71",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      },
+      "5xl": {
+        "$type": "dimension",
+        "$value": {
+          "value": 52,
+          "unit": "px"
+        },
+        "$description": "Primitive line height, 52 px.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--line-height-5xl)"
+            },
+            "variableId": "VariableID:1:72",
+            "collection": {
+              "id": "VariableCollectionId:1:2",
+              "name": "Primitives",
+              "defaultModeId": "1:0"
+            }
+          }
+        }
+      }
+    }
+  },
+  "Brand": {
+    "brand": {
+      "primary": {
+        "100": {
+          "$type": "color",
+          "$value": "{Primitives.color.sto-yellow.50}",
+          "$description": "Brand slot, primary colour step 100. Points to the palette of the active brand.",
+          "$extensions": {
+            "mode": {
+              "Sto": "{Primitives.color.sto-yellow.50}",
+              "Brand B (Demo)": "{Primitives.color.demo-blue.100}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--brand-primary-100)"
+              },
+              "variableId": "VariableID:1:74",
+              "collection": {
+                "id": "VariableCollectionId:1:73",
+                "name": "Brand",
+                "defaultModeId": "1:1"
+              }
+            }
+          }
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{Primitives.color.sto-yellow.100}",
+          "$description": "Brand slot, primary colour step 300. Points to the palette of the active brand.",
+          "$extensions": {
+            "mode": {
+              "Sto": "{Primitives.color.sto-yellow.100}",
+              "Brand B (Demo)": "{Primitives.color.demo-blue.300}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--brand-primary-300)"
+              },
+              "variableId": "VariableID:1:75",
+              "collection": {
+                "id": "VariableCollectionId:1:73",
+                "name": "Brand",
+                "defaultModeId": "1:1"
+              }
+            }
+          }
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{Primitives.color.sto-yellow.200}",
+          "$description": "Brand slot, primary colour step 500. Points to the palette of the active brand.",
+          "$extensions": {
+            "mode": {
+              "Sto": "{Primitives.color.sto-yellow.200}",
+              "Brand B (Demo)": "{Primitives.color.demo-blue.500}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--brand-primary-500)"
+              },
+              "variableId": "VariableID:1:76",
+              "collection": {
+                "id": "VariableCollectionId:1:73",
+                "name": "Brand",
+                "defaultModeId": "1:1"
+              }
+            }
+          }
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{Primitives.color.sto-yellow.300}",
+          "$description": "Brand slot, primary colour step 600. Points to the palette of the active brand.",
+          "$extensions": {
+            "mode": {
+              "Sto": "{Primitives.color.sto-yellow.300}",
+              "Brand B (Demo)": "{Primitives.color.demo-blue.600}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--brand-primary-600)"
+              },
+              "variableId": "VariableID:1:77",
+              "collection": {
+                "id": "VariableCollectionId:1:73",
+                "name": "Brand",
+                "defaultModeId": "1:1"
+              }
+            }
+          }
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{Primitives.color.sto-yellow.400}",
+          "$description": "Brand slot, primary colour step 700. Points to the palette of the active brand.",
+          "$extensions": {
+            "mode": {
+              "Sto": "{Primitives.color.sto-yellow.400}",
+              "Brand B (Demo)": "{Primitives.color.demo-blue.700}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--brand-primary-700)"
+              },
+              "variableId": "VariableID:1:78",
+              "collection": {
+                "id": "VariableCollectionId:1:73",
+                "name": "Brand",
+                "defaultModeId": "1:1"
+              }
+            }
+          }
+        },
+        "on": {
+          "$type": "color",
+          "$value": "{Primitives.color.black}",
+          "$description": "Brand slot, content colour on the primary fill. Sto: black on yellow (14.97:1). Brand B: white on blue (5.73:1).",
+          "$extensions": {
+            "mode": {
+              "Sto": "{Primitives.color.black}",
+              "Brand B (Demo)": "{Primitives.color.white}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--brand-primary-on)"
+              },
+              "variableId": "VariableID:1:79",
+              "collection": {
+                "id": "VariableCollectionId:1:73",
+                "name": "Brand",
+                "defaultModeId": "1:1"
+              }
+            }
+          }
+        }
+      },
+      "font-family": {
+        "$type": "fontFamily",
+        "$value": "{Primitives.font-family.stoweb}",
+        "$description": "Brand slot, font family. Bound directly by text styles, therefore scoped.",
+        "$extensions": {
+          "mode": {
+            "Sto": "{Primitives.font-family.stoweb}",
+            "Brand B (Demo)": "{Primitives.font-family.demo-serif}"
+          },
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--brand-font-family)"
+            },
+            "variableId": "VariableID:1:80",
+            "collection": {
+              "id": "VariableCollectionId:1:73",
+              "name": "Brand",
+              "defaultModeId": "1:1"
+            }
+          }
+        }
+      },
+      "radius": {
+        "base": {
+          "$type": "dimension",
+          "$value": "{Primitives.radius.none}",
+          "$description": "Brand slot, base corner radius. Sto: 0 px (as on sto.de). Brand B: 4 px.",
+          "$extensions": {
+            "mode": {
+              "Sto": "{Primitives.radius.none}",
+              "Brand B (Demo)": "{Primitives.radius.sm}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--brand-radius-base)"
+              },
+              "variableId": "VariableID:1:81",
+              "collection": {
+                "id": "VariableCollectionId:1:73",
+                "name": "Brand",
+                "defaultModeId": "1:1"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "Semantics": {
+    "color": {
+      "surface": {
+        "default": {
+          "$type": "color",
+          "$value": "{Primitives.color.white}",
+          "$description": "Semantic role. Default page and component surface.",
+          "$extensions": {
+            "mode": {
+              "On-light": "{Primitives.color.white}",
+              "On-dark": "{Primitives.color.black}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-surface-default)"
+              },
+              "variableId": "VariableID:1:83",
+              "collection": {
+                "id": "VariableCollectionId:1:82",
+                "name": "Semantics",
+                "defaultModeId": "1:3"
+              }
+            }
+          }
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{Primitives.color.gray.100}",
+          "$description": "Semantic role. Subtle surface, e.g. tiles and teaser rows.",
+          "$extensions": {
+            "mode": {
+              "On-light": "{Primitives.color.gray.100}",
+              "On-dark": "{Primitives.color.gray.700}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-surface-subtle)"
+              },
+              "variableId": "VariableID:1:84",
+              "collection": {
+                "id": "VariableCollectionId:1:82",
+                "name": "Semantics",
+                "defaultModeId": "1:3"
+              }
+            }
+          }
+        }
+      },
+      "text": {
+        "default": {
+          "$type": "color",
+          "$value": "{Primitives.color.black}",
+          "$description": "Semantic role. Default text.",
+          "$extensions": {
+            "mode": {
+              "On-light": "{Primitives.color.black}",
+              "On-dark": "{Primitives.color.white}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-text-default)"
+              },
+              "variableId": "VariableID:1:85",
+              "collection": {
+                "id": "VariableCollectionId:1:82",
+                "name": "Semantics",
+                "defaultModeId": "1:3"
+              }
+            }
+          }
+        },
+        "muted": {
+          "$type": "color",
+          "$value": "{Primitives.color.gray.700}",
+          "$description": "Semantic role. Muted text. gray/700 passes AA on white (7.1:1) and on gray/100 (6.06:1); gray/500 would fail on gray/100 (3.88:1).",
+          "$extensions": {
+            "mode": {
+              "On-light": "{Primitives.color.gray.700}",
+              "On-dark": "{Primitives.color.gray.300}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-text-muted)"
+              },
+              "variableId": "VariableID:1:86",
+              "collection": {
+                "id": "VariableCollectionId:1:82",
+                "name": "Semantics",
+                "defaultModeId": "1:3"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{Primitives.color.gray.500}",
+          "$description": "Semantic role. Disabled text (exempt from contrast requirements).",
+          "$extensions": {
+            "mode": {
+              "On-light": "{Primitives.color.gray.500}",
+              "On-dark": "{Primitives.color.gray.500}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-text-disabled)"
+              },
+              "variableId": "VariableID:1:87",
+              "collection": {
+                "id": "VariableCollectionId:1:82",
+                "name": "Semantics",
+                "defaultModeId": "1:3"
+              }
+            }
+          }
+        }
+      },
+      "icon": {
+        "default": {
+          "$type": "color",
+          "$value": "{Primitives.color.black}",
+          "$description": "Semantic role. Default icon colour.",
+          "$extensions": {
+            "mode": {
+              "On-light": "{Primitives.color.black}",
+              "On-dark": "{Primitives.color.white}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-icon-default)"
+              },
+              "variableId": "VariableID:1:88",
+              "collection": {
+                "id": "VariableCollectionId:1:82",
+                "name": "Semantics",
+                "defaultModeId": "1:3"
+              }
+            }
+          }
+        }
+      },
+      "action": {
+        "fill": {
+          "default": {
+            "$type": "color",
+            "$value": "{Brand.brand.primary.500}",
+            "$description": "Semantic role. Primary action fill. Follows the brand.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Brand.brand.primary.500}",
+                "On-dark": "{Brand.brand.primary.500}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-fill-default)"
+                },
+                "variableId": "VariableID:1:89",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Brand.brand.primary.600}",
+            "$description": "Semantic role. Primary action fill, hover. Same step (600) in both themes: lighter steps would break white text on Brand B (white on demo-blue/300 = 2.2:1).",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Brand.brand.primary.600}",
+                "On-dark": "{Brand.brand.primary.600}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-fill-hover)"
+                },
+                "variableId": "VariableID:1:90",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Brand.brand.primary.700}",
+            "$description": "Semantic role. Primary action fill, pressed (700 in both themes).",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Brand.brand.primary.700}",
+                "On-dark": "{Brand.brand.primary.700}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-fill-active)"
+                },
+                "variableId": "VariableID:1:91",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.300}",
+            "$description": "Semantic role. Primary action fill, disabled.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.300}",
+                "On-dark": "{Primitives.color.gray.700}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-fill-disabled)"
+                },
+                "variableId": "VariableID:1:92",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        },
+        "on-fill": {
+          "default": {
+            "$type": "color",
+            "$value": "{Brand.brand.primary.on}",
+            "$description": "Semantic role. Content on the primary action fill.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Brand.brand.primary.on}",
+                "On-dark": "{Brand.brand.primary.on}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-on-fill-default)"
+                },
+                "variableId": "VariableID:1:93",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.500}",
+            "$description": "Semantic role. Content on a disabled action fill.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.500}",
+                "On-dark": "{Primitives.color.gray.500}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-on-fill-disabled)"
+                },
+                "variableId": "VariableID:1:94",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        },
+        "ink": {
+          "default": {
+            "$type": "color",
+            "$value": "{Primitives.color.black}",
+            "$description": "Semantic role. Ink of secondary and tertiary actions (text, icon, border).",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.black}",
+                "On-dark": "{Primitives.color.white}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-ink-default)"
+                },
+                "variableId": "VariableID:1:95",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.700}",
+            "$description": "Semantic role. Action ink, hover.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.700}",
+                "On-dark": "{Primitives.color.gray.300}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-ink-hover)"
+                },
+                "variableId": "VariableID:1:96",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.500}",
+            "$description": "Semantic role. Action ink, pressed.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.500}",
+                "On-dark": "{Primitives.color.gray.500}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-ink-active)"
+                },
+                "variableId": "VariableID:1:97",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.300}",
+            "$description": "Semantic role. Action ink, disabled.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.300}",
+                "On-dark": "{Primitives.color.gray.700}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-ink-disabled)"
+                },
+                "variableId": "VariableID:1:98",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        },
+        "ghost": {
+          "default": {
+            "$type": "color",
+            "$value": "{Primitives.color.transparent}",
+            "$description": "Semantic role. Background of secondary and tertiary actions.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.transparent}",
+                "On-dark": "{Primitives.color.transparent}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-ghost-default)"
+                },
+                "variableId": "VariableID:1:99",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.100}",
+            "$description": "Semantic role. Ghost background, hover.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.100}",
+                "On-dark": "{Primitives.color.gray.700}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-ghost-hover)"
+                },
+                "variableId": "VariableID:1:100",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.300}",
+            "$description": "Semantic role. Ghost background, pressed.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.300}",
+                "On-dark": "{Primitives.color.gray.500}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-action-ghost-active)"
+                },
+                "variableId": "VariableID:1:101",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        }
+      },
+      "field": {
+        "background": {
+          "default": {
+            "$type": "color",
+            "$value": "{Primitives.color.white}",
+            "$description": "Semantic role. Form field background.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.white}",
+                "On-dark": "{Primitives.color.black}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-background-default)"
+                },
+                "variableId": "VariableID:1:102",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.100}",
+            "$description": "Semantic role. Form field background, disabled.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.100}",
+                "On-dark": "{Primitives.color.gray.700}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-background-disabled)"
+                },
+                "variableId": "VariableID:1:103",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "readonly": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.100}",
+            "$description": "Semantic role. Form field background, read-only.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.100}",
+                "On-dark": "{Primitives.color.gray.700}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-background-readonly)"
+                },
+                "variableId": "VariableID:1:104",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.500}",
+            "$description": "Semantic role. Form field border (4.54:1 on white, 4.62:1 on black).",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.500}",
+                "On-dark": "{Primitives.color.gray.500}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-border-default)"
+                },
+                "variableId": "VariableID:1:105",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Primitives.color.black}",
+            "$description": "Semantic role. Form field border, hover.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.black}",
+                "On-dark": "{Primitives.color.white}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-border-hover)"
+                },
+                "variableId": "VariableID:1:106",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "focus": {
+            "$type": "color",
+            "$value": "{Primitives.color.black}",
+            "$description": "Semantic role. Form field border, focus (2 px).",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.black}",
+                "On-dark": "{Primitives.color.white}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-border-focus)"
+                },
+                "variableId": "VariableID:1:107",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.300}",
+            "$description": "Semantic role. Form field border, disabled and read-only.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.300}",
+                "On-dark": "{Primitives.color.gray.700}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-border-disabled)"
+                },
+                "variableId": "VariableID:1:108",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        },
+        "ink": {
+          "default": {
+            "$type": "color",
+            "$value": "{Primitives.color.black}",
+            "$description": "Semantic role. Form field value.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.black}",
+                "On-dark": "{Primitives.color.white}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-ink-default)"
+                },
+                "variableId": "VariableID:1:109",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          },
+          "placeholder": {
+            "$type": "color",
+            "$value": "{Primitives.color.gray.700}",
+            "$description": "Semantic role. Form field placeholder.",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.gray.700}",
+                "On-dark": "{Primitives.color.gray.300}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-field-ink-placeholder)"
+                },
+                "variableId": "VariableID:1:110",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        }
+      },
+      "feedback": {
+        "error": {
+          "default": {
+            "$type": "color",
+            "$value": "{Primitives.color.red.600}",
+            "$description": "Semantic role. Error feedback (text, icon, border).",
+            "$extensions": {
+              "mode": {
+                "On-light": "{Primitives.color.red.600}",
+                "On-dark": "{Primitives.color.red.300}"
+              },
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--color-feedback-error-default)"
+                },
+                "variableId": "VariableID:1:111",
+                "collection": {
+                  "id": "VariableCollectionId:1:82",
+                  "name": "Semantics",
+                  "defaultModeId": "1:3"
+                }
+              }
+            }
+          }
+        }
+      },
+      "focus": {
+        "ring": {
+          "$type": "color",
+          "$value": "{Primitives.color.black}",
+          "$description": "Semantic role. Focus ring. On-light black (21:1), on-dark brand primary (Sto 14.97:1, Brand B 3.67:1 on black). Yellow on white would fail WCAG 1.4.11 (1.40:1).",
+          "$extensions": {
+            "mode": {
+              "On-light": "{Primitives.color.black}",
+              "On-dark": "{Brand.brand.primary.500}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--color-focus-ring)"
+              },
+              "variableId": "VariableID:1:112",
+              "collection": {
+                "id": "VariableCollectionId:1:82",
+                "name": "Semantics",
+                "defaultModeId": "1:3"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "Viewport": {
+    "viewport": {
+      "name": {
+        "$type": "string",
+        "$value": "Mobile",
+        "$description": "Viewport name. Bind to a variant property \"Viewport\" only where the structure changes. Values must match the variant values exactly.",
+        "$extensions": {
+          "mode": {
+            "Mobile": "Mobile",
+            "Tablet": "Tablet",
+            "Desktop": "Desktop"
+          },
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--viewport-name)"
+            },
+            "variableId": "VariableID:1:114",
+            "collection": {
+              "id": "VariableCollectionId:1:113",
+              "name": "Viewport",
+              "defaultModeId": "1:5"
+            }
+          }
+        }
+      },
+      "width": {
+        "$type": "dimension",
+        "$value": {
+          "value": 375,
+          "unit": "px"
+        },
+        "$description": "Reference frame width. Mobile < 768, Tablet 768-1023, Desktop >= 1024 (media queries on sto.de: 576, 768, 1024, 1400, 1600).",
+        "$extensions": {
+          "mode": {
+            "Mobile": {
+              "value": 375,
+              "unit": "px"
+            },
+            "Tablet": {
+              "value": 768,
+              "unit": "px"
+            },
+            "Desktop": {
+              "value": 1440,
+              "unit": "px"
+            }
+          },
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--viewport-width)"
+            },
+            "variableId": "VariableID:1:115",
+            "collection": {
+              "id": "VariableCollectionId:1:113",
+              "name": "Viewport",
+              "defaultModeId": "1:5"
+            }
+          }
+        }
+      }
+    },
+    "layout": {
+      "page-margin": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.4}",
+        "$description": "Horizontal page padding: 16 / 32 / 64 px. Proposal.",
+        "$extensions": {
+          "mode": {
+            "Mobile": "{Primitives.space.4}",
+            "Tablet": "{Primitives.space.8}",
+            "Desktop": "{Primitives.space.16}"
+          },
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--layout-page-margin)"
+            },
+            "variableId": "VariableID:1:116",
+            "collection": {
+              "id": "VariableCollectionId:1:113",
+              "name": "Viewport",
+              "defaultModeId": "1:5"
+            }
+          }
+        }
+      },
+      "gutter": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.4}",
+        "$description": "Gap between columns: 16 / 24 / 32 px. Proposal.",
+        "$extensions": {
+          "mode": {
+            "Mobile": "{Primitives.space.4}",
+            "Tablet": "{Primitives.space.6}",
+            "Desktop": "{Primitives.space.8}"
+          },
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--layout-gutter)"
+            },
+            "variableId": "VariableID:1:117",
+            "collection": {
+              "id": "VariableCollectionId:1:113",
+              "name": "Viewport",
+              "defaultModeId": "1:5"
+            }
+          }
+        }
+      },
+      "section-gap": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.10}",
+        "$description": "Gap between sections: 40 / 56 / 80 px. Proposal.",
+        "$extensions": {
+          "mode": {
+            "Mobile": "{Primitives.space.10}",
+            "Tablet": "{Primitives.space.14}",
+            "Desktop": "{Primitives.space.20}"
+          },
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--layout-section-gap)"
+            },
+            "variableId": "VariableID:1:118",
+            "collection": {
+              "id": "VariableCollectionId:1:113",
+              "name": "Viewport",
+              "defaultModeId": "1:5"
+            }
+          }
+        }
+      },
+      "content-max-width": {
+        "$type": "dimension",
+        "$value": {
+          "value": 9999,
+          "unit": "px"
+        },
+        "$description": "Max width of a reading or form column: none / 640 / 720 px. Proposal.",
+        "$extensions": {
+          "mode": {
+            "Mobile": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "Tablet": {
+              "value": 640,
+              "unit": "px"
+            },
+            "Desktop": {
+              "value": 720,
+              "unit": "px"
+            }
+          },
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--layout-content-max-width)"
+            },
+            "variableId": "VariableID:1:119",
+            "collection": {
+              "id": "VariableCollectionId:1:113",
+              "name": "Viewport",
+              "defaultModeId": "1:5"
+            }
+          }
+        }
+      }
+    },
+    "type": {
+      "heading-xl": {
+        "font-size": {
+          "$type": "dimension",
+          "$value": "{Primitives.font-size.3xl}",
+          "$description": "Responsive font size of heading-xl.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.font-size.3xl}",
+              "Tablet": "{Primitives.font-size.4xl}",
+              "Desktop": "{Primitives.font-size.5xl}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-heading-xl-font-size)"
+              },
+              "variableId": "VariableID:1:120",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        },
+        "line-height": {
+          "$type": "dimension",
+          "$value": "{Primitives.line-height.3xl}",
+          "$description": "Responsive line height of heading-xl.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.line-height.3xl}",
+              "Tablet": "{Primitives.line-height.4xl}",
+              "Desktop": "{Primitives.line-height.5xl}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-heading-xl-line-height)"
+              },
+              "variableId": "VariableID:1:121",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        }
+      },
+      "heading-lg": {
+        "font-size": {
+          "$type": "dimension",
+          "$value": "{Primitives.font-size.2xl}",
+          "$description": "Responsive font size of heading-lg.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.font-size.2xl}",
+              "Tablet": "{Primitives.font-size.3xl}",
+              "Desktop": "{Primitives.font-size.4xl}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-heading-lg-font-size)"
+              },
+              "variableId": "VariableID:1:122",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        },
+        "line-height": {
+          "$type": "dimension",
+          "$value": "{Primitives.line-height.2xl}",
+          "$description": "Responsive line height of heading-lg.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.line-height.2xl}",
+              "Tablet": "{Primitives.line-height.3xl}",
+              "Desktop": "{Primitives.line-height.4xl}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-heading-lg-line-height)"
+              },
+              "variableId": "VariableID:1:123",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        }
+      },
+      "heading-md": {
+        "font-size": {
+          "$type": "dimension",
+          "$value": "{Primitives.font-size.xl}",
+          "$description": "Responsive font size of heading-md.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.font-size.xl}",
+              "Tablet": "{Primitives.font-size.xl}",
+              "Desktop": "{Primitives.font-size.2xl}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-heading-md-font-size)"
+              },
+              "variableId": "VariableID:1:124",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        },
+        "line-height": {
+          "$type": "dimension",
+          "$value": "{Primitives.line-height.lg}",
+          "$description": "Responsive line height of heading-md.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.line-height.lg}",
+              "Tablet": "{Primitives.line-height.lg}",
+              "Desktop": "{Primitives.line-height.2xl}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-heading-md-line-height)"
+              },
+              "variableId": "VariableID:1:125",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        }
+      },
+      "body-lg": {
+        "font-size": {
+          "$type": "dimension",
+          "$value": "{Primitives.font-size.base}",
+          "$description": "Responsive font size of body-lg.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.font-size.base}",
+              "Tablet": "{Primitives.font-size.lg}",
+              "Desktop": "{Primitives.font-size.lg}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-body-lg-font-size)"
+              },
+              "variableId": "VariableID:1:126",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        },
+        "line-height": {
+          "$type": "dimension",
+          "$value": "{Primitives.line-height.base}",
+          "$description": "Responsive line height of body-lg.",
+          "$extensions": {
+            "mode": {
+              "Mobile": "{Primitives.line-height.base}",
+              "Tablet": "{Primitives.line-height.lg}",
+              "Desktop": "{Primitives.line-height.lg}"
+            },
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--type-body-lg-line-height)"
+              },
+              "variableId": "VariableID:1:127",
+              "collection": {
+                "id": "VariableCollectionId:1:113",
+                "name": "Viewport",
+                "defaultModeId": "1:5"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "Component": {
+    "button": {
+      "primary": {
+        "background": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.default}",
+            "$description": "Component token. Alias of color/action/fill/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-background-default)"
+                },
+                "variableId": "VariableID:1:129",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.hover}",
+            "$description": "Component token. Alias of color/action/fill/hover.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-background-hover)"
+                },
+                "variableId": "VariableID:1:132",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.active}",
+            "$description": "Component token. Alias of color/action/fill/active.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-background-active)"
+                },
+                "variableId": "VariableID:1:135",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.disabled}",
+            "$description": "Component token. Alias of color/action/fill/disabled.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-background-disabled)"
+                },
+                "variableId": "VariableID:1:138",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.default}",
+            "$description": "Component token. Alias of color/action/fill/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-border-default)"
+                },
+                "variableId": "VariableID:1:130",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.hover}",
+            "$description": "Component token. Alias of color/action/fill/hover.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-border-hover)"
+                },
+                "variableId": "VariableID:1:133",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.active}",
+            "$description": "Component token. Alias of color/action/fill/active.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-border-active)"
+                },
+                "variableId": "VariableID:1:136",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.fill.disabled}",
+            "$description": "Component token. Alias of color/action/fill/disabled.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-border-disabled)"
+                },
+                "variableId": "VariableID:1:139",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        },
+        "foreground": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.on-fill.default}",
+            "$description": "Component token. Alias of color/action/on-fill/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-foreground-default)"
+                },
+                "variableId": "VariableID:1:131",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.on-fill.default}",
+            "$description": "Component token. Alias of color/action/on-fill/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-foreground-hover)"
+                },
+                "variableId": "VariableID:1:134",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.on-fill.default}",
+            "$description": "Component token. Alias of color/action/on-fill/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-foreground-active)"
+                },
+                "variableId": "VariableID:1:137",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.on-fill.disabled}",
+            "$description": "Component token. Alias of color/action/on-fill/disabled.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-primary-foreground-disabled)"
+                },
+                "variableId": "VariableID:1:140",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        }
+      },
+      "secondary": {
+        "background": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.default}",
+            "$description": "Component token. Alias of color/action/ghost/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-background-default)"
+                },
+                "variableId": "VariableID:1:141",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.hover}",
+            "$description": "Component token. Alias of color/action/ghost/hover.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-background-hover)"
+                },
+                "variableId": "VariableID:1:144",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.active}",
+            "$description": "Component token. Alias of color/action/ghost/active.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-background-active)"
+                },
+                "variableId": "VariableID:1:147",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.default}",
+            "$description": "Component token. Alias of color/action/ghost/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-background-disabled)"
+                },
+                "variableId": "VariableID:1:150",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.default}",
+            "$description": "Component token. Alias of color/action/ink/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-border-default)"
+                },
+                "variableId": "VariableID:1:142",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.hover}",
+            "$description": "Component token. Alias of color/action/ink/hover.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-border-hover)"
+                },
+                "variableId": "VariableID:1:145",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.active}",
+            "$description": "Component token. Alias of color/action/ink/active.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-border-active)"
+                },
+                "variableId": "VariableID:1:148",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.disabled}",
+            "$description": "Component token. Alias of color/action/ink/disabled.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-border-disabled)"
+                },
+                "variableId": "VariableID:1:151",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        },
+        "foreground": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.default}",
+            "$description": "Component token. Alias of color/action/ink/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-foreground-default)"
+                },
+                "variableId": "VariableID:1:143",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.hover}",
+            "$description": "Component token. Alias of color/action/ink/hover.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-foreground-hover)"
+                },
+                "variableId": "VariableID:1:146",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.active}",
+            "$description": "Component token. Alias of color/action/ink/active.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-foreground-active)"
+                },
+                "variableId": "VariableID:1:149",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.disabled}",
+            "$description": "Component token. Alias of color/action/ink/disabled.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-secondary-foreground-disabled)"
+                },
+                "variableId": "VariableID:1:152",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        }
+      },
+      "tertiary": {
+        "background": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.default}",
+            "$description": "Component token. Alias of color/action/ghost/default. Parity alias (D16): tertiary has no background change.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-background-default)"
+                },
+                "variableId": "VariableID:1:153",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.default}",
+            "$description": "Component token. Alias of color/action/ghost/default. Parity alias (D16): tertiary has no background change.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-background-hover)"
+                },
+                "variableId": "VariableID:1:156",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.default}",
+            "$description": "Component token. Alias of color/action/ghost/default. Parity alias (D16): tertiary has no background change.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-background-active)"
+                },
+                "variableId": "VariableID:1:159",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ghost.default}",
+            "$description": "Component token. Alias of color/action/ghost/default. Parity alias (D16): tertiary has no background change.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-background-disabled)"
+                },
+                "variableId": "VariableID:1:162",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.default}",
+            "$description": "Component token. Underline colour. Alias of color/action/ink/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-border-default)"
+                },
+                "variableId": "VariableID:1:154",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.hover}",
+            "$description": "Component token. Underline colour. Alias of color/action/ink/hover.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-border-hover)"
+                },
+                "variableId": "VariableID:1:157",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.active}",
+            "$description": "Component token. Underline colour. Alias of color/action/ink/active.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-border-active)"
+                },
+                "variableId": "VariableID:1:160",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.disabled}",
+            "$description": "Component token. Underline colour. Alias of color/action/ink/disabled.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-border-disabled)"
+                },
+                "variableId": "VariableID:1:163",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        },
+        "foreground": {
+          "default": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.default}",
+            "$description": "Component token. Alias of color/action/ink/default.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-foreground-default)"
+                },
+                "variableId": "VariableID:1:155",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.hover}",
+            "$description": "Component token. Alias of color/action/ink/hover.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-foreground-hover)"
+                },
+                "variableId": "VariableID:1:158",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "active": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.active}",
+            "$description": "Component token. Alias of color/action/ink/active.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-foreground-active)"
+                },
+                "variableId": "VariableID:1:161",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "{Semantics.color.action.ink.disabled}",
+            "$description": "Component token. Alias of color/action/ink/disabled.",
+            "$extensions": {
+              "mode": {},
+              "figma": {
+                "codeSyntax": {
+                  "WEB": "var(--button-tertiary-foreground-disabled)"
+                },
+                "variableId": "VariableID:1:164",
+                "collection": {
+                  "id": "VariableCollectionId:1:128",
+                  "name": "Component",
+                  "defaultModeId": "1:8"
+                }
+              }
+            }
+          }
+        }
+      },
+      "focus": {
+        "ring": {
+          "$type": "color",
+          "$value": "{Semantics.color.focus.ring}",
+          "$description": "Component token. Alias of color/focus/ring.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-focus-ring)"
+              },
+              "variableId": "VariableID:1:165",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "ring-width": {
+          "$type": "dimension",
+          "$value": "{Primitives.border-width.2}",
+          "$description": "Component token. Alias of border-width/2.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-focus-ring-width)"
+              },
+              "variableId": "VariableID:1:176",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "lg": {
+        "height": {
+          "$type": "dimension",
+          "$value": "{Primitives.size.12}",
+          "$description": "Component token. Large button height 48 px (E2: 44 or 48 px, decided in workshop).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-lg-height)"
+              },
+              "variableId": "VariableID:1:166",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "padding-x": {
+          "$type": "dimension",
+          "$value": "{Primitives.space.7p5}",
+          "$description": "Component token. 30 px, as on sto.de today.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-lg-padding-x)"
+              },
+              "variableId": "VariableID:1:168",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "padding-icon": {
+          "$type": "dimension",
+          "$value": "{Primitives.space.3p5}",
+          "$description": "Component token. Padding of the icon-only large button (48 = 14 + 20 + 14).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-lg-padding-icon)"
+              },
+              "variableId": "VariableID:1:170",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "sm": {
+        "height": {
+          "$type": "dimension",
+          "$value": "{Primitives.size.10}",
+          "$description": "Component token. Alias of size/10.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-sm-height)"
+              },
+              "variableId": "VariableID:1:167",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "padding-x": {
+          "$type": "dimension",
+          "$value": "{Primitives.space.5}",
+          "$description": "Component token. Alias of space/5.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-sm-padding-x)"
+              },
+              "variableId": "VariableID:1:169",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "padding-icon": {
+          "$type": "dimension",
+          "$value": "{Primitives.space.2p5}",
+          "$description": "Component token. Padding of the icon-only small button (40 = 10 + 20 + 10).",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-sm-padding-icon)"
+              },
+              "variableId": "VariableID:1:171",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "content": {
+        "gap": {
+          "$type": "dimension",
+          "$value": "{Primitives.space.2}",
+          "$description": "Component token. Alias of space/2.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-content-gap)"
+              },
+              "variableId": "VariableID:1:172",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "icon": {
+        "size": {
+          "$type": "dimension",
+          "$value": "{Primitives.size.5}",
+          "$description": "Component token. Alias of size/5.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-icon-size)"
+              },
+              "variableId": "VariableID:1:173",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "radius": {
+        "default": {
+          "$type": "dimension",
+          "$value": "{Brand.brand.radius.base}",
+          "$description": "Component token. Follows the brand slot: Sto 0 px, Brand B 4 px.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-radius-default)"
+              },
+              "variableId": "VariableID:1:174",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "border-width": {
+        "default": {
+          "$type": "dimension",
+          "$value": "{Primitives.border-width.2}",
+          "$description": "Component token. Alias of border-width/2.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--button-border-width-default)"
+              },
+              "variableId": "VariableID:1:175",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      }
+    },
+    "input": {
+      "background": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.background.default}",
+          "$description": "Component token. Alias of color/field/background/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-background-default)"
+              },
+              "variableId": "VariableID:1:177",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.background.default}",
+          "$description": "Component token. Alias of color/field/background/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-background-hover)"
+              },
+              "variableId": "VariableID:1:178",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "focus": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.background.default}",
+          "$description": "Component token. Alias of color/field/background/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-background-focus)"
+              },
+              "variableId": "VariableID:1:179",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.background.disabled}",
+          "$description": "Component token. Alias of color/field/background/disabled.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-background-disabled)"
+              },
+              "variableId": "VariableID:1:180",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "readonly": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.background.readonly}",
+          "$description": "Component token. Alias of color/field/background/readonly.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-background-readonly)"
+              },
+              "variableId": "VariableID:1:181",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "error": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.background.default}",
+          "$description": "Component token. Alias of color/field/background/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-background-error)"
+              },
+              "variableId": "VariableID:1:182",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "border": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.border.default}",
+          "$description": "Component token. Alias of color/field/border/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-default)"
+              },
+              "variableId": "VariableID:1:183",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.border.hover}",
+          "$description": "Component token. Alias of color/field/border/hover.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-hover)"
+              },
+              "variableId": "VariableID:1:184",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "focus": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.border.focus}",
+          "$description": "Component token. Alias of color/field/border/focus.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-focus)"
+              },
+              "variableId": "VariableID:1:185",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.border.disabled}",
+          "$description": "Component token. Alias of color/field/border/disabled.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-disabled)"
+              },
+              "variableId": "VariableID:1:186",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "readonly": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.border.disabled}",
+          "$description": "Component token. Alias of color/field/border/disabled.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-readonly)"
+              },
+              "variableId": "VariableID:1:187",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "error": {
+          "$type": "color",
+          "$value": "{Semantics.color.feedback.error.default}",
+          "$description": "Component token. Alias of color/feedback/error/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-error)"
+              },
+              "variableId": "VariableID:1:188",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "value": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.default}",
+          "$description": "Component token. Alias of color/field/ink/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-value-default)"
+              },
+              "variableId": "VariableID:1:189",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.default}",
+          "$description": "Component token. Alias of color/field/ink/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-value-hover)"
+              },
+              "variableId": "VariableID:1:190",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "focus": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.default}",
+          "$description": "Component token. Alias of color/field/ink/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-value-focus)"
+              },
+              "variableId": "VariableID:1:191",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{Semantics.color.text.disabled}",
+          "$description": "Component token. Alias of color/text/disabled.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-value-disabled)"
+              },
+              "variableId": "VariableID:1:192",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "readonly": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.default}",
+          "$description": "Component token. Alias of color/field/ink/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-value-readonly)"
+              },
+              "variableId": "VariableID:1:193",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "error": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.default}",
+          "$description": "Component token. Alias of color/field/ink/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-value-error)"
+              },
+              "variableId": "VariableID:1:194",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "placeholder": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.placeholder}",
+          "$description": "Component token. Alias of color/field/ink/placeholder.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-placeholder-default)"
+              },
+              "variableId": "VariableID:1:195",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.placeholder}",
+          "$description": "Component token. Alias of color/field/ink/placeholder.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-placeholder-hover)"
+              },
+              "variableId": "VariableID:1:196",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "focus": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.placeholder}",
+          "$description": "Component token. Alias of color/field/ink/placeholder.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-placeholder-focus)"
+              },
+              "variableId": "VariableID:1:197",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{Semantics.color.text.disabled}",
+          "$description": "Component token. Alias of color/text/disabled.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-placeholder-disabled)"
+              },
+              "variableId": "VariableID:1:198",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "readonly": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.placeholder}",
+          "$description": "Component token. Alias of color/field/ink/placeholder.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-placeholder-readonly)"
+              },
+              "variableId": "VariableID:1:199",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "error": {
+          "$type": "color",
+          "$value": "{Semantics.color.field.ink.placeholder}",
+          "$description": "Component token. Alias of color/field/ink/placeholder.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-placeholder-error)"
+              },
+              "variableId": "VariableID:1:200",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "icon": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.icon.default}",
+          "$description": "Component token. Alias of color/icon/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-icon-default)"
+              },
+              "variableId": "VariableID:1:201",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "hover": {
+          "$type": "color",
+          "$value": "{Semantics.color.icon.default}",
+          "$description": "Component token. Alias of color/icon/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-icon-hover)"
+              },
+              "variableId": "VariableID:1:202",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "focus": {
+          "$type": "color",
+          "$value": "{Semantics.color.icon.default}",
+          "$description": "Component token. Alias of color/icon/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-icon-focus)"
+              },
+              "variableId": "VariableID:1:203",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "{Semantics.color.text.disabled}",
+          "$description": "Component token. Alias of color/text/disabled.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-icon-disabled)"
+              },
+              "variableId": "VariableID:1:204",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "readonly": {
+          "$type": "color",
+          "$value": "{Semantics.color.icon.default}",
+          "$description": "Component token. Alias of color/icon/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-icon-readonly)"
+              },
+              "variableId": "VariableID:1:205",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "error": {
+          "$type": "color",
+          "$value": "{Semantics.color.feedback.error.default}",
+          "$description": "Component token. Alias of color/feedback/error/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-icon-error)"
+              },
+              "variableId": "VariableID:1:206",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "size": {
+          "$type": "dimension",
+          "$value": "{Primitives.size.5}",
+          "$description": "Component token. Alias of size/5.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-icon-size)"
+              },
+              "variableId": "VariableID:1:213",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "height": {
+        "$type": "dimension",
+        "$value": "{Primitives.size.12}",
+        "$description": "Component token. Alias of size/12.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--input-height)"
+            },
+            "variableId": "VariableID:1:207",
+            "collection": {
+              "id": "VariableCollectionId:1:128",
+              "name": "Component",
+              "defaultModeId": "1:8"
+            }
+          }
+        }
+      },
+      "padding-x": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.4}",
+        "$description": "Component token. Alias of space/4.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--input-padding-x)"
+            },
+            "variableId": "VariableID:1:208",
+            "collection": {
+              "id": "VariableCollectionId:1:128",
+              "name": "Component",
+              "defaultModeId": "1:8"
+            }
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.2}",
+        "$description": "Component token. Alias of space/2.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--input-gap)"
+            },
+            "variableId": "VariableID:1:209",
+            "collection": {
+              "id": "VariableCollectionId:1:128",
+              "name": "Component",
+              "defaultModeId": "1:8"
+            }
+          }
+        }
+      },
+      "radius": {
+        "$type": "dimension",
+        "$value": "{Brand.brand.radius.base}",
+        "$description": "Component token. Alias of brand/radius/base.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--input-radius)"
+            },
+            "variableId": "VariableID:1:210",
+            "collection": {
+              "id": "VariableCollectionId:1:128",
+              "name": "Component",
+              "defaultModeId": "1:8"
+            }
+          }
+        }
+      },
+      "border-width": {
+        "default": {
+          "$type": "dimension",
+          "$value": "{Primitives.border-width.1}",
+          "$description": "Component token. Alias of border-width/1.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-width-default)"
+              },
+              "variableId": "VariableID:1:211",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        },
+        "focus": {
+          "$type": "dimension",
+          "$value": "{Primitives.border-width.2}",
+          "$description": "Component token. Alias of border-width/2.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--input-border-width-focus)"
+              },
+              "variableId": "VariableID:1:212",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      }
+    },
+    "form-field": {
+      "label": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.text.default}",
+          "$description": "Component token. Alias of color/text/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--form-field-label-default)"
+              },
+              "variableId": "VariableID:1:214",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "helper": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.text.muted}",
+          "$description": "Component token. Alias of color/text/muted.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--form-field-helper-default)"
+              },
+              "variableId": "VariableID:1:215",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "error": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.feedback.error.default}",
+          "$description": "Component token. Alias of color/feedback/error/default.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--form-field-error-default)"
+              },
+              "variableId": "VariableID:1:216",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "required-marker": {
+        "default": {
+          "$type": "color",
+          "$value": "{Semantics.color.text.default}",
+          "$description": "Component token. Required marker. Never rely on colour alone, the label also carries the word \"(required)\" for screen readers.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--form-field-required-marker-default)"
+              },
+              "variableId": "VariableID:1:217",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.2}",
+        "$description": "Component token. Alias of space/2.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--form-field-gap)"
+            },
+            "variableId": "VariableID:1:218",
+            "collection": {
+              "id": "VariableCollectionId:1:128",
+              "name": "Component",
+              "defaultModeId": "1:8"
+            }
+          }
+        }
+      },
+      "message-gap": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.1}",
+        "$description": "Component token. Alias of space/1.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--form-field-message-gap)"
+            },
+            "variableId": "VariableID:1:219",
+            "collection": {
+              "id": "VariableCollectionId:1:128",
+              "name": "Component",
+              "defaultModeId": "1:8"
+            }
+          }
+        }
+      },
+      "icon": {
+        "size": {
+          "$type": "dimension",
+          "$value": "{Primitives.size.4}",
+          "$description": "Component token. Alias of size/4.",
+          "$extensions": {
+            "mode": {},
+            "figma": {
+              "codeSyntax": {
+                "WEB": "var(--form-field-icon-size)"
+              },
+              "variableId": "VariableID:1:220",
+              "collection": {
+                "id": "VariableCollectionId:1:128",
+                "name": "Component",
+                "defaultModeId": "1:8"
+              }
+            }
+          }
+        }
+      }
+    },
+    "search-bar": {
+      "gap": {
+        "$type": "dimension",
+        "$value": "{Primitives.space.2}",
+        "$description": "Component token. Outlook component, not part of the handoff.",
+        "$extensions": {
+          "mode": {},
+          "figma": {
+            "codeSyntax": {
+              "WEB": "var(--search-bar-gap)"
+            },
+            "variableId": "VariableID:1:221",
+            "collection": {
+              "id": "VariableCollectionId:1:128",
+              "name": "Component",
+              "defaultModeId": "1:8"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$extensions": {
+    "tokens-bruecke-meta": {
+      "useDTCG": true,
+      "spec": "https://www.designtokens.org/tr/2025.10/format/",
+      "colorMode": "oklch-dtcg",
+      "variableCollections": [
+        "Primitives",
+        "Brand",
+        "Semantics",
+        "Viewport",
+        "Component"
+      ],
+      "createdAt": "2026-10-27T12:30:38.412Z"
+    }
+  }
+}
