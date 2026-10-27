@@ -116,10 +116,12 @@ The plugin supports both **exporting** and **importing** design tokens:
 
 **What to know before importing:**
 
-- Every top-level key becomes a collection. Files exported with [Omit collection names](#omit-collection-names) or split by mode don't map back to the original collections.
+- Tokens without their own `$type` take it from the closest group, as DTCG allows; an alias without a type takes the type of the token it references.
+- Every top-level key becomes a collection. Files exported with [Omit collection names](#omit-collection-names) don't map back to the original collections.
+- A file of a [split-by-mode export](#split-modes-into-separate-files) carries its mode in the meta, so its values go into that mode of the collection, which is added if it's missing. Import the files one by one; the first one imported into a new collection becomes its default mode.
 - An existing collection's first mode is renamed to the first mode in the tokens.
 - Units are dropped from dimensions, since Figma number variables have no unit: `1rem` imports as `1`.
-- Extended collections are imported as regular collections.
+- Extended collections are imported as regular collections when they don't exist in the file yet. If the extended collection exists, its tokens update the variables it inherits: the values become overrides for its modes. New variables and modes can't be added to an extended collection, so those tokens are reported as errors.
 - An existing variable keeps its type. A token of another type, for example a `dimension` token for a color variable, is skipped and listed in the import result.
 
 > [!WARNING]  
@@ -141,6 +143,8 @@ Allows you to choose the color mode for the generated JSON. Default value is `HE
 - `HSLA Object` — HSLA color format in object syntax, e.g. `{ h: 0, s: 0, l: 0, a: 0.5 }`.
 - `HSL DTCG` — HSL color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#hsl)
 - `OKLCH DTCG` — OKLCH color format in object syntax matching the [DTCG specification](https://www.designtokens.org/tr/2025.10/color/#oklch)
+
+The DTCG color objects carry the opacity in `alpha` and a 6-digit `hex` fallback, as the specification requires. Older exports wrote an 8-digit `hex` for translucent colors; the import reads both.
 
 ### Include styles
 
@@ -230,6 +234,7 @@ Is `on` by default. Aligns the output with the [DTCG 2025.10 specification](http
 - All token keys are prefixed with the `$` symbol (`$value`, `$type`, `$description`).
 - Dimensions are exported as objects per [§8.2 Dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) — `{ "value": 6, "unit": "px" }` instead of `"6px"`. This also applies to sub-values in shadows, typography, and grids.
 - The root `$extensions["tokens-bruecke-meta"]` includes a `spec` field with the canonical spec URL, so downstream tools know which format to expect.
+- A variable named like a group of other variables (`border/brand` next to `border/brand/subtle`) becomes the group's root token per DTCG 2025.10 §6.2: `border.brand.$root`. References to it point at `{….border.brand.$root}`. With the format off, the token and the group share one object, as before. The import reads both shapes.
 
 ```json
 // Off — native Figma format
@@ -568,6 +573,8 @@ The REST API returns variables, collections and styles in no fixed order, so the
 
 In REST mode the CLI exports the file's own styles, published or not, the same set the plugin exports. This also works for a branch, which can't publish styles. Styles that come from a library are left out, as in the plugin.
 
+The REST API reports letter spacing in pixels only, so a text style with percentage letter spacing exports as `{ "value": -0.32, "unit": "px" }` in REST mode, where the plugin writes `"-2%"`. Snapshot mode keeps the plugin's unit.
+
 ### Snapshot input
 
 `--input <path>` transforms a local JSON snapshot of a Figma file's variables and styles instead of calling the REST API. `--input -` reads stdin, so it composes with anything that can dump the data:
@@ -607,7 +614,6 @@ Things worth knowing when building a snapshot:
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
 - [Extended collections](#extended-collections) need `isExtension`, `parentVariableCollectionId`, `variableOverrides`, `modes[].parentModeId` and `variableIds`. Their variables belong to the root collection, so `variableIds` is the only list of what they contain: without it the extension exports as an empty group.
-- Unlike REST mode, snapshot mode doesn't drop collections hidden from publishing. Leave out anything you don't want exported.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
 - Color aliases with their own opacity come back from the Plugin API as `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` (older Figma Desktop builds used `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`) — pass either through as-is, see [Color aliases with opacity](#color-aliases-with-opacity).
 
@@ -747,7 +753,7 @@ Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY`, so a token exported in
 On a bad snapshot the CLI exits `1` and names the offending key — for example `variables[3] is missing a string "variableCollectionId"` — so an agent can correct its dump and retry without guesswork.
 
 > [!NOTE]
-> Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array.
+> Aliases pointing at variables outside the snapshot export as `"#missing#"`. To resolve aliases to library variables from another file, include those variables in the `variables` array and their collections in `variableCollections`, with `"remote": true`: they resolve the aliases, as in the plugin and in REST mode, but aren't exported.
 
 ---
 
@@ -791,7 +797,7 @@ for (const [key, tree] of Object.entries(tokens)) {
 ```
 
 - **Aliases** inside a tree are qualified with the collection name (for example `{Semantic.spacing.md}`), so the tree has to be wrapped in `{ [collection]: tree }` for references to resolve.
-- **Names are raw.** The CLI replaces characters that are illegal in file names (such as `/`) in collection and mode names. The API keys keep the Figma names as they are. A collection or mode name can contain `/`, so splitting a key at the first `/` is only safe for simple names.
+- **Names are raw.** The CLI replaces characters that are illegal in file names (such as `/`) in collection and mode names. The API keys keep the Figma names as they are. A collection or mode name can contain `/`, so splitting a key at the first `/` is only safe for simple names. Match the key against the collection names in `$extensions["tokens-bruecke-meta"].variableCollections` instead, as the CLI does.
 
 ---
 
@@ -954,7 +960,7 @@ A style the plugin can't export, such as an image fill or a color style with sev
 
 ### Colors
 
-The plugin supports solid colors and gradients (linear, radial, angular, diamond). Color styles are converted to DTCG format with support for variable aliases.
+The plugin supports solid colors and gradients (linear, radial, angular, diamond). Color styles are converted to DTCG format with support for variable aliases. A solid style bound to a color variable with its own opacity below 100% is exported like a [color alias with opacity](#color-aliases-with-opacity): `{ "components": "{color.brand}", "alpha": 0.5 }`.
 
 ```json
 // Solid color
@@ -999,7 +1005,7 @@ DTCG has no direction or type for a gradient, only the stops, so they are export
 
 ### Grids
 
-In Figma you can add as many grids in the style as you want. But the plugin will take only first two grids and treat the first one as `column` grid and the second one as `row` grid.
+In Figma you can add as many grids in the style as you want. The plugin exports the first `Columns` grid as `column*` values and the first `Rows` grid as `row*` values; further grids of the same kind are left out. A square `Grid` only has a cell size, which is exported as `columnWidth` when the style has no columns. Sizes of `0` are kept, and an `Auto` count is left out.
 
 ```json
 // Column grid
@@ -1060,7 +1066,7 @@ The first effect of a style decides its type: a style that starts with a shadow 
 
 ### Blur
 
-The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported, and blur tokens always use the `$type` / `$value` keys, whatever the [DTCG 2025.10 format](#dtcg-202510-format) setting.
+The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported. Like all other tokens, blur tokens use the `$type` / `$value` keys with the [DTCG 2025.10 format](#dtcg-202510-format) setting on, and `type` / `value` with it off.
 
 ```json
 // Background blur
@@ -1178,6 +1184,8 @@ All aliases are converted into the alias string format from the [Design Tokens s
 }
 ```
 
+References use `.` as separator, so DTCG forbids `.`, `{` and `}` in token and group names. A collection whose name contains them, like `1. Primitives`, is exported as `1- Primitives`, with a warning; the meta keeps the original name, and the [import](#import-json--variables) uses it to recreate the collection under its Figma name.
+
 ### Include `.value` string for aliases
 
 You can switch on the `Include .value string for aliases` option in [the plugin settings](#include-value-string-for-aliases).
@@ -1251,7 +1259,7 @@ The plugin will generate the alias name anyway, but it will be a path to the var
 }
 ```
 
-The plugin wouldn't include the variable into the generated JSON in order to avoid duplicates or conflicts with JSON files you can generate from another Figma files.
+The plugin wouldn't include the variable into the generated JSON in order to avoid duplicates or conflicts with JSON files you can generate from another Figma files. The CLI and the library API do the same in REST mode. In snapshot mode, add the library variables and their collections with `"remote": true`: they resolve aliases but aren't exported.
 
 So you will need to merge the file with the base variables from one file with another where you use them. Otherwise tools like Style Dictionary wouldn't be able to resolve the aliases.
 
@@ -1328,7 +1336,7 @@ Figma variables have no font weight, font family or opacity type, so the plugin 
 
 - A number or string variable whose only scope is `FONT_WEIGHT` becomes a `fontWeight` token. With any other scope next to it, it stays a `dimension` or `string`.
 - A string variable whose only scope is `FONT_FAMILY` becomes a `fontFamily` token. With any other scope next to it, it stays a `string`.
-- A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`.
+- A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`. Unless [scopes are included](#include-variable-scopes), such a token carries its scopes in `$extensions.figmaScopes`, so the [import](#import-json--variables) recreates an opacity variable (50, not 0.5).
 
 ---
 
