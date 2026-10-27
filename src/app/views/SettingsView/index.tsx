@@ -19,7 +19,6 @@ import {
 import { config } from '@app/controller/config';
 
 import { Toast, ToastRefI } from '@app/components/Toast';
-import { COMPOSED_COLOR_ISSUE_URL } from '@common/transform/tokensToVariables';
 import { AdvancedSettingsView } from '@app/views/AdvancedSettingsView';
 import { ServerSettingsView } from '@app/views/ServerSettingsView';
 import { ProfileDetailView } from '@app/views/ProfileDetailView';
@@ -32,7 +31,6 @@ import { pushToGitlab } from '@app/api/servers/pushToGitlab';
 import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
-import { importTokensFile } from '@app/api/importTokensFile';
 import { track } from '@app/api/analytics';
 
 type StyleListItemType = {
@@ -59,6 +57,8 @@ interface ViewProps {
   frameHeight: number;
   onResizeHeight: (height: number) => void;
   onResetHeight: () => void;
+  onImportTokens: () => Promise<void>;
+  isImporting: boolean;
 }
 
 const version = pkg.version;
@@ -132,9 +132,10 @@ export const SettingsView = (props: ViewProps) => {
     frameHeight,
     onResizeHeight,
     onResetHeight,
+    onImportTokens,
+    isImporting,
   } = props;
   const [isPushing, setIsPushing] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
 
   const profileEntries = Object.entries(multiTenantConfig.profiles || {});
@@ -222,50 +223,12 @@ export const SettingsView = (props: ViewProps) => {
     );
   };
 
-  const handleImportTokens = async () => {
-    setIsImporting(true);
-
-    try {
-      const tokensData = await importTokensFile();
-
-      if (tokensData) {
-        track('/import');
-        // Send tokens to figma controller for import
-        parent.postMessage(
-          {
-            pluginMessage: {
-              type: 'importTokens',
-              tokens: tokensData,
-              role: 'import',
-            } as TokensMessageI,
-          },
-          '*'
-        );
-      } else {
-        setIsImporting(false);
-      }
-    } catch (error) {
-      console.error('Import error:', error);
-      toastRef.current?.show({
-        title: 'Import Error',
-        message: error instanceof Error ? error.message : String(error),
-        options: {
-          type: 'error',
-          timeout: 5000,
-        },
-      });
-      setIsImporting(false);
-    }
-  };
-
   const getTokensForPush = () => {
     setIsPushing(true);
 
     const allEnabledServers = Object.keys(JSONsettingsConfig.servers).filter(
       (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
     );
-
-    console.log('all enebled servers', allEnabledServers);
 
     // send command to figma controller
     parent.postMessage(
@@ -288,7 +251,7 @@ export const SettingsView = (props: ViewProps) => {
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (!event.data?.pluginMessage) return;
-      const { type, tokens, role, server, result } = event.data
+      const { type, tokens, role, server, message } = event.data
         .pluginMessage as TokensMessageI;
 
       if (type === 'setTokens') {
@@ -311,100 +274,103 @@ export const SettingsView = (props: ViewProps) => {
             splitByCollection: JSONsettingsConfig.splitByCollection,
             splitByMode: JSONsettingsConfig.splitByMode,
           };
+          const showToast = (params: ToastIPropsI) => {
+            toastRef.current?.show(params);
+          };
 
-          if (server.includes('jsonbin')) {
-            track('/push/jsonbin');
-            console.log('push to jsonbin');
-            await pushToJSONBin(
-              JSONsettingsConfig.servers.jsonbin,
-              tokens,
-              (params) => {
-                toastRef.current?.show(params);
-              }
-            );
+          // One failing server must not stop the others or leave the
+          // button spinning
+          const runPush = async (
+            label: string,
+            push: () => Promise<unknown>
+          ) => {
+            try {
+              await push();
+            } catch (error) {
+              console.error(`${label} push failed:`, error);
+              showToast({
+                title: `${label}: An error occurred`,
+                message: error instanceof Error ? error.message : String(error),
+                options: {
+                  type: 'error',
+                },
+              });
+            }
+          };
+
+          try {
+            if (server.includes('jsonbin')) {
+              track('/push/jsonbin');
+              await runPush('JSONBin', () =>
+                pushToJSONBin(
+                  JSONsettingsConfig.servers.jsonbin,
+                  tokens,
+                  showToast
+                )
+              );
+            }
+
+            if (server.includes('github')) {
+              track('/push/github');
+              await runPush('Github', () =>
+                pushToGithub(
+                  JSONsettingsConfig.servers.github,
+                  tokens,
+                  showToast,
+                  splitOptions
+                )
+              );
+            }
+
+            if (server.includes('githubPullRequest')) {
+              track('/push/github-pull-request');
+              await runPush('Github PR', () =>
+                githubPullRequest(
+                  JSONsettingsConfig.servers.githubPullRequest,
+                  tokens,
+                  showToast,
+                  splitOptions
+                )
+              );
+            }
+
+            if (server.includes('gitlab')) {
+              track('/push/gitlab');
+              await runPush('Gitlab', () =>
+                pushToGitlab(
+                  JSONsettingsConfig.servers.gitlab,
+                  tokens,
+                  showToast,
+                  splitOptions
+                )
+              );
+            }
+
+            if (server.includes('customURL')) {
+              track('/push/custom-url');
+              await runPush('Custom URL', () =>
+                pushToCustomURL(
+                  JSONsettingsConfig.servers.customURL,
+                  tokens,
+                  showToast
+                )
+              );
+            }
+          } finally {
+            setIsPushing(false);
           }
-
-          if (server.includes('github')) {
-            track('/push/github');
-            // console.log("github config", JSONsettingsConfig.servers.github);
-            console.log('push to github');
-            await pushToGithub(
-              JSONsettingsConfig.servers.github,
-              tokens,
-              (params) => {
-                toastRef.current?.show(params);
-              },
-              splitOptions
-            );
-          }
-
-          if (server.includes('githubPullRequest')) {
-            track('/push/github-pull-request');
-            console.log('create github pull request');
-            await githubPullRequest(
-              JSONsettingsConfig.servers.githubPullRequest,
-              tokens,
-              (params) => {
-                toastRef.current?.show(params);
-              },
-              splitOptions
-            );
-          }
-
-          if (server.includes('gitlab')) {
-            track('/push/gitlab');
-            console.log('push to gitlab');
-            await pushToGitlab(
-              JSONsettingsConfig.servers.gitlab,
-              tokens,
-              (params) => {
-                toastRef.current?.show(params);
-              },
-              splitOptions
-            );
-          }
-
-          if (server.includes('customURL')) {
-            track('/push/custom-url');
-            console.log('push to customURL');
-            await pushToCustomURL(JSONsettingsConfig.servers.customURL, tokens);
-          }
-
-          setIsPushing(false);
-          console.log('push done');
         }
       }
 
-      if (type === 'importResult') {
-        setIsImporting(false);
-
-        if (result) {
-          const hasIssues = result.errors.length > 0;
-          toastRef.current?.show({
-            title: result.success
-              ? hasIssues
-                ? 'Imported with issues'
-                : 'Import Successful'
-              : 'Import Failed',
-            message: result.message,
-            ...(result.composedColorsRejected > 0 && {
-              link: {
-                label: 'Figma issue #375: update Figma to import these',
-                url: COMPOSED_COLOR_ISSUE_URL,
-              },
-            }),
-            options: {
-              type: result.success ? (hasIssues ? 'warn' : 'success') : 'error',
-              // leave time to read the issues
-              timeout: hasIssues ? 60000 : 10000,
-            },
-          });
-
-          // Log errors if any
-          if (result.errors.length > 0) {
-            console.error('Import errors:', result.errors);
-          }
-        }
+      if (type === 'tokensError') {
+        setIsPushing(false);
+        toastRef.current?.show({
+          title: 'Export failed',
+          message: `${message} (see the plugin console for details)`,
+          options: {
+            type: 'error',
+          },
+        });
       }
     };
 
@@ -442,11 +408,6 @@ export const SettingsView = (props: ViewProps) => {
       return server;
     }
   });
-
-  //
-  useEffect(() => {
-    console.log('JSONsettingsConfig Settings View >>>>', JSONsettingsConfig);
-  }, [JSONsettingsConfig]);
 
   /////////////////
   // MAIN RENDER //
@@ -800,7 +761,7 @@ export const SettingsView = (props: ViewProps) => {
           />
           <Button
             label="Import tokens (Beta)"
-            onClick={handleImportTokens}
+            onClick={onImportTokens}
             loading={isImporting}
             fullWidth
             secondary

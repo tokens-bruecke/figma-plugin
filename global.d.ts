@@ -161,10 +161,17 @@ interface PluginTokenI {
 type ServerType = keyof ServerSettingsI;
 
 interface TokensMessageI {
-  type: 'getTokens' | 'setTokens' | 'importTokens' | 'importResult';
+  type:
+    | 'getTokens'
+    | 'setTokens'
+    | 'tokensError'
+    | 'importTokens'
+    | 'importResult';
   tokens: any;
   role: 'preview' | 'push' | 'download' | 'import';
   server: ServerType[];
+  /** Why the export failed, with `tokensError` */
+  message?: string;
   result?: {
     success: boolean;
     message: string;

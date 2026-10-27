@@ -86,18 +86,31 @@ figma.ui.onmessage = async (msg) => {
 
   // generate tokens and send them to the UI
   if (msg.type === 'getTokens') {
-    await getTokens(
-      new PluginAPIResolver(),
-      JSONSettingsConfig,
-      JSONSettingsConfig
-    ).then((tokens) => {
+    try {
+      const tokens = await getTokens(
+        new PluginAPIResolver(),
+        JSONSettingsConfig,
+        JSONSettingsConfig
+      );
+
       figma.ui.postMessage({
         type: 'setTokens',
         tokens: tokens,
         role: msg.role,
         server: msg.server,
       } as TokensMessageI);
-    });
+    } catch (error) {
+      // Without a reply the UI would wait forever (download, preview, push)
+      console.error('Export error:', error);
+
+      figma.ui.postMessage({
+        type: 'tokensError',
+        tokens: null,
+        role: msg.role,
+        server: msg.server ?? [],
+        message: error?.message ?? String(error),
+      } as TokensMessageI);
+    }
   }
 
   // import tokens and create variables
