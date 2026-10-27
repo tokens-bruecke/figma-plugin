@@ -572,3 +572,55 @@ describe('tokensToVariables references and existing variables', () => {
     });
   });
 });
+
+describe('tokensToVariables opacity', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const byName = (name: string) => fake._variables.find((v) => v.name === name);
+  const defaultValueOf = (name: string) => {
+    const variable = byName(name);
+    const collection = fake._collections.find(
+      (c) => c.id === variable.variableCollectionId
+    );
+    return variable.valuesByMode[collection.defaultModeId];
+  };
+
+  const fileResolver = {
+    getLocalVariableCollections: async () => fake._collections,
+    getLocalVariables: async () => fake._variables,
+  } as unknown as IResolver;
+
+  test.each([
+    ['a fraction', { $type: 'number', $value: 0.5 }],
+    ['a percentage', { $type: 'string', $value: '50%' }],
+  ])(
+    'writes %s without scopes into an existing opacity variable as percent',
+    async (_, token) => {
+      const collection = fake.variables.createVariableCollection('Core');
+      const variable = fake.variables.createVariable(
+        'opacity/half',
+        collection,
+        'FLOAT'
+      );
+      variable.scopes = ['OPACITY'];
+
+      const result = await tokensToVariables(
+        { Core: { opacity: { half: token } } },
+        fileResolver
+      );
+
+      expect(result.errors).toEqual([]);
+      expect(result.variablesUpdated).toBe(1);
+      expect(defaultValueOf('opacity/half')).toBe(50);
+    }
+  );
+});
