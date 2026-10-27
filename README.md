@@ -120,6 +120,7 @@ The plugin supports both **exporting** and **importing** design tokens:
 - An existing collection's first mode is renamed to the first mode in the tokens.
 - Units are dropped from dimensions, since Figma number variables have no unit: `1rem` imports as `1`.
 - Extended collections are imported as regular collections.
+- An existing variable keeps its type. A token of another type, for example a `dimension` token for a color variable, is skipped and listed in the import result.
 
 > [!WARNING]  
 > **Styles Export Limitation**: If you exported tokens with styles included (typography, grids, shadows, or blur), these cannot be imported back as Figma styles. Figma variables only have color, number, string and boolean types, plus timing and easing for motion. Solid color styles import as color variables. Typography, grid, shadow and blur tokens fall back to `STRING` variables, but their object values can't be written, so they are reported as errors in the import result.
