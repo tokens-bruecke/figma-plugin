@@ -1,3 +1,22 @@
+## [3.21.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.20.0...v3.21.0) (2026-10-27)
+
+### Features
+
+- **api:** keep warnings out of the console, with an onWarning option ([869cc51](https://github.com/tokens-bruecke/figma-plugin/commit/869cc51c5134b105126edf1f3f8ad49f62de0dd2))
+
+### Bug Fixes
+
+- **cli:** export an alias into a hidden collection as [#missing](https://github.com/tokens-bruecke/figma-plugin/issues/missing)# ([8f1ac2d](https://github.com/tokens-bruecke/figma-plugin/commit/8f1ac2d2220d4f613223aa08513652bef7baa8ca))
+- export bound shadow blur as an alias ([688d568](https://github.com/tokens-bruecke/figma-plugin/commit/688d5684f12e13c9ee47e3ad44c9dc52d36263d0))
+- **export:** keep styles separate when their collection is missing ([7249e82](https://github.com/tokens-bruecke/figma-plugin/commit/7249e8239f2d1c9b633b85039bc13baf6788141a))
+- **export:** leave the collection out of style aliases with omitCollectionNames ([5346526](https://github.com/tokens-bruecke/figma-plugin/commit/534652616d70549a694b9e8ea4b4c3cb21010d29))
+- **export:** skip styles that cannot be exported instead of failing ([fdeb4f3](https://github.com/tokens-bruecke/figma-plugin/commit/fdeb4f36599d46d580293f405fbd17fce93504a5))
+- **import:** resolve names with dots and skip tokens of another type ([3692fd7](https://github.com/tokens-bruecke/figma-plugin/commit/3692fd7b17d272b0afc53603f27b43d945804756))
+- **import:** write opacity into an existing opacity variable as percent ([3eae585](https://github.com/tokens-bruecke/figma-plugin/commit/3eae5856d719356d0d4bf39e36f9f3202e35b04c))
+- **plugin:** accept GitLab hosts with a scheme and owners with subgroups ([f68988f](https://github.com/tokens-bruecke/figma-plugin/commit/f68988fd9c52b43ea659e868e0b344a46d75d56f))
+- **plugin:** fill "Add styles to" with the open file's collections ([da444f0](https://github.com/tokens-bruecke/figma-plugin/commit/da444f06543c33f74cd42ac3838d608c363d9011))
+- **plugin:** report export, import and push errors in the UI ([ff510fe](https://github.com/tokens-bruecke/figma-plugin/commit/ff510fed70754d77612962634e160ed7936e966b))
+
 ## [3.20.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.19.0...v3.20.0) (2026-10-18)
 
 ### Features
