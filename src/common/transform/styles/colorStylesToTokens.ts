@@ -1,10 +1,13 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from '@common/transform/rootTokens';
 import { convertRGBA } from '@common/transform/color/convertRGBA';
+import { normalizeOpacity } from '@common/transform/color/composeColor';
 import { getGradientGeometry } from '@common/transform/color/getGradientGeometry';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { getAliasVariableName } from '@common/transform/getAliasVariableName';
 import { IResolver } from '@common/resolver';
 import { warnSkippedStyle } from './warnSkippedStyle';
+import Decimal from 'decimal.js';
 
 const convertGradientStopsToDTCG = async (
   gradientStops: ReadonlyArray<ColorStop>,
@@ -56,7 +59,8 @@ export const colorStylesToTokens = async (
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver,
-  omitCollectionNames = false
+  omitCollectionNames = false,
+  usePercentageOpacity = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const paintStyles = await resolver.getLocalPaintStyles();
@@ -106,6 +110,24 @@ export const colorStylesToTokens = async (
         a: paint.opacity !== undefined ? paint.opacity : 1,
       };
 
+      // The paint's own opacity applies on top of the bound color variable,
+      // so keep both, in the shape of a color alias with opacity
+      if (aliasVariable && colorWithOpacity.a < 1) {
+        return {
+          [keyNames.type]: 'color',
+          [keyNames.value]: {
+            components: aliasVariable,
+            alpha: normalizeOpacity(
+              new Decimal(colorWithOpacity.a)
+                .times(100)
+                .toDecimalPlaces(4)
+                .toNumber(),
+              usePercentageOpacity
+            ),
+          },
+        };
+      }
+
       return {
         [keyNames.type]: 'color',
         [keyNames.value]:
@@ -148,7 +170,10 @@ export const colorStylesToTokens = async (
     );
   }
 
-  colorTokens[customName] = groupObjectNamesIntoCategories(allColorStyles);
+  colorTokens[customName] = groupObjectNamesIntoCategories(
+    allColorStyles,
+    isDTCGFormat ? ROOT_TOKEN_KEY : undefined
+  );
 
   return colorTokens;
 };

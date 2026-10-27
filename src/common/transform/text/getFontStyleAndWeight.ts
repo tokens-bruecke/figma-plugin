@@ -33,13 +33,16 @@ export function getFontStyleAndWeight(fontStyle: string) {
   const weightParts = formattedStyleParts; // What's left after style removal
   const joinedWeight = weightParts.join(''); // Join remaining parts for compound weights
 
+  // The joined name goes first: in "Extra Bold" the single part "bold" would
+  // match 700 before "extrabold" reaches 800
   const resolvedWeight =
-    Object.keys(weights).find((weight) => {
-      return (
-        weights[weight].some((value) => weightParts.includes(value)) ||
-        weights[weight].includes(joinedWeight)
-      );
-    }) || 400;
+    Object.keys(weights).find((weight) =>
+      weights[weight].includes(joinedWeight)
+    ) ||
+    Object.keys(weights).find((weight) =>
+      weights[weight].some((value) => weightParts.includes(value))
+    ) ||
+    400;
 
   return {
     weight: Number(resolvedWeight),

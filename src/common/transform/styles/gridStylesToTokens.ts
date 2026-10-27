@@ -1,4 +1,5 @@
 import { groupObjectNamesIntoCategories } from '@common/transform/groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from '@common/transform/rootTokens';
 import { getTokenKeyName } from '@common/transform/getTokenKeyName';
 import { makeDimension } from '@common/transform/makeDimension';
 import { IResolver } from '@common/resolver';
@@ -16,35 +17,38 @@ export const gridStylesToTokens = async (
 
   let textTokens = {};
 
-  const gridStyleToToken = (style: GridStyle) => {
-    const firstTwoGrids = style.layoutGrids.slice(0, 2) as RowsColsLayoutGrid[];
+  const dimension = (value: number | undefined) =>
+    value === undefined ? undefined : makeDimension(value, isDTCGFormat);
 
-    const columnGrid = firstTwoGrids[0];
-    const rowGrid = firstTwoGrids[1];
+  // Figma writes an "Auto" count as Infinity, which JSON cannot hold
+  const count = (value: number | undefined) =>
+    Number.isFinite(value) ? value : undefined;
+
+  const gridStyleToToken = (style: GridStyle) => {
+    const grids = style.layoutGrids as LayoutGrid[];
+
+    // Grids are picked by their pattern, not their position: a style can
+    // have its rows first, or several grids of one kind. A square GRID only
+    // has a cell size, exported as the column width when there are no columns.
+    const columnGrid = (grids.find((grid) => grid.pattern === 'COLUMNS') ??
+      grids.find((grid) => grid.pattern === 'GRID')) as
+      | RowsColsLayoutGrid
+      | undefined;
+    const rowGrid = grids.find((grid) => grid.pattern === 'ROWS') as
+      | RowsColsLayoutGrid
+      | undefined;
 
     return {
       [keyNames.type]: 'grid',
       [keyNames.value]: {
-        columnCount: columnGrid?.count,
-        columnGap: columnGrid?.gutterSize
-          ? makeDimension(columnGrid.gutterSize, isDTCGFormat)
-          : undefined,
-        columnWidth: columnGrid?.sectionSize
-          ? makeDimension(columnGrid.sectionSize, isDTCGFormat)
-          : undefined,
-        columnMargin: columnGrid?.offset
-          ? makeDimension(columnGrid.offset, isDTCGFormat)
-          : undefined,
-        rowCount: rowGrid?.count,
-        rowGap: rowGrid?.gutterSize
-          ? makeDimension(rowGrid.gutterSize, isDTCGFormat)
-          : undefined,
-        rowHeight: rowGrid?.sectionSize
-          ? makeDimension(rowGrid.sectionSize, isDTCGFormat)
-          : undefined,
-        rowMargin: rowGrid?.offset
-          ? makeDimension(rowGrid.offset, isDTCGFormat)
-          : undefined,
+        columnCount: count(columnGrid?.count),
+        columnGap: dimension(columnGrid?.gutterSize),
+        columnWidth: dimension(columnGrid?.sectionSize),
+        columnMargin: dimension(columnGrid?.offset),
+        rowCount: count(rowGrid?.count),
+        rowGap: dimension(rowGrid?.gutterSize),
+        rowHeight: dimension(rowGrid?.sectionSize),
+        rowMargin: dimension(rowGrid?.offset),
       },
     } as unknown as GridTokenI;
   };
@@ -61,7 +65,10 @@ export const gridStylesToTokens = async (
 
   // console.log("allTextStyles", allTextStyles);
 
-  textTokens[customName] = groupObjectNamesIntoCategories(allGridStyles);
+  textTokens[customName] = groupObjectNamesIntoCategories(
+    allGridStyles,
+    isDTCGFormat ? ROOT_TOKEN_KEY : undefined
+  );
 
   return textTokens;
 };

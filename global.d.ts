@@ -104,12 +104,26 @@ type ProfileId = string;
 type SettingsProfileI = JSONSettingsConfigI & {
   profileName: string;
   updatedAt: number;
+  /** Id of the profile shared in the file that this local profile follows */
+  sharedId?: string;
+  /** `updatedAt` of that shared profile when it was last applied here */
+  sharedUpdatedAt?: number;
 };
 
 type MultiTenantConfigI = {
   activeProfileId: ProfileId;
   profiles: Record<ProfileId, SettingsProfileI>;
 };
+
+/** Profiles shared through the file (`figma.root` pluginData), without credentials */
+type SharedProfilesI = Record<string, SettingsProfileI>;
+
+/** Where the plugin runs. Dev Mode is read-only and shows the UI in the Inspect panel */
+interface PluginEnvironmentI {
+  editorType: 'figma' | 'figjam' | 'dev' | 'slides' | 'buzz';
+  mode: string;
+  isVSCode: boolean;
+}
 
 interface PluginTokenI {
   $value: string;
@@ -122,6 +136,9 @@ interface PluginTokenI {
     // variable. Older exports also used it for string, boolean and
     // percentage-opacity tokens; the import still reads those.
     figmaType?: VariableResolvedDataType;
+    // The scopes of an opacity variable when `includeScopes` is off, so the
+    // import can tell it from a plain number
+    figmaScopes?: VariableScope[];
     figma?: {
       variableId: string;
       codeSyntax: {
@@ -167,6 +184,8 @@ interface MetaPropsI {
   spec?: string;
   colorMode: colorModeType;
   variableCollections: string[] | undefined;
+  // The mode of a split-by-mode file, so the import writes to that mode
+  mode?: string;
   createdAt?: string;
 }
 

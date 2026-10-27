@@ -7,6 +7,8 @@ import {
   toComposedColorObject,
 } from './color/composeColor';
 import { isOpacityScope } from './opacityScopes';
+import { ROOT_TOKEN_KEY } from './rootTokens';
+import { toTokenName } from './tokenName';
 import { parseDurationToSeconds, parseEasing } from './motion';
 
 interface ImportResult {
@@ -155,19 +157,23 @@ export const getDefaultScopes = (
 };
 
 /**
- * Parses a token to extract scopes (standard format only: `scopes` key).
+ * Parses a token to extract scopes: the `scopes` key (`includeScopes`), or
+ * the `$extensions.figmaScopes` marker that opacity tokens always carry.
  */
 export const getTokenScopes = (token: any): string[] | undefined => {
   if (token.scopes !== undefined && Array.isArray(token.scopes)) {
     return token.scopes;
   }
+  if (Array.isArray(token.$extensions?.figmaScopes)) {
+    return token.$extensions.figmaScopes;
+  }
   return undefined;
 };
 
 /**
- * Tokens exported without scopes (the default) can't be told apart from
- * plain numbers. When they update an existing opacity variable, its scopes
- * decide, so 0.5 is written as 50 and not as 0.5.
+ * Tokens exported without any scopes (older exports, or other tools) can't
+ * be told apart from plain numbers. When they update an existing opacity
+ * variable, its scopes decide, so 0.5 is written as 50 and not as 0.5.
  */
 export const resolveTypeForExistingVariable = (
   tokenType: string | null,
@@ -251,9 +257,15 @@ const rgbaToRgb = (
 const isReference = (value: any): value is string =>
   typeof value === 'string' && value.startsWith('{') && value.endsWith('}');
 
-/** The `collection.group.name` inside `{…}`, without a `.value` suffix. */
+/**
+ * The `collection.group.name` inside `{…}`, without a `.value` suffix and
+ * without the `.$root` of a group's own token.
+ */
 const referenceBody = (reference: string): string =>
-  reference.slice(1, -1).replace(/\.\$?value$/, '');
+  reference
+    .slice(1, -1)
+    .replace(/\.\$?value$/, '')
+    .replace(/\.\$root$/, '');
 
 /**
  * Turns a `{collection.group.name}` reference into the `collection/group/name`
@@ -419,9 +431,17 @@ export const convertTokenValueToFigmaValue = (
         }
         // DTCG 2025.10 color object: { colorSpace, components, alpha, hex }
         if ('colorSpace' in value) {
-          // Prefer the hex fallback (always emitted by the plugin's DTCG export)
+          // Prefer the hex fallback (always emitted by the plugin's DTCG export).
+          // DTCG keeps it at 6 digits and the opacity in `alpha`; older
+          // exports of this plugin wrote 8 digits instead
           if (typeof value.hex === 'string') {
-            return hexToRgb(value.hex);
+            const rgba = hexToRgb(value.hex);
+            const hasHexAlpha = [4, 8].includes(
+              value.hex.replace(/^#/, '').length
+            );
+            return !hasHexAlpha && typeof value.alpha === 'number'
+              ? { ...rgba, a: value.alpha }
+              : rgba;
           }
           // Otherwise use sRGB components directly (already 0-1)
           if (value.colorSpace === 'srgb' && Array.isArray(value.components)) {
@@ -534,40 +554,130 @@ export const mapTokenTypeToFigmaType = (
   return typeMap[tokenType] || 'STRING';
 };
 
+const legacyTokenKeys = [
+  'value',
+  'type',
+  'description',
+  'scopes',
+  'extensions',
+];
+
+/**
+ * A DTCG token can leave out `$type` and take it from the closest group
+ * (format §6.4: type inheritance), so the token is copied with that type.
+ */
+const withInheritedType = (token: any, inheritedType: string | undefined) =>
+  inheritedType &&
+  token &&
+  typeof token === 'object' &&
+  token.$value !== undefined &&
+  token.$type === undefined &&
+  token.type === undefined
+    ? { ...token, $type: inheritedType }
+    : token;
+
 /**
  * Extracts all tokens from a nested object structure
  */
 const extractTokens = (
   obj: any,
   path: string[] = [],
-  collectionName: string
+  collectionName: string,
+  inheritedType?: string
 ): Array<{ path: string; token: any; collectionName: string }> => {
   const tokens: Array<{ path: string; token: any; collectionName: string }> =
     [];
 
+  // In the legacy format these keys belong to a token. In a group they are
+  // ordinary names, e.g. the variable "type/body/size", or a token named
+  // "value"
+  const isTokenLike =
+    obj.$value !== undefined ||
+    (obj.value !== undefined && !isToken(obj.value));
+  const groupType =
+    !isTokenLike && typeof obj.$type === 'string' ? obj.$type : inheritedType;
+
   for (const key in obj) {
-    if (
-      key.startsWith('$') ||
-      key === 'value' ||
-      key === 'type' ||
-      key === 'description' ||
-      key === 'scopes'
-    ) {
+    // DTCG 2025.10: the token of the group itself, i.e. the variable named
+    // like the group ("border/brand" next to "border/brand/subtle")
+    if (key === ROOT_TOKEN_KEY && path.length > 0) {
+      const rootToken = withInheritedType(obj[key], groupType);
+      if (isToken(rootToken) || rootToken?.$value !== undefined) {
+        tokens.push({ path: path.join('/'), token: rootToken, collectionName });
+      }
+      continue;
+    }
+
+    if (key.startsWith('$') || (isTokenLike && legacyTokenKeys.includes(key))) {
       continue; // Skip metadata keys
     }
 
-    const value = obj[key];
+    const value = withInheritedType(obj[key], groupType);
 
-    if (isToken(value)) {
+    // A `$value` without any type is still listed, so the import reports it
+    // as "missing type" instead of dropping it silently
+    if (isToken(value) || value?.$value !== undefined) {
       const tokenPath = [...path, key].join('/');
       tokens.push({ path: tokenPath, token: value, collectionName });
+      // Older exports, and the legacy format, put such child tokens into
+      // the token object itself
+      tokens.push(
+        ...extractTokens(value, [...path, key], collectionName, groupType)
+      );
     } else if (typeof value === 'object' && value !== null) {
       // Recursively extract from nested objects
-      tokens.push(...extractTokens(value, [...path, key], collectionName));
+      tokens.push(
+        ...extractTokens(value, [...path, key], collectionName, groupType)
+      );
     }
   }
 
   return tokens;
+};
+
+/**
+ * The type of the token a reference points at, for an alias token without
+ * `$type`: its own type, the type it inherits from its groups, or the type
+ * of the token it aliases in turn.
+ */
+const getReferencedTokenType = (
+  tokensData: any,
+  reference: string,
+  depth = 0
+): string | null => {
+  if (depth > 10) {
+    return null;
+  }
+
+  let node = tokensData;
+  let inheritedType: string | undefined;
+  for (const segment of referenceBody(reference).split('.')) {
+    if (!node || typeof node !== 'object') {
+      return null;
+    }
+    if (typeof node.$type === 'string' && node.$value === undefined) {
+      inheritedType = node.$type;
+    }
+    node = node[segment];
+  }
+
+  const token =
+    node && node.$value === undefined && node[ROOT_TOKEN_KEY]
+      ? node[ROOT_TOKEN_KEY]
+      : node;
+  if (!token || typeof token !== 'object') {
+    return null;
+  }
+
+  const type = getTokenType(withInheritedType(token, inheritedType));
+  if (type) {
+    return type;
+  }
+
+  const value = getTokenValue(token);
+  return isReference(value)
+    ? getReferencedTokenType(tokensData, value, depth + 1)
+    : null;
 };
 
 /**
@@ -672,11 +782,52 @@ export const tokensToVariables = async (
         (c) => c.id === variable.variableCollectionId
       );
       if (collection) {
-        // Use slash separator to match the path format
-        const fullPath = `${collection.name}/${variable.name}`;
-        variableMap.set(fullPath, variable);
+        // Use slash separator to match the path format. The export writes
+        // the collection under its token name ("1. Primitives" becomes
+        // "1- Primitives"), so the variable is found under both
+        variableMap.set(`${collection.name}/${variable.name}`, variable);
+        variableMap.set(
+          `${toTokenName(collection.name)}/${variable.name}`,
+          variable
+        );
       }
     });
+
+    // An extended collection lists the variables it inherits, which belong
+    // to its root collection. Its tokens update those variables, with the
+    // values written as overrides for the extension's modes
+    existingCollections
+      .filter((collection) => (collection as any).isExtension)
+      .forEach((extension) => {
+        extension.variableIds?.forEach((variableId) => {
+          const variable = existingVariables.find((v) => v.id === variableId);
+          if (variable) {
+            variableMap.set(`${extension.name}/${variable.name}`, variable);
+            variableMap.set(
+              `${toTokenName(extension.name)}/${variable.name}`,
+              variable
+            );
+          }
+        });
+      });
+
+    // The meta sits at the root of a file, or inside the collection group
+    // in the files of a split export
+    const metaOf = (collectionData: any) =>
+      collectionData?.$extensions?.['tokens-bruecke-meta'] ??
+      tokensData?.$extensions?.['tokens-bruecke-meta'];
+
+    // The Figma name of a collection whose token name differs
+    const toFigmaCollectionName = (tokenName: string, meta: any): string =>
+      (Array.isArray(meta?.variableCollections)
+        ? meta.variableCollections
+        : []
+      ).find(
+        (name) =>
+          typeof name === 'string' &&
+          name !== tokenName &&
+          toTokenName(name) === tokenName
+      ) ?? tokenName;
 
     // Remove metadata if present
     const cleanedData = { ...tokensData };
@@ -706,17 +857,25 @@ export const tokensToVariables = async (
     // Process each collection
     for (const [collectionName, collectionData] of collections) {
       try {
+        const meta = metaOf(collectionData);
+        const figmaCollectionName = toFigmaCollectionName(collectionName, meta);
+        // A file of a split-by-mode export holds the values of this one mode
+        const fileModeName: string | undefined =
+          typeof meta?.mode === 'string' && meta.mode ? meta.mode : undefined;
+        let isNewCollection = false;
+
         // Check if collection already exists
-        let collection = existingCollections.find(
-          (c) => c.name === collectionName
-        );
+        let collection =
+          existingCollections.find((c) => c.name === figmaCollectionName) ??
+          existingCollections.find((c) => c.name === collectionName);
 
         // Create collection if it doesn't exist (only possible in plugin context)
         if (!collection && typeof figma !== 'undefined') {
           try {
             collection =
-              figma.variables.createVariableCollection(collectionName);
+              figma.variables.createVariableCollection(figmaCollectionName);
             result.collectionsCreated++;
+            isNewCollection = true;
           } catch (error) {
             result.errors.push(
               `Failed to create collection "${collectionName}": ${error.message}`
@@ -731,7 +890,18 @@ export const tokensToVariables = async (
         }
 
         // Extract all tokens from this collection
-        const tokens = extractTokens(collectionData, [], collectionName);
+        const tokens = extractTokens(collectionData, [], collectionName).map(
+          (entry) => {
+            const value = getTokenValue(entry.token);
+            if (getTokenType(entry.token) || !isReference(value)) {
+              return entry;
+            }
+            const referencedType = getReferencedTokenType(cleanedData, value);
+            return referencedType
+              ? { ...entry, token: { ...entry.token, $type: referencedType } }
+              : entry;
+          }
+        );
 
         // Process tokens and check for modes
         const modesData = new Map<string, Map<string, any>>();
@@ -754,8 +924,30 @@ export const tokensToVariables = async (
           }
         });
 
+        // An extended collection inherits its modes: they can't be renamed
+        // or added, so the tokens have to use the existing mode names
+        const isExtension = (collection as any).isExtension === true;
+        const missingModes = [
+          ...Array.from(modesData.keys()),
+          ...(fileModeName ? [fileModeName] : []),
+        ].filter((name) => !collection.modes.some((m) => m.name === name));
+        if (isExtension && missingModes.length > 0) {
+          result.errors.push(
+            `Extended collection "${collectionName}" has no mode ${missingModes
+              .map((name) => `"${name}"`)
+              .join(
+                ', '
+              )}: its values were skipped. Extended collections inherit their modes from their parent.`
+          );
+        }
+
         // Create modes if they don't exist (only in plugin context)
-        if (modesData.size > 0 && typeof figma !== 'undefined' && collection) {
+        if (
+          modesData.size > 0 &&
+          !isExtension &&
+          typeof figma !== 'undefined' &&
+          collection
+        ) {
           const modeNames = Array.from(modesData.keys());
 
           // Check if the first mode needs to be renamed
@@ -797,6 +989,39 @@ export const tokensToVariables = async (
             await figma.variables.getVariableCollectionByIdAsync(collection.id);
           if (updatedCollection) {
             collection = updatedCollection;
+          }
+        }
+
+        // A split-by-mode file has no mode map: its values belong to the
+        // mode named in the meta, not to the default mode
+        let valueModeId: string | undefined;
+        if (
+          fileModeName &&
+          modesData.size === 0 &&
+          !(isExtension && missingModes.length > 0) &&
+          typeof figma !== 'undefined' &&
+          collection
+        ) {
+          try {
+            if (!collection.modes.some((m) => m.name === fileModeName)) {
+              if (isNewCollection) {
+                collection.renameMode(collection.modes[0].modeId, fileModeName);
+              } else {
+                collection.addMode(fileModeName);
+              }
+              collection =
+                (await figma.variables.getVariableCollectionByIdAsync(
+                  collection.id
+                )) ?? collection;
+            }
+            valueModeId = collection.modes.find(
+              (m) => m.name === fileModeName
+            )?.modeId;
+          } catch (error) {
+            result.errors.push(
+              `Failed to create mode "${fileModeName}" in collection "${collectionName}": ${error.message}`
+            );
+            continue;
           }
         }
 
@@ -848,6 +1073,13 @@ export const tokensToVariables = async (
               continue;
             }
 
+            if (!variable && isExtension) {
+              result.errors.push(
+                `Variable "${path}" is not in the extended collection "${collectionName}": skipped. Add it to the root collection.`
+              );
+              continue;
+            }
+
             if (!variable && typeof figma !== 'undefined' && collection) {
               // Create new variable - pass collection object, not ID
               variable = figma.variables.createVariable(
@@ -867,7 +1099,9 @@ export const tokensToVariables = async (
               tokenScopes = getDefaultScopes(tokenType);
             }
 
-            if (variable) {
+            // The description and scopes of an inherited variable belong to
+            // its root collection
+            if (variable && !isExtension) {
               if (tokenDescription) {
                 variable.description = tokenDescription;
               }
@@ -921,7 +1155,9 @@ export const tokensToVariables = async (
             if (typeof figma !== 'undefined') {
               // `$value` is the value of the default mode
               const defaultModeId =
-                collection!.defaultModeId ?? collection!.modes[0].modeId;
+                valueModeId ??
+                collection!.defaultModeId ??
+                collection!.modes[0].modeId;
               const figmaValue = convertTokenValueToFigmaValue(
                 tokenValue,
                 tokenType,

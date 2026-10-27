@@ -1,4 +1,5 @@
 import { getTokenKeyName } from './getTokenKeyName';
+import { toTokenName } from './tokenName';
 import { IResolver } from '@common/resolver';
 import { warn } from '@common/warn';
 
@@ -31,7 +32,7 @@ export const getAliasVariableName = async (
   }
 
   const variableName = variableObj.name;
-  const collectionName = collectionObj.name;
+  const collectionName = toTokenName(collectionObj.name);
 
   const valueKey = getTokenKeyName(isDTCGFormat).value;
   const isValueKeyIncluded = includeValueStringKeyToAlias ? `.${valueKey}` : '';

@@ -14,6 +14,7 @@ export const stylesToTokens = async (
     useDTCG,
     includeValueStringKeyToAlias,
     omitCollectionNames = false,
+    usePercentageOpacity = false,
   } = props;
   let styleTokens: object[] = [];
 
@@ -67,7 +68,8 @@ export const stylesToTokens = async (
       useDTCG,
       includeValueStringKeyToAlias,
       resolver,
-      omitCollectionNames
+      omitCollectionNames,
+      usePercentageOpacity
     );
 
     styleTokens.push(colorTokens);

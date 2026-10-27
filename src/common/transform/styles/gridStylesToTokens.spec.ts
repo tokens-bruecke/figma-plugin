@@ -19,7 +19,7 @@ describe('gridStylesToTokens', () => {
     expect(value).toEqual({ columnWidth: { value: 8, unit: 'px' } });
   });
 
-  it('exports the columns and rows of the first two grids', async () => {
+  it('exports the columns and the rows, keeping sizes of 0', async () => {
     const value = await exportGrid([
       {
         pattern: 'COLUMNS',
@@ -45,6 +45,53 @@ describe('gridStylesToTokens', () => {
       rowCount: 4,
       rowGap: { value: 8, unit: 'px' },
       rowHeight: { value: 40, unit: 'px' },
+      rowMargin: { value: 0, unit: 'px' },
+    });
+  });
+
+  it('picks the grids by pattern, not by position', async () => {
+    const value = await exportGrid([
+      {
+        pattern: 'ROWS',
+        alignment: 'STRETCH',
+        gutterSize: 8,
+        count: 4,
+        offset: 0,
+      },
+      { pattern: 'GRID', sectionSize: 10 },
+      {
+        pattern: 'COLUMNS',
+        alignment: 'STRETCH',
+        gutterSize: 16,
+        count: 12,
+        offset: 24,
+      },
+    ]);
+
+    expect(value).toEqual({
+      columnCount: 12,
+      columnGap: { value: 16, unit: 'px' },
+      columnMargin: { value: 24, unit: 'px' },
+      rowCount: 4,
+      rowGap: { value: 8, unit: 'px' },
+      rowMargin: { value: 0, unit: 'px' },
+    });
+  });
+
+  it('leaves out an "Auto" count, which Figma writes as Infinity', async () => {
+    const value = await exportGrid([
+      {
+        pattern: 'COLUMNS',
+        alignment: 'CENTER',
+        gutterSize: 0,
+        sectionSize: 80,
+        count: Infinity,
+      },
+    ]);
+
+    expect(value).toEqual({
+      columnGap: { value: 0, unit: 'px' },
+      columnWidth: { value: 80, unit: 'px' },
     });
   });
 });

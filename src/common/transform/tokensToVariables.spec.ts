@@ -113,6 +113,37 @@ describe('convertTokenValueToFigmaValue', () => {
       expect(result.a).toBeCloseTo(0.5, 2);
     });
 
+    test('takes the alpha of a 6-digit hex fallback from alpha', () => {
+      const value = {
+        colorSpace: 'srgb',
+        components: [1, 0, 0],
+        alpha: 0.5,
+        hex: '#ff0000',
+      };
+      expect(convertTokenValueToFigmaValue(value, 'color', emptyMap)).toEqual({
+        r: 1,
+        g: 0,
+        b: 0,
+        a: 0.5,
+      });
+    });
+
+    test.each(['srgb-dtcg', 'hsl-dtcg', 'oklch-dtcg'] as const)(
+      'round-trips a translucent color through %s with a 6-digit hex',
+      (colorMode) => {
+        const exported = convertRGBA(
+          { r: 1, g: 0, b: 0, a: 0.5 },
+          colorMode
+        ) as any;
+
+        expect(exported.hex).toBe('#ff0000');
+        expect(exported.alpha).toBe(0.5);
+        expect(
+          convertTokenValueToFigmaValue(exported, 'color', emptyMap)
+        ).toEqual({ r: 1, g: 0, b: 0, a: 0.5 });
+      }
+    );
+
     test('converts oklch color object via hex fallback', () => {
       const value = {
         colorSpace: 'oklch',
@@ -251,7 +282,9 @@ describe('convertTokenValueToFigmaValue', () => {
     });
 
     test('turns an empty fallback list into an empty name', () => {
-      expect(convertTokenValueToFigmaValue([], 'fontFamily', emptyMap)).toBe('');
+      expect(convertTokenValueToFigmaValue([], 'fontFamily', emptyMap)).toBe(
+        ''
+      );
     });
   });
 

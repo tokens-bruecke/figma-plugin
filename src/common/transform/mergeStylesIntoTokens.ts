@@ -1,5 +1,6 @@
 import { IResolver } from '@common/resolver';
 import { warn } from '@common/warn';
+import { toTokenName } from './tokenName';
 
 export const mergeStylesIntoTokens = (
   variableTokens: any,
@@ -10,7 +11,7 @@ export const mergeStylesIntoTokens = (
   let target = variableTokens;
 
   if (storeStyleInCollection && storeStyleInCollection !== 'none') {
-    const collection = variableTokens[storeStyleInCollection];
+    const collection = variableTokens[toTokenName(storeStyleInCollection)];
 
     // The setting outlives the file it was picked in, and there are no
     // collection groups with omitCollectionNames, so the collection may be
