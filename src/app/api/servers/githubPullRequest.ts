@@ -27,19 +27,14 @@ export const githubPullRequest = async (
 
   async function create() {
     try {
-      console.log('start creating pull request');
-
       if (files.length === 0) {
         throw new Error('There are no tokens to push');
       }
 
       const commit = await createCommit();
-      console.log('commit created');
       await createOrUpdateBranch(commit);
-      console.log('branch created or updated');
 
       const { url, created } = await createPullRequest();
-      console.log(created ? 'pull request created' : 'pull request updated');
       toastCallback({
         title: created
           ? 'Github: Pull Request created'
@@ -54,7 +49,7 @@ export const githubPullRequest = async (
         },
       });
     } catch (error) {
-      console.log('error creating pull request', error);
+      console.error('Error creating pull request:', error);
       toastCallback({
         title: 'Github: Error creating pull request',
         message: `Error creating pull request: ${error.message}.`,
@@ -75,9 +70,7 @@ export const githubPullRequest = async (
 
   async function createCommit() {
     const baseBranch = await getBaseBranch();
-    console.log('base branch fetched');
     const tree = await createTree(baseBranch);
-    console.log('tree created');
 
     return octokit.request('POST /repos/{owner}/{repo}/git/commits', {
       owner,
@@ -104,11 +97,9 @@ export const githubPullRequest = async (
   }
 
   async function createOrUpdateBranch(commit: Commit) {
-    if (await isBrunchExist(branch)) {
-      console.log('update the branch');
+    if (await branchExists(branch)) {
       await updateBranch(commit);
     } else {
-      console.log('create a branch');
       await createBranch(commit);
     }
   }
@@ -138,7 +129,6 @@ export const githubPullRequest = async (
   }> {
     const existing = await findExistingPullRequest(branch);
     if (existing) {
-      console.log('pull request already exist');
       return { url: existing.html_url, created: false };
     }
 
@@ -154,7 +144,7 @@ export const githubPullRequest = async (
     return { url: response.data.html_url, created: true };
   }
 
-  async function isBrunchExist(branch: string) {
+  async function branchExists(branch: string) {
     try {
       await octokit.request('GET /repos/{owner}/{repo}/git/refs/{ref}', {
         owner,

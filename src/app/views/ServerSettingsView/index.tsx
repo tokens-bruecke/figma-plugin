@@ -256,7 +256,7 @@ const viewsConfig = {
       },
       {
         id: 'owner',
-        placeholder: 'Owner',
+        placeholder: 'Owner: user or group, e.g. group/subgroup',
         type: 'input',
         value: '',
         required: true,
@@ -439,7 +439,6 @@ export const ServerSettingsView = (props: ViewProps) => {
             onClick={() => {
               // check if all fields are filled
               if (!isFormValid) {
-                console.log('not valid');
                 setErrorFields(
                   // add to array only fields that are empty
                   viewsConfig[props.server].fields.reduce((acc, field) => {

@@ -2,6 +2,7 @@ import {
   splitTokensIntoFiles,
   SplitOptionsI,
 } from '../../../common/transform/splitTokensIntoFiles';
+import { getGitlabProjectId, normalizeGitlabHost } from './gitlabProject';
 
 export const pushToGitlab = async (
   credentials: GitlabCredentialsI,
@@ -10,10 +11,8 @@ export const pushToGitlab = async (
   splitOptions: SplitOptionsI = {}
 ) => {
   const glToken = credentials.token;
-  const glUser = credentials.owner;
-  const glRepo = credentials.repo;
   const branch = credentials.branch;
-  const glHost = credentials.host || 'gitlab.com';
+  const glHost = normalizeGitlabHost(credentials.host);
   const commitMessage = credentials.commitMessage || 'Update tokens';
   const files = splitTokensIntoFiles(
     tokens,
@@ -21,7 +20,7 @@ export const pushToGitlab = async (
     credentials.fileName
   );
 
-  const projectId = `${glUser}%2F${glRepo}`;
+  const projectId = getGitlabProjectId(credentials.owner, credentials.repo);
   const baseUrl = `https://${glHost}/api/v4/projects/${projectId}`;
   const headers = {
     'Content-Type': 'application/json',
@@ -130,7 +129,6 @@ export const pushToGitlab = async (
       return;
     }
 
-    console.log('Gitlab response', data);
     toastCallback({
       title: 'Gitlab: Updated successfully',
       message:

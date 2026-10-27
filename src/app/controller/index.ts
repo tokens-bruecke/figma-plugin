@@ -1,16 +1,11 @@
 import { checkForVariables } from './checkForVariables';
 import { getStorageConfig } from './getStorageConfig';
 
-// import { removeDollarSign } from "../utils/removeDollarSign";
-
 import { config } from './config';
 import { getTokens } from '@common/export';
 import { tokensToVariables } from '@common/transform/tokensToVariables';
 import { PluginAPIResolver } from '@app/api/pluginApiResolver';
-import {
-  sanitizeMultiTenantConfig,
-  updateActiveProfile,
-} from './storageConfig';
+import { sanitizeMultiTenantConfig } from './storageConfig';
 
 // clear console on reload
 console.clear();
@@ -69,35 +64,32 @@ figma.ui.onmessage = async (msg) => {
     );
   }
 
-  if (msg.type === 'activeProfileConfig') {
-    if (!multiTenantConfig) {
-      return;
-    }
-
-    multiTenantConfig = updateActiveProfile(multiTenantConfig, msg.config);
-    JSONSettingsConfig =
-      multiTenantConfig.profiles[multiTenantConfig.activeProfileId];
-
-    await figma.clientStorage.setAsync(
-      pluginConfigKey,
-      JSON.stringify(multiTenantConfig)
-    );
-  }
-
   // generate tokens and send them to the UI
   if (msg.type === 'getTokens') {
-    await getTokens(
-      new PluginAPIResolver(),
-      JSONSettingsConfig,
-      JSONSettingsConfig
-    ).then((tokens) => {
+    try {
+      const tokens = await getTokens(
+        new PluginAPIResolver(),
+        JSONSettingsConfig
+      );
+
       figma.ui.postMessage({
         type: 'setTokens',
         tokens: tokens,
         role: msg.role,
         server: msg.server,
       } as TokensMessageI);
-    });
+    } catch (error) {
+      // Without a reply the UI would wait forever (download, preview, push)
+      console.error('Export error:', error);
+
+      figma.ui.postMessage({
+        type: 'tokensError',
+        tokens: null,
+        role: msg.role,
+        server: msg.server ?? [],
+        message: error?.message ?? String(error),
+      } as TokensMessageI);
+    }
   }
 
   // import tokens and create variables

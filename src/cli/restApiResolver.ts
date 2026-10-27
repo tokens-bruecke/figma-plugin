@@ -171,6 +171,7 @@ export class RestAPIResolver implements IResolver {
   private variableCollections: Record<string, VariableCollection>;
   private styles: { nodeId: string; styleType: string }[];
   private log: LogFn;
+  warn?: (message: string) => void;
 
   private fetchLocalVariablesPromise: Promise<void> | null = null;
   private fetchFileStylesPromise: Promise<void> | null = null;
@@ -179,9 +180,11 @@ export class RestAPIResolver implements IResolver {
     fileKey: string,
     personalAccessToken?: string,
     oAuthToken?: string,
-    log: LogFn = defaultLog
+    log: LogFn = defaultLog,
+    warn?: (message: string) => void
   ) {
     this.log = log;
+    this.warn = warn;
     this.fileKey = fileKey;
     if (oAuthToken) {
       this.api = new Api({ oAuthToken });

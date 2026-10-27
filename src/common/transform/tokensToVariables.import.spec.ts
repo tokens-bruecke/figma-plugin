@@ -479,3 +479,148 @@ describe('tokensToVariables with composed colors', () => {
     expect(valueOf('opacity/0')).toBe(0);
   });
 });
+
+describe('tokensToVariables references and existing variables', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const byName = (name: string) => fake._variables.find((v) => v.name === name);
+  const defaultValueOf = (name: string) => {
+    const variable = byName(name);
+    const collection = fake._collections.find(
+      (c) => c.id === variable.variableCollectionId
+    );
+    return variable.valuesByMode[collection.defaultModeId];
+  };
+
+  // Resolver over whatever the fake Figma file holds
+  const fileResolver = {
+    getLocalVariableCollections: async () => fake._collections,
+    getLocalVariables: async () => fake._variables,
+  } as unknown as IResolver;
+
+  test('resolves a reference to a variable with a dot in its name', async () => {
+    const result = await tokensToVariables(
+      {
+        Core: {
+          spacing: {
+            '1.5': { $type: 'dimension', $value: { value: 6, unit: 'px' } },
+          },
+          gap: { $type: 'dimension', $value: '{Core.spacing.1.5}' },
+        },
+      },
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(defaultValueOf('gap')).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('spacing/1.5').id,
+    });
+  });
+
+  test('skips a token whose type does not fit the existing variable', async () => {
+    const collection = fake.variables.createVariableCollection('Core');
+    fake.variables.createVariable('size', collection, 'COLOR');
+
+    const result = await tokensToVariables(
+      {
+        Core: {
+          size: { $type: 'dimension', $value: { value: 4, unit: 'px' } },
+          gap: { $type: 'dimension', $value: { value: 8, unit: 'px' } },
+        },
+      },
+      fileResolver
+    );
+
+    expect(result.errors).toEqual([
+      'Variable "size" is COLOR in Figma, but the token is FLOAT (dimension): skipped. Rename or delete the variable to import this token.',
+    ]);
+    expect(result.variablesUpdated).toBe(0);
+    expect(defaultValueOf('gap')).toBe(8);
+  });
+
+  test('writes a font weight alias into an existing number variable', async () => {
+    const collection = fake.variables.createVariableCollection('Core');
+    fake.variables.createVariable('weight/bold', collection, 'FLOAT');
+    fake.variables.createVariable('weight/heading', collection, 'FLOAT');
+
+    const result = await tokensToVariables(
+      {
+        Core: {
+          weight: {
+            bold: { $type: 'fontWeight', $value: 700 },
+            heading: { $type: 'fontWeight', $value: '{Core.weight.bold}' },
+          },
+        },
+      },
+      fileResolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(defaultValueOf('weight/heading')).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('weight/bold').id,
+    });
+  });
+});
+
+describe('tokensToVariables opacity', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const byName = (name: string) => fake._variables.find((v) => v.name === name);
+  const defaultValueOf = (name: string) => {
+    const variable = byName(name);
+    const collection = fake._collections.find(
+      (c) => c.id === variable.variableCollectionId
+    );
+    return variable.valuesByMode[collection.defaultModeId];
+  };
+
+  const fileResolver = {
+    getLocalVariableCollections: async () => fake._collections,
+    getLocalVariables: async () => fake._variables,
+  } as unknown as IResolver;
+
+  test.each([
+    ['a fraction', { $type: 'number', $value: 0.5 }],
+    ['a percentage', { $type: 'string', $value: '50%' }],
+  ])(
+    'writes %s without scopes into an existing opacity variable as percent',
+    async (_, token) => {
+      const collection = fake.variables.createVariableCollection('Core');
+      const variable = fake.variables.createVariable(
+        'opacity/half',
+        collection,
+        'FLOAT'
+      );
+      variable.scopes = ['OPACITY'];
+
+      const result = await tokensToVariables(
+        { Core: { opacity: { half: token } } },
+        fileResolver
+      );
+
+      expect(result.errors).toEqual([]);
+      expect(result.variablesUpdated).toBe(1);
+      expect(defaultValueOf('opacity/half')).toBe(50);
+    }
+  );
+});

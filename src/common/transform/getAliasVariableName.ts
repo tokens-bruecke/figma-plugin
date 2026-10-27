@@ -1,5 +1,6 @@
 import { getTokenKeyName } from './getTokenKeyName';
 import { IResolver } from '@common/resolver';
+import { warn } from '@common/warn';
 
 export const getAliasVariableName = async (
   variableId: string,
@@ -12,13 +13,22 @@ export const getAliasVariableName = async (
     variableId
   )) as Variable | null;
   if (!variableObj) {
-    // stderr, so CLI --stdout output stays pipeable
-    console.warn('cannot find variable', variableId);
+    warn(
+      resolver,
+      `[tokens-bruecke] Cannot find variable ${variableId}, so its alias is exported as "#missing#" (is it a library variable?)`
+    );
     return '#missing#';
   }
   const collectionObj = (await resolver.getVariableCollectionById(
     variableObj.variableCollectionId
   )) as VariableCollection | null;
+  if (!collectionObj) {
+    warn(
+      resolver,
+      `[tokens-bruecke] Cannot find the collection of variable "${variableObj.name}", so its alias is exported as "#missing#" (is the collection hidden from publishing, or in a library?)`
+    );
+    return '#missing#';
+  }
 
   const variableName = variableObj.name;
   const collectionName = collectionObj.name;

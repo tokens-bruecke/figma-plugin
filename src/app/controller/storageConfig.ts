@@ -17,7 +17,6 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
       customName: 'Color-styles',
     },
   },
-  variableCollections: [],
   storeStyleInCollection: 'none',
   colorMode: 'hex',
   includeScopes: false,
@@ -77,7 +76,11 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
 const sanitizeProfileConfig = (
   config: Partial<JSONSettingsConfigI>
 ): JSONSettingsConfigI => {
-  const safeConfig = (config || {}) as Partial<JSONSettingsConfigI>;
+  // Up to v3.20 the profile also held the file's collection names. They
+  // belong to the open file, not the profile: a stored list from an earlier
+  // run could overwrite the current one, leaving "Add styles to" empty
+  const { variableCollections: _legacyCollections, ...safeConfig } = (config ||
+    {}) as Partial<JSONSettingsConfigI> & { variableCollections?: string[] };
   const defaults = createDefaultJSONSettingsConfig();
 
   return {
@@ -92,7 +95,6 @@ const sanitizeProfileConfig = (
       safeConfig.useDTCG ??
       (safeConfig as { useDTCGKeys?: boolean }).useDTCGKeys ??
       defaults.useDTCG,
-    variableCollections: safeConfig.variableCollections || [],
     splitByCollection: safeConfig.splitByCollection ?? false,
     splitByMode: safeConfig.splitByMode ?? false,
     omitCollectionNames: safeConfig.omitCollectionNames ?? false,
@@ -205,29 +207,6 @@ export const parseStoredConfig = (rawValue: unknown): MultiTenantConfigI => {
   } catch {
     return createDefaultConfig();
   }
-};
-
-export const updateActiveProfile = (
-  config: MultiTenantConfigI,
-  profile: Partial<JSONSettingsConfigI>
-): MultiTenantConfigI => {
-  const activeProfileId = config.activeProfileId;
-  const currentProfile =
-    config.profiles[activeProfileId] || createProfile('Default profile', {});
-
-  return {
-    ...config,
-    profiles: {
-      ...config.profiles,
-      [activeProfileId]: {
-        ...createProfile(currentProfile.profileName, {
-          ...currentProfile,
-          ...profile,
-        }),
-        profileName: currentProfile.profileName,
-      },
-    },
-  };
 };
 
 export const createProfileFromConfig = (

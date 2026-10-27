@@ -15,6 +15,7 @@ import type {
   TokenTree,
   TokensSnapshot,
   TokensBrueckeErrorCode,
+  WarningOptions,
 } from '../../api';
 
 export type {
@@ -26,6 +27,7 @@ export type {
   TokenTree,
   TokensBrueckeErrorCode,
   TokensSnapshot,
+  WarningOptions,
 } from '../../api';
 
 // `ExportOptions` is written by hand in api.d.ts. Fails to compile when a field
@@ -65,6 +67,9 @@ export class TokensBrueckeError extends Error {
 }
 
 const messageOf = (error: any): string => error?.message ?? String(error);
+
+// The API prints nothing: warnings only reach callers that ask for them
+const ignoreWarning = () => {};
 
 const isPlainObject = (value: unknown): value is Record<string, any> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -118,6 +123,7 @@ export async function fetchTokens({
   personalAccessToken,
   oauthToken,
   options = {},
+  onWarning = ignoreWarning,
 }: FetchTokensParams): Promise<TokenTree> {
   if (!fileKey) {
     throw new TokensBrueckeError('INVALID_ARGUMENT', 'fileKey is required');
@@ -133,7 +139,8 @@ export async function fetchTokens({
     fileKey,
     personalAccessToken,
     oauthToken,
-    silentLog
+    silentLog,
+    onWarning
   );
 
   try {
@@ -150,7 +157,8 @@ export async function fetchTokens({
 
 export async function convertTokens(
   input: TokensSnapshot | LocalVariablesResponse,
-  options: ExportOptions = {}
+  options: ExportOptions = {},
+  { onWarning = ignoreWarning }: WarningOptions = {}
 ): Promise<TokenTree> {
   const settings = resolveExportOptions(options, {});
   const isRestResponse = isPlainObject(input) && 'meta' in input;
@@ -178,7 +186,8 @@ export async function convertTokens(
       : input;
     resolver = new FileResolver(
       validateSnapshot(snapshot, 'The snapshot'),
-      silentLog
+      silentLog,
+      onWarning
     );
   } catch (error) {
     throw new TokensBrueckeError('INVALID_SNAPSHOT', messageOf(error), {
