@@ -1,13 +1,29 @@
 import React, { useState } from 'react';
 
-import { Panel, PanelHeader, Stack, Button, Input } from 'react-figma-ui/ui';
+import {
+  Panel,
+  PanelHeader,
+  Stack,
+  Button,
+  Input,
+  Text,
+} from 'react-figma-ui/ui';
+
+const noteStyle: React.CSSProperties = {
+  color: 'var(--figma-color-text-secondary)',
+  lineHeight: '16px',
+};
 
 interface ProfileDetailViewProps {
   profileId: string;
   profileName: string;
   profileCount: number;
+  /** The profile is linked to a profile shared in this file */
+  isShared: boolean;
   renameProfile: (profileId: string, profileName: string) => void;
   deleteProfile: (profileId: string) => void;
+  shareProfileInFile: (profileId: string) => void;
+  unshareProfileInFile: (profileId: string) => void;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -15,8 +31,11 @@ export const ProfileDetailView = ({
   profileId,
   profileName: initialProfileName,
   profileCount,
+  isShared,
   renameProfile,
   deleteProfile,
+  shareProfileInFile,
+  unshareProfileInFile,
   setCurrentView,
 }: ProfileDetailViewProps) => {
   const [profileName, setProfileName] = useState(initialProfileName);
@@ -63,6 +82,28 @@ export const ProfileDetailView = ({
           />
 
           <Button
+            label={isShared ? 'Update shared profile' : 'Share in this file'}
+            fullWidth
+            secondary
+            onClick={() => {
+              shareProfileInFile(profileId);
+              setCurrentView('main');
+            }}
+          />
+
+          {isShared && (
+            <Button
+              label="Stop sharing"
+              fullWidth
+              secondary
+              onClick={() => {
+                unshareProfileInFile(profileId);
+                setCurrentView('main');
+              }}
+            />
+          )}
+
+          <Button
             label="Remove"
             fullWidth
             secondary
@@ -73,6 +114,21 @@ export const ProfileDetailView = ({
               setCurrentView('main');
             }}
           />
+        </Stack>
+
+        {/* A Stack, like the input and buttons, so the text lines up with them */}
+        <Stack gap="var(--space-extra-small)">
+          {isShared && (
+            <Text style={noteStyle}>
+              Updating or stopping sharing changes this profile for everyone
+              using this file.
+            </Text>
+          )}
+          <Text style={noteStyle}>
+            Anyone with access to the file can see the shared settings, like
+            repository, branch and GitLab host. Tokens, keys, the Custom URL and
+            headers are never shared.
+          </Text>
         </Stack>
       </Stack>
     </Panel>

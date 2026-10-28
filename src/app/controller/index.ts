@@ -6,6 +6,13 @@ import { getTokens } from '@common/export';
 import { tokensToVariables } from '@common/transform/tokensToVariables';
 import { PluginAPIResolver } from '@app/api/pluginApiResolver';
 import { sanitizeMultiTenantConfig } from './storageConfig';
+import {
+  parseSharedProfiles,
+  serializeSharedProfiles,
+  shareProfile,
+  sharedProfilesKey,
+  unshareProfile,
+} from './sharedProfiles';
 
 // clear console on reload
 console.clear();
@@ -25,6 +32,23 @@ let codePreviewWidth = frameWidthWithCodePreview;
 let frameHeight = 600;
 const frameWidth = isCodePreviewOpen ? codePreviewWidth : config.frameWidth;
 
+const environment: PluginEnvironmentI = {
+  editorType: figma.editorType,
+  mode: figma.mode,
+  isVSCode: !!figma.vscode,
+};
+
+// Dev Mode is read-only and shows the UI in the Inspect panel, which fills
+// the panel and is sized by the user, not by the plugin
+const isDevMode = environment.editorType === 'dev';
+
+const resizeUI = (width: number, height: number) => {
+  if (isDevMode) return;
+
+  figma.ui.resize(width, height);
+};
+
+// Size is ignored in the Inspect panel
 figma.showUI(__html__, {
   width: frameWidth,
   height: frameHeight,
@@ -42,9 +66,73 @@ const loadStorageConfig = async () => {
 
 loadStorageConfig();
 
+const postSharedProfiles = (sharedProfiles: SharedProfilesI) => {
+  figma.ui.postMessage({ type: 'sharedProfiles', sharedProfiles });
+};
+
+const readSharedProfiles = () =>
+  parseSharedProfiles(figma.root.getPluginData(sharedProfilesKey));
+
+// pluginData is one of the few things a plugin may write in Dev Mode, so
+// developers can share profiles too
+const writeSharedProfiles = (sharedProfiles: SharedProfilesI) => {
+  figma.root.setPluginData(
+    sharedProfilesKey,
+    serializeSharedProfiles(sharedProfiles)
+  );
+  postSharedProfiles(sharedProfiles);
+};
+
 // listen for messages from the UI
 figma.ui.onmessage = async (msg) => {
   await checkForVariables(msg.type);
+
+  if (msg.type === 'getPluginEnvironment') {
+    figma.ui.postMessage({ type: 'pluginEnvironment', environment });
+  }
+
+  // Links in the UI open through Figma: in Figma for VS Code a plain
+  // target="_blank" link does nothing
+  if (msg.type === 'openExternal' && /^https?:\/\//.test(msg.url)) {
+    figma.openExternal(msg.url);
+  }
+
+  if (msg.type === 'getSharedProfiles') {
+    postSharedProfiles(readSharedProfiles());
+  }
+
+  if (msg.type === 'shareProfile' || msg.type === 'unshareProfile') {
+    try {
+      const sharedProfiles = readSharedProfiles();
+
+      writeSharedProfiles(
+        msg.type === 'shareProfile'
+          ? shareProfile(
+              sharedProfiles,
+              msg.sharedId,
+              msg.profile,
+              msg.updatedAt
+            )
+          : unshareProfile(sharedProfiles, msg.sharedId)
+      );
+
+      figma.ui.postMessage({
+        type: 'sharedProfileLinked',
+        profileId: msg.profileId,
+        link:
+          msg.type === 'shareProfile'
+            ? { sharedId: msg.sharedId, sharedUpdatedAt: msg.updatedAt }
+            : { sharedId: undefined, sharedUpdatedAt: undefined },
+      });
+    } catch (error) {
+      console.error('Shared profile error:', error);
+
+      figma.ui.postMessage({
+        type: 'sharedProfilesError',
+        message: error?.message ?? String(error),
+      });
+    }
+  }
 
   // UI asks for the stored config once it is ready to receive it
   if (msg.type === 'getStorageConfig') {
@@ -97,6 +185,14 @@ figma.ui.onmessage = async (msg) => {
     console.log('Importing tokens...', msg.tokens);
 
     try {
+      // The UI hides the import in Dev Mode. Creating variables would throw
+      // there anyway: every document write is blocked, even with edit access
+      if (isDevMode) {
+        throw new Error(
+          'Variables can only be imported in Figma Design, not in Dev Mode.'
+        );
+      }
+
       const result = await tokensToVariables(
         msg.tokens,
         new PluginAPIResolver()
@@ -143,7 +239,7 @@ figma.ui.onmessage = async (msg) => {
       ? codePreviewWidth
       : config.frameWidth;
     frameHeight = Math.round(msg.height);
-    figma.ui.resize(currentWidth, frameHeight);
+    resizeUI(currentWidth, frameHeight);
   }
 
   if (msg.type === 'resizeUIWidth') {
@@ -153,7 +249,7 @@ figma.ui.onmessage = async (msg) => {
     );
 
     if (isCodePreviewOpen) {
-      figma.ui.resize(codePreviewWidth, frameHeight);
+      resizeUI(codePreviewWidth, frameHeight);
     }
   }
 
@@ -161,7 +257,7 @@ figma.ui.onmessage = async (msg) => {
     codePreviewWidth = frameWidthWithCodePreview;
 
     if (isCodePreviewOpen) {
-      figma.ui.resize(codePreviewWidth, frameHeight);
+      resizeUI(codePreviewWidth, frameHeight);
     }
   }
 
@@ -169,6 +265,6 @@ figma.ui.onmessage = async (msg) => {
     isCodePreviewOpen = msg.isCodePreviewOpen;
     const nextWidth = isCodePreviewOpen ? codePreviewWidth : config.frameWidth;
     frameHeight = Math.round(msg.height);
-    figma.ui.resize(nextWidth, frameHeight);
+    resizeUI(nextWidth, frameHeight);
   }
 };
