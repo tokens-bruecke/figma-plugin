@@ -116,8 +116,8 @@ export const ProfileDetailView = ({
             ? 'Updating or removing the shared profile changes it for everyone who opens this file. '
             : ''}
           Everyone with access to this file can use a shared profile and see its
-          settings, including repository, branch and URL. Tokens, keys and
-          custom headers are never shared.
+          settings, including repository, branch and GitLab host. Tokens, keys,
+          the Custom URL and custom headers are never shared.
         </Text>
       </Stack>
     </Panel>

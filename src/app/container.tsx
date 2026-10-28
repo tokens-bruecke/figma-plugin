@@ -31,7 +31,6 @@ import styles from './styles.module.scss';
 
 const sharedTargetServerNames: { [S in ServerType]?: string } = {
   gitlab: 'GitLab',
-  customURL: 'Custom URL',
 };
 
 const Container = () => {
@@ -279,14 +278,20 @@ const Container = () => {
     const sharedId = profile.sharedId ?? `shared-${Date.now()}`;
     const updatedAt = Date.now();
 
-    // The controller strips the credentials before it stores anything
+    // The controller strips the credentials before it stores anything, and
+    // answers with `sharedProfileLinked` once the file has the profile
     parent.postMessage(
       {
-        pluginMessage: { type: 'shareProfile', sharedId, profile, updatedAt },
+        pluginMessage: {
+          type: 'shareProfile',
+          profileId,
+          sharedId,
+          profile,
+          updatedAt,
+        },
       },
       '*'
     );
-    linkSharedProfile(profileId, { sharedId, sharedUpdatedAt: updatedAt });
   };
 
   const unshareProfileInFile = (profileId: string) => {
@@ -295,13 +300,9 @@ const Container = () => {
     if (!sharedId) return;
 
     parent.postMessage(
-      { pluginMessage: { type: 'unshareProfile', sharedId } },
+      { pluginMessage: { type: 'unshareProfile', profileId, sharedId } },
       '*'
     );
-    linkSharedProfile(profileId, {
-      sharedId: undefined,
-      sharedUpdatedAt: undefined,
-    });
   };
 
   const commonProps = {
@@ -379,6 +380,12 @@ const Container = () => {
 
       if (type === 'sharedProfiles') {
         setSharedProfiles(message.sharedProfiles || {});
+      }
+
+      // Linked only after the file was written, so a failed share leaves
+      // the local profile as it was
+      if (type === 'sharedProfileLinked') {
+        linkSharedProfile(message.profileId, message.link);
       }
 
       if (type === 'sharedProfilesError') {

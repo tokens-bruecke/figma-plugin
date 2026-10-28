@@ -115,6 +115,15 @@ figma.ui.onmessage = async (msg) => {
             )
           : unshareProfile(sharedProfiles, msg.sharedId)
       );
+
+      figma.ui.postMessage({
+        type: 'sharedProfileLinked',
+        profileId: msg.profileId,
+        link:
+          msg.type === 'shareProfile'
+            ? { sharedId: msg.sharedId, sharedUpdatedAt: msg.updatedAt }
+            : { sharedId: undefined, sharedUpdatedAt: undefined },
+      });
     } catch (error) {
       console.error('Shared profile error:', error);
 
