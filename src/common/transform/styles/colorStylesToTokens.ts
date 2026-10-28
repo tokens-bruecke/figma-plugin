@@ -116,6 +116,9 @@ export const colorStylesToTokens = async (
       if (aliasVariable && colorWithOpacity.a < 1) {
         return {
           [keyNames.type]: 'color',
+          ...(includeFigmaMetaData && {
+            $extensions: { figma: { styleId: style.id } },
+          }),
           [keyNames.value]: {
             components: aliasVariable,
             alpha: normalizeOpacity(

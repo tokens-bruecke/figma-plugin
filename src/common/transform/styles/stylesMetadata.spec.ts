@@ -37,7 +37,18 @@ const resolver = {
       effects: [{ type: 'LAYER_BLUR', radius: 4 }],
     },
   ],
+  getVariableById: async () => ({
+    name: 'base',
+    variableCollectionId: 'collection',
+  }),
+  getVariableCollectionById: async () => ({ name: 'colors' }),
   getLocalPaintStyles: async () => [
+    {
+      id: 'alias-id',
+      name: 'alias',
+      boundVariables: { paints: [{ id: 'variable' }] },
+      paints: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 0.5 }],
+    },
     {
       id: 'color-id',
       name: 'color',
@@ -82,6 +93,7 @@ describe('style metadata', () => {
         [effects.effects.shadow, 'shadow-id'],
         [effects.effects.blur, 'blur-id'],
         [colors.colors.color, 'color-id'],
+        [colors.colors.alias, 'alias-id'],
         [colors.colors.gradient, 'gradient-id'],
       ]) {
         expect(token.$extensions?.figma).toEqual(
