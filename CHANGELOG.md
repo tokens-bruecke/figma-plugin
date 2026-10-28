@@ -1,3 +1,14 @@
+## [3.23.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.22.0...v3.23.0) (2026-10-28)
+
+### Features
+
+- **plugin:** run in Dev Mode and share profiles in the file without credentials ([2bf5332](https://github.com/tokens-bruecke/figma-plugin/commit/2bf53328d3f6ae106dff61806ce39ed3c6b48139))
+
+### Bug Fixes
+
+- **plugin:** align the shared-profile note with the buttons and make it easier to read ([9dd7ad1](https://github.com/tokens-bruecke/figma-plugin/commit/9dd7ad199ddd9c8565645b7d2fb5d41e66d3c281))
+- **plugin:** never share the Custom URL, link shared profiles after saving ([d35e5e7](https://github.com/tokens-bruecke/figma-plugin/commit/d35e5e77f0538587f55951ba32e48abba2b1e645))
+
 ## [3.22.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.21.0...v3.22.0) (2026-10-28)
 
 ### Behaviour changes
