@@ -1,3 +1,15 @@
+## [3.23.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.23.0...v3.23.1) (2026-10-28)
+
+### Documentation
+
+- **docs:** the documentation moved from the README to a site, [tokens-bruecke.github.io/figma-plugin](https://tokens-bruecke.github.io/figma-plugin/), with screenshots of the current plugin in light and dark and pages for Dev Mode and shared profiles ([#139](https://github.com/tokens-bruecke/figma-plugin/issues/139)) ([13518a4](https://github.com/tokens-bruecke/figma-plugin/commit/13518a47ea95df85f7390ba5e8006fa8101c12fb))
+- **plugin:** the Documentation link opens the docs site. **cli:** `--help` links to the CLI docs ([#139](https://github.com/tokens-bruecke/figma-plugin/issues/139)) ([13518a4](https://github.com/tokens-bruecke/figma-plugin/commit/13518a47ea95df85f7390ba5e8006fa8101c12fb))
+- **docs:** the site publishes `llms.txt`, `llms-full.txt` and `llms-small.txt` for AI agents, and the `llms.txt` in the npm package points to them ([#142](https://github.com/tokens-bruecke/figma-plugin/issues/142)) ([19f2ed6](https://github.com/tokens-bruecke/figma-plugin/commit/19f2ed689f8baffa9982a66b4368bfeac1cce630))
+
+### Bug Fixes
+
+- **plugin:** align the shared profile Update banner with the panel ([#144](https://github.com/tokens-bruecke/figma-plugin/issues/144)) ([986828e](https://github.com/tokens-bruecke/figma-plugin/commit/986828e3d462d7f9e1fb97c0dc7306dfe5f48184))
+
 ## [3.23.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.22.0...v3.23.0) (2026-10-28)
 
 ### Features
