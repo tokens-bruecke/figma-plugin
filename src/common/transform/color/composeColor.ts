@@ -157,8 +157,8 @@ interface PropsI {
  *
  * The DTCG color type has no way to express "this color, with that opacity"
  * when either half is a reference, so the value is emitted as a composite
- * object whose parts may be references (see README, "Color aliases with
- * opacity"):
+ * object whose parts may be references (see "Color aliases with opacity" in
+ * https://tokens-bruecke.github.io/figma-plugin/reference/aliases/):
  *
  * - base is an alias → `{ components: "{color.brand}", alpha: 0.5 | "{opacity.50}" }`
  * - base is a literal, opacity is a number → a regular color value with the
