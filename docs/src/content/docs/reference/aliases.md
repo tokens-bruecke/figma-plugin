@@ -16,6 +16,8 @@ All aliases are converted into the alias string format from the [Design Tokens s
 }
 ```
 
+References use `.` as separator, so DTCG forbids `.`, `{` and `}` in token and group names. A collection whose name contains them, like `1. Primitives`, is exported as `1- Primitives`, with a warning; the meta keeps the original name, and the [import](../../getting-started/export-and-import/#import-json--variables) uses it to recreate the collection under its Figma name.
+
 ## Include `.value` string for aliases
 
 You can switch on the `Include .value string for aliases` option in [the plugin settings](../../plugin/advanced-settings/#include-value-string-for-aliases).
@@ -88,7 +90,7 @@ The plugin will generate the alias name anyway, but it will be a path to the var
 }
 ```
 
-The plugin wouldn't include the variable into the generated JSON in order to avoid duplicates or conflicts with JSON files you can generate from another Figma files.
+The plugin wouldn't include the variable into the generated JSON in order to avoid duplicates or conflicts with JSON files you can generate from another Figma files. The CLI and the library API do the same in REST mode. In snapshot mode, add the library variables and their collections with `"remote": true`: they resolve aliases but aren't exported.
 
 So you will need to merge the file with the base variables from one file with another where you use them. Otherwise tools like Style Dictionary wouldn't be able to resolve the aliases.
 

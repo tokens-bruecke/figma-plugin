@@ -206,7 +206,10 @@ export const normalizeComposedColor = async ({
  * unless percentage opacity output is enabled (matching FLOAT opacity
  * variables).
  */
-const normalizeOpacity = (opacity: number, usePercentageOpacity: boolean) => {
+export const normalizeOpacity = (
+  opacity: number,
+  usePercentageOpacity: boolean
+) => {
   if (usePercentageOpacity) {
     return `${opacity}%`;
   }

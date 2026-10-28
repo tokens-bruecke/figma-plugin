@@ -49,4 +49,27 @@ describe('groupObjectNamesIntoCategories', () => {
       $value: '#fcc',
     });
   });
+
+  test.each([
+    ['parent first', ['border/brand', 'border/brand/subtle']],
+    ['children first', ['border/brand/subtle', 'border/brand']],
+  ])('puts a variable named like a group under $root (%s)', (_, names) => {
+    const tokens = {
+      'border/brand': { $value: '#f00' },
+      'border/brand/subtle': { $value: '#f88' },
+    };
+    const result = groupObjectNamesIntoCategories(
+      Object.fromEntries(names.map((name) => [name, tokens[name]])),
+      '$root'
+    );
+
+    expect(result).toStrictEqual({
+      border: {
+        brand: {
+          $root: { $value: '#f00' },
+          subtle: { $value: '#f88' },
+        },
+      },
+    });
+  });
 });

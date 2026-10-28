@@ -41,7 +41,7 @@ A style the plugin can't export, such as an image fill or a color style with sev
 
 ## Colors
 
-The plugin supports solid colors and gradients (linear, radial, angular, diamond). Color styles are converted to DTCG format with support for variable aliases.
+The plugin supports solid colors and gradients (linear, radial, angular, diamond). Color styles are converted to DTCG format with support for variable aliases. A solid style bound to a color variable with its own opacity below 100% is exported like a [color alias with opacity](../aliases/#color-aliases-with-opacity): `{ "components": "{color.brand}", "alpha": 0.5 }`.
 
 ```json
 // Solid color
@@ -86,7 +86,7 @@ DTCG has no direction or type for a gradient, only the stops, so they are export
 
 ## Grids
 
-In Figma you can add as many grids in the style as you want. But the plugin will take only first two grids and treat the first one as `column` grid and the second one as `row` grid.
+In Figma you can add as many grids in the style as you want. The plugin exports the first `Columns` grid as `column*` values and the first `Rows` grid as `row*` values; further grids of the same kind are left out. A square `Grid` only has a cell size, which is exported as `columnWidth` when the style has no columns. Sizes of `0` are kept, and an `Auto` count is left out.
 
 ```json
 // Column grid
@@ -147,7 +147,7 @@ The first effect of a style decides its type: a style that starts with a shadow 
 
 ## Blur
 
-The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported, and blur tokens always use the `$type` / `$value` keys, whatever the [DTCG 2025.10 format](../../plugin/settings/#dtcg-202510-format) setting.
+The plugin supports `background` and `layer` blur effects. In order to distinguish between them, the plugin adds the `role` property to the generated JSON. Only the first effect of a blur style is exported. Like all other tokens, blur tokens use the `$type` / `$value` keys with the [DTCG 2025.10 format](../../plugin/settings/#dtcg-202510-format) setting on, and `type` / `value` with it off.
 
 ```json
 // Background blur

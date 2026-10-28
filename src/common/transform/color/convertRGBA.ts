@@ -86,6 +86,10 @@ const hslaToCss = (hsla: any) => {
   return `hsla(${h}, ${s}%, ${l}%, ${a})`;
 };
 
+// DTCG 2025.10 color §4.1: the hex fallback "MUST be formatted in 6 digit
+// CSS hex color notation"; the opacity lives in `alpha` only
+const toDtcgHex = (rgba: rgbaType) => rgbaToHexA({ ...rgba, a: 1 });
+
 const rgbaToDtcgSrgb = (rgba: rgbaType) => {
   const { r, g, b, a } = rgba;
 
@@ -93,7 +97,7 @@ const rgbaToDtcgSrgb = (rgba: rgbaType) => {
     colorSpace: 'srgb',
     components: [r / 255, g / 255, b / 255],
     alpha: a,
-    hex: rgbaToHexA(rgba),
+    hex: toDtcgHex(rgba),
   };
 };
 
@@ -104,7 +108,7 @@ const rgbaToDtcgHsl = (rgba: rgbaType) => {
     colorSpace: 'hsl',
     components: [h, s, l],
     alpha: a,
-    hex: rgbaToHexA(rgba),
+    hex: toDtcgHex(rgba),
   };
 };
 
@@ -120,7 +124,7 @@ const rgbaToDtcgOklch = (rgba: rgbaType) => {
       parseFloat(h.toPrecision(5)),
     ],
     alpha: a,
-    hex: rgbaToHexA(rgba),
+    hex: toDtcgHex(rgba),
   };
 };
 

@@ -57,4 +57,14 @@ describe('getFontStyleAndWeight', () => {
       style: 'italic',
     });
   });
+
+  test.each([
+    ['Extra Bold', 800],
+    ['Ultra Bold Italic', 800],
+    ['Extra Black', 950],
+    ['Extra Light', 200],
+    ['Black', 900],
+  ])('%s', (fontStyle, weight) => {
+    expect(getFontStyleAndWeight(fontStyle).weight).toBe(weight);
+  });
 });

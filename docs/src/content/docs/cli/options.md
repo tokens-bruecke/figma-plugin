@@ -45,6 +45,8 @@ The REST API returns variables, collections and styles in no fixed order, so the
 
 In REST mode the CLI exports the file's own styles, published or not, the same set the plugin exports. This also works for a branch, which can't publish styles. Styles that come from a library are left out, as in the plugin.
 
+The REST API reports letter spacing in pixels only, so a text style with percentage letter spacing exports as `{ "value": -0.32, "unit": "px" }` in REST mode, where the plugin writes `"-2%"`. Snapshot mode keeps the plugin's unit.
+
 ## Snapshot input
 
 `--input <path>` transforms a local JSON snapshot of a Figma file's variables and styles instead of calling the REST API. `--input -` reads stdin, so it composes with anything that can dump the data:
@@ -84,7 +86,6 @@ Things worth knowing when building a snapshot:
 - Colors are 0..1 float channels (`{ r, g, b, a }`), as the Plugin API returns them.
 - `collection.variableIds` preserves the ordering shown in Figma's Variables panel.
 - [Extended collections](../../reference/token-structure/#extended-collections) need `isExtension`, `parentVariableCollectionId`, `variableOverrides`, `modes[].parentModeId` and `variableIds`. Their variables belong to the root collection, so `variableIds` is the only list of what they contain: without it the extension exports as an empty group.
-- Unlike REST mode, snapshot mode doesn't drop collections hidden from publishing. Leave out anything you don't want exported.
 - Aliases are `{ "type": "VARIABLE_ALIAS", "id": "…" }` and must point at a variable present in the snapshot; otherwise the value exports as `"#missing#"`, matching the REST behaviour for unresolvable references.
 - Color aliases with their own opacity come back from the Plugin API as `{ "color": <alias or rgba>, "opacity": <0..100 or alias> }` (older Figma Desktop builds used `{ "type": "VARIABLE_EXPRESSION", "expressionFunction": "COMPOSE_COLOR", "expressionArguments": [<alias or rgba>, <0..100 or alias>] }`) — pass either through as-is, see [Color aliases with opacity](../../reference/aliases/#color-aliases-with-opacity).
 

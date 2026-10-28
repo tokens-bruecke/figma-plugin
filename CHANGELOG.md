@@ -1,3 +1,19 @@
+## [3.22.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.21.0...v3.22.0) (2026-10-28)
+
+### Behaviour changes
+
+- **export:** with DTCG on, a variable named like a group of other variables (`border/brand` next to `border/brand/subtle`) becomes the group's `$root` token, and aliases to it end in `.$root` (DTCG 2025.10 §6.2). The import reads both this and the old shape.
+- **export:** `.`, `{` and `}` in a collection name become `-` in its token key (`1. Primitives` → `1- Primitives`), with a warning. The meta keeps the Figma name, so the import maps it back.
+- **export:** the `hex` fallback of DTCG color objects has 6 digits; the opacity is only in `alpha`. The import still reads 8-digit values.
+- **export:** opacity tokens carry `$extensions.figmaScopes` when `includeScopes` is off, so they import as percentages again.
+- **cli:** REST mode exports collections hidden from publishing, as the plugin does.
+
+### Bug Fixes
+
+- **export:** fix export, import and REST-mode issues found in real files ([#135](https://github.com/tokens-bruecke/figma-plugin/issues/135)) ([6fe1936](https://github.com/tokens-bruecke/figma-plugin/commit/6fe1936d5b038a69d41cd74dbb41092ee9eb1fa9))
+
+Thanks to [@skraegelin](https://github.com/skraegelin) for [#135](https://github.com/tokens-bruecke/figma-plugin/pull/135).
+
 ## [3.21.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.20.0...v3.21.0) (2026-10-27)
 
 ### Features

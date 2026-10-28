@@ -90,5 +90,5 @@ Snapshot mode ignores `FIGMA_API_KEY` / `FIGMA_FILE_KEY`, so a token exported in
 On a bad snapshot the CLI exits `1` and names the offending key — for example `variables[3] is missing a string "variableCollectionId"` — so an agent can correct its dump and retry without guesswork.
 
 :::note
-Aliases pointing at variables outside the snapshot (typically library variables from another file) export as `"#missing#"`, the same as in REST mode. To resolve them, include those variables in the `variables` array.
+Aliases pointing at variables outside the snapshot export as `"#missing#"`. To resolve aliases to library variables from another file, include those variables in the `variables` array and their collections in `variableCollections`, with `"remote": true`: they resolve the aliases, as in the plugin and in REST mode, but aren't exported.
 :::

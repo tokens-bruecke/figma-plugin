@@ -2,6 +2,7 @@ import { stylesToTokens } from './transform/styles/stylesToTokens';
 
 import { variablesToTokens } from './transform/variablesToTokens';
 import { mergeStylesIntoTokens } from './transform/mergeStylesIntoTokens';
+import { addRootToReferences } from './transform/rootTokens';
 import { IResolver } from './resolver';
 
 /**
@@ -102,6 +103,10 @@ export const getTokens = async (
     resolver
   );
 
+  if (config.useDTCG) {
+    addRootToReferences(mergedVariables);
+  }
+
   const metaData = buildMeta(config, variableCollection);
 
   if (config.splitByMode) {
@@ -121,7 +126,9 @@ export const getTokens = async (
           const modeTokens = applyModeToTokens(collectionTokens, modeName);
           result[`${collectionName}/${modeName}`] = {
             ...modeTokens,
-            $extensions: { 'tokens-bruecke-meta': metaData },
+            $extensions: {
+              'tokens-bruecke-meta': { ...metaData, mode: modeName },
+            },
           };
         }
       }

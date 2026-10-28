@@ -1,8 +1,11 @@
 import { normalizeValue } from './normalizeValue';
 import { normalizeType } from './normalizeType';
+import { isOpacityScope } from './opacityScopes';
 import { getTokenKeyName } from './getTokenKeyName';
 
 import { groupObjectNamesIntoCategories } from './groupObjectNamesIntoCategories';
+import { ROOT_TOKEN_KEY } from './rootTokens';
+import { toTokenName } from './tokenName';
 import { IResolver } from '@common/resolver';
 import { warn } from '@common/warn';
 import {
@@ -69,6 +72,7 @@ export const variablesToTokens = async (
     expandEasingPresets = true,
   } = config;
   const keyNames = getTokenKeyName(useDTCG);
+  const rootKey = useDTCG ? ROOT_TOKEN_KEY : undefined;
 
   // Sort variables to match the order shown in Figma's Variables panel.
   // getLocalVariables() does not guarantee UI order; the authoritative
@@ -93,9 +97,30 @@ export const variablesToTokens = async (
   );
 
   // let mergedVariables = {};
+  const collectionNamesByTokenName = new Map<string, string>();
   let emptyCollection = collections.map((collection) => {
+    const tokenName = toTokenName(collection.name);
+    if (tokenName !== collection.name && !omitCollectionNames) {
+      warn(
+        resolver,
+        `[tokens-bruecke] Collection "${collection.name}" is exported as "${tokenName}": DTCG names can't contain ".", "{" or "}".`
+      );
+    }
+    // "1. Primitives" and "1- Primitives" get the same group
+    const sameTokenName = collectionNamesByTokenName.get(tokenName);
+    if (
+      sameTokenName !== undefined &&
+      sameTokenName !== collection.name &&
+      !omitCollectionNames
+    ) {
+      warn(
+        resolver,
+        `[tokens-bruecke] Collision: collections "${sameTokenName}" and "${collection.name}" are both exported as "${tokenName}". Their variables are merged; last value wins.`
+      );
+    }
+    collectionNamesByTokenName.set(tokenName, collection.name);
     return {
-      [collection.name]: {},
+      [tokenName]: {},
     };
   });
 
@@ -204,11 +229,11 @@ export const variablesToTokens = async (
 
     // get collection object
     const collectionId = collection.id;
-    const collectionName = collection.name;
+    const collectionName = toTokenName(collection.name);
     const collectionDefaultModeId = collection.defaultModeId;
     const collectionObject = {
       id: collectionId,
-      name: collectionName,
+      name: collection.name,
       defaultModeId: collectionDefaultModeId,
     };
 
@@ -306,6 +331,14 @@ export const variablesToTokens = async (
         // strings; the marker lets the import recreate an EASING variable.
         ...(variable.resolvedType === 'EASING' &&
           tokenType === 'string' && { figmaType: 'EASING' }),
+        // Opacities export as plain `number` or `string` tokens, which the
+        // import can only tell from dimensions by their scopes. Without
+        // `includeScopes` they would come back as 0.5 instead of 50.
+        ...(!config.includeScopes &&
+          variable.resolvedType === 'FLOAT' &&
+          isOpacityScope(variable.scopes) && {
+            figmaScopes: variable.scopes,
+          }),
         ...(includeFigmaMetaData && {
           figma: {
             codeSyntax: variable.codeSyntax,
@@ -338,7 +371,7 @@ export const variablesToTokens = async (
   }
 
   if (omitCollectionNames) {
-    return groupObjectNamesIntoCategories(flatVariables);
+    return groupObjectNamesIntoCategories(flatVariables, rootKey);
   }
 
   // console.log("emptyCollection", emptyCollection);
@@ -350,5 +383,12 @@ export const variablesToTokens = async (
     };
   }, {});
 
-  return groupObjectNamesIntoCategories(mergedVariables);
+  // Group the variables of each collection. The collection name is a single
+  // key even when it contains a slash ("Brand/Core")
+  return Object.fromEntries(
+    Object.entries(mergedVariables).map(([collectionName, collection]) => [
+      collectionName,
+      groupObjectNamesIntoCategories(collection, rootKey),
+    ])
+  );
 };
