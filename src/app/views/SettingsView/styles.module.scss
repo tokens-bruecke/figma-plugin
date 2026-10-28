@@ -63,6 +63,19 @@
   flex: 1;
 }
 
+// Inset like the labels and full-width buttons below, so the text starts
+// with "Show output" and the button ends with "Download JSON"
+.sharedUpdate {
+  align-items: center;
+  padding-left: var(--space-medium);
+  padding-right: var(--space-medium);
+}
+
+.sharedUpdateText {
+  flex: 1;
+  text-wrap: balance;
+}
+
 .about {
   justify-content: space-between;
   padding-top: 6px;

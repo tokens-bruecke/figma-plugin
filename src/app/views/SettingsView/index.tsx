@@ -533,13 +533,12 @@ export const SettingsView = (props: ViewProps) => {
 
         {hasSharedProfileUpdate && (
           <Stack
-            hasLeftRightPadding
             hasTopBottomPadding
             direction="row"
             gap="var(--space-extra-small)"
-            className={styles.rowItem}
+            className={styles.sharedUpdate}
           >
-            <Text className={styles.rowItemText}>
+            <Text className={styles.sharedUpdateText}>
               The shared profile changed in this file.
             </Text>
             <Button
