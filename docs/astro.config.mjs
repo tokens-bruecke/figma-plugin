@@ -15,6 +15,26 @@ export default defineConfig({
         dark: './src/assets/logo-dark.svg',
       },
       favicon: '/favicon.svg',
+      // Anonymous page views, in the same GoatCounter as the plugin's events.
+      // count.js skips localhost, so local previews aren't counted
+      head: [
+        // Record /figma-plugin/… (the GitHub Pages path) as /docs/…, so the
+        // docs read as docs next to the plugin's events. Must run before
+        // count.js
+        {
+          tag: 'script',
+          content:
+            "window.goatcounter = { path: (p) => '/docs' + p.replace(/^\\/figma-plugin/, '') };",
+        },
+        {
+          tag: 'script',
+          attrs: {
+            'data-goatcounter': 'https://tokens-bruecke.goatcounter.com/count',
+            src: 'https://gc.zgo.at/count.js',
+            async: true,
+          },
+        },
+      ],
       social: [
         {
           icon: 'github',
