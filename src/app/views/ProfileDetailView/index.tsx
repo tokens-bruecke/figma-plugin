@@ -9,6 +9,11 @@ import {
   Text,
 } from 'react-figma-ui/ui';
 
+const noteStyle: React.CSSProperties = {
+  color: 'var(--figma-color-text-secondary)',
+  lineHeight: '16px',
+};
+
 interface ProfileDetailViewProps {
   profileId: string;
   profileName: string;
@@ -111,14 +116,20 @@ export const ProfileDetailView = ({
           />
         </Stack>
 
-        <Text style={{ opacity: 0.6 }}>
-          {isShared
-            ? 'Updating or removing the shared profile changes it for everyone who opens this file. '
-            : ''}
-          Everyone with access to this file can use a shared profile and see its
-          settings, including repository, branch and GitLab host. Tokens, keys,
-          the Custom URL and custom headers are never shared.
-        </Text>
+        {/* A Stack, like the input and buttons, so the text lines up with them */}
+        <Stack gap="var(--space-extra-small)">
+          {isShared && (
+            <Text style={noteStyle}>
+              Updating or stopping sharing changes this profile for everyone
+              using this file.
+            </Text>
+          )}
+          <Text style={noteStyle}>
+            Anyone with access to the file can see the shared settings, like
+            repository, branch and GitLab host. Tokens, keys, the Custom URL and
+            headers are never shared.
+          </Text>
+        </Stack>
       </Stack>
     </Panel>
   );
