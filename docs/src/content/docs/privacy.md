@@ -11,7 +11,7 @@ What is sent: the plugin was opened, the file had variables or not, tokens were 
 
 What is never sent: your tokens, variable or collection names, file names, server URLs, access tokens, or any other data read from your Figma file. GoatCounter sets no cookies and does not track you across sites.
 
-This documentation site counts page views with the same GoatCounter: the page address, the referring site, and the browser, screen size and country GoatCounter derives from the request. No cookies are set and nothing identifies you.
+This documentation site counts page views with a separate GoatCounter: the page address, the referring site, and the browser, screen size and country GoatCounter derives from the request. No cookies are set and nothing identifies you.
 
 ## Feedback
 
