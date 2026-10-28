@@ -63,3 +63,22 @@ body.figma-dark {
 #react-page {
   height: 100%;
 }
+
+#titlebar .back {
+  display: none;
+  margin-left: -6px;
+  color: var(--figma-color-icon-secondary);
+}
+
+/* Dev Mode: a plugin in the Inspect panel, under the panel's own header */
+body.dev-mode #window {
+  border-radius: 8px;
+}
+
+body.dev-mode #titlebar .back {
+  display: block;
+}
+
+body.dev-mode #titlebar .close {
+  display: none;
+}

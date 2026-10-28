@@ -183,6 +183,47 @@ export const scenes = {
     crop: ['Web', 'Design system', 'Color mode'],
   },
 
+  // Has to be the same object in both places: a profile linked to a shared
+  // one shows Update when their timestamps differ
+  'shared-profile-detail': {
+    activeProfileId: 'ds',
+    profiles: {
+      ds: profile({ profileName: 'Design system', sharedId: 'design-system', sharedUpdatedAt: 1 }),
+    },
+    sharedProfiles: {
+      'design-system': profile({ profileName: 'Design system', updatedAt: 1 }),
+    },
+    steps: async (page) => {
+      await page.locator('#frame button[class*="iconButton"]').first().click();
+    },
+  },
+
+  'shared-profile-update': {
+    activeProfileId: 'ds',
+    profiles: {
+      ds: profile({ profileName: 'Design system', sharedId: 'design-system', sharedUpdatedAt: 1 }),
+    },
+    sharedProfiles: {
+      'design-system': profile({ profileName: 'Design system', updatedAt: 2 }),
+    },
+    crop: ['Design system', 'The shared profile changed in this file.', 'Show output'],
+  },
+
+  'dev-mode': {
+    environment: { editorType: 'dev', mode: 'inspect', isVSCode: false },
+    profiles: {
+      default: profile({ includedStyles: styles(['text']), servers: only('github') }),
+    },
+  },
+
+  'dev-mode-output': {
+    environment: { editorType: 'dev', mode: 'inspect', isVSCode: false },
+    profiles: { default: profile({ servers: only('github') }) },
+    steps: async (page) => {
+      await page.getByText('Show output', { exact: true }).click();
+    },
+  },
+
   empty: {
     hasVariables: false,
     profiles: { default: profile() },

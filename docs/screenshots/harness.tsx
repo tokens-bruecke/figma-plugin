@@ -27,6 +27,11 @@ const theme = params.get('theme') === 'dark' ? 'dark' : 'light';
 
 document.body.classList.add(`figma-${theme}`);
 
+// In Dev Mode the UI fills the Inspect panel at the size the user gives it
+const panelSize: [number, number] | null =
+  scene.environment?.editorType === 'dev' ? scene.panelSize ?? [320, 680] : null;
+if (panelSize) document.body.classList.add('dev-mode');
+
 const windowEl = document.getElementById('window') as HTMLDivElement;
 const frameEl = document.getElementById('frame') as HTMLDivElement;
 
@@ -39,7 +44,7 @@ const resize = (width: number, height: number) => {
   frameEl.style.width = `${width}px`;
   frameEl.style.height = `${height}px`;
 };
-resize(FRAME_WIDTH, 600);
+resize(...(panelSize ?? [FRAME_WIDTH, 600]));
 
 // Replies land on this same window, and some share the request's type
 // (checkForVariables), so they are marked to keep the stand-in from

@@ -32,6 +32,10 @@ import { Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
 
 A file without variables opens on an empty screen, where you can [import tokens](./getting-started/export-and-import/#import-json--variables) or continue to export styles only.
 
+:::tip[New in v3.23]
+Run the plugin in [Dev Mode](./plugin/dev-mode/), and [share a profile in the file](./plugin/profiles/#shared-profiles) so developers export with your settings, without your credentials.
+:::
+
 ## One converter, three ways to run it
 
 <CardGrid>
@@ -57,6 +61,8 @@ A file without variables opens on an empty screen, where you can [import tokens]
 <CardGrid>
   <LinkCard title="Export and import" href="./getting-started/export-and-import/" description="What gets exported, and what to know before importing." />
   <LinkCard title="Plugin settings" href="./plugin/settings/" description="Color modes, styles, scopes, DTCG format and splitting files." />
+  <LinkCard title="Shared profiles" href="./plugin/profiles/#shared-profiles" description="Share your export settings in the Figma file, without credentials." />
+  <LinkCard title="Dev Mode" href="./plugin/dev-mode/" description="Let developers export tokens from Dev Mode and VS Code." />
   <LinkCard title="CLI overview" href="./cli/overview/" description="Install the CLI and run your first export." />
   <LinkCard title="Token structure" href="./reference/token-structure/" description="How collections, groups and modes map to JSON." />
 </CardGrid>
