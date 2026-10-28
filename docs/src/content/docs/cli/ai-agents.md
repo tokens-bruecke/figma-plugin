@@ -3,6 +3,12 @@ title: "For AI agents"
 description: "Agent-friendly docs, schemas and how agents can export tokens without the REST API."
 ---
 
+This documentation is also published as Markdown for LLMs, generated from these pages on every deploy:
+
+- [llms.txt](https://tokens-bruecke.github.io/figma-plugin/llms.txt) — index of the documentation
+- [llms-full.txt](https://tokens-bruecke.github.io/figma-plugin/llms-full.txt) — every page in one file
+- [llms-small.txt](https://tokens-bruecke.github.io/figma-plugin/llms-small.txt) — a compact version for small context windows
+
 This repository and the npm package ship agent-friendly docs:
 
 - [llms.txt](https://github.com/tokens-bruecke/figma-plugin/blob/main/llms.txt) — entry point for LLM-based tools
