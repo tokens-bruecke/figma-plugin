@@ -1,6 +1,7 @@
 import React, { forwardRef, useImperativeHandle, Ref, useEffect } from 'react';
 
 import { Text } from 'react-figma-ui/ui';
+import { isPanelLayout, usePluginEnvironment } from '@app/pluginEnvironment';
 import styles from './styles.module.scss';
 
 export interface ToastRefI {
@@ -9,6 +10,7 @@ export interface ToastRefI {
 
 export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
   const [toasts, setToasts] = React.useState<ToastIPropsI[]>([]);
+  const isPanel = isPanelLayout(usePluginEnvironment());
 
   useImperativeHandle(ref as Ref<ToastRefI>, () => ({
     show: (params) => {
@@ -49,20 +51,26 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
   }, [toasts]);
 
   return (
-    <div className={styles.toastContainer}>
+    <div
+      className={`${styles.toastContainer} ${
+        isPanel ? styles.panelToastContainer : ''
+      }`}
+    >
       <div className={styles.toastWrapper}>
         {toasts.map((toast, index) => (
           <div
             key={index}
-            className={`${styles.toast} ${styles[toast.options.type ?? 'info']}`}
+            className={`${styles.toast} ${
+              styles[toast.options.type ?? 'info']
+            }`}
             onClick={() => handleClose(index)}
           >
             <Text fontWeight="bold" className={styles.title}>
               {toast.options.type === 'error'
                 ? '⛔️ '
                 : toast.options.type === 'warn'
-                  ? '⚠️ '
-                  : '🎉 '}
+                ? '⚠️ '
+                : '🎉 '}
               {toast.title}
             </Text>
 

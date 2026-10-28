@@ -9,6 +9,7 @@ import styles from './styles.module.scss';
 
 interface EmptyViewProps {
   setFileHasVariables: (value: boolean) => void;
+  /** Undefined where the import can't run (Dev Mode) */
   onImportTokens?: () => Promise<void>;
   isImporting?: boolean;
 }
@@ -26,7 +27,7 @@ export const EmptyView = ({
       </Stack>
 
       <Stack gap={8} className={styles.group}>
-        {onImportTokens && (
+        {onImportTokens ? (
           <Button
             className={styles.button}
             label="Import tokens (Beta)"
@@ -34,6 +35,11 @@ export const EmptyView = ({
             loading={isImporting}
             fullWidth
           />
+        ) : (
+          <Text className={styles.label} align="center">
+            Tokens can be imported into variables in Figma Design, by someone
+            with edit access.
+          </Text>
         )}
         <Button
           className={styles.button}

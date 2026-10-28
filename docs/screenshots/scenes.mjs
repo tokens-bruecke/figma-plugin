@@ -159,6 +159,30 @@ export const scenes = {
     crop: ['Web', 'Android', 'Color mode'],
   },
 
+  'share-profile': {
+    activeProfileId: 'web',
+    profiles: { web: profile({ profileName: 'Web' }) },
+    steps: async (page) => {
+      // the ⋮ next to the profile dropdown has no text
+      await page.locator('#frame button[class*="iconButton"]').first().click();
+    },
+  },
+
+  'shared-profiles': {
+    activeProfileId: 'web',
+    profiles: {
+      web: profile({ profileName: 'Web' }),
+      ios: profile({ profileName: 'iOS' }),
+    },
+    sharedProfiles: {
+      'design-system': profile({ profileName: 'Design system', updatedAt: 1 }),
+    },
+    steps: async (page) => {
+      await page.getByText('Web', { exact: true }).first().click();
+    },
+    crop: ['Web', 'Design system', 'Color mode'],
+  },
+
   empty: {
     hasVariables: false,
     profiles: { default: profile() },

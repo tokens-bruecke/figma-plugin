@@ -16,8 +16,22 @@ import {
   createProfileFromConfig,
   sanitizeMultiTenantConfig,
 } from './controller/storageConfig';
+import {
+  getChangedServerTargets,
+  mergeSharedProfile,
+} from './controller/sharedProfiles';
+import {
+  PluginEnvironmentContext,
+  canImportTokens,
+  defaultPluginEnvironment,
+  isPanelLayout,
+} from './pluginEnvironment';
 
 import styles from './styles.module.scss';
+
+const sharedTargetServerNames: { [S in ServerType]?: string } = {
+  gitlab: 'GitLab',
+};
 
 const Container = () => {
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
@@ -42,6 +56,14 @@ const Container = () => {
   // the stored config can't overwrite them when it arrives later
   const [variableCollections, setVariableCollections] = useState<string[]>([]);
   const [isImporting, setIsImporting] = useState(false);
+
+  // Unknown until the controller answers. The views wait for it so that
+  // Design-only controls (import) never flash up in Dev Mode
+  const [environment, setEnvironment] = useState<PluginEnvironmentI | null>(
+    null
+  );
+  const isPanel = !!environment && isPanelLayout(environment);
+  const [sharedProfiles, setSharedProfiles] = useState<SharedProfilesI>({});
 
   const [multiTenantConfig, setMultiTenantConfig] =
     useState<MultiTenantConfigI>(createDefaultConfig());
@@ -168,6 +190,121 @@ const Container = () => {
     });
   };
 
+  // A copy of a profile shared in the file. The developer only adds their
+  // own credentials
+  const adoptSharedProfile = (sharedId: string) => {
+    const shared = sharedProfiles[sharedId];
+
+    if (!shared) return;
+
+    setMultiTenantConfig((prev) => {
+      const profileId = `profile-${Date.now()}`;
+
+      return {
+        ...prev,
+        activeProfileId: profileId,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: mergeSharedProfile(undefined, shared, sharedId),
+        },
+      };
+    });
+
+    toastRef.current?.show({
+      title: 'Profile added',
+      message: `"${shared.profileName}" is now a local profile. Credentials are not shared: add your own token in the server settings before you push.`,
+      options: { type: 'success', timeout: 8000 },
+    });
+  };
+
+  const updateFromSharedProfile = (profileId: string) => {
+    const currentLocal = multiTenantConfig.profiles[profileId];
+    const currentShared =
+      currentLocal?.sharedId && sharedProfiles[currentLocal.sharedId];
+    const changedTargets = currentShared
+      ? getChangedServerTargets(currentLocal, currentShared)
+      : [];
+
+    if (changedTargets.length) {
+      const serverNames = changedTargets
+        .map((serverId) => sharedTargetServerNames[serverId] ?? serverId)
+        .join(' and ');
+
+      toastRef.current?.show({
+        title: 'Check your server settings',
+        message: `The shared profile sends ${serverNames} to another host. Your credentials were removed and the server was turned off: check the host, then add your credentials again.`,
+        options: { type: 'warn', timeout: 10000 },
+      });
+    }
+
+    setMultiTenantConfig((prev) => {
+      const local = prev.profiles[profileId];
+      const shared = local?.sharedId && sharedProfiles[local.sharedId];
+
+      if (!shared) return prev;
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: mergeSharedProfile(local, shared, local.sharedId),
+        },
+      };
+    });
+  };
+
+  const linkSharedProfile = (
+    profileId: string,
+    link: Pick<SettingsProfileI, 'sharedId' | 'sharedUpdatedAt'>
+  ) => {
+    setMultiTenantConfig((prev) => {
+      if (!prev.profiles[profileId]) return prev;
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: { ...prev.profiles[profileId], ...link },
+        },
+      };
+    });
+  };
+
+  const shareProfileInFile = (profileId: string) => {
+    const profile = multiTenantConfig.profiles[profileId];
+
+    if (!profile) return;
+
+    const sharedId = profile.sharedId ?? `shared-${Date.now()}`;
+    const updatedAt = Date.now();
+
+    // The controller strips the credentials before it stores anything, and
+    // answers with `sharedProfileLinked` once the file has the profile
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'shareProfile',
+          profileId,
+          sharedId,
+          profile,
+          updatedAt,
+        },
+      },
+      '*'
+    );
+  };
+
+  const unshareProfileInFile = (profileId: string) => {
+    const sharedId = multiTenantConfig.profiles[profileId]?.sharedId;
+
+    if (!sharedId) return;
+
+    parent.postMessage(
+      { pluginMessage: { type: 'unshareProfile', profileId, sharedId } },
+      '*'
+    );
+  };
+
   const commonProps = {
     JSONsettingsConfig,
     setJSONsettingsConfig,
@@ -177,6 +314,11 @@ const Container = () => {
     addProfile,
     renameProfile,
     deleteProfile,
+    sharedProfiles,
+    adoptSharedProfile,
+    updateFromSharedProfile,
+    shareProfileInFile,
+    unshareProfileInFile,
   };
 
   //////////////////////
@@ -231,6 +373,28 @@ const Container = () => {
 
       const { type, hasVariables, variableCollections, storageConfig, result } =
         message;
+
+      if (type === 'pluginEnvironment') {
+        setEnvironment(message.environment);
+      }
+
+      if (type === 'sharedProfiles') {
+        setSharedProfiles(message.sharedProfiles || {});
+      }
+
+      // Linked only after the file was written, so a failed share leaves
+      // the local profile as it was
+      if (type === 'sharedProfileLinked') {
+        linkSharedProfile(message.profileId, message.link);
+      }
+
+      if (type === 'sharedProfilesError') {
+        toastRef.current?.show({
+          title: 'Could not update the shared profiles',
+          message: message.message,
+          options: { type: 'error' },
+        });
+      }
 
       if (type === 'importResult') {
         setIsImporting(false);
@@ -287,7 +451,12 @@ const Container = () => {
 
     track('/', false);
 
+    parent.postMessage(
+      { pluginMessage: { type: 'getPluginEnvironment' } },
+      '*'
+    );
     parent.postMessage({ pluginMessage: { type: 'getStorageConfig' } }, '*');
+    parent.postMessage({ pluginMessage: { type: 'getSharedProfiles' } }, '*');
     parent.postMessage({ pluginMessage: { type: 'checkForVariables' } }, '*');
 
     return () => {
@@ -297,6 +466,9 @@ const Container = () => {
 
   // Check if the view was changed
   useEffect(() => {
+    // The Inspect panel can't be resized by the plugin
+    if (!environment || isPanel) return;
+
     const resizeObserver = new ResizeObserver((entries) => {
       const { height } = entries[0].contentRect;
 
@@ -327,7 +499,7 @@ const Container = () => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [isCodePreviewOpen, manualFrameHeight]);
+  }, [isCodePreviewOpen, manualFrameHeight, environment, isPanel]);
 
   useEffect(() => {
     if (manualFrameHeight === null) {
@@ -376,6 +548,8 @@ const Container = () => {
 
   // handle code preview
   useDidUpdate(() => {
+    if (isPanel) return;
+
     parent.postMessage(
       {
         pluginMessage: {
@@ -416,24 +590,33 @@ const Container = () => {
   /////////////////////
 
   const renderView = () => {
-    if (isLoading) {
+    if (isLoading || !environment) {
       return <LoadingView />;
     }
+
+    const onImportTokens = canImportTokens(environment)
+      ? handleImportTokens
+      : undefined;
 
     if (!fileHasVariables) {
       return (
         <EmptyView
           setFileHasVariables={setFileHasVariables}
-          onImportTokens={handleImportTokens}
+          onImportTokens={onImportTokens}
           isImporting={isImporting}
         />
       );
     }
 
+    // In the panel the preview replaces the settings instead of sitting
+    // beside them. The settings stay mounted: they receive the tokens
+    const isSettingsHidden = isPanel && isCodePreviewOpen;
+
     return (
       <SettingsView
         {...commonProps}
-        onImportTokens={handleImportTokens}
+        isHidden={isSettingsHidden}
+        onImportTokens={onImportTokens}
         isImporting={isImporting}
         variableCollections={variableCollections}
         isCodePreviewOpen={isCodePreviewOpen}
@@ -447,14 +630,43 @@ const Container = () => {
     );
   };
 
+  // In Figma for VS Code, target="_blank" links do nothing. Route them all
+  // through figma.openExternal instead of touching every link
+  const handleLinkClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!environment?.isVSCode) return;
+
+    const link = (event.target as HTMLElement).closest?.(
+      'a[target="_blank"]'
+    ) as HTMLAnchorElement | null;
+
+    if (!link?.href) return;
+
+    event.preventDefault();
+    parent.postMessage(
+      { pluginMessage: { type: 'openExternal', url: link.href } },
+      '*'
+    );
+  };
+
   return (
-    <div ref={wrapperRef} className={styles.container}>
-      <Toast ref={toastRef} />
-      {renderView()}
-      {isCodePreviewOpen && (
-        <CodePreviewView generatedTokens={generatedTokens} />
-      )}
-    </div>
+    <PluginEnvironmentContext.Provider
+      value={environment ?? defaultPluginEnvironment}
+    >
+      <div
+        ref={wrapperRef}
+        className={`${styles.container} ${isPanel ? styles.panelLayout : ''}`}
+        onClickCapture={handleLinkClick}
+      >
+        <Toast ref={toastRef} />
+        {renderView()}
+        {isCodePreviewOpen && (
+          <CodePreviewView
+            generatedTokens={generatedTokens}
+            onClose={isPanel ? () => setIsCodePreviewOpen(false) : undefined}
+          />
+        )}
+      </div>
+    </PluginEnvironmentContext.Provider>
   );
 };
 

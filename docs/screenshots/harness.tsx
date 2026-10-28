@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 
 import Container from '@app/container';
 import { sanitizeMultiTenantConfig } from '@app/controller/storageConfig';
+import { defaultPluginEnvironment } from '@app/pluginEnvironment';
 import { getTokens } from '@common/export';
 import { FileResolver } from '@cli/fileResolver';
 
@@ -40,19 +41,34 @@ const resize = (width: number, height: number) => {
 };
 resize(FRAME_WIDTH, 600);
 
+// Replies land on this same window, and some share the request's type
+// (checkForVariables), so they are marked to keep the stand-in from
+// answering itself
 const reply = (pluginMessage: Record<string, unknown>) =>
-  window.postMessage({ pluginMessage }, '*');
+  window.postMessage({ pluginMessage, fromHarness: true }, '*');
 
 let isCodePreviewOpen = false;
 let frameHeight = 600;
 
 window.addEventListener('message', async (event) => {
   const msg = event.data?.pluginMessage;
-  if (!msg) return;
+  if (!msg || event.data.fromHarness) return;
 
   switch (msg.type) {
     case 'getStorageConfig':
       reply({ type: 'storageConfig', storageConfig: multiTenantConfig });
+      break;
+
+    // The UI waits for this before it renders
+    case 'getPluginEnvironment':
+      reply({
+        type: 'pluginEnvironment',
+        environment: scene.environment ?? defaultPluginEnvironment,
+      });
+      break;
+
+    case 'getSharedProfiles':
+      reply({ type: 'sharedProfiles', sharedProfiles: scene.sharedProfiles ?? {} });
       break;
 
     case 'checkForVariables':

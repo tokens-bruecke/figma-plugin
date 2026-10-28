@@ -27,6 +27,8 @@ The plugin window auto-fits the height of its content, but you can adjust it man
 - **Double-click** the handle to reset back to auto-fit. The window snaps to match the content height again.
 - Your manual height is preserved while the output preview is open, so you can resize both with and without the preview showing.
 
+In [Dev Mode](../dev-mode/) the plugin fills the Inspect panel instead, so there is no resizer.
+
 ## Multiple profiles
 
 The plugin supports multiple named profiles. Each profile stores its own complete set of export settings and server configurations, so you can switch between different setups without reconfiguring every time.
@@ -46,6 +48,21 @@ The last remaining profile cannot be deleted.
 :::
 
 <Screenshot name="profiles" alt="Switching between profiles" />
+
+
+### Shared profiles
+
+Profiles are stored on your machine. To hand your settings to others, for example developers in [Dev Mode](../dev-mode/), open the profile with `⋮` and click **Share in this file**.
+
+<Screenshot name="share-profile" alt="Sharing a profile in the file from the profile settings" />
+
+- The profile is saved in the Figma file, without any credentials: tokens, access keys, the Custom URL and its headers are removed, because webhook URLs often carry their secret in the URL. Everything else is shared, including repository, branch, file name and the Custom URL method. Each developer enters the Custom URL themselves; until then that server stays off.
+- Everyone who runs the plugin on the file sees it in the profile dropdown under **Shared in this file**. Picking it creates a local copy. Add your own token in the server settings before you push.
+
+<Screenshot name="shared-profiles" alt="A profile shared in the file, listed in the profile dropdown" />
+
+- When the shared profile changes, the local copy shows **Update**. Updating takes the settings from the file and keeps your credentials and profile name. If the update points GitLab to another host, your GitLab token is removed and the server is turned off, so a changed file can't send your token somewhere else. Check the host and add the credential again.
+- **Update shared profile** and **Stop sharing** change the profile for everyone who uses the file.
 
 ## Config autosaving
 

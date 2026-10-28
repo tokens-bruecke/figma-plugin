@@ -42,6 +42,7 @@ export default defineConfig({
             'plugin/advanced-settings',
             'plugin/push-to-server',
             'plugin/output-and-profiles',
+            'plugin/dev-mode',
           ],
         },
         {
