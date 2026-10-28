@@ -38,6 +38,30 @@ pnpm test:watch   # watch mode
 | `src/app/`    | Figma plugin UI (React)                              |
 | `src/cli/`    | CLI entry point                                      |
 | `src/common/` | Shared transform logic (used by both plugin and CLI) |
+| `docs/`       | Documentation site ([Astro Starlight](https://starlight.astro.build)) |
+
+---
+
+## Documentation
+
+The docs are published to [tokens-bruecke.github.io/figma-plugin](https://tokens-bruecke.github.io/figma-plugin/) on every push to `main` that touches `docs/`. Pages are Markdown in `docs/src/content/docs/`.
+
+```bash
+cd docs
+pnpm install
+pnpm dev          # http://localhost:4321/figma-plugin/
+```
+
+**Screenshots** are rendered from the real plugin UI with demo data, in light and dark. Regenerate them after a UI change (needs `pnpm install` in the repo root too):
+
+```bash
+cd docs
+pnpm exec playwright install chromium   # once
+pnpm shots                               # all scenes
+pnpm shots github profiles               # only these
+```
+
+Each scene (the stored settings and the clicks that lead to the captured state) is defined in `docs/screenshots/scenes.mjs`. Use it on a page with `<Screenshot name="github" alt="…" />`.
 
 ---
 

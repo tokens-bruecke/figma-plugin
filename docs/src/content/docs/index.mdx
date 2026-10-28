@@ -1,0 +1,68 @@
+---
+title: TokensBrücke
+description: Export Figma variables and styles as DTCG 2025.10 design tokens — from the Figma plugin, the CLI or the library.
+template: splash
+hero:
+  tagline: Export Figma variables and styles as design tokens compatible with the DTCG 2025.10 specification, and import tokens back into Figma.
+  image:
+    light: ../../assets/screenshots/overview-light.webp
+    dark: ../../assets/screenshots/overview-dark.webp
+  actions:
+    - text: Install the plugin
+      link: https://www.figma.com/community/plugin/1254538877056388290
+      icon: external
+      variant: primary
+    - text: Read the docs
+      link: ./getting-started/export-and-import/
+      icon: right-arrow
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
+
+## How to use
+
+<Steps>
+
+1. Install the plugin from the [Figma Community](https://www.figma.com/community/plugin/1254538877056388290).
+2. Run the plugin in any Figma file and adjust the [settings](./plugin/settings/).
+3. Download the JSON file or [push it to a server](./plugin/push-to-server/).
+
+</Steps>
+
+A file without variables opens on an empty screen, where you can [import tokens](./getting-started/export-and-import/#import-json--variables) or continue to export styles only.
+
+:::tip[New in v3.23]
+Run the plugin in [Dev Mode](./plugin/dev-mode/), and [share a profile in the file](./plugin/profiles/#shared-profiles) so developers export with your settings, without your credentials.
+:::
+
+## One converter, three ways to run it
+
+<CardGrid>
+  <Card title="Figma plugin" icon="puzzle">
+    Pick a color format, include styles, preview the output and download it or push it to
+    GitHub, GitLab, JSONBin or your own server.
+  </Card>
+  <Card title="CLI" icon="seti:shell">
+    Export from the Figma REST API or a local snapshot in CI. Pure JSON on stdout for
+    scripts and agents.
+  </Card>
+  <Card title="Library" icon="seti:typescript">
+    Call `fetchTokens` and `convertTokens` from your own build pipeline, with no child
+    process and no files on disk.
+  </Card>
+  <Card title="Import" icon="download">
+    Bring DTCG tokens back into Figma as variable collections, modes and aliases.
+  </Card>
+</CardGrid>
+
+## Start here
+
+<CardGrid>
+  <LinkCard title="Export and import" href="./getting-started/export-and-import/" description="What gets exported, and what to know before importing." />
+  <LinkCard title="Plugin settings" href="./plugin/settings/" description="Color modes, styles, scopes, DTCG format and splitting files." />
+  <LinkCard title="Shared profiles" href="./plugin/profiles/#shared-profiles" description="Share your export settings in the Figma file, without credentials." />
+  <LinkCard title="Dev Mode" href="./plugin/dev-mode/" description="Let developers export tokens from Dev Mode and VS Code." />
+  <LinkCard title="CLI overview" href="./cli/overview/" description="Install the CLI and run your first export." />
+  <LinkCard title="Token structure" href="./reference/token-structure/" description="How collections, groups and modes map to JSON." />
+</CardGrid>

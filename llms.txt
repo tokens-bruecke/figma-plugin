@@ -17,7 +17,7 @@ No REST API / no Enterprise plan — transform a snapshot dumped from the Figma 
 ## Docs
 
 - [Agent skill: CLI usage guide](skills/tokens-bruecke/SKILL.md): flags, auth, config, output layout, exit codes
-- [README — Use as CLI tool](README.md#use-as-cli-tool): human-oriented CLI documentation
+- [CLI documentation](https://tokens-bruecke.github.io/figma-plugin/cli/overview/): human-oriented CLI docs — [options and configuration](https://tokens-bruecke.github.io/figma-plugin/cli/options/), [for AI agents](https://tokens-bruecke.github.io/figma-plugin/cli/ai-agents/)
 - [Config file JSON schema](schemas/cli-options.schema.json): all config options with types, enums, and defaults
 - [Example config file](examples/cli-options.json): ready-to-copy --config file
 - [Snapshot JSON schema](schemas/tokens-snapshot.schema.json): input contract for `--input` — raw Figma Plugin API shapes for variables, collections and styles
@@ -25,5 +25,5 @@ No REST API / no Enterprise plan — transform a snapshot dumped from the Figma 
 
 ## Optional
 
-- [README — full plugin documentation](README.md): Figma plugin UI, push-to-server (GitHub/GitLab/JSONBin), styles support, tokens structure
+- [Full documentation](https://tokens-bruecke.github.io/figma-plugin/): Figma plugin UI, push-to-server (GitHub/GitLab/JSONBin), styles support, tokens structure
 - [CHANGELOG](CHANGELOG.md): release history

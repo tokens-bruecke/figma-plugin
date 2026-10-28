@@ -1,0 +1,19 @@
+/* Accent taken from the plugin's own brand blue (--figma-color-bg-brand) */
+:root {
+  --sl-color-accent-low: #00213d;
+  --sl-color-accent: #0d99ff;
+  --sl-color-accent-high: #bde3ff;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d6edff;
+  --sl-color-accent: #007be5;
+  --sl-color-accent-high: #003c80;
+}
+
+/* The hero screenshot is wide; let it take its room */
+.hero > img {
+  width: min(100%, 44rem);
+  border-radius: 0.75rem;
+  border: 1px solid var(--sl-color-hairline);
+}
