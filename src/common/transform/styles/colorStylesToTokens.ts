@@ -60,7 +60,8 @@ export const colorStylesToTokens = async (
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver,
   omitCollectionNames = false,
-  usePercentageOpacity = false
+  usePercentageOpacity = false,
+  includeFigmaMetaData = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const paintStyles = await resolver.getLocalPaintStyles();
@@ -130,6 +131,9 @@ export const colorStylesToTokens = async (
 
       return {
         [keyNames.type]: 'color',
+        ...(includeFigmaMetaData && {
+          $extensions: { figma: { styleId: style.id } },
+        }),
         [keyNames.value]:
           aliasVariable || convertRGBA(colorWithOpacity, colorMode),
       };
@@ -159,7 +163,12 @@ export const colorStylesToTokens = async (
       return {
         [keyNames.type]: 'gradient',
         [keyNames.value]: gradientStops,
-        ...(geometry && { $extensions: { gradient: geometry } }),
+        ...((geometry || includeFigmaMetaData) && {
+          $extensions: {
+            ...(geometry && { gradient: geometry }),
+            ...(includeFigmaMetaData && { figma: { styleId: style.id } }),
+          },
+        }),
       };
     }
 
