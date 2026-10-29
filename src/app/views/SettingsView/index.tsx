@@ -21,6 +21,7 @@ import { config } from '@app/controller/config';
 import { Toast, ToastRefI } from '@app/components/Toast';
 import { AdvancedSettingsView } from '@app/views/AdvancedSettingsView';
 import { ServerSettingsView } from '@app/views/ServerSettingsView';
+import { getServerSummary } from '@app/views/ServerSettingsView/providers';
 import { ProfileDetailView } from '@app/views/ProfileDetailView';
 import { NewProfileView } from '@app/views/NewProfileView';
 
@@ -97,6 +98,7 @@ const stylesList = [
   },
 ] as StyleListItemType[];
 
+// Captions tell the two GitHub targets apart before one is picked
 const serverList = [
   {
     id: 'jsonbin',
@@ -105,17 +107,19 @@ const serverList = [
   },
   {
     id: 'github',
-    label: 'Github',
+    label: 'GitHub',
+    caption: 'Commit',
     iconName: 'github',
   },
   {
     id: 'githubPullRequest',
-    label: 'Github PR',
+    label: 'GitHub PR',
+    caption: 'Pull request',
     iconName: 'github',
   },
   {
     id: 'gitlab',
-    label: 'Gitlab',
+    label: 'GitLab',
     iconName: 'gitlab',
   },
   {
@@ -336,13 +340,26 @@ export const SettingsView = (props: ViewProps) => {
           try {
             if (server.includes('jsonbin')) {
               track('/push/jsonbin');
-              await runPush('JSONBin', () =>
-                pushToJSONBin(
+              await runPush('JSONBin', async () => {
+                const result = await pushToJSONBin(
                   JSONsettingsConfig.servers.jsonbin,
                   tokens,
                   showToast
-                )
-              );
+                );
+                const binId = result?.metadata?.id;
+
+                // Keep the new bin's id, so the next push updates this bin
+                // instead of creating another one
+                if (binId && !JSONsettingsConfig.servers.jsonbin.id) {
+                  setJSONsettingsConfig((prevState) => ({
+                    ...prevState,
+                    servers: {
+                      ...prevState.servers,
+                      jsonbin: { ...prevState.servers.jsonbin, id: binId },
+                    },
+                  }));
+                }
+              });
             }
 
             if (server.includes('github')) {
@@ -829,10 +846,28 @@ export const SettingsView = (props: ViewProps) => {
                       gap={1}
                     >
                       <Icon name={server.iconName} size="32" />
-                      <Text className={styles.rowItemText}>{server.label}</Text>
+                      <div
+                        className={[styles.rowItemText, styles.serverText].join(
+                          ' '
+                        )}
+                      >
+                        <Text>{server.label}</Text>
+                        <Text className={styles.serverSummary}>
+                          {getServerSummary(
+                            serverId as ServerType,
+                            JSONsettingsConfig.servers[serverId]
+                          )}
+                        </Text>
+                      </div>
                       <IconButton
                         onClick={() => handleServerView(serverId)}
-                        children={<Icon name="kebab" size="32" />}
+                        children={
+                          <Icon
+                            name="caret-right"
+                            size="16"
+                            customIcon={advancedSettingsIcon}
+                          />
+                        }
                       />
                     </Stack>
                   );
@@ -886,6 +921,8 @@ export const SettingsView = (props: ViewProps) => {
     JSONsettingsConfig,
     setJSONsettingsConfig,
     setCurrentView,
+    showToast: (params: ToastIPropsI) => toastRef.current?.show(params),
+    variableCollections,
   };
 
   const selectRender = () => {
