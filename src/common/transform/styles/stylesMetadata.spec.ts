@@ -96,8 +96,8 @@ describe('style metadata', () => {
         [colors.colors.alias, 'alias-id'],
         [colors.colors.gradient, 'gradient-id'],
       ]) {
-        expect(token.$extensions?.figma).toEqual(
-          enabled ? { styleId: id } : undefined
+        expect(token.$extensions?.figma?.styleId).toBe(
+          enabled ? id : undefined
         );
       }
       expect(text.text.text.$extensions.styleId).toBe('text-id');

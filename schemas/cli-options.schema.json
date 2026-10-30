@@ -64,7 +64,7 @@
     "includeFigmaMetaData": {
       "type": "boolean",
       "default": false,
-      "description": "Add $extensions.figma to every variable token: variableId, codeSyntax and the collection (id, name, defaultModeId). Add styleId for exported styles."
+      "description": "Add $extensions.figma to every variable token: variableId, codeSyntax and the collection (id, name, defaultModeId). Add styleId for exported styles, and every paint of a color style in paints."
     },
     "usePercentageOpacity": {
       "type": "boolean",
