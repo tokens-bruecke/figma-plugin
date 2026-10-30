@@ -62,7 +62,8 @@ export const effectStylesToTokens = async (
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver,
-  omitCollectionNames = false
+  omitCollectionNames = false,
+  includeFigmaMetaData = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const effectStyles = await resolver.getLocalEffectStyles();
@@ -118,6 +119,9 @@ export const effectStylesToTokens = async (
     if (effectTypes === SHADOW_TYPES) {
       return {
         [keyNames.type]: 'shadow',
+        ...(includeFigmaMetaData && {
+          $extensions: { figma: { styleId: style.id } },
+        }),
         [keyNames.value]: await Promise.all(
           effects.map((effect) =>
             wrapShadowObject(
@@ -150,6 +154,9 @@ export const effectStylesToTokens = async (
 
     return {
       [keyNames.type]: 'blur',
+      ...(includeFigmaMetaData && {
+        $extensions: { figma: { styleId: style.id } },
+      }),
       [keyNames.value]: {
         role: blurEffect.type === 'LAYER_BLUR' ? 'layer' : 'background',
         blur: aliasVariable || makeDimension(blurEffect.radius, isDTCGFormat),

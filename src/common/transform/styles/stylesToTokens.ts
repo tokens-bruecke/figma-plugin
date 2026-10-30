@@ -15,6 +15,7 @@ export const stylesToTokens = async (
     includeValueStringKeyToAlias,
     omitCollectionNames = false,
     usePercentageOpacity = false,
+    includeFigmaMetaData,
   } = props;
   let styleTokens: object[] = [];
 
@@ -29,7 +30,8 @@ export const stylesToTokens = async (
       useDTCG,
       includeValueStringKeyToAlias,
       resolver,
-      omitCollectionNames
+      omitCollectionNames,
+      includeFigmaMetaData
     );
 
     styleTokens.push(textTokens);
@@ -40,7 +42,8 @@ export const stylesToTokens = async (
     const gridTokens = await gridStylesToTokens(
       includedStyles.grids.customName,
       useDTCG,
-      resolver
+      resolver,
+      includeFigmaMetaData
     );
 
     styleTokens.push(gridTokens);
@@ -54,7 +57,8 @@ export const stylesToTokens = async (
       useDTCG,
       includeValueStringKeyToAlias,
       resolver,
-      omitCollectionNames
+      omitCollectionNames,
+      includeFigmaMetaData
     );
 
     styleTokens.push(effectTokens);
@@ -69,7 +73,8 @@ export const stylesToTokens = async (
       includeValueStringKeyToAlias,
       resolver,
       omitCollectionNames,
-      usePercentageOpacity
+      usePercentageOpacity,
+      includeFigmaMetaData
     );
 
     styleTokens.push(colorTokens);
