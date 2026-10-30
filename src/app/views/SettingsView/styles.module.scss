@@ -19,6 +19,22 @@
   height: 100vh;
 }
 
+// Dev Mode: fill the Inspect panel and scroll inside it. Figma asks for
+// layouts that work from 300 px, but the user can make the panel narrower
+.panelSettingView {
+  width: 100%;
+  min-width: 0;
+  height: 100vh;
+}
+
+.hidden {
+  display: none;
+}
+
+.hint {
+  opacity: 0.6;
+}
+
 .dynamicContent {
   flex: 1;
 }
@@ -45,6 +61,19 @@
 
 .rowItemText {
   flex: 1;
+}
+
+// Inset like the labels and full-width buttons below, so the text starts
+// with "Show output" and the button ends with "Download JSON"
+.sharedUpdate {
+  align-items: center;
+  padding-left: var(--space-medium);
+  padding-right: var(--space-medium);
+}
+
+.sharedUpdateText {
+  flex: 1;
+  text-wrap: balance;
 }
 
 .about {

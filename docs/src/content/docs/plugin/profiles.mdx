@@ -1,0 +1,63 @@
+---
+title: "Profiles"
+description: "Keep several export setups, and share a profile in the Figma file so everyone exports with the same settings."
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Screenshot from '../../../components/Screenshot.astro';
+
+A profile holds a complete set of export settings and server configurations. Keep one per platform or repository, and share one in the Figma file so designers and developers export the same tokens.
+
+## Multiple profiles
+
+Each profile stores its own settings, so you can switch between different setups without reconfiguring every time. The profile controls are in the header of the settings view:
+
+- **Profile dropdown** — shows the active profile. Click it to switch to another profile.
+- **`+` button** — creates a new profile. Enter a name and click **Create**. The new profile starts with default settings.
+- **`⋮` button** — opens the active profile, where you can rename, share or delete it.
+
+<Screenshot name="profiles" alt="Switching between profiles" />
+
+Switching profiles applies that profile's export options and server credentials right away. The last remaining profile can't be deleted.
+
+## Shared profiles
+
+Profiles are stored on your machine. To hand your settings to others, for example developers in [Dev Mode](../dev-mode/), share the profile in the Figma file.
+
+<Steps>
+
+1. Open the profile with `⋮` and click **Share in this file**.
+
+   <Screenshot name="share-profile" alt="Sharing a profile in the file from the profile settings" />
+
+2. Everyone who runs the plugin on the file sees it in the profile dropdown under **Shared in this file**. Picking it creates a local copy.
+
+   <Screenshot name="shared-profiles" alt="A profile shared in the file, listed in the profile dropdown" />
+
+3. Each person adds their own token in the [server settings](../push-to-server/) before they push.
+
+</Steps>
+
+### What is shared
+
+The profile is saved in the Figma file without any credentials: tokens, access keys, the Custom URL and its headers are removed, because webhook URLs often carry their secret in the URL. Everything else is shared, including repository, branch, file name and the Custom URL method. Each developer enters the Custom URL themselves; until then that server stays off.
+
+### Keeping copies up to date
+
+When the shared profile changes, the local copy shows **Update**. Updating takes the settings from the file and keeps your credentials and profile name.
+
+<Screenshot name="shared-profile-update" alt="The Update banner shown when the shared profile changed" />
+
+:::caution
+If an update points GitLab to another host, your GitLab token is removed and the server is turned off, so a changed file can't send your token somewhere else. Check the host and add the credential again.
+:::
+
+### Changing or stopping a shared profile
+
+Open a shared profile with `⋮` to change it for everyone who uses the file: **Update shared profile** writes your current settings to the file, and **Stop sharing** removes it from the file. Local copies stay as they are.
+
+<Screenshot name="shared-profile-detail" alt="A shared profile with the Update shared profile and Stop sharing buttons" />
+
+## Config autosaving
+
+The plugin saves the config automatically, so you don't need to set it up every time you run the plugin.

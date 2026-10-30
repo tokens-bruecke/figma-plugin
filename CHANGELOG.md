@@ -1,3 +1,26 @@
+## [3.23.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.23.0...v3.23.1) (2026-10-28)
+
+### Documentation
+
+- **docs:** the documentation moved from the README to a site, [tokens-bruecke.github.io/figma-plugin](https://tokens-bruecke.github.io/figma-plugin/), with screenshots of the current plugin in light and dark and pages for Dev Mode and shared profiles ([#139](https://github.com/tokens-bruecke/figma-plugin/issues/139)) ([13518a4](https://github.com/tokens-bruecke/figma-plugin/commit/13518a47ea95df85f7390ba5e8006fa8101c12fb))
+- **plugin:** the Documentation link opens the docs site. **cli:** `--help` links to the CLI docs ([#139](https://github.com/tokens-bruecke/figma-plugin/issues/139)) ([13518a4](https://github.com/tokens-bruecke/figma-plugin/commit/13518a47ea95df85f7390ba5e8006fa8101c12fb))
+- **docs:** the site publishes `llms.txt`, `llms-full.txt` and `llms-small.txt` for AI agents, and the `llms.txt` in the npm package points to them ([#142](https://github.com/tokens-bruecke/figma-plugin/issues/142)) ([19f2ed6](https://github.com/tokens-bruecke/figma-plugin/commit/19f2ed689f8baffa9982a66b4368bfeac1cce630))
+
+### Bug Fixes
+
+- **plugin:** align the shared profile Update banner with the panel ([#144](https://github.com/tokens-bruecke/figma-plugin/issues/144)) ([986828e](https://github.com/tokens-bruecke/figma-plugin/commit/986828e3d462d7f9e1fb97c0dc7306dfe5f48184))
+
+## [3.23.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.22.0...v3.23.0) (2026-10-28)
+
+### Features
+
+- **plugin:** run in Dev Mode and share profiles in the file without credentials ([2bf5332](https://github.com/tokens-bruecke/figma-plugin/commit/2bf53328d3f6ae106dff61806ce39ed3c6b48139))
+
+### Bug Fixes
+
+- **plugin:** align the shared-profile note with the buttons and make it easier to read ([9dd7ad1](https://github.com/tokens-bruecke/figma-plugin/commit/9dd7ad199ddd9c8565645b7d2fb5d41e66d3c281))
+- **plugin:** never share the Custom URL, link shared profiles after saving ([d35e5e7](https://github.com/tokens-bruecke/figma-plugin/commit/d35e5e77f0538587f55951ba32e48abba2b1e645))
+
 ## [3.22.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.21.0...v3.22.0) (2026-10-28)
 
 ### Behaviour changes

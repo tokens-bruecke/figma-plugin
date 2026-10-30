@@ -1,0 +1,45 @@
+---
+// A plugin screenshot from src/assets/screenshots, in the theme the reader
+// has picked. Regenerate them with `pnpm shots`.
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  name: string;
+  alt: string;
+}
+
+const { name, alt } = Astro.props;
+
+const shots = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/screenshots/*.webp',
+  { eager: true }
+);
+
+// Plain <img> rather than <Image>: the files are already optimized, and
+// re-encoding would drop the frames of the animated ones
+const shot = (theme: 'light' | 'dark') => {
+  const image = shots[`../assets/screenshots/${name}-${theme}.webp`]?.default;
+  if (!image) throw new Error(`Missing screenshot ${name}-${theme}.webp`);
+  // captured at 2x
+  return { src: image.src, width: image.width / 2, height: image.height / 2 };
+};
+---
+
+<figure class="screenshot">
+  <img {...shot('light')} alt={alt} class="dark:sl-hidden" loading="lazy" decoding="async" />
+  <img {...shot('dark')} alt={alt} class="light:sl-hidden" loading="lazy" decoding="async" />
+</figure>
+
+<style>
+  .screenshot {
+    margin-block: 1.5rem;
+  }
+  /* no `display` here: it would override the theme's sl-hidden classes */
+  .screenshot img {
+    vertical-align: top;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    border: 1px solid var(--sl-color-hairline);
+  }
+</style>

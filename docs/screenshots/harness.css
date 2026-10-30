@@ -1,0 +1,84 @@
+html,
+body {
+  margin: 0;
+  background: transparent;
+}
+
+body.figma-light {
+  --stage-bg: #eef0f3;
+  --window-shadow: 0 0 0 1px rgb(0 0 0 / 0.08), 0 12px 32px rgb(0 0 0 / 0.12);
+}
+
+body.figma-dark {
+  --stage-bg: #23252b;
+  --window-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 12px 32px rgb(0 0 0 / 0.4);
+}
+
+#stage {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 560px;
+  padding: 48px 64px;
+  box-sizing: border-box;
+  background: var(--stage-bg);
+}
+
+#viewport {
+  /* room for the window shadow when the viewport crops it */
+  padding: 0 24px;
+  margin: 0 -24px;
+}
+
+#window {
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: var(--window-shadow);
+  background: var(--figma-color-bg);
+  font-family: 'Inter', sans-serif;
+}
+
+#titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid var(--figma-color-border);
+  color: var(--figma-color-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+#titlebar .close {
+  margin-left: auto;
+  color: var(--figma-color-icon-secondary);
+}
+
+#frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--figma-color-bg);
+}
+
+#react-page {
+  height: 100%;
+}
+
+#titlebar .back {
+  display: none;
+  margin-left: -6px;
+  color: var(--figma-color-icon-secondary);
+}
+
+/* Dev Mode: a plugin in the Inspect panel, under the panel's own header */
+body.dev-mode #window {
+  border-radius: 8px;
+}
+
+body.dev-mode #titlebar .back {
+  display: block;
+}
+
+body.dev-mode #titlebar .close {
+  display: none;
+}
