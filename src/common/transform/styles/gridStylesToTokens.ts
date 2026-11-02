@@ -8,7 +8,8 @@ import { warnSkippedStyle } from './warnSkippedStyle';
 export const gridStylesToTokens = async (
   customName: string,
   isDTCGFormat: boolean,
-  resolver: IResolver
+  resolver: IResolver,
+  includeFigmaMetaData = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const gridStyles = await resolver.getLocalGridStyles();
@@ -40,6 +41,9 @@ export const gridStylesToTokens = async (
 
     return {
       [keyNames.type]: 'grid',
+      ...(includeFigmaMetaData && {
+        $extensions: { figma: { styleId: style.id } },
+      }),
       [keyNames.value]: {
         columnCount: count(columnGrid?.count),
         columnGap: dimension(columnGrid?.gutterSize),

@@ -13,7 +13,7 @@ Supported styles:
 - Shadows (including `inset` shadows)
 - Blur (including `background` and `layer` blur)
 
-A style the plugin can't export, such as an image fill or a color style with several paints, is left out and the rest of the export continues. The plugin logs a `[tokens-bruecke] Skipped style …` warning to the console (`Plugins → Development → Open console`, or stderr for the CLI).
+A style the plugin can't export, such as a color style with only image fills, is left out and the rest of the export continues. The plugin logs a `[tokens-bruecke] Skipped style …` warning to the console (`Plugins → Development → Open console`, or stderr for the CLI).
 
 ## Typography
 
@@ -83,6 +83,45 @@ The plugin supports solid colors and gradients (linear, radial, angular, diamond
 ```
 
 DTCG has no direction or type for a gradient, only the stops, so they are exported in `$extensions.gradient`. `type` is `linear`, `radial`, `angular` or `diamond`. `angle` is only there for a linear gradient, in CSS degrees: `0` is to the top, `90` to the right and `180` to the bottom. It is taken from the handles of the gradient, which are relative to the layer, so it is exact for a gradient along an axis and an approximation for a diagonal one on a layer that is not square.
+
+### Color styles with several paints
+
+A token has a single value, so a color style with several paints takes its value from the top visible solid paint or gradient. The other paints are left out with a warning.
+
+With [Include Figma metadata](../../plugin/advanced-settings/#include-figma-metadata) on, every paint of the style is also exported in `$extensions.figma.paints`, in Figma's order: from the bottom paint to the top one. Each paint has its `type`, `visible`, `opacity` and `blendMode`. A solid paint adds its `color`, without the paint's opacity, or the alias of its variable. A gradient adds its `stops`, its `gradient` type and angle, and the raw `gradientTransform`. An image adds its `imageHash` and `scaleMode`.
+
+```json
+"overlay": {
+  "$type": "color",
+  "$value": "#ff000080",
+  "$extensions": {
+    "figma": {
+      "styleId": "S:4d3c…",
+      "paints": [
+        {
+          "type": "GRADIENT_LINEAR",
+          "visible": true,
+          "opacity": 1,
+          "blendMode": "NORMAL",
+          "stops": [
+            { "color": "#000000", "position": 0 },
+            { "color": "#ffffff", "position": 1 }
+          ],
+          "gradient": { "type": "linear", "angle": 180 },
+          "gradientTransform": [[0, 1, 0], [-1, 0, 1]]
+        },
+        {
+          "type": "SOLID",
+          "visible": true,
+          "opacity": 0.5,
+          "blendMode": "MULTIPLY",
+          "color": "#ff0000"
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Grids
 

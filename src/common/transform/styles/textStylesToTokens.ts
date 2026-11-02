@@ -15,7 +15,8 @@ export const textStylesToTokens = async (
   isDTCGFormat: boolean,
   includeValueStringKeyToAlias: boolean,
   resolver: IResolver,
-  omitCollectionNames = false
+  omitCollectionNames = false,
+  includeFigmaMetaData = false
 ) => {
   const keyNames = getTokenKeyName(isDTCGFormat);
   const textStyles = await resolver.getLocalTextStyles();
@@ -91,6 +92,7 @@ export const textStylesToTokens = async (
       [keyNames.description]: style.description,
       $extensions: {
         styleId: style.id,
+        ...(includeFigmaMetaData && { figma: { styleId: style.id } }),
       },
     } as unknown as TypographyTokenI;
   }

@@ -108,7 +108,7 @@ You can use a JSON configuration file to specify the export options for the CLI.
   "includeScopes": true,
   "useDTCG": true, // DTCG 2025.10 format: $-prefixed keys, dimension objects, spec-valid types
   "includeValueStringKeyToAlias": true,
-  "includeFigmaMetaData": false, // Add $extensions.figma (variableId, codeSyntax, collection) to variables
+  "includeFigmaMetaData": false, // Add $extensions.figma to variables (variableId, codeSyntax, collection) and styles (styleId, color style paints)
   "usePercentageOpacity": false, // Export opacity as percentage (10%) instead of decimal (0.1)
   "expandEasingPresets": true, // Expand Figma's named easing presets into cubicBezier values
   "colorMode": "hex", // "hex"  | "rgba-object"  | "srgb-dtcg" |  "rgba-css"  | "hsla-object" | "hsl-dtcg" | "hsla-css" | "oklch-dtcg";
