@@ -1,3 +1,20 @@
+## [3.24.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.23.1...v3.24.0) (2026-11-02)
+
+### Features
+
+- **export:** with "Include Figma metadata" on, exported styles carry `$extensions.figma.styleId` ([#138](https://github.com/tokens-bruecke/figma-plugin/issues/138)) ([d879673](https://github.com/tokens-bruecke/figma-plugin/commit/d8796735b8e05f321292258bd05d3fe88bfe6357))
+- **export:** with "Include Figma metadata" on, a color style with several paints lists all of them, bottom to top, in `$extensions.figma.paints` (type, visibility, opacity, blend mode, and the color, gradient stops or image hash) ([#138](https://github.com/tokens-bruecke/figma-plugin/issues/138)) ([7707a77](https://github.com/tokens-bruecke/figma-plugin/commit/7707a77d0cc0652b70485ae9409cb520300d9390))
+
+### Behaviour changes
+
+- **export:** a color style with several paints takes its `$value` from the top visible solid or gradient paint, as Figma draws it. With metadata off, the export warns about the paints it left out.
+
+### Bug Fixes
+
+- **export:** color aliases with opacity keep their Figma metadata ([#138](https://github.com/tokens-bruecke/figma-plugin/issues/138)) ([c3020d2](https://github.com/tokens-bruecke/figma-plugin/commit/c3020d2fb4ef9448d2eacd2f0d8f3186b8e0d341))
+
+Thanks to [@sojotype](https://github.com/sojotype) for [#138](https://github.com/tokens-bruecke/figma-plugin/pull/138).
+
 ## [3.23.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.23.0...v3.23.1) (2026-10-28)
 
 ### Documentation
