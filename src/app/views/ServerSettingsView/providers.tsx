@@ -90,10 +90,10 @@ const fileField: FieldConfigI = {
   placeholder: (ctx) => (isSplit(ctx) ? 'tokens' : DEFAULT_FILE),
   hint: (ctx) =>
     isSplit(ctx)
-      ? `Split export is on: one file per ${
+      ? `One file per ${
           ctx.splitByMode ? 'mode' : 'collection'
         }, e.g. ${examplePath(ctx)}`
-      : 'Path in the repository, e.g. tokens/design.tokens.json',
+      : undefined,
 };
 
 const branchValidation = (value: string) =>
@@ -104,7 +104,7 @@ const commitMessageField: FieldConfigI = {
   kind: 'text',
   isAdvanced: true,
   label: 'Commit message',
-  hint: `Leave empty to use “${DEFAULT_COMMIT_MESSAGE}”.`,
+  placeholder: DEFAULT_COMMIT_MESSAGE,
 };
 
 const githubRepositoryField: FieldConfigI = {
@@ -112,8 +112,7 @@ const githubRepositoryField: FieldConfigI = {
   kind: 'text',
   required: true,
   label: 'Repository',
-  placeholder: 'owner/repository',
-  hint: 'Or paste the repository URL from your browser.',
+  placeholder: 'owner/repository or URL',
   validate: (value) =>
     parseGithubRepository(value)
       ? undefined
@@ -162,7 +161,6 @@ export const providers: Record<ServerType, ProviderI> = {
         required: true,
         label: 'Branch',
         placeholder: 'main',
-        hint: 'Must already exist.',
         validate: branchValidation,
       },
       fileField,
@@ -199,7 +197,6 @@ export const providers: Record<ServerType, ProviderI> = {
         required: true,
         label: 'Base branch',
         placeholder: 'main',
-        hint: 'The pull request merges into this branch.',
         validate: branchValidation,
       },
       fileField,
@@ -210,7 +207,7 @@ export const providers: Record<ServerType, ProviderI> = {
         isAdvanced: true,
         label: 'Pull request branch',
         placeholder: DEFAULT_PR_BRANCH,
-        hint: 'Reset to your export on every push. Use a branch nobody works on.',
+        hint: 'Overwritten on every push. Use a branch nobody works on.',
         validate: (value, ctx) =>
           value.trim() && value.trim() === ctx.values.baseBranch.trim()
             ? 'Use a different branch than the base branch. This one is overwritten on every push.'
@@ -222,7 +219,7 @@ export const providers: Record<ServerType, ProviderI> = {
         kind: 'text',
         isAdvanced: true,
         label: 'Pull request title',
-        hint: `Leave empty to use “${DEFAULT_PR_TITLE}”.`,
+        placeholder: DEFAULT_PR_TITLE,
       },
       {
         id: 'pullRequestBody',
@@ -268,9 +265,10 @@ export const providers: Record<ServerType, ProviderI> = {
         hint: (ctx) => {
           const parsed = parseGitlabProject(ctx.values.project);
 
+          // Confirms how a pasted URL was read
           return parsed
             ? `${parsed.host} · ${parsed.owner}/${parsed.repo}`
-            : 'Paste the project URL from your browser. Self-managed GitLab works too.';
+            : undefined;
         },
         validate: (value) =>
           parseGitlabProject(value)
@@ -283,7 +281,6 @@ export const providers: Record<ServerType, ProviderI> = {
         required: true,
         label: 'Branch',
         placeholder: 'main',
-        hint: 'Must already exist.',
         validate: branchValidation,
       },
       fileField,
@@ -350,7 +347,6 @@ export const providers: Record<ServerType, ProviderI> = {
         required: true,
         label: 'Bin name',
         placeholder: 'design.tokens',
-        hint: 'Shown in your JSONBin dashboard.',
       },
       {
         id: 'id',
@@ -358,8 +354,8 @@ export const providers: Record<ServerType, ProviderI> = {
         label: 'Bin ID',
         hint: (ctx) =>
           ctx.values.id
-            ? 'Every push updates this bin.'
-            : 'Leave empty to create a new bin. Its ID is filled in after the first push.',
+            ? undefined
+            : 'Leave empty to create a new bin on the first push.',
       },
       {
         id: 'secretKey',
@@ -422,7 +418,6 @@ export const providers: Record<ServerType, ProviderI> = {
         kind: 'text',
         label: 'Headers',
         placeholder: '{"Authorization": "Bearer …"}',
-        hint: 'JSON object, sent with every push.',
         validate: (value) => {
           if (!value.trim()) return undefined;
 

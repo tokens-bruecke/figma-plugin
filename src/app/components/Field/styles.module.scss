@@ -15,18 +15,10 @@
   gap: var(--space-extra-small);
 }
 
-// With the info button's -4 px margin the icon sits about 4 px after the
-// label text
-.labelGroup {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-
 .label {
   display: flex;
   gap: 4px;
+  min-width: 0;
   cursor: default;
 }
 
@@ -43,73 +35,22 @@
 .link {
   flex-shrink: 0;
   color: var(--figma-color-text);
+  // Only the label is underlined, not the arrow
+  text-decoration: none;
+}
+
+.linkLabel {
+  text-decoration: underline;
+}
+
+.hint {
+  color: var(--figma-color-text-secondary);
+  overflow-wrap: anywhere;
 }
 
 .error {
   color: var(--figma-color-text-danger);
   overflow-wrap: anywhere;
-}
-
-.hintAnchor {
-  display: flex;
-}
-
-// 24 px target around the 16 px icon; the negative margin keeps the label
-// row at 16 px
-.infoButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin: -4px;
-  border-radius: var(--border-radius-2);
-  color: var(--figma-color-icon-secondary);
-
-  &:hover,
-  &[aria-expanded='true'] {
-    color: var(--figma-color-icon);
-  }
-
-  &:focus-visible {
-    outline: 1px solid var(--figma-color-border-brand-strong);
-  }
-}
-
-// Figma's tooltip look, from the menu colors the kit's OverlayList uses. It
-// opens from the field's left edge; --caret-x puts the caret under the icon
-.tooltip {
-  position: absolute;
-  z-index: var(--z-index-2);
-  top: 24px;
-  left: var(--space-extra-small);
-  min-width: calc(var(--caret-x) + 16px);
-  max-width: calc(100% - 2 * var(--space-extra-small));
-  padding: 6px var(--space-extra-small);
-  border-radius: var(--border-radius-2);
-  background-color: var(--figma-color-bg-menu);
-  color: var(--figma-color-text-menu);
-  box-shadow: var(--elevation-300-tooltip);
-  overflow-wrap: anywhere;
-  pointer-events: none;
-  visibility: hidden;
-  opacity: 0;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: calc(var(--caret-x) - 4px);
-    width: 8px;
-    height: 8px;
-    background-color: inherit;
-    transform: rotate(45deg);
-  }
-}
-
-.tooltipOpen {
-  visibility: visible;
-  opacity: 1;
 }
 
 .inputRow {

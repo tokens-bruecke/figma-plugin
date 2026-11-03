@@ -1,76 +1,7 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
 
 import { Icon, IconButton, Input, NativeDropdown } from 'react-figma-ui/ui';
-
-// Passing over the icon on the way to another field doesn't open it
-const OPEN_DELAY = 300;
-
-interface HintTooltipProps {
-  id: string;
-  children: React.ReactNode;
-}
-
-/**
- * The hint behind an info icon right after the label. Opens on hover and on
- * keyboard focus, Escape closes it. The hint text keeps its id while closed,
- * so the input still reads it as its description.
- */
-const HintTooltip = ({ id, children }: HintTooltipProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [caretX, setCaretX] = useState(0);
-  const timer = useRef<number>();
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const schedule = (nextOpen: boolean, delay: number) => {
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setIsOpen(nextOpen), delay);
-  };
-
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  // The tooltip opens from the field's left edge and its caret moves under
-  // the icon, wherever the label ends. Both are positioned against the field
-  useLayoutEffect(() => {
-    const button = buttonRef.current;
-    if (!isOpen || !button) return;
-
-    const fieldPadding = 8;
-    setCaretX(button.offsetLeft + button.offsetWidth / 2 - fieldPadding);
-  }, [isOpen]);
-
-  return (
-    <span
-      className={styles.hintAnchor}
-      onMouseEnter={() => schedule(true, OPEN_DELAY)}
-      onMouseLeave={() => schedule(false, 0)}
-      onFocus={() => schedule(true, 0)}
-      onBlur={() => schedule(false, 0)}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') schedule(false, 0);
-      }}
-    >
-      <button
-        ref={buttonRef}
-        type="button"
-        className={styles.infoButton}
-        aria-label="More information"
-        aria-describedby={id}
-        aria-expanded={isOpen}
-      >
-        <Icon name="info" size="16" />
-      </button>
-      <span
-        id={id}
-        role="tooltip"
-        className={[styles.tooltip, isOpen ? styles.tooltipOpen : ''].join(' ')}
-        style={{ ['--caret-x' as string]: `${caretX}px` }}
-      >
-        {children}
-      </span>
-    </span>
-  );
-};
 
 interface FieldProps {
   id: string;
@@ -78,31 +9,24 @@ interface FieldProps {
   isOptional?: boolean;
   /** A visible action at the end of the label row, e.g. "Create token" */
   link?: { label: string; href: string };
-  /** Behind the info icon after the label */
+  /** Helper text under the control */
   hint?: React.ReactNode;
-  /** Shown under the control, never in the tooltip */
+  /** Takes the hint's place under the control */
   error?: string;
   children: React.ReactNode;
 }
 
-/** A visible label above the control and an error below it */
+/** A visible label above the control, and helper text or an error below it */
 export const Field = (props: FieldProps) => {
   const { id, label, isOptional, link, hint, error, children } = props;
 
   return (
     <div className={styles.field}>
       <div className={styles.labelRow}>
-        <div className={styles.labelGroup}>
-          <label htmlFor={id} className={styles.label}>
-            <span className={styles.labelText}>{label}</span>
-            {isOptional && <span className={styles.optional}>optional</span>}
-          </label>
-          {hint && (
-            <HintTooltip id={error ? `${id}-hint` : `${id}-message`}>
-              {hint}
-            </HintTooltip>
-          )}
-        </div>
+        <label htmlFor={id} className={styles.label}>
+          <span className={styles.labelText}>{label}</span>
+          {isOptional && <span className={styles.optional}>optional</span>}
+        </label>
         {link && (
           <a
             className={styles.link}
@@ -110,17 +34,23 @@ export const Field = (props: FieldProps) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {link.label} ↗
+            <span className={styles.linkLabel}>{link.label}</span> ↗
           </a>
         )}
       </div>
 
       {children}
 
-      {error && (
+      {error ? (
         <span id={`${id}-message`} className={styles.error} aria-live="polite">
           {error}
         </span>
+      ) : (
+        hint && (
+          <span id={`${id}-message`} className={styles.hint}>
+            {hint}
+          </span>
+        )
       )}
     </div>
   );
