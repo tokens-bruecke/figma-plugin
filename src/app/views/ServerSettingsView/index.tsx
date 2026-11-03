@@ -221,8 +221,9 @@ export const ServerSettingsView = (props: ViewProps) => {
   };
 
   const handleBack = () => {
-    // A second click on back leaves without saving
-    if (isDirty && !isLeaving) {
+    // Unsaved changes are only dropped through Discard, never by a second
+    // click on back
+    if (isDirty) {
       setIsLeaving(true);
       return;
     }

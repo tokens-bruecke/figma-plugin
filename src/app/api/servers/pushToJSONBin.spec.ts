@@ -14,7 +14,7 @@ describe('pushToJSONBin', () => {
     vi.unstubAllGlobals();
   });
 
-  it('reports the id of a new bin so the next push updates it', async () => {
+  it('returns the id of a new bin so the next push updates it', async () => {
     const fetchMock = vi.fn(
       async (_url: string, _init?: RequestInit) =>
         new Response(JSON.stringify({ metadata: { id: 'bin-1' } }), {
@@ -22,13 +22,12 @@ describe('pushToJSONBin', () => {
         })
     );
     vi.stubGlobal('fetch', fetchMock);
-    const onBinCreated = vi.fn();
     const toast = vi.fn();
 
-    await pushToJSONBin(credentials(), {}, toast, onBinCreated);
+    const result = await pushToJSONBin(credentials(), {}, toast);
 
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'POST' });
-    expect(onBinCreated).toHaveBeenCalledWith('bin-1');
+    expect(result.metadata.id).toBe('bin-1');
     expect(toast.mock.calls[0][0].message).toContain('bin-1');
   });
 
@@ -40,15 +39,15 @@ describe('pushToJSONBin', () => {
         })
     );
     vi.stubGlobal('fetch', fetchMock);
-    const onBinCreated = vi.fn();
+    const toast = vi.fn();
 
-    await pushToJSONBin(credentials('bin-1'), {}, vi.fn(), onBinCreated);
+    await pushToJSONBin(credentials('bin-1'), {}, toast);
 
     expect(fetchMock.mock.calls[0][0]).toBe(
       'https://api.jsonbin.io/v3/b/bin-1'
     );
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'PUT' });
-    expect(onBinCreated).not.toHaveBeenCalled();
+    expect(toast.mock.calls[0][0].message).not.toContain('Created');
   });
 
   it('shows the status and the message JSONBin sends', async () => {

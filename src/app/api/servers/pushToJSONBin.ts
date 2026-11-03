@@ -18,10 +18,7 @@ const readErrorMessage = async (response: Response) => {
 export const pushToJSONBin = async (
   credentials: JsonbinCredentialsI,
   tokens: any,
-  toastCallback: (props: ToastIPropsI) => void,
-  // Receives the id of a bin created by the push, so the next push updates
-  // that bin instead of creating another one
-  onBinCreated?: (binId: string) => void
+  toastCallback: (props: ToastIPropsI) => void
 ) => {
   const isUpdate = !!credentials.id;
   let response: Response = null;
@@ -81,10 +78,6 @@ export const pushToJSONBin = async (
   const createdBinId: string | undefined = !isUpdate
     ? json?.metadata?.id
     : undefined;
-
-  if (createdBinId) {
-    onBinCreated?.(createdBinId);
-  }
 
   toastCallback({
     title: 'JSONBin: Updated successfully',
