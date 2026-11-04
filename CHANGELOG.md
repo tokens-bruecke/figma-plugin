@@ -1,3 +1,29 @@
+## [3.25.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.24.0...v3.25.0) (2026-11-04)
+
+### Features
+
+- **plugin:** the GitHub, GitHub PR, GitLab, JSONBin and Custom URL settings have visible labels, helper text under the fields that need it, and validation. Tokens and keys are masked, and optional fields sit under **More options** ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([171d7ce](https://github.com/tokens-bruecke/figma-plugin/commit/171d7ce406b852f4d0ff48d8bcf7cdc527c9b6b6)) ([6a7accc](https://github.com/tokens-bruecke/figma-plugin/commit/6a7accc204fbfc08af661ec7c75616aab267515e))
+- **plugin:** **Test connection** checks the token, repository and branch of GitHub, GitHub PR and GitLab with read-only requests, and shows a problem at the field it belongs to ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([171d7ce](https://github.com/tokens-bruecke/figma-plugin/commit/171d7ce406b852f4d0ff48d8bcf7cdc527c9b6b6))
+- **plugin:** GitHub takes `owner/repository` or a pasted repository URL. GitLab takes the project URL, including self-managed hosts, subgroups and SSH clone URLs. A URL that points at a branch fills in the branch ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([171d7ce](https://github.com/tokens-bruecke/figma-plugin/commit/171d7ce406b852f4d0ff48d8bcf7cdc527c9b6b6))
+- **plugin:** the server list shows where each server pushes to, e.g. `acme/tokens · main`, and a click opens its settings ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([171d7ce](https://github.com/tokens-bruecke/figma-plugin/commit/171d7ce406b852f4d0ff48d8bcf7cdc527c9b6b6))
+- **plugin:** a JSONBin push with an empty Bin ID creates a bin and saves its ID, so later pushes update the same bin ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([171d7ce](https://github.com/tokens-bruecke/figma-plugin/commit/171d7ce406b852f4d0ff48d8bcf7cdc527c9b6b6))
+
+### Behaviour changes
+
+- **plugin:** leaving server settings with unsaved changes asks to save or discard them, and **Remove** asks for confirmation before it deletes the server's settings and secret ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([abd62fc](https://github.com/tokens-bruecke/figma-plugin/commit/abd62fcb34c504719ddf6598bc6d71daf4531255))
+- **plugin:** with "Split collections" or "Split modes" on, the file path field is labelled **Folder**
+
+### Bug Fixes
+
+- **plugin:** JSONBin errors show the reason JSONBin sends instead of an empty status ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([171d7ce](https://github.com/tokens-bruecke/figma-plugin/commit/171d7ce406b852f4d0ff48d8bcf7cdc527c9b6b6))
+- **plugin:** toasts spell GitHub and GitLab correctly, and info toasts are tinted so they stand out from the panel ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([9c9136e](https://github.com/tokens-bruecke/figma-plugin/commit/9c9136e1b483a3416caa3367e459a92d18fa1299)) ([8b197d8](https://github.com/tokens-bruecke/figma-plugin/commit/8b197d86e7cab09f5ccc9c385be60325ca9ad62f))
+
+### Documentation
+
+- **docs:** the Push to server page describes the new fields ([#146](https://github.com/tokens-bruecke/figma-plugin/issues/146)) ([171d7ce](https://github.com/tokens-bruecke/figma-plugin/commit/171d7ce406b852f4d0ff48d8bcf7cdc527c9b6b6))
+
+Thanks to [@skraegelin](https://github.com/skraegelin) for [#146](https://github.com/tokens-bruecke/figma-plugin/pull/146).
+
 ## [3.24.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.23.1...v3.24.0) (2026-11-02)
 
 ### Features
