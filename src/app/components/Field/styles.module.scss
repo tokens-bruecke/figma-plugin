@@ -1,0 +1,79 @@
+// Label, control and error share one edge with the panel titles and the
+// buttons: 16 px from the window, like the main view's buttons
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 var(--space-extra-small);
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-extra-small);
+}
+
+.label {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  cursor: default;
+}
+
+.labelText {
+  color: var(--figma-color-text);
+  opacity: var(--input-label-opacity);
+}
+
+// secondary, not tertiary: tertiary text is too faint to read at 11 px
+.optional {
+  color: var(--figma-color-text-secondary);
+}
+
+.link {
+  flex-shrink: 0;
+  color: var(--figma-color-text);
+  // Only the label is underlined, not the arrow
+  text-decoration: none;
+}
+
+.linkLabel {
+  text-decoration: underline;
+}
+
+.hint {
+  color: var(--figma-color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.error {
+  color: var(--figma-color-text-danger);
+  overflow-wrap: anywhere;
+}
+
+.inputRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+}
+
+// Room for the reveal button, so typed text never runs under it
+.hasReveal input {
+  padding-right: 30px;
+}
+
+// Inside the 30 px field, 1 px in so the border stays visible on hover
+.inputRow .reveal {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 28px;
+  height: 28px;
+}

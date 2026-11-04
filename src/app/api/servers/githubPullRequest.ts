@@ -37,11 +37,11 @@ export const githubPullRequest = async (
       const { url, created } = await createPullRequest();
       toastCallback({
         title: created
-          ? 'Github: Pull Request created'
-          : 'Github: Pull Request updated',
+          ? 'GitHub: Pull Request created'
+          : 'GitHub: Pull Request updated',
         message: created
-          ? 'Github Pull Request has been created successfully'
-          : 'Github Pull Request has been updated successfully',
+          ? 'GitHub Pull Request has been created successfully'
+          : 'GitHub Pull Request has been updated successfully',
         link: url ? { label: 'Open Pull Request', url } : undefined,
         options: {
           type: 'success',
@@ -51,7 +51,7 @@ export const githubPullRequest = async (
     } catch (error) {
       console.error('Error creating pull request:', error);
       toastCallback({
-        title: 'Github: Error creating pull request',
+        title: 'GitHub: Error creating pull request',
         message: `Error creating pull request: ${error.message}.`,
         options: {
           type: 'error',

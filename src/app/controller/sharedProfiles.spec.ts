@@ -72,6 +72,18 @@ describe('stripCredentials', () => {
     expect(stripped.servers.customURL.headers).toBe('');
   });
 
+  it('removes the Custom URL, which can hold a webhook secret', () => {
+    const profile = profileWithCredentials();
+    profile.servers.customURL.url =
+      'https://hooks.slack.com/services/T000/B000/secret';
+    const stripped = stripCredentials(profile);
+
+    expect(stripped.servers.customURL.url).toBe('');
+    expect(stripped.servers.customURL.method).toBe(
+      profile.servers.customURL.method
+    );
+  });
+
   it('keeps the settings and server targets', () => {
     const stripped = stripCredentials(profileWithCredentials());
 
@@ -279,5 +291,25 @@ describe('mergeSharedProfile', () => {
       isEnabled: false,
     });
     expect(merged.sharedUpdatedAt).toBe(7);
+  });
+
+  it('keeps the local Custom URL and turns the server off without one', () => {
+    const shared = stripCredentials(profileWithCredentials());
+
+    const updated = mergeSharedProfile(
+      profileWithCredentials(),
+      shared,
+      'shared-1'
+    );
+    const adopted = mergeSharedProfile(undefined, shared, 'shared-1');
+
+    expect(updated.servers.customURL).toMatchObject({
+      url: 'https://tokens.acme.dev/upload',
+      isEnabled: true,
+    });
+    expect(adopted.servers.customURL).toMatchObject({
+      url: '',
+      isEnabled: false,
+    });
   });
 });
