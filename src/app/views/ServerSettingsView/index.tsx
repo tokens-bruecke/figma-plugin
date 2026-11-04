@@ -58,6 +58,8 @@ export const ServerSettingsView = (props: ViewProps) => {
     string | boolean
   >;
   const isConfigured = !!stored.isEnabled;
+  // Custom URL has no secret field, so Remove doesn't speak of one
+  const secretField = provider.fields.find((field) => field.kind === 'secret');
 
   const [initialValues] = useState(() => provider.toForm(stored));
   const [values, setValues] = useState<FormValuesT>(initialValues);
@@ -85,6 +87,12 @@ export const ServerSettingsView = (props: ViewProps) => {
     splitByMode: JSONsettingsConfig.splitByMode,
     collections: props.variableCollections || [],
   };
+
+  // JSONBin's secret is a "Master key", the others are tokens
+  const secretName =
+    secretField && /key/i.test(resolve(secretField.label, ctx))
+      ? 'key'
+      : 'token';
 
   const getError = (field: FieldConfigI) => {
     const value = values[field.id] || '';
@@ -242,7 +250,9 @@ export const ServerSettingsView = (props: ViewProps) => {
 
     showToast?.({
       title: `${provider.title} removed`,
-      message: 'Its settings and token are deleted from this profile.',
+      message: secretField
+        ? `Its settings and ${secretName} are deleted from this profile.`
+        : 'Its settings are deleted from this profile.',
       options: { type: 'info' },
     });
 
@@ -414,7 +424,9 @@ export const ServerSettingsView = (props: ViewProps) => {
               className={styles.rowItem}
             >
               <Text className={styles.rowItemText}>
-                Also deletes the token.
+                {secretField
+                  ? `Also deletes the ${secretName}.`
+                  : 'Deletes its settings.'}
               </Text>
               <Button
                 label="Cancel"

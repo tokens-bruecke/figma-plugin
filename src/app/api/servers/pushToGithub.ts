@@ -80,11 +80,11 @@ export const pushToGithub = async (
     });
 
     toastCallback({
-      title: 'Github: Updated successfully',
+      title: 'GitHub: Updated successfully',
       message:
         files.length > 1
-          ? `${files.length} token files on Github have been updated successfully`
-          : 'Tokens on Github have been updated successfully',
+          ? `${files.length} token files on GitHub have been updated successfully`
+          : 'Tokens on GitHub have been updated successfully',
       options: {
         type: 'success',
       },
@@ -95,8 +95,8 @@ export const pushToGithub = async (
     toastCallback({
       title:
         error.status === 404
-          ? 'Github: Not found'
-          : 'Github: An error occurred',
+          ? 'GitHub: Not found'
+          : 'GitHub: An error occurred',
       message:
         error.status === 404
           ? `Could not find "${branch}" in ${ghUser}/${ghRepo}. Check the repository name, the branch (it has to exist and have at least one commit) and the token scope.`

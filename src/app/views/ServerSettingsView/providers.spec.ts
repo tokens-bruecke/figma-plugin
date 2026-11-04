@@ -175,6 +175,11 @@ describe('getServerSummary', () => {
       },
       'acme/web/tokens · main',
     ],
+    [
+      'gitlab',
+      { host: '', owner: 'acme%2Fweb', repo: 'tokens', branch: 'main' },
+      'acme/web/tokens · main',
+    ],
     ['jsonbin', { name: 'design.tokens', id: '' }, 'design.tokens · new bin'],
     [
       'customURL',

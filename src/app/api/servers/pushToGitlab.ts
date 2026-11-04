@@ -28,9 +28,9 @@ export const pushToGitlab = async (
   };
 
   const showError = (message: string) => {
-    console.error('Gitlab error:', message);
+    console.error('GitLab error:', message);
     toastCallback({
-      title: 'Gitlab: An error occurred',
+      title: 'GitLab: An error occurred',
       message: `Error: ${message}`,
       options: {
         type: 'error',
@@ -130,11 +130,11 @@ export const pushToGitlab = async (
     }
 
     toastCallback({
-      title: 'Gitlab: Updated successfully',
+      title: 'GitLab: Updated successfully',
       message:
         files.length > 1
-          ? `${files.length} token files on Gitlab have been updated successfully`
-          : 'Tokens on Gitlab have been updated successfully',
+          ? `${files.length} token files on GitLab have been updated successfully`
+          : 'Tokens on GitLab have been updated successfully',
       options: {
         type: 'success',
       },

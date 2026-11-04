@@ -2,6 +2,7 @@ import React from 'react';
 
 import { splitTokensIntoFiles } from '@common/transform/splitTokensIntoFiles';
 
+import { getGitlabProjectId } from '@app/api/servers/gitlabProject';
 import {
   formatGithubRepository,
   formatGitlabProject,
@@ -458,8 +459,12 @@ export const getServerSummary = (server: ServerType, stored: StoredT) => {
       return `${s('owner')}/${s('repo')} · into ${s('baseBranch')}`;
     // The host would push project and branch out of the 300 px row; the
     // form shows it
+    // An owner saved encoded by the old workaround ("acme%2Fweb") reads
+    // as a path
     case 'gitlab':
-      return `${s('owner')}/${s('repo')} · ${s('branch')}`;
+      return `${decodeURIComponent(
+        getGitlabProjectId(s('owner'), s('repo'))
+      )} · ${s('branch')}`;
     case 'jsonbin':
       return s('id') ? `${s('name')} · ${s('id')}` : `${s('name')} · new bin`;
     case 'customURL': {
