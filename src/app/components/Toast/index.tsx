@@ -70,6 +70,8 @@ export const Toast = forwardRef<ToastRefI, {}>((_, ref: Ref<ToastRefI>) => {
                 ? '⛔️ '
                 : toast.options.type === 'warn'
                 ? '⚠️ '
+                : toast.options.type === 'info'
+                ? 'ℹ️ '
                 : '🎉 '}
               {toast.title}
             </Text>
