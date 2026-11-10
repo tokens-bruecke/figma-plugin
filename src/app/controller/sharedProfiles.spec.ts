@@ -49,6 +49,12 @@ const profileWithCredentials = (): SettingsProfileI => {
         token: 'glpat_secret',
         host: 'gitlab.acme.dev',
       },
+      gitlabMergeRequest: {
+        ...profile.servers.gitlabMergeRequest,
+        token: 'glpat_mr_secret',
+        host: 'gitlab.acme.dev',
+        baseBranch: 'main',
+      },
       customURL: {
         ...profile.servers.customURL,
         isEnabled: true,
@@ -68,6 +74,7 @@ describe('stripCredentials', () => {
     expect(stripped.servers.github.token).toBe('');
     expect(stripped.servers.githubPullRequest.token).toBe('');
     expect(stripped.servers.gitlab.token).toBe('');
+    expect(stripped.servers.gitlabMergeRequest.token).toBe('');
     expect(stripped.servers.customURL.url).toBe('');
     expect(stripped.servers.customURL.headers).toBe('');
   });
@@ -230,6 +237,35 @@ describe('mergeSharedProfile', () => {
     // Servers with a fixed API host keep their credential
     expect(merged.servers.github.token).toBe('ghp_secret');
     expect(merged.servers.jsonbin.secretKey).toBe('jsonbin-secret');
+  });
+
+  it('drops the merge request credential when its GitLab host changes', () => {
+    const local = profileWithCredentials();
+    const base = profileWithCredentials();
+    const shared = stripCredentials({
+      ...base,
+      servers: {
+        ...base.servers,
+        gitlabMergeRequest: {
+          ...base.servers.gitlabMergeRequest,
+          isEnabled: true,
+          host: 'evil.dev',
+        },
+      },
+    });
+
+    expect(getChangedServerTargets(local, shared)).toEqual([
+      'gitlabMergeRequest',
+    ]);
+
+    const merged = mergeSharedProfile(local, shared, 'shared-1');
+
+    expect(merged.servers.gitlabMergeRequest).toMatchObject({
+      host: 'evil.dev',
+      token: '',
+      isEnabled: false,
+    });
+    expect(merged.servers.gitlab.token).toBe('glpat_secret');
   });
 
   it('keeps a credential when only the host spelling changes', () => {

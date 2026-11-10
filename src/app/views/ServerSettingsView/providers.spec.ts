@@ -103,6 +103,38 @@ describe('providers: derived values', () => {
     expect(providers.gitlab.derive('project', values)).toBeUndefined();
   });
 
+  it('keeps every field of a GitLab merge request', () => {
+    const stored = {
+      host: 'gitlab.acme.com',
+      owner: 'acme/frontend',
+      repo: 'design-system',
+      baseBranch: 'main',
+      branch: 'tokens/update',
+      fileName: 'tokens',
+      token: 'glpat-test',
+      commitMessage: 'chore: tokens',
+      mergeRequestTitle: 'Update tokens',
+      mergeRequestDescription: 'From Figma\n',
+    };
+
+    expect(
+      providers.gitlabMergeRequest.toStorage(
+        providers.gitlabMergeRequest.toForm(stored)
+      )
+    ).toEqual(stored);
+  });
+
+  it('fills the target branch of a GitLab merge request', () => {
+    const values = {
+      ...providers.gitlabMergeRequest.toForm({}),
+      project: 'https://gitlab.acme.com/acme/tokens/-/tree/develop',
+    };
+
+    expect(providers.gitlabMergeRequest.derive('project', values)).toEqual({
+      baseBranch: 'develop',
+    });
+  });
+
   it('fills the base branch of a GitHub pull request', () => {
     const values = {
       ...providers.githubPullRequest.toForm({}),
@@ -124,6 +156,20 @@ describe('providers: validation', () => {
     ).toMatch(/different branch/);
     expect(
       prBranch.validate(
+        'tokens/update',
+        ctx({ baseBranch: 'main', branch: 'tokens/update' })
+      )
+    ).toBeUndefined();
+  });
+
+  it('rejects a merge request branch that is the target branch', () => {
+    const mrBranch = field('gitlabMergeRequest', 'branch');
+
+    expect(
+      mrBranch.validate('main', ctx({ baseBranch: 'main', branch: 'main' }))
+    ).toMatch(/different branch/);
+    expect(
+      mrBranch.validate(
         'tokens/update',
         ctx({ baseBranch: 'main', branch: 'tokens/update' })
       )
@@ -179,6 +225,11 @@ describe('getServerSummary', () => {
       'gitlab',
       { host: '', owner: 'acme%2Fweb', repo: 'tokens', branch: 'main' },
       'acme/web/tokens · main',
+    ],
+    [
+      'gitlabMergeRequest',
+      { host: '', owner: 'acme/web', repo: 'tokens', baseBranch: 'main' },
+      'acme/web/tokens · into main',
     ],
     ['jsonbin', { name: 'design.tokens', id: '' }, 'design.tokens · new bin'],
     [

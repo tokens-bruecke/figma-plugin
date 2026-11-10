@@ -65,6 +65,20 @@ interface GitlabCredentialsI {
   commitMessage?: string;
 }
 
+interface GitlabMergeRequestCredentialsI {
+  isEnabled: boolean;
+  owner: string;
+  host: string;
+  repo: string;
+  baseBranch: string;
+  branch: string;
+  fileName: string;
+  token: string;
+  commitMessage?: string;
+  mergeRequestTitle?: string;
+  mergeRequestDescription?: string;
+}
+
 interface CustomURLCredentialsI {
   isEnabled: boolean;
   url: string;
@@ -93,6 +107,7 @@ interface ServerSettingsI {
   github: GithubCredentialsI;
   githubPullRequest: GithubPullRequestCredentialsI;
   gitlab: GitlabCredentialsI;
+  gitlabMergeRequest: GitlabMergeRequestCredentialsI;
   customURL: CustomURLCredentialsI;
 }
 type JSONSettingsConfigI = ExportSettingsI & {

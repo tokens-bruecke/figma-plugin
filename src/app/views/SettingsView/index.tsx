@@ -29,6 +29,7 @@ import { pushToJSONBin } from '@app/api/servers/pushToJSONBin';
 import { pushToGithub } from '@app/api/servers/pushToGithub';
 import { githubPullRequest } from '@app/api/servers/githubPullRequest';
 import { pushToGitlab } from '@app/api/servers/pushToGitlab';
+import { gitlabMergeRequest } from '@app/api/servers/gitlabMergeRequest';
 import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
@@ -98,7 +99,8 @@ const stylesList = [
   },
 ] as StyleListItemType[];
 
-// Captions tell the two GitHub targets apart before one is picked
+// Captions tell the two GitHub and the two GitLab targets apart before one
+// is picked
 const serverList = [
   {
     id: 'jsonbin',
@@ -120,6 +122,13 @@ const serverList = [
   {
     id: 'gitlab',
     label: 'GitLab',
+    caption: 'Commit',
+    iconName: 'gitlab',
+  },
+  {
+    id: 'gitlabMergeRequest',
+    label: 'GitLab MR',
+    caption: 'Merge request',
     iconName: 'gitlab',
   },
   {
@@ -391,6 +400,18 @@ export const SettingsView = (props: ViewProps) => {
               await runPush('Gitlab', () =>
                 pushToGitlab(
                   JSONsettingsConfig.servers.gitlab,
+                  tokens,
+                  showToast,
+                  splitOptions
+                )
+              );
+            }
+
+            if (server.includes('gitlabMergeRequest')) {
+              track('/push/gitlab-merge-request');
+              await runPush('Gitlab MR', () =>
+                gitlabMergeRequest(
+                  JSONsettingsConfig.servers.gitlabMergeRequest,
                   tokens,
                   showToast,
                   splitOptions
@@ -982,6 +1003,12 @@ export const SettingsView = (props: ViewProps) => {
 
     if (currentView === 'githubPullRequest') {
       return <ServerSettingsView {...commonProps} server="githubPullRequest" />;
+    }
+
+    if (currentView === 'gitlabMergeRequest') {
+      return (
+        <ServerSettingsView {...commonProps} server="gitlabMergeRequest" />
+      );
     }
 
     if (currentView === 'customURL') {

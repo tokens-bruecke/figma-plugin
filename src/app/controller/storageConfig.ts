@@ -64,6 +64,17 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
       owner: '',
       commitMessage: '',
     },
+    gitlabMergeRequest: {
+      isEnabled: false,
+      host: '',
+      token: '',
+      repo: '',
+      baseBranch: '',
+      branch: '',
+      fileName: '',
+      owner: '',
+      commitMessage: '',
+    },
     customURL: {
       isEnabled: false,
       url: '',
@@ -116,6 +127,10 @@ const sanitizeProfileConfig = (
       gitlab: {
         ...defaults.servers.gitlab,
         ...(safeConfig.servers?.gitlab || {}),
+      },
+      gitlabMergeRequest: {
+        ...defaults.servers.gitlabMergeRequest,
+        ...(safeConfig.servers?.gitlabMergeRequest || {}),
       },
       customURL: {
         ...defaults.servers.customURL,

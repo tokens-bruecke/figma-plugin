@@ -75,8 +75,13 @@ const testGithub = async (
 };
 
 const testGitlab = async (
-  credentials: GitlabCredentialsI
+  credentials: GitlabCredentialsI | GitlabMergeRequestCredentialsI,
+  branchFieldId: 'branch' | 'baseBranch'
 ): Promise<ConnectionResultI> => {
+  const branch =
+    branchFieldId === 'baseBranch'
+      ? (credentials as GitlabMergeRequestCredentialsI).baseBranch
+      : credentials.branch;
   const host = normalizeGitlabHost(credentials.host);
   const projectId = getGitlabProjectId(credentials.owner, credentials.repo);
   const baseUrl = `https://${host}/api/v4/projects/${projectId}`;
@@ -102,19 +107,19 @@ const testGitlab = async (
   }
 
   const branchResponse = await fetch(
-    `${baseUrl}/repository/branches/${encodeURIComponent(credentials.branch)}`,
+    `${baseUrl}/repository/branches/${encodeURIComponent(branch)}`,
     { headers }
   );
 
   if (!branchResponse.ok) {
     return {
       ok: false,
-      fieldId: 'branch',
-      message: `${name} has no branch "${credentials.branch}".`,
+      fieldId: branchFieldId,
+      message: `${name} has no branch "${branch}".`,
     };
   }
 
-  return { ok: true, message: `Connected to ${name} · ${credentials.branch}` };
+  return { ok: true, message: `Connected to ${name} · ${branch}` };
 };
 
 export const testConnection = async (
@@ -134,21 +139,28 @@ export const testConnection = async (
     }
 
     if (server === 'gitlab') {
-      return await testGitlab(credentials as GitlabCredentialsI);
+      return await testGitlab(credentials as GitlabCredentialsI, 'branch');
+    }
+
+    if (server === 'gitlabMergeRequest') {
+      return await testGitlab(
+        credentials as GitlabMergeRequestCredentialsI,
+        'baseBranch'
+      );
     }
 
     return { ok: false, message: 'This server has no connection test.' };
   } catch {
     // fetch only rejects when the server can't be reached at all
-    const host =
-      server === 'gitlab'
-        ? normalizeGitlabHost((credentials as GitlabCredentialsI).host)
-        : 'api.github.com';
+    const isGitlab = server === 'gitlab' || server === 'gitlabMergeRequest';
+    const host = isGitlab
+      ? normalizeGitlabHost((credentials as GitlabCredentialsI).host)
+      : 'api.github.com';
 
     return {
       ok: false,
       // a mistyped self-managed host is the likely cause
-      fieldId: server === 'gitlab' ? 'project' : undefined,
+      fieldId: isGitlab ? 'project' : undefined,
       message: `Can't reach ${host}. Check the address and your network.`,
     };
   }

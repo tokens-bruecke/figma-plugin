@@ -14,6 +14,7 @@ const credentialFields: { [S in ServerType]?: (keyof ServerSettingsI[S])[] } = {
   github: ['token'],
   githubPullRequest: ['token'],
   gitlab: ['token'],
+  gitlabMergeRequest: ['token'],
   // Webhook URLs often carry their secret in the URL, and custom headers
   // usually carry an Authorization header
   customURL: ['url', 'headers'],
@@ -124,6 +125,8 @@ const credentialTargets: {
   [S in ServerType]?: (server: ServerSettingsI[S]) => string;
 } = {
   gitlab: (server) => normalizeGitlabHost(server?.host).toLowerCase(),
+  gitlabMergeRequest: (server) =>
+    normalizeGitlabHost(server?.host).toLowerCase(),
 };
 
 /**
