@@ -79,6 +79,19 @@ describe('stripCredentials', () => {
     expect(stripped.servers.customURL.headers).toBe('');
   });
 
+  it('leaves out servers of a newer plugin version, whose secrets are unknown', () => {
+    const profile = profileWithCredentials();
+    (profile.servers as unknown as Record<string, unknown>).bitbucket = {
+      isEnabled: true,
+      appPassword: 'ghp_future_secret',
+    };
+
+    const stripped = stripCredentials(profile);
+
+    expect(stripped.servers).not.toHaveProperty('bitbucket');
+    expect(JSON.stringify(stripped)).not.toMatch(credentialValues);
+  });
+
   it('removes the Custom URL, which can hold a webhook secret', () => {
     const profile = profileWithCredentials();
     profile.servers.customURL.url =
@@ -266,6 +279,33 @@ describe('mergeSharedProfile', () => {
       isEnabled: false,
     });
     expect(merged.servers.gitlab.token).toBe('glpat_secret');
+  });
+
+  it('keeps local servers of a newer plugin version and never takes them from the file', () => {
+    const local = profileWithCredentials();
+    const future = { isEnabled: true, appPassword: 'local-secret' };
+    (local.servers as unknown as Record<string, unknown>).bitbucket = future;
+    // A shared profile written by an older version, or edited in the file
+    const shared = parseSharedProfiles(
+      JSON.stringify({
+        'shared-1': {
+          ...stripCredentials(profileWithCredentials()),
+          servers: {
+            ...stripCredentials(profileWithCredentials()).servers,
+            jira: { isEnabled: true, token: 'from-file' },
+          },
+        },
+      })
+    )['shared-1'];
+
+    expect(shared.servers).not.toHaveProperty('jira');
+
+    const merged = mergeSharedProfile(local, shared, 'shared-1');
+
+    expect(
+      (merged.servers as unknown as Record<string, unknown>).bitbucket
+    ).toEqual(future);
+    expect(merged.servers).not.toHaveProperty('jira');
   });
 
   it('keeps a credential when only the host spelling changes', () => {
