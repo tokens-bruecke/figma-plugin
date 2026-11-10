@@ -45,6 +45,19 @@ const servers = {
     fileName: 'tokens/design.tokens.json',
     commitMessage: '',
   },
+  gitlabMergeRequest: {
+    isEnabled: true,
+    host: '',
+    token: 'glpat-demo0demo0demo0demo',
+    owner: 'acme/design',
+    repo: 'design-tokens',
+    baseBranch: 'main',
+    branch: '',
+    fileName: 'tokens/design.tokens.json',
+    commitMessage: '',
+    mergeRequestTitle: '',
+    mergeRequestDescription: '',
+  },
   customURL: {
     isEnabled: true,
     url: 'https://api.example.com/tokens',
@@ -141,9 +154,10 @@ export const scenes = {
   },
 
   jsonbin: serverScene('jsonbin', 'JSONBin'),
-  github: serverScene('github', 'Github'),
-  'github-pr': serverScene('githubPullRequest', 'Github PR'),
-  gitlab: serverScene('gitlab', 'Gitlab'),
+  github: serverScene('github', 'GitHub'),
+  'github-pr': serverScene('githubPullRequest', 'GitHub PR'),
+  gitlab: serverScene('gitlab', 'GitLab'),
+  'gitlab-mr': serverScene('gitlabMergeRequest', 'GitLab MR'),
   'custom-url': serverScene('customURL', 'Custom URL'),
 
   profiles: {

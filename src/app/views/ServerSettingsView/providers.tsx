@@ -4,6 +4,10 @@ import { splitTokensIntoFiles } from '@common/transform/splitTokensIntoFiles';
 
 import { getGitlabProjectId } from '@app/api/servers/gitlabProject';
 import {
+  DEFAULT_MR_BRANCH,
+  DEFAULT_MR_TITLE,
+} from '@app/api/servers/gitlabMergeRequest';
+import {
   formatGithubRepository,
   formatGitlabProject,
   isDefaultGitlabHost,
@@ -145,6 +149,75 @@ const toGithubRepository = (values: FormValuesT) => {
   return { owner: parsed?.owner ?? '', repo: parsed?.repo ?? '' };
 };
 
+const gitlabProjectField: FieldConfigI = {
+  id: 'project',
+  kind: 'text',
+  required: true,
+  label: 'Project',
+  placeholder: 'https://gitlab.com/group/project',
+  hint: (ctx) => {
+    const parsed = parseGitlabProject(ctx.values.project);
+
+    // Confirms how a pasted URL was read
+    return parsed
+      ? `${parsed.host} · ${parsed.owner}/${parsed.repo}`
+      : undefined;
+  },
+  validate: (value) =>
+    parseGitlabProject(value)
+      ? undefined
+      : 'Use the project URL or group/project, e.g. acme/design/tokens.',
+};
+
+const gitlabTokenField = (hint: string): FieldConfigI => ({
+  id: 'token',
+  kind: 'secret',
+  required: true,
+  label: 'Project access token',
+  link: (ctx) => {
+    const parsed = parseGitlabProject(ctx.values.project);
+
+    return {
+      label: 'Create token',
+      href: parsed
+        ? `https://${parsed.host}/${parsed.owner}/${parsed.repo}/-/settings/access_tokens`
+        : 'https://docs.gitlab.com/user/project/settings/project_access_tokens/',
+    };
+  },
+  hint,
+});
+
+const deriveGitlabBranch =
+  (branchFieldId: string) => (fieldId: string, values: FormValuesT) => {
+    if (fieldId !== 'project' || values[branchFieldId]) return undefined;
+
+    const branch = parseGitlabProject(values.project)?.branch;
+    return branch ? { [branchFieldId]: branch } : undefined;
+  };
+
+const toGitlabForm = (stored: StoredT) => ({
+  project: formatGitlabProject(
+    str(stored.host),
+    str(stored.owner),
+    str(stored.repo)
+  ),
+  fileName: str(stored.fileName) || DEFAULT_FILE,
+  token: str(stored.token),
+});
+
+const toGitlabStorage = (values: FormValuesT) => {
+  const parsed = parseGitlabProject(values.project);
+
+  return {
+    // gitlab.com stays empty, as before
+    host: parsed && !isDefaultGitlabHost(parsed.host) ? parsed.host : '',
+    owner: parsed?.owner ?? '',
+    repo: parsed?.repo ?? '',
+    fileName: values.fileName.trim(),
+    token: values.token.trim(),
+  };
+};
+
 ///////////////
 // PROVIDERS //
 ///////////////
@@ -257,25 +330,7 @@ export const providers: Record<ServerType, ProviderI> = {
     description: 'Commits the tokens straight to a branch of a GitLab project.',
     canTestConnection: true,
     fields: [
-      {
-        id: 'project',
-        kind: 'text',
-        required: true,
-        label: 'Project',
-        placeholder: 'https://gitlab.com/group/project',
-        hint: (ctx) => {
-          const parsed = parseGitlabProject(ctx.values.project);
-
-          // Confirms how a pasted URL was read
-          return parsed
-            ? `${parsed.host} · ${parsed.owner}/${parsed.repo}`
-            : undefined;
-        },
-        validate: (value) =>
-          parseGitlabProject(value)
-            ? undefined
-            : 'Use the project URL or group/project, e.g. acme/design/tokens.',
-      },
+      gitlabProjectField,
       {
         id: 'branch',
         kind: 'text',
@@ -285,56 +340,87 @@ export const providers: Record<ServerType, ProviderI> = {
         validate: branchValidation,
       },
       fileField,
-      {
-        id: 'token',
-        kind: 'secret',
-        required: true,
-        label: 'Project access token',
-        link: (ctx) => {
-          const parsed = parseGitlabProject(ctx.values.project);
-
-          return {
-            label: 'Create token',
-            href: parsed
-              ? `https://${parsed.host}/${parsed.owner}/${parsed.repo}/-/settings/access_tokens`
-              : 'https://docs.gitlab.com/user/project/settings/project_access_tokens/',
-          };
-        },
-        hint: 'Needs the api scope and a role that may push to this branch.',
-      },
+      gitlabTokenField(
+        'Needs the api scope and a role that may push to this branch.'
+      ),
       commitMessageField,
     ],
-    derive: (fieldId, values) => {
-      if (fieldId !== 'project' || values.branch) return undefined;
-
-      const branch = parseGitlabProject(values.project)?.branch;
-      return branch ? { branch } : undefined;
-    },
+    derive: deriveGitlabBranch('branch'),
     toForm: (stored) => ({
-      project: formatGitlabProject(
-        str(stored.host),
-        str(stored.owner),
-        str(stored.repo)
-      ),
+      ...toGitlabForm(stored),
       branch: str(stored.branch),
-      fileName: str(stored.fileName) || DEFAULT_FILE,
-      token: str(stored.token),
       commitMessage: str(stored.commitMessage),
     }),
-    toStorage: (values) => {
-      const parsed = parseGitlabProject(values.project);
+    toStorage: (values) => ({
+      ...toGitlabStorage(values),
+      branch: values.branch.trim(),
+      commitMessage: values.commitMessage.trim(),
+    }),
+  },
 
-      return {
-        // gitlab.com stays empty, as before
-        host: parsed && !isDefaultGitlabHost(parsed.host) ? parsed.host : '',
-        owner: parsed?.owner ?? '',
-        repo: parsed?.repo ?? '',
-        branch: values.branch.trim(),
-        fileName: values.fileName.trim(),
-        token: values.token.trim(),
-        commitMessage: values.commitMessage.trim(),
-      };
-    },
+  gitlabMergeRequest: {
+    title: 'GitLab merge request',
+    description:
+      'Commits the tokens to a separate branch and opens a merge request, or updates the open one.',
+    canTestConnection: true,
+    fields: [
+      gitlabProjectField,
+      {
+        id: 'baseBranch',
+        kind: 'text',
+        required: true,
+        label: 'Target branch',
+        placeholder: 'main',
+        validate: branchValidation,
+      },
+      fileField,
+      gitlabTokenField(
+        'Needs the api scope and at least the Developer role. The target branch can stay protected.'
+      ),
+      {
+        id: 'branch',
+        kind: 'text',
+        isAdvanced: true,
+        label: 'Merge request branch',
+        placeholder: DEFAULT_MR_BRANCH,
+        hint: 'Overwritten on every push. Use a branch nobody works on.',
+        validate: (value, ctx) =>
+          value.trim() && value.trim() === ctx.values.baseBranch.trim()
+            ? 'Use a different branch than the target branch. This one is overwritten on every push.'
+            : branchValidation(value),
+      },
+      commitMessageField,
+      {
+        id: 'mergeRequestTitle',
+        kind: 'text',
+        isAdvanced: true,
+        label: 'Merge request title',
+        placeholder: DEFAULT_MR_TITLE,
+      },
+      {
+        id: 'mergeRequestDescription',
+        kind: 'text',
+        isAdvanced: true,
+        label: 'Merge request description',
+      },
+    ],
+    derive: deriveGitlabBranch('baseBranch'),
+    toForm: (stored) => ({
+      ...toGitlabForm(stored),
+      baseBranch: str(stored.baseBranch),
+      branch: str(stored.branch),
+      commitMessage: str(stored.commitMessage),
+      mergeRequestTitle: str(stored.mergeRequestTitle),
+      mergeRequestDescription: str(stored.mergeRequestDescription),
+    }),
+    toStorage: (values) => ({
+      ...toGitlabStorage(values),
+      baseBranch: values.baseBranch.trim(),
+      branch: values.branch.trim(),
+      commitMessage: values.commitMessage.trim(),
+      mergeRequestTitle: values.mergeRequestTitle.trim(),
+      mergeRequestDescription: values.mergeRequestDescription,
+    }),
   },
 
   jsonbin: {
@@ -465,6 +551,10 @@ export const getServerSummary = (server: ServerType, stored: StoredT) => {
       return `${decodeURIComponent(
         getGitlabProjectId(s('owner'), s('repo'))
       )} · ${s('branch')}`;
+    case 'gitlabMergeRequest':
+      return `${decodeURIComponent(
+        getGitlabProjectId(s('owner'), s('repo'))
+      )} · into ${s('baseBranch')}`;
     case 'jsonbin':
       return s('id') ? `${s('name')} · ${s('id')}` : `${s('name')} · new bin`;
     case 'customURL': {
