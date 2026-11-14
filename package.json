@@ -96,7 +96,7 @@
     "react": "^18.2.0",
     "react-dev-utils": "^12.0.1",
     "react-dom": "^18.2.0",
-    "react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#6f064d293de56d946628152afdd160ba88fa5128",
+    "react-figma-ui": "git+https://git@github.com/PavelLaptev/react-figma-ui.git#cdeece9874fca9ed90c5f481f4779fe1bad97ede",
     "sass": "^1.57.1",
     "sass-loader": "^13.2.0",
     "style-loader": "^3.3.1",
