@@ -1,3 +1,23 @@
+## [3.26.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.25.0...v3.26.0) (2026-11-15)
+
+### Features
+
+- **plugin:** **GitLab MR** commits the tokens to a separate branch and opens a merge request into the target branch, or updates the open one, so the target branch can stay protected. The branch is reset on every push, so the merge request only shows the token changes. Test connection, shared profiles and the server list support it like the other servers ([#149](https://github.com/tokens-bruecke/figma-plugin/issues/149)) ([5f7143b](https://github.com/tokens-bruecke/figma-plugin/commit/5f7143be4e36b52858b6d26b266adf34db418bf4))
+
+### Behaviour changes
+
+- **plugin:** in the server menu, GitLab now has the caption *Commit* and GitLab MR *Merge request*, like the two GitHub servers. Menu captions are faded, so they read as hints next to the name ([#149](https://github.com/tokens-bruecke/figma-plugin/issues/149)) ([#151](https://github.com/tokens-bruecke/figma-plugin/issues/151)) ([1f86dc3](https://github.com/tokens-bruecke/figma-plugin/commit/1f86dc387f6fe4ff3efdcf33af63181d605f8483))
+
+### Bug Fixes
+
+- **plugin:** a profile that holds a server from a newer plugin version no longer stops the plugin from opening. Such servers are not listed or pushed, stay stored for the newer version, and are left out of shared profiles ([#149](https://github.com/tokens-bruecke/figma-plugin/issues/149)) ([e5b1fc8](https://github.com/tokens-bruecke/figma-plugin/commit/e5b1fc8c2e6674c9183102065266e1645fbe5808))
+
+### Documentation
+
+- **docs:** the Push to server page describes GitLab MR, and the GitLab section points to it for protected branches ([#149](https://github.com/tokens-bruecke/figma-plugin/issues/149)) ([5f7143b](https://github.com/tokens-bruecke/figma-plugin/commit/5f7143be4e36b52858b6d26b266adf34db418bf4))
+
+Thanks to [@skraegelin](https://github.com/skraegelin) for [#149](https://github.com/tokens-bruecke/figma-plugin/pull/149).
+
 ## [3.25.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.24.0...v3.25.0) (2026-11-04)
 
 ### Features
