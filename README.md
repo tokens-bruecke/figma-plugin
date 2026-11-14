@@ -15,7 +15,7 @@ TokensBruecke exports Figma variables and styles as design tokens JSON compatibl
 
 1. Install the plugin from the [Figma Community](https://www.figma.com/community/plugin/1254538877056388290).
 2. Run it in any Figma file and adjust the [settings](https://tokens-bruecke.github.io/figma-plugin/plugin/settings/).
-3. Download the JSON file or [push it to a server](https://tokens-bruecke.github.io/figma-plugin/plugin/push-to-server/): JSONBin, GitHub, a GitHub pull request, GitLab or your own endpoint.
+3. Download the JSON file or [push it to a server](https://tokens-bruecke.github.io/figma-plugin/plugin/push-to-server/): JSONBin, GitHub, a GitHub pull request, GitLab, a GitLab merge request or your own endpoint.
 
 The plugin also runs in [Dev Mode](https://tokens-bruecke.github.io/figma-plugin/plugin/dev-mode/), so developers can export tokens themselves; [share a profile in the file](https://tokens-bruecke.github.io/figma-plugin/plugin/profiles/#shared-profiles) to give them your settings.
 
@@ -60,7 +60,7 @@ See [Use as a library](https://tokens-bruecke.github.io/figma-plugin/library/) f
 | --- | --- |
 | [Export and import](https://tokens-bruecke.github.io/figma-plugin/getting-started/export-and-import/) | What gets exported, and what to know before importing |
 | [Settings](https://tokens-bruecke.github.io/figma-plugin/plugin/settings/) and [advanced settings](https://tokens-bruecke.github.io/figma-plugin/plugin/advanced-settings/) | Color modes, styles, DTCG format, splitting files, scopes and more |
-| [Push to server](https://tokens-bruecke.github.io/figma-plugin/plugin/push-to-server/) | JSONBin, GitHub, GitHub PR, GitLab and custom servers |
+| [Push to server](https://tokens-bruecke.github.io/figma-plugin/plugin/push-to-server/) | JSONBin, GitHub, GitHub PR, GitLab, GitLab MR and custom servers |
 | [Profiles](https://tokens-bruecke.github.io/figma-plugin/plugin/profiles/) | Multiple profiles, and profiles shared in the Figma file |
 | [Output and window](https://tokens-bruecke.github.io/figma-plugin/plugin/output/) | Code preview and window height |
 | [Dev Mode](https://tokens-bruecke.github.io/figma-plugin/plugin/dev-mode/) | Exporting tokens from Dev Mode and Figma for VS Code |
