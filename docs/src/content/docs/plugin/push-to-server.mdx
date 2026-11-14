@@ -1,11 +1,11 @@
 ---
 title: "Push to server"
-description: "Push the generated tokens to JSONBin, GitHub, a GitHub pull request, GitLab or your own server."
+description: "Push the generated tokens to JSONBin, GitHub, a GitHub pull request, GitLab, a GitLab merge request or your own server."
 ---
 
 import Screenshot from '../../../components/Screenshot.astro';
 
-With this feature you can connect a server and push the generated JSON directly to it. At the moment the plugin supports [JSONBin](https://jsonbin.io), [GitHub](https://github.com) (direct commit or pull request), [GitLab](https://gitlab.com) and custom servers.
+With this feature you can connect a server and push the generated JSON directly to it. At the moment the plugin supports [JSONBin](https://jsonbin.io), [GitHub](https://github.com) (direct commit or pull request), [GitLab](https://gitlab.com) (direct commit or merge request) and custom servers.
 
 <Screenshot name="servers-menu" alt="The list of supported servers" />
 
@@ -13,7 +13,7 @@ If you connected multiple servers, the plugin will try to push the tokens to all
 
 Every field in a server form has a visible label. The ⓘ next to a label explains the field when you hover or focus it. Tokens and keys are masked; the eye in the field shows them. Optional fields such as the commit message are under **More options**. If you go back with unsaved changes, the form asks whether to save or discard them, and **Remove** at the bottom deletes the server's settings and token from the profile after a confirmation.
 
-For GitHub, GitHub PR and GitLab, **Test connection** checks the token, the repository and the branch with read-only requests, so you find a typo before the first push. A problem is shown at the field it belongs to. Otherwise, `Push to server` reports the result of each server in a toast.
+For GitHub, GitHub PR, GitLab and GitLab MR, **Test connection** checks the token, the repository and the branch with read-only requests, so you find a typo before the first push. A problem is shown at the field it belongs to. Otherwise, `Push to server` reports the result of each server in a toast.
 
 <Screenshot name="server-added" alt="A connected JSONBin server and the Push to server button" />
 
@@ -54,7 +54,7 @@ If a pull request from that branch is already open, the plugin updates it instea
 
 ## GitLab
 
-1. You need a [project access token](https://docs.gitlab.com/user/project/settings/project_access_tokens/) with `api` scope. To push to a protected branch such as `main`, the token needs the Maintainer role; otherwise use a branch of its own and merge it with a merge request. Once the project is filled in, the `Create token ↗` link opens the project's token settings.
+1. You need a [project access token](https://docs.gitlab.com/user/project/settings/project_access_tokens/) with `api` scope. To push to a protected branch such as `main`, the token needs the Maintainer role; otherwise use the [GitLab MR](#gitlab-mr) server, which opens a merge request instead. Once the project is filled in, the `Create token ↗` link opens the project's token settings.
 2. **Project:** paste the project URL from your browser, e.g. `https://gitlab.acme.com/acme/frontend/design-system` for a self-managed GitLab, or write `group/project` for gitlab.com. Subgroups and the SSH clone URL work too, and a URL that points at a branch (`…/-/tree/develop`) fills in the branch. The ⓘ next to the label shows how the plugin read host and project.
 3. **Branch:** it must already exist.
 4. **File path:** the path of the file in the repository, e.g. `tokens/design.tokens.json`. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
@@ -64,6 +64,21 @@ If a pull request from that branch is already open, the plugin updates it instea
 > **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path.
 
 <Screenshot name="gitlab" alt="GitLab credentials" />
+
+## GitLab MR
+
+Instead of committing to a branch directly, the plugin commits the tokens to a separate branch and opens a merge request. Use it when the target branch is protected or changes should be reviewed. Project and file path work the same as for the [GitLab](#gitlab) server. The other fields:
+
+- **Target branch** (required). The branch the merge request targets, e.g. `main`. It must already exist; it can stay protected.
+- **Project access token** (required). A token with `api` scope and at least the Developer role, which may push to the merge request branch and open merge requests.
+- **Merge request branch** (optional, under More options). The branch the tokens are committed to. Defaults to `tokens-bruecke/update-tokens`. It is created on the first push and reset to a new commit on top of the target branch on every push, so don't commit anything else to it, and don't protect it. The form doesn't accept the target branch here.
+- **Commit message** (optional). Defaults to `Update tokens`.
+- **Merge request title** (optional). Defaults to `chore(tokens): update tokens`.
+- **Merge request description** (optional). If you leave it empty, the merge request has no description.
+
+If a merge request from that branch into the target branch is already open, the plugin updates it instead of opening a new one. After a push, the toast shows an **Open Merge Request** link.
+
+<Screenshot name="gitlab-mr" alt="GitLab MR credentials" />
 
 ## Custom server
 

@@ -29,6 +29,7 @@ import { pushToJSONBin } from '@app/api/servers/pushToJSONBin';
 import { pushToGithub } from '@app/api/servers/pushToGithub';
 import { githubPullRequest } from '@app/api/servers/githubPullRequest';
 import { pushToGitlab } from '@app/api/servers/pushToGitlab';
+import { gitlabMergeRequest } from '@app/api/servers/gitlabMergeRequest';
 import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
@@ -98,7 +99,8 @@ const stylesList = [
   },
 ] as StyleListItemType[];
 
-// Captions tell the two GitHub targets apart before one is picked
+// Captions tell the two GitHub and the two GitLab targets apart before one
+// is picked
 const serverList = [
   {
     id: 'jsonbin',
@@ -120,6 +122,13 @@ const serverList = [
   {
     id: 'gitlab',
     label: 'GitLab',
+    caption: 'Commit',
+    iconName: 'gitlab',
+  },
+  {
+    id: 'gitlabMergeRequest',
+    label: 'GitLab MR',
+    caption: 'Merge request',
     iconName: 'gitlab',
   },
   {
@@ -262,12 +271,16 @@ export const SettingsView = (props: ViewProps) => {
     );
   };
 
+  // Only the servers this version knows. A profile saved by a newer version
+  // can hold servers this one doesn't have; they stay stored, untouched
+  const enabledServers = serverList.filter(
+    (server) => JSONsettingsConfig.servers[server.id]?.isEnabled
+  );
+
   const getTokensForPush = () => {
     setIsPushing(true);
 
-    const allEnabledServers = Object.keys(JSONsettingsConfig.servers).filter(
-      (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
-    );
+    const allEnabledServers = enabledServers.map((server) => server.id);
 
     // send command to figma controller
     parent.postMessage(
@@ -398,6 +411,18 @@ export const SettingsView = (props: ViewProps) => {
               );
             }
 
+            if (server.includes('gitlabMergeRequest')) {
+              track('/push/gitlab-merge-request');
+              await runPush('Gitlab MR', () =>
+                gitlabMergeRequest(
+                  JSONsettingsConfig.servers.gitlabMergeRequest,
+                  tokens,
+                  showToast,
+                  splitOptions
+                )
+              );
+            }
+
             if (server.includes('customURL')) {
               track('/push/custom-url');
               await runPush('Custom URL', () =>
@@ -447,13 +472,9 @@ export const SettingsView = (props: ViewProps) => {
   // RENDER VARIABLES //
   //////////////////////
 
-  const isAllServersEnabled = Object.keys(JSONsettingsConfig.servers).every(
-    (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
-  );
+  const isAllServersEnabled = enabledServers.length === serverList.length;
 
-  const isAnyServerEnabled = Object.keys(JSONsettingsConfig.servers).some(
-    (serverId) => JSONsettingsConfig.servers[serverId].isEnabled
-  );
+  const isAnyServerEnabled = enabledServers.length > 0;
 
   // The setting is stored in the profile and can name a collection of
   // another file. The export then keeps the styles separate; list it anyway
@@ -826,53 +847,45 @@ export const SettingsView = (props: ViewProps) => {
             gap="var(--space-small)"
           >
             <Stack hasLeftRightPadding={false} gap={4}>
-              {Object.keys(JSONsettingsConfig.servers).map(
-                (serverId, index) => {
-                  if (!JSONsettingsConfig.servers[serverId].isEnabled) {
-                    return null;
-                  }
+              {enabledServers.map((server) => {
+                const serverId = server.id;
 
-                  const server = serverList.find(
-                    (server) => server.id === serverId
-                  ) as (typeof serverList)[0];
-
-                  return (
-                    <Stack
-                      className={styles.rowItem}
-                      key={index}
-                      hasLeftRightPadding={false}
-                      direction="row"
-                      onClick={() => handleServerView(serverId)}
-                      gap={1}
+                return (
+                  <Stack
+                    className={styles.rowItem}
+                    key={serverId}
+                    hasLeftRightPadding={false}
+                    direction="row"
+                    onClick={() => handleServerView(serverId)}
+                    gap={1}
+                  >
+                    <Icon name={server.iconName} size="32" />
+                    <div
+                      className={[styles.rowItemText, styles.serverText].join(
+                        ' '
+                      )}
                     >
-                      <Icon name={server.iconName} size="32" />
-                      <div
-                        className={[styles.rowItemText, styles.serverText].join(
-                          ' '
+                      <Text>{server.label}</Text>
+                      <Text className={styles.serverSummary}>
+                        {getServerSummary(
+                          serverId as ServerType,
+                          JSONsettingsConfig.servers[serverId]
                         )}
-                      >
-                        <Text>{server.label}</Text>
-                        <Text className={styles.serverSummary}>
-                          {getServerSummary(
-                            serverId as ServerType,
-                            JSONsettingsConfig.servers[serverId]
-                          )}
-                        </Text>
-                      </div>
-                      <IconButton
-                        onClick={() => handleServerView(serverId)}
-                        children={
-                          <Icon
-                            name="caret-right"
-                            size="16"
-                            customIcon={advancedSettingsIcon}
-                          />
-                        }
-                      />
-                    </Stack>
-                  );
-                }
-              )}
+                      </Text>
+                    </div>
+                    <IconButton
+                      onClick={() => handleServerView(serverId)}
+                      children={
+                        <Icon
+                          name="caret-right"
+                          size="16"
+                          customIcon={advancedSettingsIcon}
+                        />
+                      }
+                    />
+                  </Stack>
+                );
+              })}
             </Stack>
 
             <Stack>
@@ -982,6 +995,12 @@ export const SettingsView = (props: ViewProps) => {
 
     if (currentView === 'githubPullRequest') {
       return <ServerSettingsView {...commonProps} server="githubPullRequest" />;
+    }
+
+    if (currentView === 'gitlabMergeRequest') {
+      return (
+        <ServerSettingsView {...commonProps} server="gitlabMergeRequest" />
+      );
     }
 
     if (currentView === 'customURL') {

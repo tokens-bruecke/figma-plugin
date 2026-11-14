@@ -15,7 +15,7 @@ Is `off` by default. When enabled, each Figma variable collection is exported as
 
 - **Download JSON** — produces a `design.tokens.zip` archive containing one `{CollectionName}.tokens.json` per collection.
 - **CLI** — writes individual `{CollectionName}.tokens.json` files into the directory specified by `--output`.
-- **Push to a server** — the GitHub, GitHub PR and GitLab servers commit one `{CollectionName}.tokens.json` per collection in a single commit. The `File name` field of the server becomes the folder they are written into, e.g. `tokens` → `tokens/{CollectionName}.tokens.json`.
+- **Push to a server** — the GitHub, GitHub PR, GitLab and GitLab MR servers commit one `{CollectionName}.tokens.json` per collection in a single commit. The `File name` field of the server becomes the folder they are written into, e.g. `tokens` → `tokens/{CollectionName}.tokens.json`.
 
 This is useful when you want to keep component-level token files separate (e.g. `button.tokens.json`, `card.tokens.json`).
 
@@ -25,7 +25,7 @@ Is `off` by default. When enabled, each mode of a variable collection is exporte
 
 - **Download JSON** — produces a `design.tokens.zip` archive containing one `{CollectionName}/{ModeName}.tokens.json` per mode.
 - **CLI** — writes individual `{CollectionName}/{ModeName}.tokens.json` files into the directory specified by `--output`.
-- **Push to a server** — the GitHub, GitHub PR and GitLab servers commit one `{CollectionName}/{ModeName}.tokens.json` per mode in a single commit, inside the folder set in the server's `File name` field.
+- **Push to a server** — the GitHub, GitHub PR, GitLab and GitLab MR servers commit one `{CollectionName}/{ModeName}.tokens.json` per mode in a single commit, inside the folder set in the server's `File name` field.
 
 Collections with a single mode are exported as a single `{CollectionName}.tokens.json` file.
 

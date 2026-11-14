@@ -31,6 +31,7 @@ import styles from './styles.module.scss';
 
 const sharedTargetServerNames: { [S in ServerType]?: string } = {
   gitlab: 'GitLab',
+  gitlabMergeRequest: 'GitLab MR',
 };
 
 const Container = () => {

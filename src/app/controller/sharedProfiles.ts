@@ -14,6 +14,7 @@ const credentialFields: { [S in ServerType]?: (keyof ServerSettingsI[S])[] } = {
   github: ['token'],
   githubPullRequest: ['token'],
   gitlab: ['token'],
+  gitlabMergeRequest: ['token'],
   // Webhook URLs often carry their secret in the URL, and custom headers
   // usually carry an Authorization header
   customURL: ['url', 'headers'],
@@ -21,13 +22,18 @@ const credentialFields: { [S in ServerType]?: (keyof ServerSettingsI[S])[] } = {
 
 const serverIds = Object.keys(credentialFields) as ServerType[];
 
+const isKnownServer = (serverId: string) =>
+  serverIds.includes(serverId as ServerType);
+
 export const stripCredentials = (
   profile: SettingsProfileI
 ): SettingsProfileI => {
-  const servers = { ...profile.servers };
+  // Only the servers this version knows. A newer version can store servers
+  // whose credential fields are unknown here, so they never go to the file
+  const servers = {} as ServerSettingsI;
 
   serverIds.forEach((serverId) => {
-    const server = { ...servers[serverId] };
+    const server = { ...profile.servers[serverId] };
 
     credentialFields[serverId].forEach((field) => {
       server[field as string] = '';
@@ -124,6 +130,8 @@ const credentialTargets: {
   [S in ServerType]?: (server: ServerSettingsI[S]) => string;
 } = {
   gitlab: (server) => normalizeGitlabHost(server?.host).toLowerCase(),
+  gitlabMergeRequest: (server) =>
+    normalizeGitlabHost(server?.host).toLowerCase(),
 };
 
 /**
@@ -158,6 +166,13 @@ export const mergeSharedProfile = (
   const servers = { ...shared.servers };
 
   if (local) {
+    // Servers of a newer plugin version stay as they are on this machine
+    Object.keys(local.servers)
+      .filter((serverId) => !isKnownServer(serverId))
+      .forEach((serverId) => {
+        servers[serverId] = local.servers[serverId];
+      });
+
     const changedTargets = getChangedServerTargets(local, shared);
 
     serverIds.forEach((serverId) => {

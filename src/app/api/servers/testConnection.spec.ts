@@ -136,6 +136,26 @@ describe('testConnection', () => {
     });
   });
 
+  it('checks the target branch of a GitLab merge request', async () => {
+    const fetchMock = stubFetch([
+      [/\/repository\/branches\/develop$/, () => json(404)],
+      [/\/projects\/[^/]+$/, () => json(200)],
+    ]);
+
+    await expect(
+      testConnection('gitlabMergeRequest', {
+        ...gitlab,
+        branch: '',
+        baseBranch: 'develop',
+      } as GitlabMergeRequestCredentialsI)
+    ).resolves.toEqual({
+      ok: false,
+      fieldId: 'baseBranch',
+      message: 'acme/frontend/tokens has no branch "develop".',
+    });
+    expect(fetchMock.mock.calls[1][0]).toMatch(/\/branches\/develop$/);
+  });
+
   it('points at the project when the GitLab host cannot be reached', async () => {
     vi.stubGlobal(
       'fetch',
