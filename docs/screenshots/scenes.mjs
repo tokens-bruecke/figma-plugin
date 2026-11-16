@@ -153,6 +153,31 @@ export const scenes = {
     crop: ['Advanced settings', 'Download JSON'],
   },
 
+  // Split by collection with one collection left out of Git pushes
+  'collections-row': {
+    profiles: {
+      default: profile({
+        splitByCollection: true,
+        excludedCollections: ['Spacing'],
+        servers: only('github'),
+      }),
+    },
+    crop: ['Advanced settings', 'Download JSON'],
+  },
+
+  collections: {
+    profiles: {
+      default: profile({
+        splitByCollection: true,
+        excludedCollections: ['Spacing'],
+        servers: only('github'),
+      }),
+    },
+    steps: async (page) => {
+      await page.getByText('Collections', { exact: true }).click();
+    },
+  },
+
   jsonbin: serverScene('jsonbin', 'JSONBin'),
   github: serverScene('github', 'GitHub'),
   'github-pr': serverScene('githubPullRequest', 'GitHub PR'),
