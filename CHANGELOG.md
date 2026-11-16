@@ -1,3 +1,19 @@
+## [3.27.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.26.0...v3.27.0) (2026-11-16)
+
+### Features
+
+- **plugin:** with "Split collections" or "Split modes" on, a **Collections** row under the servers opens a list of the file's collections. GitHub, GitHub PR, GitLab and GitLab MR only commit the files of the checked ones, and the files of unchecked collections stay in the repository as they are. All collections are checked by default, the selection is saved in the profile, and the button says e.g. **Push 2 of 3 collections** when some are left out. Downloads, JSONBin, custom URLs and the CLI always include every collection ([#150](https://github.com/tokens-bruecke/figma-plugin/issues/150)) ([dc0eefb](https://github.com/tokens-bruecke/figma-plugin/commit/dc0eefbc662c518430a181c3477436c9841953cc))
+
+### Behaviour changes
+
+- **plugin:** the anonymous usage counts also note when the plugin opens in Dev Mode, when **Test connection** runs, when a Git push leaves collections out, and when a profile is shared, shared again, unshared, added from the file or updated from it. The privacy page lists every event ([9c96bdd](https://github.com/tokens-bruecke/figma-plugin/commit/9c96bddf00a6f949c35ffb353a923c319fe20197))
+
+### Documentation
+
+- **docs:** the Push to server page describes the collection picker, with screenshots of the Collections row and page ([#150](https://github.com/tokens-bruecke/figma-plugin/issues/150)) ([dc0eefb](https://github.com/tokens-bruecke/figma-plugin/commit/dc0eefbc662c518430a181c3477436c9841953cc)) ([054cdae](https://github.com/tokens-bruecke/figma-plugin/commit/054cdae19ebe0c788363cb2957e4cc5042d32151))
+
+Thanks to [@eduaugustus](https://github.com/eduaugustus) for suggesting the collection picker in [#150](https://github.com/tokens-bruecke/figma-plugin/issues/150).
+
 ## [3.26.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.25.0...v3.26.0) (2026-11-15)
 
 ### Features
@@ -6,7 +22,7 @@
 
 ### Behaviour changes
 
-- **plugin:** in the server menu, GitLab now has the caption *Commit* and GitLab MR *Merge request*, like the two GitHub servers. Menu captions are faded, so they read as hints next to the name ([#149](https://github.com/tokens-bruecke/figma-plugin/issues/149)) ([#151](https://github.com/tokens-bruecke/figma-plugin/issues/151)) ([1f86dc3](https://github.com/tokens-bruecke/figma-plugin/commit/1f86dc387f6fe4ff3efdcf33af63181d605f8483))
+- **plugin:** in the server menu, GitLab now has the caption _Commit_ and GitLab MR _Merge request_, like the two GitHub servers. Menu captions are faded, so they read as hints next to the name ([#149](https://github.com/tokens-bruecke/figma-plugin/issues/149)) ([#151](https://github.com/tokens-bruecke/figma-plugin/issues/151)) ([1f86dc3](https://github.com/tokens-bruecke/figma-plugin/commit/1f86dc387f6fe4ff3efdcf33af63181d605f8483))
 
 ### Bug Fixes
 
