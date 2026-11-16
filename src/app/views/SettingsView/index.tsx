@@ -33,6 +33,14 @@ import { pushToGitlab } from '@app/api/servers/pushToGitlab';
 import { gitlabMergeRequest } from '@app/api/servers/gitlabMergeRequest';
 import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
+import {
+  GitServerType,
+  PullResultI,
+  getPulledCollections,
+  isGitServer,
+  pullTokens,
+} from '@app/api/servers/pullFromGit';
+
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
 import { getSplitOptions } from '@common/transform/splitTokensIntoFiles';
 import { track } from '@app/api/analytics';
@@ -64,6 +72,8 @@ interface ViewProps {
   onResetHeight: () => void;
   /** Undefined where the import can't run (Dev Mode) */
   onImportTokens?: () => Promise<void>;
+  /** Imports tokens documents, e.g. pulled files. Undefined in Dev Mode */
+  onImportTokenDocuments?: (tokens: any[]) => void;
   isImporting: boolean;
   /** Collection names of the open file */
   variableCollections: string[];
@@ -168,6 +178,7 @@ export const SettingsView = (props: ViewProps) => {
     onResizeHeight,
     onResetHeight,
     onImportTokens,
+    onImportTokenDocuments,
     isImporting,
     variableCollections,
     isHidden,
@@ -180,6 +191,22 @@ export const SettingsView = (props: ViewProps) => {
   const isPanel = isPanelLayout(usePluginEnvironment());
   const [isPushing, setIsPushing] = useState(false);
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
+  // The server whose files are being fetched
+  const [pullingServer, setPullingServer] = useState<GitServerType | null>(
+    null
+  );
+  // Fetched files waiting for the user to confirm the import
+  const [pendingPull, setPendingPull] = useState<
+    (PullResultI & { server: GitServerType }) | null
+  >(null);
+  // The server whose pulled files are being imported
+  const [importingServer, setImportingServer] = useState<GitServerType | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (!isImporting) setImportingServer(null);
+  }, [isImporting]);
 
   const profileEntries = Object.entries(multiTenantConfig.profiles || {});
 
@@ -286,6 +313,68 @@ export const SettingsView = (props: ViewProps) => {
   const enabledServers = serverList.filter(
     (server) => JSONsettingsConfig.servers[server.id]?.isEnabled
   );
+
+  // The Git servers tokens can be pulled from. None where the import can't
+  // run (Dev Mode)
+  const pullServers = onImportTokenDocuments
+    ? enabledServers.filter(
+        (server): server is typeof server & { id: GitServerType } =>
+          isGitServer(server.id)
+      )
+    : [];
+
+  const serverLabel = (server: GitServerType) =>
+    serverList.find((item) => item.id === server)?.label ?? server;
+
+  const handlePull = async (server: GitServerType) => {
+    setPendingPull(null);
+    setPullingServer(server);
+
+    try {
+      // The same files a push writes, without the excluded collections
+      const result = await pullTokens(
+        server,
+        JSONsettingsConfig.servers,
+        getSplitOptions(JSONsettingsConfig)
+      );
+      setPendingPull({ ...result, server });
+    } catch (error) {
+      console.error('Pull error:', error);
+      toastRef.current?.show({
+        title: `${serverLabel(server)}: Could not pull tokens`,
+        message: error instanceof Error ? error.message : String(error),
+        options: { type: 'error' },
+      });
+    } finally {
+      setPullingServer(null);
+    }
+  };
+
+  const confirmPull = () => {
+    if (!pendingPull || !onImportTokenDocuments) return;
+
+    track(`/pull/${pendingPull.server}`);
+    setImportingServer(pendingPull.server);
+    onImportTokenDocuments(pendingPull.files.map((file) => file.tokens));
+    setPendingPull(null);
+  };
+
+  const pendingPullSummary = (() => {
+    if (!pendingPull) return '';
+
+    const count = pendingPull.files.length;
+    const collections = getPulledCollections(pendingPull.files);
+    const names =
+      collections.length > 3
+        ? `${collections.slice(0, 3).join(', ')} and ${
+            collections.length - 3
+          } more`
+        : collections.join(', ');
+
+    return `Import ${count} ${count === 1 ? 'file' : 'files'}${
+      names ? ` (${names})` : ''
+    } from ${pendingPull.source}?`;
+  })();
 
   const getTokensForPush = () => {
     setIsPushing(true);
@@ -984,13 +1073,52 @@ export const SettingsView = (props: ViewProps) => {
             secondary
           />
           {onImportTokens ? (
-            <Button
-              label="Import tokens (Beta)"
-              onClick={onImportTokens}
-              loading={isImporting}
-              fullWidth
-              secondary
-            />
+            <>
+              <Button
+                label="Import tokens (Beta)"
+                onClick={onImportTokens}
+                loading={isImporting && !importingServer}
+                fullWidth
+                secondary
+              />
+              {pullServers.map((server) => (
+                <Button
+                  key={server.id}
+                  label={`Pull from ${server.label}`}
+                  onClick={() => handlePull(server.id)}
+                  loading={
+                    pullingServer === server.id ||
+                    (isImporting && importingServer === server.id)
+                  }
+                  disabled={!!pullingServer || isImporting}
+                  fullWidth
+                  secondary
+                />
+              ))}
+              {pendingPull && (
+                <Stack
+                  hasLeftRightPadding={false}
+                  gap="var(--space-extra-small)"
+                >
+                  <Text className={styles.pullSummary}>
+                    {pendingPullSummary}
+                  </Text>
+                  <Stack
+                    hasLeftRightPadding={false}
+                    direction="row"
+                    gap="var(--space-extra-small)"
+                    className={styles.pullActions}
+                  >
+                    <Button
+                      label="Cancel"
+                      secondary
+                      onClick={() => setPendingPull(null)}
+                    />
+                    <Button label="Import" onClick={confirmPull} />
+                  </Stack>
+                </Stack>
+              )}
+            </>
           ) : (
             <Text className={styles.hint}>
               Importing tokens into variables needs Figma Design and edit

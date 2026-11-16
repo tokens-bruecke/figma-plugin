@@ -339,6 +339,22 @@ const Container = () => {
   // HANDLE FUNCTIONS //
   //////////////////////
 
+  // Sends one tokens document, or several, to the controller for import.
+  // The result arrives as `importResult`
+  const importTokenDocuments = (tokens: any) => {
+    setIsImporting(true);
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'importTokens',
+          tokens,
+          role: 'import',
+        } as TokensMessageI,
+      },
+      '*'
+    );
+  };
+
   const handleImportTokens = async () => {
     setIsImporting(true);
 
@@ -347,17 +363,7 @@ const Container = () => {
 
       if (tokensData) {
         track('/import');
-        // Send tokens to figma controller for import
-        parent.postMessage(
-          {
-            pluginMessage: {
-              type: 'importTokens',
-              tokens: tokensData,
-              role: 'import',
-            } as TokensMessageI,
-          },
-          '*'
-        );
+        importTokenDocuments(tokensData);
       } else {
         setIsImporting(false);
       }
@@ -616,6 +622,9 @@ const Container = () => {
     const onImportTokens = canImportTokens(environment)
       ? handleImportTokens
       : undefined;
+    const onImportTokenDocuments = canImportTokens(environment)
+      ? importTokenDocuments
+      : undefined;
 
     if (!fileHasVariables) {
       return (
@@ -636,6 +645,7 @@ const Container = () => {
         {...commonProps}
         isHidden={isSettingsHidden}
         onImportTokens={onImportTokens}
+        onImportTokenDocuments={onImportTokenDocuments}
         isImporting={isImporting}
         variableCollections={variableCollections}
         isCodePreviewOpen={isCodePreviewOpen}

@@ -178,6 +178,60 @@ export const scenes = {
     },
   },
 
+  // The GitHub API is stubbed: the pull lists three collection files
+  'pull-from-git': {
+    profiles: {
+      default: profile({
+        splitByCollection: true,
+        servers: only('github'),
+      }),
+    },
+    steps: async (page) => {
+      const collections = ['Primitives', 'Semantic', 'Motion'];
+      const cors = {
+        'access-control-allow-origin': '*',
+        'access-control-allow-headers': '*',
+      };
+      await page.route('https://api.github.com/**', (route) => {
+        const url = route.request().url();
+        const reply = (body) =>
+          route.fulfill({
+            status: 200,
+            headers: cors,
+            contentType: 'application/json',
+            body: JSON.stringify(body),
+          });
+
+        if (route.request().method() === 'OPTIONS') {
+          return route.fulfill({ status: 204, headers: cors });
+        }
+        if (url.includes('/branches/')) {
+          return reply({ commit: { commit: { tree: { sha: 'tree' } } } });
+        }
+        if (url.includes('/git/trees/')) {
+          return reply({
+            truncated: false,
+            tree: collections.map((name) => ({
+              path: `tokens/${name}.tokens.json`,
+              type: 'blob',
+              sha: name,
+            })),
+          });
+        }
+        const name = url.slice(url.lastIndexOf('/') + 1);
+        return reply({
+          encoding: 'base64',
+          content: Buffer.from(JSON.stringify({ [name]: {} })).toString(
+            'base64'
+          ),
+        });
+      });
+      await page.getByText('Pull from GitHub', { exact: true }).click();
+      await page.getByText(/^Import 3 files/).waitFor();
+    },
+    crop: ['Download JSON', 'Import'],
+  },
+
   jsonbin: serverScene('jsonbin', 'JSONBin'),
   github: serverScene('github', 'GitHub'),
   'github-pr': serverScene('githubPullRequest', 'GitHub PR'),

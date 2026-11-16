@@ -1017,6 +1017,81 @@ describe('tokensToVariables split-by-mode files', () => {
     expect(fake._collections).toHaveLength(1);
     expect(valuesOf('bg')).toEqual({ Dark: 2, Light: 1 });
   });
+
+  test('builds a new collection from its mode files in one import', async () => {
+    const files = await exportFiles();
+
+    // The stub resolver never sees the created collection: the import has
+    // to find it again for the second file by itself
+    const result = await tokensToVariables(
+      [files['Theme/Dark.tokens.json'], files['Theme/Light.tokens.json']],
+      resolver
+    );
+
+    expect(result.errors).toEqual([]);
+    expect(result.collectionsCreated).toBe(1);
+    expect(fake._collections).toHaveLength(1);
+    expect(valuesOf('bg')).toEqual({ Dark: 2, Light: 1 });
+  });
+});
+
+describe('tokensToVariables several documents', () => {
+  let fake: ReturnType<typeof createFakeFigma>;
+
+  beforeEach(() => {
+    fake = createFakeFigma();
+    vi.stubGlobal('figma', fake);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const byName = (name: string) => fake._variables.find((v) => v.name === name);
+  const defaultValueOf = (name: string) => {
+    const variable = byName(name);
+    const collection = fake._collections.find(
+      (c) => c.id === variable.variableCollectionId
+    );
+    return variable.valuesByMode[collection.defaultModeId];
+  };
+
+  const primitives = {
+    Primitives: {
+      blue: { $type: 'number', $value: 4 },
+    },
+  };
+  // An alias without `$type`: its type comes from the other document
+  const semantic = {
+    Semantic: {
+      accent: { $value: '{Primitives.blue}' },
+    },
+  };
+
+  test('resolves an alias into a document that comes later', async () => {
+    const result = await tokensToVariables([semantic, primitives], resolver);
+
+    expect(result.errors).toEqual([]);
+    expect(result.collectionsCreated).toBe(2);
+    expect(defaultValueOf('accent')).toEqual({
+      type: 'VARIABLE_ALIAS',
+      id: byName('blue').id,
+    });
+  });
+
+  test('imports a single document like before', async () => {
+    const result = await tokensToVariables(primitives, resolver);
+
+    expect(result.errors).toEqual([]);
+    expect(defaultValueOf('blue')).toBe(4);
+  });
+
+  test('skips entries that are not documents', async () => {
+    const result = await tokensToVariables([null, primitives], resolver);
+
+    expect(result.success).toBe(true);
+    expect(fake._variables).toHaveLength(1);
+  });
 });
 
 describe('tokensToVariables extended collections', () => {

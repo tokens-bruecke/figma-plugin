@@ -88,6 +88,16 @@
   flex: 1;
 }
 
+// The question before a pulled import, above its Cancel and Import buttons
+.pullSummary {
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+.pullActions {
+  justify-content: flex-end;
+}
+
 // Inset like the labels and full-width buttons below, so the text starts
 // with "Show output" and the button ends with "Download JSON"
 .sharedUpdate {
