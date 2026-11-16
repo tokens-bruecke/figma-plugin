@@ -25,6 +25,17 @@ import {
   testConnection,
   ConnectionResultI,
 } from '@app/api/servers/testConnection';
+import { track } from '@app/api/analytics';
+
+// Fixed event paths, spelled like the push events
+const testConnectionEventNames: Record<ServerType, string> = {
+  github: 'github',
+  githubPullRequest: 'github-pull-request',
+  gitlab: 'gitlab',
+  gitlabMergeRequest: 'gitlab-merge-request',
+  jsonbin: 'jsonbin',
+  customURL: 'custom-url',
+};
 
 interface ViewProps {
   JSONsettingsConfig: JSONSettingsConfigI;
@@ -213,6 +224,8 @@ export const ServerSettingsView = (props: ViewProps) => {
 
   const handleTestConnection = async () => {
     if (!checkForm()) return;
+
+    track(`/test-connection/${testConnectionEventNames[server]}`);
 
     setConnection({ state: 'testing' });
 
