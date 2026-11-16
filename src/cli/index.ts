@@ -213,7 +213,7 @@ const argv = yargs(process.argv.slice(2))
       '  Config schema:    schemas/cli-options.schema.json',
       '  Snapshot schema:  schemas/tokens-snapshot.schema.json',
       '  Agent guide:      skills/tokens-bruecke/SKILL.md',
-      '  Full docs:        https://tokens-bruecke.github.io/figma-plugin/cli/overview/',
+      '  Full docs:        https://tokensbruecke.com/cli/overview/',
     ].join('\n')
   )
   .parseSync();
