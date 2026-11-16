@@ -1,5 +1,5 @@
 // Rewrites relative links in the docs (`../dev-mode/`) to root-absolute
-// ones (`/figma-plugin/plugin/dev-mode/`). The pages render the same, and
+// ones (`/plugin/dev-mode/`). The pages render the same, and
 // the links keep working once llms-full.txt joins all pages into one file.
 
 const DOCS_DIR = '/src/content/docs/';

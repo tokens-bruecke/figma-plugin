@@ -5,10 +5,12 @@ import starlightLlmsTxt from 'starlight-llms-txt';
 
 import rehypeAbsoluteLinks from './src/plugins/rehype-absolute-links.mjs';
 
-const base = '/figma-plugin';
+// Served from the root of the custom domain (set in the repo's Pages
+// settings); the old tokens-bruecke.github.io/figma-plugin/ URLs redirect here
+const base = '/';
 
 export default defineConfig({
-  site: 'https://tokens-bruecke.github.io',
+  site: 'https://tokensbruecke.com',
   base,
   markdown: {
     rehypePlugins: [[rehypeAbsoluteLinks, { base }]],
@@ -27,12 +29,6 @@ export default defineConfig({
       // plugin's events. count.js skips localhost, so local previews aren't
       // counted
       head: [
-        // Record pages without the GitHub Pages base (/figma-plugin/plugin/
-        // profiles/ as /plugin/profiles/). Must run before count.js
-        {
-          tag: 'script',
-          content: `window.goatcounter = { path: (p) => (p.startsWith('${base}') ? p.slice(${base.length}) : p) || '/' };`,
-        },
         {
           tag: 'script',
           attrs: {

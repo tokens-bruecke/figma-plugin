@@ -5,9 +5,9 @@ description: "Agent-friendly docs, schemas and how agents can export tokens with
 
 This documentation is also published as Markdown for LLMs, generated from these pages on every deploy:
 
-- [llms.txt](https://tokens-bruecke.github.io/figma-plugin/llms.txt) — index of the documentation
-- [llms-full.txt](https://tokens-bruecke.github.io/figma-plugin/llms-full.txt) — every page in one file
-- [llms-small.txt](https://tokens-bruecke.github.io/figma-plugin/llms-small.txt) — a compact version for small context windows
+- [llms.txt](https://tokensbruecke.com/llms.txt) — index of the documentation
+- [llms-full.txt](https://tokensbruecke.com/llms-full.txt) — every page in one file
+- [llms-small.txt](https://tokensbruecke.com/llms-small.txt) — a compact version for small context windows
 
 This repository and the npm package ship agent-friendly docs:
 

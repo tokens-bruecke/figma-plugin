@@ -44,7 +44,7 @@ pnpm test:watch   # watch mode
 
 ## Documentation
 
-The docs are published to [tokens-bruecke.github.io/figma-plugin](https://tokens-bruecke.github.io/figma-plugin/) on every push to `main` that touches `docs/`. Pages are Markdown in `docs/src/content/docs/`.
+The docs are published to [tokensbruecke.com](https://tokensbruecke.com/) on every push to `main` that touches `docs/`. Pages are Markdown in `docs/src/content/docs/`.
 
 ```bash
 cd docs
