@@ -198,6 +198,8 @@ const Container = () => {
 
     if (!shared) return;
 
+    track('/shared-profile/adopt');
+
     setMultiTenantConfig((prev) => {
       const profileId = `profile-${Date.now()}`;
 
@@ -225,6 +227,10 @@ const Container = () => {
     const changedTargets = currentShared
       ? getChangedServerTargets(currentLocal, currentShared)
       : [];
+
+    if (currentShared) {
+      track('/shared-profile/update');
+    }
 
     if (changedTargets.length) {
       const serverNames = changedTargets
@@ -279,6 +285,11 @@ const Container = () => {
     const sharedId = profile.sharedId ?? `shared-${Date.now()}`;
     const updatedAt = Date.now();
 
+    // Sharing an already shared profile publishes its changes
+    track(
+      profile.sharedId ? '/shared-profile/reshare' : '/shared-profile/share'
+    );
+
     // The controller strips the credentials before it stores anything, and
     // answers with `sharedProfileLinked` once the file has the profile
     parent.postMessage(
@@ -299,6 +310,8 @@ const Container = () => {
     const sharedId = multiTenantConfig.profiles[profileId]?.sharedId;
 
     if (!sharedId) return;
+
+    track('/shared-profile/unshare');
 
     parent.postMessage(
       { pluginMessage: { type: 'unshareProfile', profileId, sharedId } },
@@ -377,6 +390,11 @@ const Container = () => {
 
       if (type === 'pluginEnvironment') {
         setEnvironment(message.environment);
+
+        // The open pageview fires before the editor is known
+        if (message.environment?.editorType === 'dev') {
+          track('/dev');
+        }
       }
 
       if (type === 'sharedProfiles') {
