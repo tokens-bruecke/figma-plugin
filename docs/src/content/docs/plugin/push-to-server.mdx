@@ -35,7 +35,7 @@ For GitHub, GitHub PR, GitLab and GitLab MR, **Test connection** checks the toke
 5. **Personal access token:** paste the token.
 6. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
-> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path.
+> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path. To leave some collections out of the push, see [Collections to push](#collections-to-push).
 
 <Screenshot name="github" alt="GitHub credentials" />
 
@@ -61,7 +61,7 @@ If a pull request from that branch is already open, the plugin updates it instea
 5. **Project access token:** paste the token.
 6. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
-> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path.
+> **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path. To leave some collections out of the push, see [Collections to push](#collections-to-push).
 
 <Screenshot name="gitlab" alt="GitLab credentials" />
 
@@ -79,6 +79,18 @@ Instead of committing to a branch directly, the plugin commits the tokens to a s
 If a merge request from that branch into the target branch is already open, the plugin updates it instead of opening a new one. After a push, the toast shows an **Open Merge Request** link.
 
 <Screenshot name="gitlab-mr" alt="GitLab MR credentials" />
+
+## Collections to push
+
+While the tokens are [split into separate files](../advanced-settings/#split-collections-into-separate-files) and a GitHub, GitHub PR, GitLab or GitLab MR server is set up, a **Collections** row appears under the servers when the file has more than one collection. It lists the collections that are pushed; click it to check or uncheck them. All collections are checked by default, and a collection added to the file later is checked too.
+
+<Screenshot name="collections-row" alt="The Collections row under the servers, and a button that pushes 2 of 3 collections" />
+
+These servers only commit the files of the checked collections. The files of unchecked collections are not deleted: they stay in the repository as they are. This keeps a commit, pull request or merge request to the collections you changed. When some collections are unchecked, the push button says how many are pushed, e.g. **Push 2 of 3 collections**.
+
+<Screenshot name="collections" alt="The Collections to push page with Spacing unchecked" />
+
+The selection is saved in the profile. **Download JSON**, JSONBin, custom servers and the CLI always include every collection. With [Omit collection names](../advanced-settings/#omit-collection-names) on, the output has no collection groups, so the row is hidden and every file is pushed.
 
 ## Custom server
 
