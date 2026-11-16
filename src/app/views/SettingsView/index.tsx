@@ -20,6 +20,7 @@ import { config } from '@app/controller/config';
 
 import { Toast, ToastRefI } from '@app/components/Toast';
 import { AdvancedSettingsView } from '@app/views/AdvancedSettingsView';
+import { CollectionsView } from '@app/views/CollectionsView';
 import { ServerSettingsView } from '@app/views/ServerSettingsView';
 import { getServerSummary } from '@app/views/ServerSettingsView/providers';
 import { ProfileDetailView } from '@app/views/ProfileDetailView';
@@ -33,6 +34,7 @@ import { gitlabMergeRequest } from '@app/api/servers/gitlabMergeRequest';
 import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
+import { getSplitOptions } from '@common/transform/splitTokensIntoFiles';
 import { track } from '@app/api/analytics';
 import { isPanelLayout, usePluginEnvironment } from '@app/pluginEnvironment';
 
@@ -74,6 +76,14 @@ interface ViewProps {
 }
 
 const sharedOptionPrefix = 'shared:';
+
+// The servers that write one file per collection when the tokens are split
+const gitServerIds: ServerType[] = [
+  'github',
+  'githubPullRequest',
+  'gitlab',
+  'gitlabMergeRequest',
+];
 
 const version = pkg.version;
 const stylesList = [
@@ -322,10 +332,17 @@ export const SettingsView = (props: ViewProps) => {
         }
 
         if (role === 'push') {
-          const splitOptions = {
-            splitByCollection: JSONsettingsConfig.splitByCollection,
-            splitByMode: JSONsettingsConfig.splitByMode,
-          };
+          const splitOptions = getSplitOptions(JSONsettingsConfig);
+
+          // Once per push, next to the per-server events: some collections
+          // were left out of a Git push
+          if (
+            splitOptions.excludedCollections?.length &&
+            gitServerIds.some((serverId) => server.includes(serverId))
+          ) {
+            track('/push/partial');
+          }
+
           const showToast = (params: ToastIPropsI) => {
             toastRef.current?.show(params);
           };
@@ -497,6 +514,34 @@ export const SettingsView = (props: ViewProps) => {
         ]
       : []),
   ];
+
+  // Only the Git servers write a file per collection, and only while the
+  // tokens are split with collection names. JSONBin and a custom URL always
+  // receive the whole export
+  const isCollectionRowShown =
+    (JSONsettingsConfig.splitByCollection || JSONsettingsConfig.splitByMode) &&
+    !JSONsettingsConfig.omitCollectionNames &&
+    variableCollections.length > 1 &&
+    gitServerIds.some(
+      (serverId) => JSONsettingsConfig.servers[serverId]?.isEnabled
+    );
+  const pushedCollections = variableCollections.filter(
+    (collection) =>
+      !(JSONsettingsConfig.excludedCollections ?? []).includes(collection)
+  );
+  const isPartialPush =
+    isCollectionRowShown &&
+    pushedCollections.length < variableCollections.length;
+  const collectionSummary = !isPartialPush
+    ? 'All collections'
+    : pushedCollections.length
+    ? pushedCollections.join(', ')
+    : 'None';
+  // Says on the button when some are left out, so a push that skips them is
+  // no surprise
+  const pushLabel = isPartialPush
+    ? `Push ${pushedCollections.length} of ${variableCollections.length} collections`
+    : 'Push to server';
 
   const dynamicServerList = serverList.filter((server) => {
     if (!JSONsettingsConfig.servers[server.id]?.isEnabled) {
@@ -888,10 +933,40 @@ export const SettingsView = (props: ViewProps) => {
               })}
             </Stack>
 
+            {isCollectionRowShown && (
+              <Stack
+                className={[styles.rowItem, styles.collectionsRow].join(' ')}
+                hasLeftRightPadding={false}
+                direction="row"
+                onClick={() => setCurrentView('collections')}
+                gap={1}
+              >
+                <Icon name="library" size="32" />
+                <div
+                  className={[styles.rowItemText, styles.serverText].join(' ')}
+                >
+                  <Text>Collections</Text>
+                  <Text className={styles.serverSummary}>
+                    {collectionSummary}
+                  </Text>
+                </div>
+                <IconButton
+                  onClick={() => setCurrentView('collections')}
+                  children={
+                    <Icon
+                      name="caret-right"
+                      size="16"
+                      customIcon={advancedSettingsIcon}
+                    />
+                  }
+                />
+              </Stack>
+            )}
+
             <Stack>
               <Button
                 loading={isPushing}
-                label="Push to server"
+                label={pushLabel}
                 onClick={getTokensForPush}
                 fullWidth
               />
@@ -977,6 +1052,17 @@ export const SettingsView = (props: ViewProps) => {
           JSONsettingsConfig={JSONsettingsConfig}
           setJSONsettingsConfig={setJSONsettingsConfig}
           setCurrentView={setCurrentView}
+        />
+      );
+    }
+
+    if (currentView === 'collections') {
+      return (
+        <CollectionsView
+          JSONsettingsConfig={JSONsettingsConfig}
+          setJSONsettingsConfig={setJSONsettingsConfig}
+          setCurrentView={setCurrentView}
+          variableCollections={variableCollections}
         />
       );
     }

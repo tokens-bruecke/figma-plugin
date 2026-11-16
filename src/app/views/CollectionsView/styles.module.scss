@@ -1,0 +1,29 @@
+// Lines up with the title of the panel header: the stack's 8px padding and
+// 8px more on both sides
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 var(--space-extra-small);
+}
+
+.hint {
+  color: var(--figma-color-text-secondary);
+}
+
+// The checkbox sits centred in a 32px symbol, 10px in from its edge, so the
+// list moves left to line the boxes up with the text above. Rows are 24px
+// instead of 32px to keep a long list of collections short
+.checkboxList {
+  display: flex;
+  flex-direction: column;
+  margin: var(--space-extra-small) 0 0 -10px;
+
+  label > div:first-child {
+    height: 24px;
+  }
+
+  label > div:last-child {
+    padding: 4px 0;
+  }
+}

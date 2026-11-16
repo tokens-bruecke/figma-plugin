@@ -10,6 +10,12 @@ export interface SplitOptionsI {
   splitByMode?: boolean;
   // `target` is always a folder, so a name like `v1.2` is not mistaken for a file
   targetIsFolder?: boolean;
+  /**
+   * Figma names of the collections to leave out of a split. Their files are
+   * not written, so a push leaves them as they are on the server. Ignored
+   * when nothing is split: the single file would lose those tokens.
+   */
+  excludedCollections?: string[];
 }
 
 const SINGLE_FILE_NAME = 'design.tokens.json';
@@ -97,6 +103,7 @@ export const splitTokensIntoFiles = (
     splitByCollection = false,
     splitByMode = false,
     targetIsFolder = false,
+    excludedCollections = [],
   }: SplitOptionsI = {},
   target = ''
 ): TokenFileI[] => {
@@ -118,31 +125,70 @@ export const splitTokensIntoFiles = (
     ? target.replace(/\/+$/g, '')
     : toFolder(target).replace(/^\/+/, '');
 
+  // The keys use the token names of the collections
+  const excluded = new Set(excludedCollections.map(toTokenName));
+
   if (splitByMode) {
     // Keys are "CollectionName/ModeName" — write as {CollectionName}/{ModeName}.tokens.json
-    return Object.keys(tokens).map((key) => {
+    return Object.keys(tokens).flatMap((key) => {
       const [collectionName, modeName] = splitModeKey(key, tokens[key]);
 
+      if (excluded.has(collectionName)) return [];
+
       if (modeName === undefined) {
-        return {
-          path: joinPath(folder, `${safeName(key)}.tokens.json`),
-          content: stringify({ [key]: tokens[key] }),
-        };
+        return [
+          {
+            path: joinPath(folder, `${safeName(key)}.tokens.json`),
+            content: stringify({ [key]: tokens[key] }),
+          },
+        ];
       }
 
-      return {
-        path: joinPath(
-          folder,
-          safeName(collectionName),
-          `${safeName(modeName)}.tokens.json`
-        ),
-        content: stringify({ [collectionName]: tokens[key] }),
-      };
+      return [
+        {
+          path: joinPath(
+            folder,
+            safeName(collectionName),
+            `${safeName(modeName)}.tokens.json`
+          ),
+          content: stringify({ [collectionName]: tokens[key] }),
+        },
+      ];
     });
   }
 
-  return Object.keys(tokens).map((collectionName) => ({
-    path: joinPath(folder, `${safeName(collectionName)}.tokens.json`),
-    content: stringify({ [collectionName]: tokens[collectionName] }),
-  }));
+  return Object.keys(tokens)
+    .filter((collectionName) => !excluded.has(collectionName))
+    .map((collectionName) => ({
+      path: joinPath(folder, `${safeName(collectionName)}.tokens.json`),
+      content: stringify({ [collectionName]: tokens[collectionName] }),
+    }));
+};
+
+/**
+ * The split options of a profile for the servers that write files. The
+ * excluded collections only apply while the files are split by collection
+ * or mode, and not with `omitCollectionNames`: its top-level groups are
+ * variable groups, which could share a name with a collection.
+ */
+export const getSplitOptions = (
+  config: Pick<
+    JSONSettingsConfigI,
+    | 'splitByCollection'
+    | 'splitByMode'
+    | 'omitCollectionNames'
+    | 'excludedCollections'
+  >
+): SplitOptionsI => {
+  const isSplit = config.splitByCollection || config.splitByMode;
+
+  return {
+    splitByCollection: config.splitByCollection,
+    splitByMode: config.splitByMode,
+    ...(isSplit &&
+      !config.omitCollectionNames &&
+      config.excludedCollections?.length && {
+        excludedCollections: config.excludedCollections,
+      }),
+  };
 };

@@ -78,6 +78,12 @@
   align-items: center;
 }
 
+// A little more space than between the servers, so it reads as a setting of
+// the push rather than another server
+.collectionsRow {
+  margin-top: 4px;
+}
+
 .rowItemText {
   flex: 1;
 }

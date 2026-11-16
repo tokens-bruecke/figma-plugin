@@ -28,6 +28,7 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
   splitByCollection: false,
   splitByMode: false,
   omitCollectionNames: false,
+  excludedCollections: [],
   servers: {
     jsonbin: {
       isEnabled: false,
@@ -109,6 +110,11 @@ const sanitizeProfileConfig = (
     splitByCollection: safeConfig.splitByCollection ?? false,
     splitByMode: safeConfig.splitByMode ?? false,
     omitCollectionNames: safeConfig.omitCollectionNames ?? false,
+    excludedCollections: Array.isArray(safeConfig.excludedCollections)
+      ? safeConfig.excludedCollections.filter(
+          (name): name is string => typeof name === 'string'
+        )
+      : [],
     servers: {
       ...defaults.servers,
       ...(safeConfig.servers || {}),

@@ -112,6 +112,11 @@ interface ServerSettingsI {
 }
 type JSONSettingsConfigI = ExportSettingsI & {
   servers: ServerSettingsI;
+  /**
+   * Figma names of the collections a Git push leaves out while the files are
+   * split. A list of exclusions, so new collections are pushed by default.
+   */
+  excludedCollections?: string[];
 };
 
 type ProfileId = string;
