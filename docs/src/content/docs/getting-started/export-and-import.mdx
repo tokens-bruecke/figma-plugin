@@ -16,16 +16,16 @@ The plugin supports both **exporting** and **importing** design tokens:
 
 ## Import (JSON → Variables)
 
-- Click **"Import tokens (Beta)"** to import design tokens from a JSON file back into Figma. The button is in the settings and on the "No variables found" screen. The import runs in Figma Design only, not in [Dev Mode](../../plugin/dev-mode/)
-- With a GitHub or GitLab server set up, **Pull from …** imports the token files straight from the repository, all files of a split export at once. See [Pull from Git](../../plugin/push-to-server/#pull-from-git)
+- Open the **Import** tab and click **Import from JSON file** to import design tokens from a JSON file back into Figma. The import runs in Figma Design only, not in [Dev Mode](../../plugin/dev-mode/)
+- With a GitHub or GitLab server set up, **Pull** on the Import tab imports the token files straight from the repository, all files of a split export at once. See [Pull from Git](../../plugin/push-to-server/#pull-from-git)
 - The plugin will create variable collections, modes, and variables based on the JSON structure
 - Supports both DTCG format (`$value`, `$type`) and standard format (`value`, `type`)
 - Handles alias references between variables
 - Creates new collections and variables as needed, or updates existing ones
 
-A file without variables opens on this screen, with the import button:
+A file without variables opens on the Import tab, so you can pull its tokens or choose a file right away. Once the import created variables, the plugin switches to Export. In [Dev Mode](../../plugin/dev-mode/) such a file shows "No variables found in the file" instead, because Dev Mode can't import.
 
-<Screenshot name="empty" alt="The plugin in a file without variables" />
+<Screenshot name="empty" alt="The Import tab of a file without variables" />
 
 **Import Features:**
 

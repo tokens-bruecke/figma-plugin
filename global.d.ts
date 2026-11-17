@@ -33,6 +33,8 @@ interface JsonbinCredentialsI {
 
 interface GithubCredentialsI {
   isEnabled: boolean;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
   token: string;
   repo: string;
   branch: string;
@@ -56,6 +58,8 @@ interface GithubPullRequestCredentialsI {
 
 interface GitlabCredentialsI {
   isEnabled: boolean;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
   owner: string;
   host: string;
   repo: string;

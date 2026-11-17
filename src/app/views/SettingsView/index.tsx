@@ -36,6 +36,7 @@ import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 import {
   GitServerType,
   PullResultI,
+  getPullSource,
   getPulledCollections,
   isGitServer,
   pullTokens,
@@ -75,6 +76,8 @@ interface ViewProps {
   /** Imports tokens documents, e.g. pulled files. Undefined in Dev Mode */
   onImportTokenDocuments?: (tokens: any[]) => void;
   isImporting: boolean;
+  /** The file has no variables yet: open on Import, where they come from */
+  hasNoVariables?: boolean;
   /** Collection names of the open file */
   variableCollections: string[];
   isHidden: boolean;
@@ -86,6 +89,16 @@ interface ViewProps {
 }
 
 const sharedOptionPrefix = 'shared:';
+
+// Export writes tokens out and never changes the file; Import writes tokens
+// into its variables. Kept apart so the settings of the export don't look
+// like they shape an import
+type ModeType = 'export' | 'import';
+
+const modeOptions: { value: ModeType; label: string }[] = [
+  { value: 'export', label: 'Export' },
+  { value: 'import', label: 'Import' },
+];
 
 // The servers that write one file per collection when the tokens are split
 const gitServerIds: ServerType[] = [
@@ -180,6 +193,7 @@ export const SettingsView = (props: ViewProps) => {
     onImportTokens,
     onImportTokenDocuments,
     isImporting,
+    hasNoVariables = false,
     variableCollections,
     isHidden,
     sharedProfiles,
@@ -190,7 +204,14 @@ export const SettingsView = (props: ViewProps) => {
   } = props;
   const isPanel = isPanelLayout(usePluginEnvironment());
   const [isPushing, setIsPushing] = useState(false);
+  const [mode, setMode] = useState<ModeType>(
+    hasNoVariables ? 'import' : 'export'
+  );
+  // Dev Mode can't import, so it only has the export
+  const isImportMode = !!onImportTokens && mode === 'import';
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
+  const [showPullServersOverlayList, setShowPullServersOverlayList] =
+    useState(false);
   // The server whose files are being fetched
   const [pullingServer, setPullingServer] = useState<GitServerType | null>(
     null
@@ -226,6 +247,17 @@ export const SettingsView = (props: ViewProps) => {
     activeSharedProfile.updatedAt !== activeProfile.sharedUpdatedAt;
 
   const serversHeaderRef = React.useRef(null);
+  const pullServersHeaderRef = React.useRef(null);
+  // Where a server form was opened from: one added on the Import tab only
+  // pulls until "Use for pulling only" is unchecked
+  const [serverOrigin, setServerOrigin] = useState<ModeType>('export');
+
+  // Variables appeared, so an import worked: what's left is the export
+  const hadNoVariablesRef = React.useRef(hasNoVariables);
+  useEffect(() => {
+    if (hadNoVariablesRef.current && !hasNoVariables) setMode('export');
+    hadNoVariablesRef.current = hasNoVariables;
+  }, [hasNoVariables]);
 
   const advancedSettingsIcon = (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -245,13 +277,30 @@ export const SettingsView = (props: ViewProps) => {
     getTokensPreview();
   };
 
+  const handleModeChange = (value: string) => {
+    setMode(value as ModeType);
+    // The output belongs to the export
+    if (value === 'import' && isCodePreviewOpen) {
+      setIsCodePreviewOpen(false);
+    }
+  };
+
   const handleShowServersOverlayList = () => {
     setShowServersOverlayList(!showServersOverlayList);
   };
 
+  const handleShowPullServersOverlayList = () => {
+    setShowPullServersOverlayList(!showPullServersOverlayList);
+  };
+
   const handleServerView = (serverId: string) => {
+    setServerOrigin('export');
     props.setCurrentView(serverId);
-    // console.log("serverId", serverId);
+  };
+
+  const handlePullServerView = (serverId: string) => {
+    setServerOrigin('import');
+    props.setCurrentView(serverId);
   };
 
   const startHeightResize = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -313,6 +362,13 @@ export const SettingsView = (props: ViewProps) => {
   const enabledServers = serverList.filter(
     (server) => JSONsettingsConfig.servers[server.id]?.isEnabled
   );
+
+  // A GitHub or GitLab server added on the Import tab only pulls
+  const isPullOnly = (serverId: string) =>
+    !!(JSONsettingsConfig.servers[serverId] as { pullOnly?: boolean })
+      ?.pullOnly;
+
+  const pushServers = enabledServers.filter((server) => !isPullOnly(server.id));
 
   // The Git servers tokens can be pulled from. None where the import can't
   // run (Dev Mode)
@@ -379,7 +435,7 @@ export const SettingsView = (props: ViewProps) => {
   const getTokensForPush = () => {
     setIsPushing(true);
 
-    const allEnabledServers = enabledServers.map((server) => server.id);
+    const allEnabledServers = pushServers.map((server) => server.id);
 
     // send command to figma controller
     parent.postMessage(
@@ -578,9 +634,9 @@ export const SettingsView = (props: ViewProps) => {
   // RENDER VARIABLES //
   //////////////////////
 
-  const isAllServersEnabled = enabledServers.length === serverList.length;
+  const isAllServersEnabled = pushServers.length === serverList.length;
 
-  const isAnyServerEnabled = enabledServers.length > 0;
+  const isAnyServerEnabled = pushServers.length > 0;
 
   // The setting is stored in the profile and can name a collection of
   // another file. The export then keeps the styles separate; list it anyway
@@ -607,13 +663,18 @@ export const SettingsView = (props: ViewProps) => {
   // Only the Git servers write a file per collection, and only while the
   // tokens are split with collection names. JSONBin and a custom URL always
   // receive the whole export
-  const isCollectionRowShown =
+  const hasCollectionFiles =
     (JSONsettingsConfig.splitByCollection || JSONsettingsConfig.splitByMode) &&
     !JSONsettingsConfig.omitCollectionNames &&
-    variableCollections.length > 1 &&
-    gitServerIds.some(
-      (serverId) => JSONsettingsConfig.servers[serverId]?.isEnabled
+    variableCollections.length > 1;
+  const isCollectionRowShown =
+    hasCollectionFiles &&
+    pushServers.some((server) =>
+      gitServerIds.includes(server.id as ServerType)
     );
+  const isPullCollectionRowShown =
+    hasCollectionFiles &&
+    enabledServers.some((server) => isGitServer(server.id));
   const pushedCollections = variableCollections.filter(
     (collection) =>
       !(JSONsettingsConfig.excludedCollections ?? []).includes(collection)
@@ -632,98 +693,166 @@ export const SettingsView = (props: ViewProps) => {
     ? `Push ${pushedCollections.length} of ${variableCollections.length} collections`
     : 'Push to server';
 
-  const dynamicServerList = serverList.filter((server) => {
-    if (!JSONsettingsConfig.servers[server.id]?.isEnabled) {
-      return server;
-    }
-  });
+  // A pull-only server is offered too: its form then turns pushing on
+  const dynamicServerList = serverList.filter(
+    (server) => !pushServers.includes(server)
+  );
+
+  // A pull reads one branch, whether pushes commit or open a pull request,
+  // so the Import tab offers the plain servers only
+  const pullServerOptions = serverList
+    .filter(
+      (server) =>
+        (server.id === 'github' || server.id === 'gitlab') &&
+        !JSONsettingsConfig.servers[server.id]?.isEnabled
+    )
+    .map(({ caption: _caption, ...server }) => server);
 
   /////////////////
   // MAIN RENDER //
   /////////////////
 
-  const mainView = (
-    <>
-      <Panel>
+  // Picks the collections a push writes and a pull reads, so both modes show it
+  const collectionsRow = (
+    <Stack
+      className={[styles.rowItem, styles.collectionsRow].join(' ')}
+      hasLeftRightPadding={false}
+      direction="row"
+      onClick={() => setCurrentView('collections')}
+      gap={1}
+    >
+      <Icon name="library" size="32" />
+      <div className={[styles.rowItemText, styles.serverText].join(' ')}>
+        <Text>Collections</Text>
+        <Text className={styles.serverSummary}>{collectionSummary}</Text>
+      </div>
+      <IconButton
+        onClick={() => setCurrentView('collections')}
+        children={
+          <Icon
+            name="caret-right"
+            size="16"
+            customIcon={advancedSettingsIcon}
+          />
+        }
+      />
+    </Stack>
+  );
+
+  // The profile menu also opens the new profile and profile settings views,
+  // which had their own buttons before the tabs shared this row
+  const newProfileOption = '__new-profile';
+  const profileSettingsOption = '__profile-settings';
+
+  const handleProfileMenu = (id: string) => {
+    if (id === newProfileOption) {
+      setCurrentView('newProfile');
+      return;
+    }
+
+    if (id === profileSettingsOption) {
+      setCurrentView('profileDetail');
+      return;
+    }
+
+    if (id.startsWith(sharedOptionPrefix)) {
+      adoptSharedProfile(id.slice(sharedOptionPrefix.length));
+      return;
+    }
+
+    setActiveProfileId(id);
+  };
+
+  // The tabs on the left and the profile both tabs use on the right. Dev Mode
+  // can't import, so it shows only the profile
+  const profilePanel = (
+    <Panel>
+      <Stack
+        hasLeftRightPadding
+        direction="row"
+        gap="var(--space-extra-small)"
+        className={styles.modeBar}
+      >
+        {onImportTokens && (
+          <div className={styles.modeTabs} role="tablist">
+            {modeOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="tab"
+                aria-selected={mode === option.value}
+                className={[
+                  styles.modeTab,
+                  mode === option.value && styles.modeTabActive,
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => handleModeChange(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <Dropdown
+          className={styles.profileMenu}
+          value={multiTenantConfig.activeProfileId}
+          onChange={handleProfileMenu}
+          optionsSections={[
+            {
+              options: profileEntries.map(([profileId, profile]) => ({
+                id: profileId,
+                label: profile.profileName,
+              })),
+            },
+            ...(unlinkedSharedEntries.length
+              ? [
+                  {
+                    title: 'Shared in this file',
+                    options: unlinkedSharedEntries.map(
+                      ([sharedId, profile]) => ({
+                        id: `${sharedOptionPrefix}${sharedId}`,
+                        label: profile.profileName,
+                      })
+                    ),
+                  },
+                ]
+              : []),
+            {
+              options: [
+                { id: newProfileOption, label: 'New profile…' },
+                { id: profileSettingsOption, label: 'Profile settings…' },
+              ],
+            },
+          ]}
+        />
+      </Stack>
+
+      {hasSharedProfileUpdate && (
         <Stack
-          hasLeftRightPadding
+          hasTopBottomPadding
           direction="row"
           gap="var(--space-extra-small)"
+          className={styles.sharedUpdate}
         >
-          <Stack hasLeftRightPadding={false} className={styles.profileDropdown}>
-            <Dropdown
-              leftIcon={<Icon name="profile" size="32" />}
-              value={multiTenantConfig.activeProfileId}
-              onChange={(profileId: string) => {
-                if (profileId.startsWith(sharedOptionPrefix)) {
-                  adoptSharedProfile(
-                    profileId.slice(sharedOptionPrefix.length)
-                  );
-                  return;
-                }
-
-                setActiveProfileId(profileId);
-              }}
-              optionsSections={[
-                {
-                  options: profileEntries.map(([profileId, profile]) => ({
-                    id: profileId,
-                    label: profile.profileName,
-                  })),
-                },
-                ...(unlinkedSharedEntries.length
-                  ? [
-                      {
-                        title: 'Shared in this file',
-                        options: unlinkedSharedEntries.map(
-                          ([sharedId, profile]) => ({
-                            id: `${sharedOptionPrefix}${sharedId}`,
-                            label: profile.profileName,
-                          })
-                        ),
-                      },
-                    ]
-                  : []),
-              ]}
-            />
-          </Stack>
-
-          <IconButton
+          <Text className={styles.sharedUpdateText}>
+            The shared profile changed in this file.
+          </Text>
+          <Button
+            label="Update"
+            secondary
             onClick={() => {
-              setCurrentView('profileDetail');
+              updateFromSharedProfile(multiTenantConfig.activeProfileId);
             }}
-            children={<Icon name="kebab" size="32" />}
-          />
-
-          <IconButton
-            onClick={() => {
-              setCurrentView('newProfile');
-            }}
-            children={<Icon name="plus" size="32" />}
           />
         </Stack>
+      )}
+    </Panel>
+  );
 
-        {hasSharedProfileUpdate && (
-          <Stack
-            hasTopBottomPadding
-            direction="row"
-            gap="var(--space-extra-small)"
-            className={styles.sharedUpdate}
-          >
-            <Text className={styles.sharedUpdateText}>
-              The shared profile changed in this file.
-            </Text>
-            <Button
-              label="Update"
-              secondary
-              onClick={() => {
-                updateFromSharedProfile(multiTenantConfig.activeProfileId);
-              }}
-            />
-          </Stack>
-        )}
-      </Panel>
-
+  const exportPanels = (
+    <>
       <Panel>
         <PanelHeader
           title="Show output"
@@ -981,7 +1110,7 @@ export const SettingsView = (props: ViewProps) => {
             gap="var(--space-small)"
           >
             <Stack hasLeftRightPadding={false} gap={4}>
-              {enabledServers.map((server) => {
+              {pushServers.map((server) => {
                 const serverId = server.id;
 
                 return (
@@ -1022,35 +1151,7 @@ export const SettingsView = (props: ViewProps) => {
               })}
             </Stack>
 
-            {isCollectionRowShown && (
-              <Stack
-                className={[styles.rowItem, styles.collectionsRow].join(' ')}
-                hasLeftRightPadding={false}
-                direction="row"
-                onClick={() => setCurrentView('collections')}
-                gap={1}
-              >
-                <Icon name="library" size="32" />
-                <div
-                  className={[styles.rowItemText, styles.serverText].join(' ')}
-                >
-                  <Text>Collections</Text>
-                  <Text className={styles.serverSummary}>
-                    {collectionSummary}
-                  </Text>
-                </div>
-                <IconButton
-                  onClick={() => setCurrentView('collections')}
-                  children={
-                    <Icon
-                      name="caret-right"
-                      size="16"
-                      customIcon={advancedSettingsIcon}
-                    />
-                  }
-                />
-              </Stack>
-            )}
+            {isCollectionRowShown && collectionsRow}
 
             <Stack>
               <Button
@@ -1072,54 +1173,7 @@ export const SettingsView = (props: ViewProps) => {
             fullWidth
             secondary
           />
-          {onImportTokens ? (
-            <>
-              <Button
-                label="Import tokens (Beta)"
-                onClick={onImportTokens}
-                loading={isImporting && !importingServer}
-                fullWidth
-                secondary
-              />
-              {pullServers.map((server) => (
-                <Button
-                  key={server.id}
-                  label={`Pull from ${server.label}`}
-                  onClick={() => handlePull(server.id)}
-                  loading={
-                    pullingServer === server.id ||
-                    (isImporting && importingServer === server.id)
-                  }
-                  disabled={!!pullingServer || isImporting}
-                  fullWidth
-                  secondary
-                />
-              ))}
-              {pendingPull && (
-                <Stack
-                  hasLeftRightPadding={false}
-                  gap="var(--space-extra-small)"
-                >
-                  <Text className={styles.pullSummary}>
-                    {pendingPullSummary}
-                  </Text>
-                  <Stack
-                    hasLeftRightPadding={false}
-                    direction="row"
-                    gap="var(--space-extra-small)"
-                    className={styles.pullActions}
-                  >
-                    <Button
-                      label="Cancel"
-                      secondary
-                      onClick={() => setPendingPull(null)}
-                    />
-                    <Button label="Import" onClick={confirmPull} />
-                  </Stack>
-                </Stack>
-              )}
-            </>
-          ) : (
+          {!onImportTokens && (
             <Text className={styles.hint}>
               Importing tokens into variables needs Figma Design and edit
               access. Dev Mode is read-only.
@@ -1127,6 +1181,147 @@ export const SettingsView = (props: ViewProps) => {
           )}
         </Stack>
       </Panel>
+    </>
+  );
+
+  const importPanels = (
+    <>
+      {hasNoVariables && (
+        <Panel>
+          <Stack hasLeftRightPadding hasTopBottomPadding>
+            <Text className={styles.pullHint}>
+              This file has no variables yet.
+            </Text>
+          </Stack>
+        </Panel>
+      )}
+
+      <Panel>
+        <PanelHeader
+          ref={pullServersHeaderRef}
+          title="Pull from Git"
+          isActive
+          onClick={
+            pullServerOptions.length
+              ? handleShowPullServersOverlayList
+              : undefined
+          }
+          iconButtons={[
+            {
+              disabled: !pullServerOptions.length,
+              children: (
+                <>
+                  <Icon name="plus" size="32" />
+                  {showPullServersOverlayList && (
+                    <OverlayList
+                      trigger={pullServersHeaderRef.current ?? undefined}
+                      className={styles.overlayPullServerList}
+                      onOutsideClick={handleShowPullServersOverlayList}
+                      onClick={handlePullServerView}
+                      optionsSections={[{ options: pullServerOptions }]}
+                    />
+                  )}
+                </>
+              ),
+              onClick: handleShowPullServersOverlayList,
+            },
+          ]}
+        />
+
+        <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
+          {pullServers.length ? (
+            <Stack hasLeftRightPadding={false} gap="var(--space-extra-small)">
+              {pullServers.map((server) => (
+                <Stack
+                  className={styles.rowItem}
+                  key={server.id}
+                  hasLeftRightPadding={false}
+                  direction="row"
+                  onClick={() => handlePullServerView(server.id)}
+                  gap={1}
+                >
+                  <Icon name={server.iconName} size="32" />
+                  <div
+                    className={[styles.rowItemText, styles.serverText].join(
+                      ' '
+                    )}
+                  >
+                    <Text>{server.label}</Text>
+                    <Text className={styles.serverSummary}>
+                      {getPullSource(
+                        server.id,
+                        JSONsettingsConfig.servers[server.id]
+                      )}
+                    </Text>
+                  </div>
+                  {/* The row opens the server's settings, the button pulls */}
+                  <span
+                    className={styles.pullButton}
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <Button
+                      label="Pull"
+                      secondary
+                      onClick={() => handlePull(server.id)}
+                      loading={
+                        pullingServer === server.id ||
+                        (isImporting && importingServer === server.id)
+                      }
+                      disabled={!!pullingServer || isImporting}
+                    />
+                  </span>
+                </Stack>
+              ))}
+            </Stack>
+          ) : (
+            <Text className={`${styles.hint} ${styles.pullHint}`}>
+              Connect a GitHub or GitLab repository with + to pull its tokens
+              into this file.
+            </Text>
+          )}
+
+          {isPullCollectionRowShown && collectionsRow}
+
+          {pendingPull && (
+            <Stack hasLeftRightPadding={false} gap="var(--space-extra-small)">
+              <Text className={styles.pullSummary}>{pendingPullSummary}</Text>
+              <Stack
+                hasLeftRightPadding={false}
+                direction="row"
+                gap="var(--space-extra-small)"
+                className={styles.pullActions}
+              >
+                <Button
+                  label="Cancel"
+                  secondary
+                  onClick={() => setPendingPull(null)}
+                />
+                <Button label="Import" onClick={confirmPull} />
+              </Stack>
+            </Stack>
+          )}
+        </Stack>
+      </Panel>
+
+      <Panel hasLeftRightPadding bottomBorder={false}>
+        <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
+          <Button
+            label="Import from JSON file"
+            onClick={onImportTokens}
+            loading={isImporting && !importingServer}
+            disabled={isImporting && !!importingServer}
+            fullWidth
+            secondary
+          />
+        </Stack>
+      </Panel>
+    </>
+  );
+
+  const mainView = (
+    <>
+      {profilePanel}
+      {isImportMode ? importPanels : exportPanels}
     </>
   );
 
@@ -1139,6 +1334,7 @@ export const SettingsView = (props: ViewProps) => {
     setCurrentView,
     showToast: (params: ToastIPropsI) => toastRef.current?.show(params),
     variableCollections,
+    openedFrom: serverOrigin,
   };
 
   const selectRender = () => {

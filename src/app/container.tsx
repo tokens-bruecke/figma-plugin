@@ -626,14 +626,10 @@ const Container = () => {
       ? importTokenDocuments
       : undefined;
 
-    if (!fileHasVariables) {
-      return (
-        <EmptyView
-          setFileHasVariables={setFileHasVariables}
-          onImportTokens={onImportTokens}
-          isImporting={isImporting}
-        />
-      );
+    // Figma Design opens a file without variables on the Import tab. Dev
+    // Mode can't import, so it says so
+    if (!fileHasVariables && !onImportTokens) {
+      return <EmptyView setFileHasVariables={setFileHasVariables} />;
     }
 
     // In the panel the preview replaces the settings instead of sitting
@@ -647,6 +643,7 @@ const Container = () => {
         onImportTokens={onImportTokens}
         onImportTokenDocuments={onImportTokenDocuments}
         isImporting={isImporting}
+        hasNoVariables={!fileHasVariables}
         variableCollections={variableCollections}
         isCodePreviewOpen={isCodePreviewOpen}
         setIsCodePreviewOpen={setIsCodePreviewOpen}

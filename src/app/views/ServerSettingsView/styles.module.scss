@@ -34,3 +34,21 @@
 .rowItemText {
   flex: 1;
 }
+
+// The kit's checkbox has its own inset; line its box up with the fields
+.pullOnly {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pullOnlyCheckbox {
+  margin-left: -2px;
+}
+
+// Lines up with the checkbox label
+.pullOnlyHint {
+  color: var(--figma-color-text-secondary);
+  margin-top: -6px;
+  padding-left: 30px;
+}

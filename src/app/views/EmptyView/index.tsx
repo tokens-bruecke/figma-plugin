@@ -7,18 +7,13 @@ import { StatusPicture } from '@app/components/StatusPicture';
 
 import styles from './styles.module.scss';
 
+// Only Dev Mode gets here: Figma Design opens a file without variables on
+// the Import tab
 interface EmptyViewProps {
   setFileHasVariables: (value: boolean) => void;
-  /** Undefined where the import can't run (Dev Mode) */
-  onImportTokens?: () => Promise<void>;
-  isImporting?: boolean;
 }
 
-export const EmptyView = ({
-  setFileHasVariables,
-  onImportTokens,
-  isImporting = false,
-}: EmptyViewProps) => {
+export const EmptyView = ({ setFileHasVariables }: EmptyViewProps) => {
   return (
     <section className={styles.emptyView}>
       <Stack gap={8} className={styles.group}>
@@ -27,20 +22,10 @@ export const EmptyView = ({
       </Stack>
 
       <Stack gap={8} className={styles.group}>
-        {onImportTokens ? (
-          <Button
-            className={styles.button}
-            label="Import tokens (Beta)"
-            onClick={onImportTokens}
-            loading={isImporting}
-            fullWidth
-          />
-        ) : (
-          <Text className={styles.label} align="center">
-            Tokens can be imported into variables in Figma Design, by someone
-            with edit access.
-          </Text>
-        )}
+        <Text className={styles.label} align="center">
+          Tokens can be imported into variables in Figma Design, by someone with
+          edit access.
+        </Text>
         <Button
           className={styles.button}
           label="Continue without variables"

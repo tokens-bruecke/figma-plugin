@@ -6,6 +6,7 @@ import {
   Panel,
   Stack,
   Button,
+  Checkbox,
   Icon,
   Text,
 } from 'react-figma-ui/ui';
@@ -26,6 +27,11 @@ import {
   ConnectionResultI,
 } from '@app/api/servers/testConnection';
 import { track } from '@app/api/analytics';
+import {
+  getPullSource,
+  isGitServer,
+  type GitCredentialsT,
+} from '@app/api/servers/pullFromGit';
 
 // Fixed event paths, spelled like the push events
 const testConnectionEventNames: Record<ServerType, string> = {
@@ -46,6 +52,8 @@ interface ViewProps {
   server: ServerType;
   showToast?: (params: ToastIPropsI) => void;
   variableCollections?: string[];
+  /** The tab whose server list or + menu opened the form */
+  openedFrom?: 'export' | 'import';
 }
 
 type ConnectionStateT =
@@ -62,6 +70,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     setCurrentView,
     server,
     showToast,
+    openedFrom = 'export',
   } = props;
   const provider = providers[server];
   const stored = (JSONsettingsConfig.servers[server] || {}) as Record<
@@ -69,6 +78,18 @@ export const ServerSettingsView = (props: ViewProps) => {
     string | boolean
   >;
   const isConfigured = !!stored.isEnabled;
+
+  // GitHub and GitLab can be pull-only. A PR or MR server exists to push
+  const canBePullOnly = server === 'github' || server === 'gitlab';
+  const isStoredPush = !stored.pullOnly;
+  // A new server added on the Import tab only pulls. Picking a pull-only
+  // server in the Export tab's + menu turns pushing on, saved with Save
+  const [isPullOnlyChecked, setIsPullOnlyChecked] = useState(() => {
+    if (!canBePullOnly) return false;
+    if (!isConfigured) return openedFrom === 'import';
+    return !isStoredPush && openedFrom !== 'export';
+  });
+  const isPullOnly = canBePullOnly && isPullOnlyChecked;
   // Custom URL has no secret field, so Remove doesn't speak of one
   const secretField = provider.fields.find((field) => field.kind === 'secret');
 
@@ -86,8 +107,12 @@ export const ServerSettingsView = (props: ViewProps) => {
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   const [focusFieldId, setFocusFieldId] = useState<string | null>(null);
 
-  const advancedFields = provider.fields.filter((field) => field.isAdvanced);
-  const mainFields = provider.fields.filter((field) => !field.isAdvanced);
+  // The commit message means nothing to a server that is never pushed to
+  const fields = provider.fields.filter(
+    (field) => !(field.pushOnly && isPullOnly)
+  );
+  const advancedFields = fields.filter((field) => field.isAdvanced);
+  const mainFields = fields.filter((field) => !field.isAdvanced);
   const [isMoreOpen, setIsMoreOpen] = useState(() =>
     advancedFields.some((field) => !!initialValues[field.id])
   );
@@ -97,6 +122,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     splitByCollection: JSONsettingsConfig.splitByCollection,
     splitByMode: JSONsettingsConfig.splitByMode,
     collections: props.variableCollections || [],
+    isPullOnly,
   };
 
   // JSONBin's secret is a "Master key", the others are tokens
@@ -117,7 +143,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     return field.validate?.(value, ctx);
   };
 
-  const errors = provider.fields.reduce((acc, field) => {
+  const errors = fields.reduce((acc, field) => {
     const error = getError(field);
     return error ? { ...acc, [field.id]: error } : acc;
   }, {} as Record<string, string>);
@@ -135,10 +161,13 @@ export const ServerSettingsView = (props: ViewProps) => {
     return isSubmitted || blurred[field.id] ? errors[field.id] : undefined;
   };
 
-  const isDirty = provider.fields.some(
-    (field) =>
-      (values[field.id] || '').trim() !== (initialValues[field.id] || '').trim()
-  );
+  const isDirty =
+    provider.fields.some(
+      (field) =>
+        (values[field.id] || '').trim() !==
+        (initialValues[field.id] || '').trim()
+    ) ||
+    (canBePullOnly && isConfigured && isPullOnly === isStoredPush);
 
   useEffect(() => {
     if (!focusFieldId) return;
@@ -179,7 +208,7 @@ export const ServerSettingsView = (props: ViewProps) => {
   const checkForm = () => {
     setIsSubmitted(true);
 
-    const firstInvalid = provider.fields.find((field) => errors[field.id]);
+    const firstInvalid = fields.find((field) => errors[field.id]);
     if (!firstInvalid) return true;
 
     if (firstInvalid.isAdvanced) {
@@ -200,6 +229,7 @@ export const ServerSettingsView = (props: ViewProps) => {
       ...stored,
       ...provider.toStorage(values),
       isEnabled: true,
+      ...(canBePullOnly ? { pullOnly: isPullOnly } : {}),
     };
 
     setJSONsettingsConfig((prevState) => ({
@@ -212,10 +242,24 @@ export const ServerSettingsView = (props: ViewProps) => {
 
     showToast?.({
       title: `${provider.title} saved`,
-      message: `Push to server sends the tokens to ${getServerSummary(
-        server,
-        nextStored
-      )}.`,
+      // A Git server is also where Pull on the Import tab reads from
+      message: isPullOnly
+        ? `Pull on the Import tab reads the tokens from ${getPullSource(
+            server,
+            nextStored as GitCredentialsT
+          )}. Push to server skips it.`
+        : isGitServer(server)
+        ? `Push to server sends the tokens to ${getServerSummary(
+            server,
+            nextStored
+          )}. Pull on the Import tab reads them from ${getPullSource(
+            server,
+            nextStored as GitCredentialsT
+          )}.`
+        : `Push to server sends the tokens to ${getServerSummary(
+            server,
+            nextStored
+          )}.`,
       options: { type: 'success' },
     });
 
@@ -232,6 +276,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     const result = await testConnection(server, {
       ...stored,
       ...provider.toStorage(values),
+      ...(canBePullOnly ? { pullOnly: isPullOnly } : {}),
     } as unknown as ServerSettingsI[ServerType]);
 
     setConnection({ state: 'done', result });
@@ -380,8 +425,32 @@ export const ServerSettingsView = (props: ViewProps) => {
       )}
 
       <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
-        <Text className={styles.description}>{provider.description}</Text>
+        <Text className={styles.description}>
+          {isPullOnly && provider.pullDescription
+            ? provider.pullDescription
+            : provider.description}
+        </Text>
         {mainFields.map(renderField)}
+        {canBePullOnly && (
+          <div className={styles.pullOnly}>
+            <Checkbox
+              id="server-pull-only"
+              className={styles.pullOnlyCheckbox}
+              checked={isPullOnlyChecked}
+              onChang={(checked: boolean) => {
+                setIsPullOnlyChecked(checked);
+                setConnection({ state: 'idle' });
+              }}
+            >
+              <Text>Use for pulling only</Text>
+            </Checkbox>
+            <Text className={styles.pullOnlyHint}>
+              {isPullOnly
+                ? 'Push to server skips this repository.'
+                : 'Push to server commits to this branch.'}
+            </Text>
+          </div>
+        )}
       </Stack>
 
       {advancedFields.length > 0 && (

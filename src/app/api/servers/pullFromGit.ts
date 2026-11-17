@@ -42,7 +42,7 @@ export interface PullResultI {
   source: string;
 }
 
-type GitCredentialsT =
+export type GitCredentialsT =
   | GithubCredentialsI
   | GithubPullRequestCredentialsI
   | GitlabCredentialsI

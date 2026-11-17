@@ -24,6 +24,8 @@ export interface FieldContextI {
   splitByMode: boolean;
   /** Collection names of the open file, for the example paths */
   collections: string[];
+  /** Push to server skips it, so the token only needs to read */
+  isPullOnly?: boolean;
 }
 
 type FromContextT<T> = T | ((ctx: FieldContextI) => T);
@@ -39,6 +41,8 @@ export interface FieldConfigI {
   hint?: FromContextT<React.ReactNode>;
   link?: (ctx: FieldContextI) => { label: string; href: string } | undefined;
   options?: { id: string; label: string }[];
+  /** Only shown while the server is pushed to */
+  pushOnly?: boolean;
   /** Format checks; an empty required field is handled by the view */
   validate?: (value: string, ctx: FieldContextI) => string | undefined;
 }
@@ -46,6 +50,8 @@ export interface FieldConfigI {
 export interface ProviderI {
   title: string;
   description: string;
+  /** For a server added on the Import tab, which Push to server skips */
+  pullDescription?: string;
   fields: FieldConfigI[];
   canTestConnection: boolean;
   toForm: (stored: StoredT) => FormValuesT;
@@ -106,6 +112,7 @@ const branchValidation = (value: string) =>
 
 const commitMessageField: FieldConfigI = {
   id: 'commitMessage',
+  pushOnly: true,
   kind: 'text',
   isAdvanced: true,
   label: 'Commit message',
@@ -133,7 +140,10 @@ const githubTokenField = (permissions: string): FieldConfigI => ({
     label: 'Create token',
     href: 'https://github.com/settings/personal-access-tokens/new',
   }),
-  hint: `Fine-grained token with ${permissions}: read and write.`,
+  hint: (ctx) =>
+    ctx.isPullOnly
+      ? 'Fine-grained token with Contents: read.'
+      : `Fine-grained token with ${permissions}: read and write. Pulls only need Contents: read.`,
 });
 
 const deriveGithubBranch =
@@ -169,6 +179,9 @@ const gitlabProjectField: FieldConfigI = {
       : 'Use the project URL or group/project, e.g. acme/design/tokens.',
 };
 
+// Pulling reads the repository through the API, so read_api is enough
+const gitlabPullHint = 'Needs the read_api scope and the Reporter role.';
+
 const gitlabTokenField = (hint: string): FieldConfigI => ({
   id: 'token',
   kind: 'secret',
@@ -184,7 +197,7 @@ const gitlabTokenField = (hint: string): FieldConfigI => ({
         : 'https://docs.gitlab.com/user/project/settings/project_access_tokens/',
     };
   },
-  hint,
+  hint: (ctx) => (ctx.isPullOnly ? gitlabPullHint : hint),
 });
 
 const deriveGitlabBranch =
@@ -225,7 +238,9 @@ const toGitlabStorage = (values: FormValuesT) => {
 export const providers: Record<ServerType, ProviderI> = {
   github: {
     title: 'GitHub',
-    description: 'Commits the tokens straight to a branch.',
+    description:
+      'Commits the tokens straight to a branch, and pulls them from it.',
+    pullDescription: 'Pulls the tokens from a branch.',
     canTestConnection: true,
     fields: [
       githubRepositoryField,
@@ -261,7 +276,7 @@ export const providers: Record<ServerType, ProviderI> = {
   githubPullRequest: {
     title: 'GitHub pull request',
     description:
-      'Commits the tokens to a separate branch and opens a pull request, or updates the open one.',
+      'Commits the tokens to a separate branch and opens or updates a pull request. Pulls read the base branch, where merged changes land.',
     canTestConnection: true,
     fields: [
       githubRepositoryField,
@@ -327,7 +342,9 @@ export const providers: Record<ServerType, ProviderI> = {
 
   gitlab: {
     title: 'GitLab',
-    description: 'Commits the tokens straight to a branch of a GitLab project.',
+    description:
+      'Commits the tokens straight to a branch of a GitLab project, and pulls them from it.',
+    pullDescription: 'Pulls the tokens from a branch of a GitLab project.',
     canTestConnection: true,
     fields: [
       gitlabProjectField,
@@ -341,7 +358,7 @@ export const providers: Record<ServerType, ProviderI> = {
       },
       fileField,
       gitlabTokenField(
-        'Needs the api scope and a role that may push to this branch.'
+        'Needs the api scope and a role that may push to this branch. Pulls only need read_api and the Reporter role.'
       ),
       commitMessageField,
     ],
@@ -361,7 +378,7 @@ export const providers: Record<ServerType, ProviderI> = {
   gitlabMergeRequest: {
     title: 'GitLab merge request',
     description:
-      'Commits the tokens to a separate branch and opens a merge request, or updates the open one.',
+      'Commits the tokens to a separate branch and opens or updates a merge request. Pulls read the target branch, where merged changes land.',
     canTestConnection: true,
     fields: [
       gitlabProjectField,
@@ -375,7 +392,7 @@ export const providers: Record<ServerType, ProviderI> = {
       },
       fileField,
       gitlabTokenField(
-        'Needs the api scope and at least the Developer role. The target branch can stay protected.'
+        'Needs the api scope and at least the Developer role; the target branch can stay protected. Pulls only need read_api and the Reporter role.'
       ),
       {
         id: 'branch',

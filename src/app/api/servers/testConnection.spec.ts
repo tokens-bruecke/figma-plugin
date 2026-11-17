@@ -86,7 +86,38 @@ describe('testConnection', () => {
     await expect(testConnection('github', github)).resolves.toMatchObject({
       ok: false,
       fieldId: 'token',
-      message: 'The token can read acme/tokens but not write to it.',
+      message:
+        'The token can read acme/tokens but not write to it. If you only pull, check Use for pulling only.',
+    });
+  });
+
+  it('accepts a read-only token for a pull-only GitHub server', async () => {
+    stubFetch([
+      [/\/branches\/main$/, () => json(200, { name: 'main' })],
+      [
+        /\/repos\/acme\/tokens$/,
+        () => json(200, { permissions: { push: false } }),
+      ],
+    ]);
+
+    await expect(
+      testConnection('github', { ...github, pullOnly: true })
+    ).resolves.toEqual({
+      ok: true,
+      message: 'Connected to acme/tokens · main',
+    });
+  });
+
+  it('asks for the read_api scope when GitLab rejects a pull-only token', async () => {
+    stubFetch([[/./, () => json(401)]]);
+
+    await expect(
+      testConnection('gitlab', { ...gitlab, pullOnly: true })
+    ).resolves.toMatchObject({
+      ok: false,
+      fieldId: 'token',
+      message:
+        'gitlab.acme.com rejected the token. Check that it is complete, not expired and has the read_api scope.',
     });
   });
 

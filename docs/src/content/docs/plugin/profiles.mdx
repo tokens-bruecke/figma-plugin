@@ -10,11 +10,11 @@ A profile holds a complete set of export settings and server configurations. Kee
 
 ## Multiple profiles
 
-Each profile stores its own settings, so you can switch between different setups without reconfiguring every time. The profile controls are in the header of the settings view:
+Each profile stores its own settings, so you can switch between different setups without reconfiguring every time. The name of the active profile is at the top right of the plugin, next to the Export and Import tabs. Click it to open the profile menu:
 
-- **Profile dropdown** — shows the active profile. Click it to switch to another profile.
-- **`+` button** — creates a new profile. Enter a name and click **Create**. The new profile starts with default settings.
-- **`⋮` button** — opens the active profile, where you can rename, share or delete it.
+- **A profile** — switches to it.
+- **New profile…** — creates a new profile. Enter a name and click **Create**. The new profile starts with default settings.
+- **Profile settings…** — opens the active profile, where you can rename, share or delete it.
 
 <Screenshot name="profiles" alt="Switching between profiles" />
 
@@ -26,13 +26,13 @@ Profiles are stored on your machine. To hand your settings to others, for exampl
 
 <Steps>
 
-1. Open the profile with `⋮` and click **Share in this file**.
+1. Open the profile with **Profile settings…** in the profile menu and click **Share in this file**.
 
    <Screenshot name="share-profile" alt="Sharing a profile in the file from the profile settings" />
 
-2. Everyone who runs the plugin on the file sees it in the profile dropdown under **Shared in this file**. Picking it creates a local copy.
+2. Everyone who runs the plugin on the file sees it in the profile menu under **Shared in this file**. Picking it creates a local copy.
 
-   <Screenshot name="shared-profiles" alt="A profile shared in the file, listed in the profile dropdown" />
+   <Screenshot name="shared-profiles" alt="A profile shared in the file, listed in the profile menu" />
 
 3. Each person adds their own token in the [server settings](../push-to-server/) before they push.
 
@@ -54,7 +54,7 @@ If an update points GitLab or GitLab MR to another host, its GitLab token is rem
 
 ### Changing or stopping a shared profile
 
-Open a shared profile with `⋮` to change it for everyone who uses the file: **Update shared profile** writes your current settings to the file, and **Stop sharing** removes it from the file. Local copies stay as they are.
+Open a shared profile with **Profile settings…** to change it for everyone who uses the file: **Update shared profile** writes your current settings to the file, and **Stop sharing** removes it from the file. Local copies stay as they are.
 
 <Screenshot name="shared-profile-detail" alt="A shared profile with the Update shared profile and Stop sharing buttons" />
 

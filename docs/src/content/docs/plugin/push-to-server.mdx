@@ -33,7 +33,8 @@ For GitHub, GitHub PR, GitLab and GitLab MR, **Test connection** checks the toke
 3. **Branch:** it must already exist.
 4. **File path:** the path of the file in the repository, e.g. `tokens/design.tokens.json`. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
 5. **Personal access token:** paste the token.
-6. Under **More options** you can set a commit message. It defaults to `Update tokens`.
+6. **Use for pulling only:** unchecked when you add the server here. Check it to only [pull](#pull-from-git) from the branch; **Push to server** then skips it.
+7. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
 > **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path. To leave some collections out of the push, see [Collections to push](#collections-to-push).
 
@@ -59,7 +60,8 @@ If a pull request from that branch is already open, the plugin updates it instea
 3. **Branch:** it must already exist.
 4. **File path:** the path of the file in the repository, e.g. `tokens/design.tokens.json`. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
 5. **Project access token:** paste the token.
-6. Under **More options** you can set a commit message. It defaults to `Update tokens`.
+6. **Use for pulling only:** unchecked when you add the server here. Check it to only [pull](#pull-from-git) from the branch; **Push to server** then skips it.
+7. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
 > **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path. To leave some collections out of the push, see [Collections to push](#collections-to-push).
 
@@ -94,17 +96,22 @@ The selection is saved in the profile. **Download JSON**, JSONBin, custom server
 
 ## Pull from Git
 
-Tokens edited in the repository can come back into Figma. For each GitHub, GitHub PR, GitLab and GitLab MR server of the profile, a **Pull from …** button sits under **Import tokens (Beta)**. It reads the token files a push writes and [imports](../../getting-started/export-and-import/#import-json--variables) them into the variables, with the same rules as a file import.
+Tokens edited in the repository can come back into Figma. Open the **Import** tab at the top of the plugin: under **Pull from Git** it lists the GitHub, GitHub PR, GitLab and GitLab MR servers of the profile, each with where it pulls from and a **Pull** button. A pull reads the token files a push writes and [imports](../../getting-started/export-and-import/#import-json--variables) them into the variables, with the same rules as a file import. Click a server to change its settings.
+
+To add a server, click **+** next to **Pull from Git**. It offers **GitHub** and **GitLab**: a pull reads one branch, so there's no choice between a commit and a pull request here. A server added on the Import tab only pulls. It isn't listed on the Export tab, and **Push to server** skips it. Its settings have **Use for pulling only** checked. To push to it too, uncheck it, or pick the server in the **+** menu of the Export tab. The servers added on the Export tab push and pull, so a round trip through a pull request needs only one server.
+
+<Screenshot name="pull-servers-menu" alt="The + menu next to Pull from Git, offering GitHub and GitLab" />
 
 - **Branch:** GitHub and GitLab read their **Branch**. GitHub PR and GitLab MR read the branch they merge into (**Base branch**), which holds what was reviewed and merged. Their own branch is reset on every push.
 - **Files:** the file at **File path**. While the tokens are [split into separate files](../advanced-settings/#split-collections-into-separate-files), every `*.tokens.json` in the **Folder**, plus `<Collection>/<Mode>.tokens.json` one folder down when splitting by mode.
-- **Collections:** the files of collections unchecked under [Collections to push](#collections-to-push) are not read. A pull doesn't change what a push leaves alone.
+- **Collections:** the files of collections unchecked under [Collections to push](#collections-to-push) are not read. A pull doesn't change what a push leaves alone. The Import tab shows the same **Collections** row.
 - **Aliases:** all files are imported together, so an alias into a collection from another file resolves whatever order the files come in.
 
 The plugin fetches the files first and asks before it changes anything. Click **Import** to write them into the variables, or **Cancel**.
 
-<Screenshot name="pull-from-git" alt="The Pull from GitHub button, asking to import 3 files from acme/design-tokens · main" />
- The pull uses the access token of the server's settings. It only reads from the repository and runs in Figma Design only, not in [Dev Mode](../dev-mode/).
+<Screenshot name="pull-from-git" alt="The Import tab with a GitHub and a GitLab MR server, asking to import 3 files from acme/design-tokens · main" />
+
+The pull uses the access token of the server's settings. Reading is enough for it: **Contents: Read** on GitHub, `read_api` and the Reporter role on GitLab. A token that can only read pulls, but can't push; check **Use for pulling only** for it, so **Test connection** doesn't ask for write access. The pull only reads from the repository and runs in Figma Design only, not in [Dev Mode](../dev-mode/).
 
 ## Custom server
 

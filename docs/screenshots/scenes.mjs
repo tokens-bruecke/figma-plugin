@@ -178,12 +178,13 @@ export const scenes = {
     },
   },
 
-  // The GitHub API is stubbed: the pull lists three collection files
+  // Import mode with two Git servers. The GitHub API is stubbed: the pull
+  // lists three collection files
   'pull-from-git': {
     profiles: {
       default: profile({
         splitByCollection: true,
-        servers: only('github'),
+        servers: only('github', 'gitlabMergeRequest'),
       }),
     },
     steps: async (page) => {
@@ -226,10 +227,10 @@ export const scenes = {
           ),
         });
       });
-      await page.getByText('Pull from GitHub', { exact: true }).click();
+      await page.getByText('Import', { exact: true }).first().click();
+      await page.getByText('Pull', { exact: true }).first().click();
       await page.getByText(/^Import 3 files/).waitFor();
     },
-    crop: ['Download JSON', 'Import'],
   },
 
   jsonbin: serverScene('jsonbin', 'JSONBin'),
@@ -249,15 +250,15 @@ export const scenes = {
     steps: async (page) => {
       await page.getByText('Web', { exact: true }).first().click();
     },
-    crop: ['Web', 'Android', 'Color mode'],
+    crop: ['Web', 'Android', 'Profile settings…', 'Include styles'],
   },
 
   'share-profile': {
     activeProfileId: 'web',
     profiles: { web: profile({ profileName: 'Web' }) },
     steps: async (page) => {
-      // the ⋮ next to the profile dropdown has no text
-      await page.locator('#frame button[class*="iconButton"]').first().click();
+      await page.getByText('Web', { exact: true }).first().click();
+      await page.getByText('Profile settings…', { exact: true }).click();
     },
   },
 
@@ -273,7 +274,7 @@ export const scenes = {
     steps: async (page) => {
       await page.getByText('Web', { exact: true }).first().click();
     },
-    crop: ['Web', 'Design system', 'Color mode'],
+    crop: ['Web', 'Design system', 'Profile settings…', 'Include styles'],
   },
 
   // Has to be the same object in both places: a profile linked to a shared
@@ -287,7 +288,8 @@ export const scenes = {
       'design-system': profile({ profileName: 'Design system', updatedAt: 1 }),
     },
     steps: async (page) => {
-      await page.locator('#frame button[class*="iconButton"]').first().click();
+      await page.getByText('Design system', { exact: true }).first().click();
+      await page.getByText('Profile settings…', { exact: true }).click();
     },
   },
 
@@ -320,5 +322,14 @@ export const scenes = {
   empty: {
     hasVariables: false,
     profiles: { default: profile() },
+  },
+
+  'pull-servers-menu': {
+    hasVariables: false,
+    profiles: { default: profile() },
+    steps: async (page) => {
+      await page.getByText('Pull from Git', { exact: true }).click();
+    },
+    crop: ['Pull from Git', 'GitLab', 'Import from JSON file'],
   },
 };
