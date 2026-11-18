@@ -52,6 +52,8 @@ export interface ProviderI {
   description: string;
   /** For a server added on the Import tab, which Push to server skips */
   pullDescription?: string;
+  /** For a server the Import tab doesn't list */
+  pushDescription?: string;
   fields: FieldConfigI[];
   canTestConnection: boolean;
   toForm: (stored: StoredT) => FormValuesT;
@@ -241,6 +243,7 @@ export const providers: Record<ServerType, ProviderI> = {
     description:
       'Commits the tokens straight to a branch, and pulls them from it.',
     pullDescription: 'Pulls the tokens from a branch.',
+    pushDescription: 'Commits the tokens straight to a branch.',
     canTestConnection: true,
     fields: [
       githubRepositoryField,
@@ -277,6 +280,8 @@ export const providers: Record<ServerType, ProviderI> = {
     title: 'GitHub pull request',
     description:
       'Commits the tokens to a separate branch and opens or updates a pull request. Pulls read the base branch, where merged changes land.',
+    pushDescription:
+      'Commits the tokens to a separate branch and opens or updates a pull request.',
     canTestConnection: true,
     fields: [
       githubRepositoryField,
@@ -345,6 +350,8 @@ export const providers: Record<ServerType, ProviderI> = {
     description:
       'Commits the tokens straight to a branch of a GitLab project, and pulls them from it.',
     pullDescription: 'Pulls the tokens from a branch of a GitLab project.',
+    pushDescription:
+      'Commits the tokens straight to a branch of a GitLab project.',
     canTestConnection: true,
     fields: [
       gitlabProjectField,
@@ -379,6 +386,8 @@ export const providers: Record<ServerType, ProviderI> = {
     title: 'GitLab merge request',
     description:
       'Commits the tokens to a separate branch and opens or updates a merge request. Pulls read the target branch, where merged changes land.',
+    pushDescription:
+      'Commits the tokens to a separate branch and opens or updates a merge request.',
     canTestConnection: true,
     fields: [
       gitlabProjectField,
@@ -445,6 +454,7 @@ export const providers: Record<ServerType, ProviderI> = {
     description:
       'Saves the tokens as a bin on jsonbin.io, and pulls them from it.',
     pullDescription: 'Pulls the tokens from a bin on jsonbin.io.',
+    pushDescription: 'Saves the tokens as a bin on jsonbin.io.',
     canTestConnection: false,
     fields: [
       {
@@ -498,6 +508,7 @@ export const providers: Record<ServerType, ProviderI> = {
       'Sends the tokens as JSON to your own endpoint. A pull reads them from it with GET.',
     pullDescription:
       'Reads the tokens as JSON from your own endpoint with GET.',
+    pushDescription: 'Sends the tokens as JSON to your own endpoint.',
     canTestConnection: false,
     fields: [
       {

@@ -36,6 +36,11 @@
 }
 
 // The kit's checkbox has its own inset; line its box up with the fields
+// A full-width line like the one above More options
+.onlySection {
+  border-top: 1px solid var(--figma-color-border);
+}
+
 .pullOnly {
   display: flex;
   flex-direction: column;

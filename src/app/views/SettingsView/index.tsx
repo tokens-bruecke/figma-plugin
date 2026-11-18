@@ -370,13 +370,20 @@ export const SettingsView = (props: ViewProps) => {
 
   const pushServers = enabledServers.filter((server) => !isPullOnly(server.id));
 
+  // Added on the Export tab with "Use for pushing only"
+  const isPushOnly = (serverId: string) =>
+    !!(JSONsettingsConfig.servers[serverId] as { pushOnly?: boolean })
+      ?.pushOnly;
+
   // Every server can be pulled from. None where the import can't run (Dev
   // Mode)
   const pullServers = onImportTokenDocuments
-    ? enabledServers.map((server) => ({
-        ...server,
-        id: server.id as ServerType,
-      }))
+    ? enabledServers
+        .filter((server) => !isPushOnly(server.id))
+        .map((server) => ({
+          ...server,
+          id: server.id as ServerType,
+        }))
     : [];
 
   const serverLabel = (server: ServerType) =>
@@ -677,8 +684,7 @@ export const SettingsView = (props: ViewProps) => {
       gitServerIds.includes(server.id as ServerType)
     );
   const isPullCollectionRowShown =
-    hasCollectionFiles &&
-    enabledServers.some((server) => isGitServer(server.id));
+    hasCollectionFiles && pullServers.some((server) => isGitServer(server.id));
   const pushedCollections = variableCollections.filter(
     (collection) =>
       !(JSONsettingsConfig.excludedCollections ?? []).includes(collection)
@@ -709,7 +715,8 @@ export const SettingsView = (props: ViewProps) => {
       (server) =>
         server.id !== 'githubPullRequest' &&
         server.id !== 'gitlabMergeRequest' &&
-        !JSONsettingsConfig.servers[server.id]?.isEnabled
+        (!JSONsettingsConfig.servers[server.id]?.isEnabled ||
+          isPushOnly(server.id))
     )
     .map(({ caption: _caption, ...server }) => server);
 

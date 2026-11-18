@@ -75,18 +75,23 @@ export const ServerSettingsView = (props: ViewProps) => {
   >;
   const isConfigured = !!stored.isEnabled;
 
-  // Any server but a PR or MR server can be pull-only: those exist to push
+  // Any server but a PR or MR server can be pull-only: those exist to push.
+  // Any server can be push-only
   const canBePullOnly =
     server !== 'githubPullRequest' && server !== 'gitlabMergeRequest';
-  const isStoredPush = !stored.pullOnly;
-  // A new server added on the Import tab only pulls. Picking a pull-only
-  // server in the Export tab's + menu turns pushing on, saved with Save
-  const [isPullOnlyChecked, setIsPullOnlyChecked] = useState(() => {
-    if (!canBePullOnly) return false;
-    if (!isConfigured) return openedFrom === 'import';
-    return !isStoredPush && openedFrom !== 'export';
+  const isFromImport = openedFrom === 'import';
+  // The form shows the restriction of the tab it was opened from: "Use for
+  // pulling only" on Import, "Use for pushing only" on Export. A new server
+  // added on the Import tab only pulls. Picking a server in the other tab's
+  // + menu lifts its restriction, saved with Save
+  const hasOnlyCheckbox = !isFromImport || canBePullOnly;
+  const [isOnlyChecked, setIsOnlyChecked] = useState(() => {
+    if (!hasOnlyCheckbox) return false;
+    if (!isConfigured) return isFromImport;
+    return isFromImport ? !!stored.pullOnly : !!stored.pushOnly;
   });
-  const isPullOnly = canBePullOnly && isPullOnlyChecked;
+  const isPullOnly = isFromImport && canBePullOnly && isOnlyChecked;
+  const isPushOnly = !isFromImport && isOnlyChecked;
   // Custom URL has no secret field, so Remove doesn't speak of one
   const secretField = provider.fields.find((field) => field.kind === 'secret');
 
@@ -164,7 +169,8 @@ export const ServerSettingsView = (props: ViewProps) => {
         (values[field.id] || '').trim() !==
         (initialValues[field.id] || '').trim()
     ) ||
-    (canBePullOnly && isConfigured && isPullOnly === isStoredPush);
+    (isConfigured &&
+      (isPullOnly !== !!stored.pullOnly || isPushOnly !== !!stored.pushOnly));
 
   useEffect(() => {
     if (!focusFieldId) return;
@@ -226,7 +232,8 @@ export const ServerSettingsView = (props: ViewProps) => {
       ...stored,
       ...provider.toStorage(values),
       isEnabled: true,
-      ...(canBePullOnly ? { pullOnly: isPullOnly } : {}),
+      pullOnly: isPullOnly,
+      pushOnly: isPushOnly,
     };
 
     setJSONsettingsConfig((prevState) => ({
@@ -240,7 +247,12 @@ export const ServerSettingsView = (props: ViewProps) => {
     showToast?.({
       title: `${provider.title} saved`,
       // Every server is also where Pull on the Import tab reads from
-      message: isPullOnly
+      message: isPushOnly
+        ? `Push to server sends the tokens to ${getServerSummary(
+            server,
+            nextStored
+          )}. The Import tab doesn’t list it.`
+        : isPullOnly
         ? `Pull on the Import tab reads the tokens from ${getServerPullSource(
             server,
             nextStored as ServerSettingsI[ServerType]
@@ -268,7 +280,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     const result = await testConnection(server, {
       ...stored,
       ...provider.toStorage(values),
-      ...(canBePullOnly ? { pullOnly: isPullOnly } : {}),
+      pullOnly: isPullOnly,
     } as unknown as ServerSettingsI[ServerType]);
 
     setConnection({ state: 'done', result });
@@ -418,26 +430,40 @@ export const ServerSettingsView = (props: ViewProps) => {
 
       <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
         <Text className={styles.description}>
-          {isPullOnly && provider.pullDescription
-            ? provider.pullDescription
-            : provider.description}
+          {(isPullOnly && provider.pullDescription) ||
+            (isPushOnly && provider.pushDescription) ||
+            provider.description}
         </Text>
         {mainFields.map(renderField)}
-        {canBePullOnly && (
+      </Stack>
+
+      {hasOnlyCheckbox && (
+        // Its own section: it says what the server is used for, not where
+        <Stack
+          hasLeftRightPadding
+          hasTopBottomPadding
+          className={styles.onlySection}
+        >
           <div className={styles.pullOnly}>
             <Checkbox
-              id="server-pull-only"
+              id="server-only"
               className={styles.pullOnlyCheckbox}
-              checked={isPullOnlyChecked}
+              checked={isOnlyChecked}
               onChang={(checked: boolean) => {
-                setIsPullOnlyChecked(checked);
+                setIsOnlyChecked(checked);
                 setConnection({ state: 'idle' });
               }}
             >
-              <Text>Use for pulling only</Text>
+              <Text>
+                {isFromImport ? 'Use for pulling only' : 'Use for pushing only'}
+              </Text>
             </Checkbox>
             <Text className={styles.pullOnlyHint}>
-              {isPullOnly
+              {!isFromImport
+                ? isPushOnly
+                  ? 'The Import tab doesn’t list it.'
+                  : 'The Import tab can pull from it too.'
+                : isPullOnly
                 ? 'Push to server skips it.'
                 : server === 'jsonbin'
                 ? 'Push to server updates this bin.'
@@ -446,8 +472,8 @@ export const ServerSettingsView = (props: ViewProps) => {
                 : 'Push to server commits to this branch.'}
             </Text>
           </div>
-        )}
-      </Stack>
+        </Stack>
+      )}
 
       {advancedFields.length > 0 && (
         // A panel like "Advanced settings" in the main view
