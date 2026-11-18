@@ -495,14 +495,23 @@ export const ServerSettingsView = (props: ViewProps) => {
             ]}
           />
           {isMoreOpen && (
-            <Stack hasLeftRightPadding gap="var(--space-small)">
+            <Stack
+              hasLeftRightPadding
+              gap="var(--space-small)"
+              className={styles.moreFields}
+            >
               {advancedFields.map(renderField)}
             </Stack>
           )}
         </Panel>
       )}
 
-      <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
+      <Stack
+        hasLeftRightPadding
+        hasTopBottomPadding
+        gap="var(--space-small)"
+        className={styles.section}
+      >
         {connectionStatus}
         <Stack direction="row" gap="var(--space-extra-small)">
           {provider.canTestConnection && (
@@ -519,7 +528,12 @@ export const ServerSettingsView = (props: ViewProps) => {
       </Stack>
 
       {isConfigured && (
-        <Panel topBorder bottomBorder={false} hasLeftRightPadding>
+        <Panel
+          topBorder
+          bottomBorder={false}
+          hasLeftRightPadding
+          className={styles.removeSection}
+        >
           {isConfirmingRemove ? (
             <Stack
               hasLeftRightPadding
