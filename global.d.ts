@@ -29,6 +29,8 @@ interface JsonbinCredentialsI {
   id?: string;
   name: string;
   secretKey: string;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
 }
 
 interface GithubCredentialsI {
@@ -88,6 +90,8 @@ interface CustomURLCredentialsI {
   url: string;
   method: 'POST' | 'PUT';
   headers: string;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
 }
 
 interface ExportSettingsI {

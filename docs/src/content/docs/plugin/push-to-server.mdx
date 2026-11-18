@@ -23,6 +23,7 @@ For GitHub, GitHub PR, GitLab and GitLab MR, **Test connection** checks the toke
 2. Copy your **Master key** from the [API keys](https://jsonbin.io/app/app/api-keys) page into the `Master key` field. The plugin sends it as `X-Master-Key`, so an access key doesn't work here.
 3. Add a name for the bin.
 4. Leave `Bin ID` empty to create a new bin on the first push. The plugin saves the new bin's ID, so later pushes update the same bin. To use an existing bin, paste its ID.
+5. **Use for pulling only:** unchecked when you add the server here. Check it to only [pull](#pull-from-server) from the bin; **Push to server** then skips it, and the form asks for the **Bin ID** instead of a name.
 
 <Screenshot name="jsonbin" alt="JSONBin credentials" />
 
@@ -33,7 +34,7 @@ For GitHub, GitHub PR, GitLab and GitLab MR, **Test connection** checks the toke
 3. **Branch:** it must already exist.
 4. **File path:** the path of the file in the repository, e.g. `tokens/design.tokens.json`. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
 5. **Personal access token:** paste the token.
-6. **Use for pulling only:** unchecked when you add the server here. Check it to only [pull](#pull-from-git) from the branch; **Push to server** then skips it.
+6. **Use for pulling only:** unchecked when you add the server here. Check it to only [pull](#pull-from-server) from the branch; **Push to server** then skips it.
 7. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
 > **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path. To leave some collections out of the push, see [Collections to push](#collections-to-push).
@@ -60,7 +61,7 @@ If a pull request from that branch is already open, the plugin updates it instea
 3. **Branch:** it must already exist.
 4. **File path:** the path of the file in the repository, e.g. `tokens/design.tokens.json`. If the file doesn't exist, it will be created. If the file exists, it will be overwritten.
 5. **Project access token:** paste the token.
-6. **Use for pulling only:** unchecked when you add the server here. Check it to only [pull](#pull-from-git) from the branch; **Push to server** then skips it.
+6. **Use for pulling only:** unchecked when you add the server here. Check it to only [pull](#pull-from-server) from the branch; **Push to server** then skips it.
 7. Under **More options** you can set a commit message. It defaults to `Update tokens`.
 
 > **Splitting into several files.** If _Split collections into separate files_ or _Split modes into separate files_ is enabled in the advanced settings, the file path field is labelled **Folder** and every file is written into it in a single commit — e.g. `tokens` → `tokens/Colors.tokens.json`, or `tokens/Colors/Light.tokens.json` when splitting by mode. The ⓘ shows an example path. To leave some collections out of the push, see [Collections to push](#collections-to-push).
@@ -94,13 +95,20 @@ These servers only commit the files of the checked collections. The files of unc
 
 The selection is saved in the profile. **Download JSON**, JSONBin, custom servers and the CLI always include every collection. With [Omit collection names](../advanced-settings/#omit-collection-names) on, the output has no collection groups, so the row is hidden and every file is pushed.
 
-## Pull from Git
+## Pull from server
 
-Tokens edited in the repository can come back into Figma. Open the **Import** tab at the top of the plugin: under **Pull from Git** it lists the GitHub, GitHub PR, GitLab and GitLab MR servers of the profile, each with where it pulls from and a **Pull** button. A pull reads the token files a push writes and [imports](../../getting-started/export-and-import/#import-json--variables) them into the variables, with the same rules as a file import. Click a server to change its settings.
+Tokens edited in the repository, a bin or your own service can come back into Figma. Open the **Import** tab at the top of the plugin: under **Pull from server** it lists the servers of the profile, each with where it pulls from and a **Pull** button. A pull reads the tokens a push writes and [imports](../../getting-started/export-and-import/#import-json--variables) them into the variables, with the same rules as a file import. Click a server to change its settings.
 
-To add a server, click **+** next to **Pull from Git**. It offers **GitHub** and **GitLab**: a pull reads one branch, so there's no choice between a commit and a pull request here. A server added on the Import tab only pulls. It isn't listed on the Export tab, and **Push to server** skips it. Its settings have **Use for pulling only** checked. To push to it too, uncheck it, or pick the server in the **+** menu of the Export tab. The servers added on the Export tab push and pull, so a round trip through a pull request needs only one server.
+To add a server, click **+** next to **Pull from server**. It offers **GitHub**, **GitLab**, **JSONBin** and **Custom URL**. There's no GitHub PR or GitLab MR here: a pull reads one branch, however pushes land on it. A server added on the Import tab only pulls. It isn't listed on the Export tab, and **Push to server** skips it. Its settings have **Use for pulling only** checked. To push to it too, uncheck it, or pick the server in the **+** menu of the Export tab. The servers added on the Export tab push and pull, so a round trip through a pull request needs only one server.
 
-<Screenshot name="pull-servers-menu" alt="The + menu next to Pull from Git, offering GitHub and GitLab" />
+<Screenshot name="pull-servers-menu" alt="The + menu next to Pull from server, offering GitHub, GitLab, JSONBin and Custom URL" />
+
+What a pull reads:
+
+- **JSONBin:** the latest version of the bin with the **Bin ID**. A bin needs an ID first, so push once or paste the ID.
+- **Custom URL:** the JSON a `GET` to the **Endpoint URL** returns. The server has to allow requests from Figma ([CORS](https://developer.mozilla.org/docs/Web/HTTP/CORS)).
+
+JSONBin and a custom URL hold the whole export in one document, so the collection selection below doesn't apply to them. For the Git servers:
 
 - **Branch:** GitHub and GitLab read their **Branch**. GitHub PR and GitLab MR read the branch they merge into (**Base branch**), which holds what was reviewed and merged. Their own branch is reset on every push.
 - **Files:** the file at **File path**. While the tokens are [split into separate files](../advanced-settings/#split-collections-into-separate-files), every `*.tokens.json` in the **Folder**, plus `<Collection>/<Mode>.tokens.json` one folder down when splitting by mode.
@@ -111,11 +119,13 @@ The plugin fetches the files first and asks before it changes anything. Click **
 
 <Screenshot name="pull-from-git" alt="The Import tab with a GitHub and a GitLab MR server, asking to import 3 files from acme/design-tokens · main" />
 
-The pull uses the access token of the server's settings. Reading is enough for it: **Contents: Read** on GitHub, `read_api` and the Reporter role on GitLab. A token that can only read pulls, but can't push; check **Use for pulling only** for it, so **Test connection** doesn't ask for write access. The pull only reads from the repository and runs in Figma Design only, not in [Dev Mode](../dev-mode/).
+A pull from a Git server uses the access token of the server's settings. Reading is enough for it: **Contents: Read** on GitHub, `read_api` and the Reporter role on GitLab. A token that can only read pulls, but can't push; check **Use for pulling only** for it, so **Test connection** doesn't ask for write access. A pull only reads from the server and runs in Figma Design only, not in [Dev Mode](../dev-mode/).
 
 ## Custom server
 
 There is a possibility to connect a custom server. In order to do that you need to specify an **Endpoint URL** starting with `https://` (or `http://`), a **Method** (`POST` or `PUT`, by default it's `POST`) and optional **Headers**, written as a JSON object, e.g. `{"Authorization": "Bearer <token>"}`. The form checks the URL and the headers when you leave the field.
+
+A [pull](#pull-from-server) sends a `GET` to the same URL with the same headers, and imports the JSON it answers. Check **Use for pulling only** for a URL that only serves the tokens; **Push to server** then skips it and the form hides the method.
 
 JSONBin and custom servers always receive the whole JSON in one request: the [split into separate files](../advanced-settings/#split-collections-into-separate-files) settings only apply to downloads, the CLI and the Git servers.
 

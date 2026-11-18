@@ -34,7 +34,7 @@ export interface FieldConfigI {
   id: string;
   kind: 'text' | 'secret' | 'select';
   label: FromContextT<string>;
-  required?: boolean;
+  required?: FromContextT<boolean>;
   /** Listed under "More options" */
   isAdvanced?: boolean;
   placeholder?: FromContextT<string>;
@@ -442,7 +442,9 @@ export const providers: Record<ServerType, ProviderI> = {
 
   jsonbin: {
     title: 'JSONBin',
-    description: 'Saves the tokens as a bin on jsonbin.io.',
+    description:
+      'Saves the tokens as a bin on jsonbin.io, and pulls them from it.',
+    pullDescription: 'Pulls the tokens from a bin on jsonbin.io.',
     canTestConnection: false,
     fields: [
       {
@@ -451,13 +453,18 @@ export const providers: Record<ServerType, ProviderI> = {
         required: true,
         label: 'Bin name',
         placeholder: 'design.tokens',
+        pushOnly: true,
       },
       {
         id: 'id',
         kind: 'text',
         label: 'Bin ID',
+        // A pull needs a bin to read; a push creates one
+        required: (ctx) => !!ctx.isPullOnly,
         hint: (ctx) =>
-          ctx.values.id
+          ctx.isPullOnly
+            ? 'The ID in the bin’s URL on jsonbin.io.'
+            : ctx.values.id
             ? undefined
             : 'Leave empty to create a new bin on the first push.',
       },
@@ -487,7 +494,10 @@ export const providers: Record<ServerType, ProviderI> = {
 
   customURL: {
     title: 'Custom URL',
-    description: 'Sends the tokens as JSON to your own endpoint.',
+    description:
+      'Sends the tokens as JSON to your own endpoint. A pull reads them from it with GET.',
+    pullDescription:
+      'Reads the tokens as JSON from your own endpoint with GET.',
     canTestConnection: false,
     fields: [
       {
@@ -512,6 +522,7 @@ export const providers: Record<ServerType, ProviderI> = {
         kind: 'select',
         required: true,
         label: 'Method',
+        pushOnly: true,
         options: [
           { id: 'POST', label: 'POST' },
           { id: 'PUT', label: 'PUT' },

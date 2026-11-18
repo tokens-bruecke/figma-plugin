@@ -328,8 +328,8 @@ export const scenes = {
     hasVariables: false,
     profiles: { default: profile() },
     steps: async (page) => {
-      await page.getByText('Pull from Git', { exact: true }).click();
+      await page.getByText('Pull from server', { exact: true }).click();
     },
-    crop: ['Pull from Git', 'GitLab', 'Import from JSON file'],
+    crop: ['Pull from server', 'Custom URL', 'Import from JSON file'],
   },
 };

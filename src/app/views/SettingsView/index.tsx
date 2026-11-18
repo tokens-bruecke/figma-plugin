@@ -34,13 +34,14 @@ import { gitlabMergeRequest } from '@app/api/servers/gitlabMergeRequest';
 import { pushToCustomURL } from '@app/api/servers/pushToCustomURL';
 
 import {
-  GitServerType,
   PullResultI,
-  getPullSource,
   getPulledCollections,
   isGitServer,
-  pullTokens,
 } from '@app/api/servers/pullFromGit';
+import {
+  getServerPullSource,
+  pullFromServer,
+} from '@app/api/servers/pullFromServer';
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
 import { getSplitOptions } from '@common/transform/splitTokensIntoFiles';
@@ -213,15 +214,13 @@ export const SettingsView = (props: ViewProps) => {
   const [showPullServersOverlayList, setShowPullServersOverlayList] =
     useState(false);
   // The server whose files are being fetched
-  const [pullingServer, setPullingServer] = useState<GitServerType | null>(
-    null
-  );
+  const [pullingServer, setPullingServer] = useState<ServerType | null>(null);
   // Fetched files waiting for the user to confirm the import
   const [pendingPull, setPendingPull] = useState<
-    (PullResultI & { server: GitServerType }) | null
+    (PullResultI & { server: ServerType }) | null
   >(null);
   // The server whose pulled files are being imported
-  const [importingServer, setImportingServer] = useState<GitServerType | null>(
+  const [importingServer, setImportingServer] = useState<ServerType | null>(
     null
   );
 
@@ -370,25 +369,25 @@ export const SettingsView = (props: ViewProps) => {
 
   const pushServers = enabledServers.filter((server) => !isPullOnly(server.id));
 
-  // The Git servers tokens can be pulled from. None where the import can't
-  // run (Dev Mode)
+  // Every server can be pulled from. None where the import can't run (Dev
+  // Mode)
   const pullServers = onImportTokenDocuments
-    ? enabledServers.filter(
-        (server): server is typeof server & { id: GitServerType } =>
-          isGitServer(server.id)
-      )
+    ? enabledServers.map((server) => ({
+        ...server,
+        id: server.id as ServerType,
+      }))
     : [];
 
-  const serverLabel = (server: GitServerType) =>
+  const serverLabel = (server: ServerType) =>
     serverList.find((item) => item.id === server)?.label ?? server;
 
-  const handlePull = async (server: GitServerType) => {
+  const handlePull = async (server: ServerType) => {
     setPendingPull(null);
     setPullingServer(server);
 
     try {
       // The same files a push writes, without the excluded collections
-      const result = await pullTokens(
+      const result = await pullFromServer(
         server,
         JSONsettingsConfig.servers,
         getSplitOptions(JSONsettingsConfig)
@@ -699,11 +698,12 @@ export const SettingsView = (props: ViewProps) => {
   );
 
   // A pull reads one branch, whether pushes commit or open a pull request,
-  // so the Import tab offers the plain servers only
+  // so the Import tab offers no PR or MR server
   const pullServerOptions = serverList
     .filter(
       (server) =>
-        (server.id === 'github' || server.id === 'gitlab') &&
+        server.id !== 'githubPullRequest' &&
+        server.id !== 'gitlabMergeRequest' &&
         !JSONsettingsConfig.servers[server.id]?.isEnabled
     )
     .map(({ caption: _caption, ...server }) => server);
@@ -1199,7 +1199,7 @@ export const SettingsView = (props: ViewProps) => {
       <Panel>
         <PanelHeader
           ref={pullServersHeaderRef}
-          title="Pull from Git"
+          title="Pull from server"
           isActive
           onClick={
             pullServerOptions.length
@@ -1248,7 +1248,7 @@ export const SettingsView = (props: ViewProps) => {
                   >
                     <Text>{server.label}</Text>
                     <Text className={styles.serverSummary}>
-                      {getPullSource(
+                      {getServerPullSource(
                         server.id,
                         JSONsettingsConfig.servers[server.id]
                       )}
@@ -1275,8 +1275,8 @@ export const SettingsView = (props: ViewProps) => {
             </Stack>
           ) : (
             <Text className={`${styles.hint} ${styles.pullHint}`}>
-              Connect a GitHub or GitLab repository with + to pull its tokens
-              into this file.
+              Connect a repository, a JSONBin bin or your own server with + to
+              pull its tokens into this file.
             </Text>
           )}
 

@@ -27,11 +27,7 @@ import {
   ConnectionResultI,
 } from '@app/api/servers/testConnection';
 import { track } from '@app/api/analytics';
-import {
-  getPullSource,
-  isGitServer,
-  type GitCredentialsT,
-} from '@app/api/servers/pullFromGit';
+import { getServerPullSource } from '@app/api/servers/pullFromServer';
 
 // Fixed event paths, spelled like the push events
 const testConnectionEventNames: Record<ServerType, string> = {
@@ -79,8 +75,9 @@ export const ServerSettingsView = (props: ViewProps) => {
   >;
   const isConfigured = !!stored.isEnabled;
 
-  // GitHub and GitLab can be pull-only. A PR or MR server exists to push
-  const canBePullOnly = server === 'github' || server === 'gitlab';
+  // Any server but a PR or MR server can be pull-only: those exist to push
+  const canBePullOnly =
+    server !== 'githubPullRequest' && server !== 'gitlabMergeRequest';
   const isStoredPush = !stored.pullOnly;
   // A new server added on the Import tab only pulls. Picking a pull-only
   // server in the Export tab's + menu turns pushing on, saved with Save
@@ -135,7 +132,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     const value = values[field.id] || '';
 
     if (!value.trim()) {
-      return field.required
+      return resolve(field.required, ctx)
         ? `Enter the ${resolve(field.label, ctx).toLowerCase()}.`
         : undefined;
     }
@@ -242,23 +239,18 @@ export const ServerSettingsView = (props: ViewProps) => {
 
     showToast?.({
       title: `${provider.title} saved`,
-      // A Git server is also where Pull on the Import tab reads from
+      // Every server is also where Pull on the Import tab reads from
       message: isPullOnly
-        ? `Pull on the Import tab reads the tokens from ${getPullSource(
+        ? `Pull on the Import tab reads the tokens from ${getServerPullSource(
             server,
-            nextStored as GitCredentialsT
+            nextStored as ServerSettingsI[ServerType]
           )}. Push to server skips it.`
-        : isGitServer(server)
-        ? `Push to server sends the tokens to ${getServerSummary(
-            server,
-            nextStored
-          )}. Pull on the Import tab reads them from ${getPullSource(
-            server,
-            nextStored as GitCredentialsT
-          )}.`
         : `Push to server sends the tokens to ${getServerSummary(
             server,
             nextStored
+          )}. Pull on the Import tab reads them from ${getServerPullSource(
+            server,
+            nextStored as ServerSettingsI[ServerType]
           )}.`,
       options: { type: 'success' },
     });
@@ -331,7 +323,7 @@ export const ServerSettingsView = (props: ViewProps) => {
         key={field.id}
         id={id}
         label={resolve(field.label, ctx)}
-        isOptional={!field.required}
+        isOptional={!resolve(field.required, ctx)}
         link={field.link?.(ctx)}
         hint={hint}
         error={error}
@@ -446,7 +438,11 @@ export const ServerSettingsView = (props: ViewProps) => {
             </Checkbox>
             <Text className={styles.pullOnlyHint}>
               {isPullOnly
-                ? 'Push to server skips this repository.'
+                ? 'Push to server skips it.'
+                : server === 'jsonbin'
+                ? 'Push to server updates this bin.'
+                : server === 'customURL'
+                ? 'Push to server sends the tokens here.'
                 : 'Push to server commits to this branch.'}
             </Text>
           </div>
