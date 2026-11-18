@@ -178,13 +178,13 @@ export const scenes = {
     },
   },
 
-  // Import mode with two Git servers. The GitHub API is stubbed: the pull
+  // Import mode with a GitHub server. The GitHub API is stubbed: the pull
   // lists three collection files
   'pull-from-git': {
     profiles: {
       default: profile({
         splitByCollection: true,
-        servers: only('github', 'gitlabMergeRequest'),
+        servers: only('github'),
       }),
     },
     steps: async (page) => {

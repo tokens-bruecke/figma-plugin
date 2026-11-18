@@ -97,7 +97,7 @@ The selection is saved in the profile. **Download JSON**, JSONBin, custom server
 
 ## Pull from server
 
-Tokens edited in the repository, a bin or your own service can come back into Figma. Open the **Import** tab at the top of the plugin: under **Pull from server** it lists the servers of the profile, each with where it pulls from and a **Pull** button. A pull reads the tokens a push writes and [imports](../../getting-started/export-and-import/#import-json--variables) them into the variables, with the same rules as a file import. Click a server to change its settings.
+Tokens edited in the repository, a bin or your own service can come back into Figma. Open the **Import** tab at the top of the plugin: under **Pull from server** it lists the servers of the profile, each with where it pulls from and a **Pull** button. If you push to several servers, they hold the same tokens, so pull from any one of them. A pull reads the tokens a push writes and [imports](../../getting-started/export-and-import/#import-json--variables) them into the variables, with the same rules as a file import. Click a server to change its settings.
 
 To add a server, click **+** next to **Pull from server**. It offers **GitHub**, **GitLab**, **JSONBin** and **Custom URL**. There's no GitHub PR or GitLab MR here: a pull reads one branch, however pushes land on it. A server added on the Import tab only pulls. It isn't listed on the Export tab, and **Push to server** skips it. Its settings have **Use for pulling only** checked. To push to it too, uncheck it, or pick the server in the **+** menu of the Export tab. The servers added on the Export tab push and pull, so a round trip through a pull request needs only one server.
 
@@ -117,7 +117,7 @@ JSONBin and a custom URL hold the whole export in one document, so the collectio
 
 The plugin fetches the files first and asks before it changes anything. Click **Import** to write them into the variables, or **Cancel**.
 
-<Screenshot name="pull-from-git" alt="The Import tab with a GitHub and a GitLab MR server, asking to import 3 files from acme/design-tokens · main" />
+<Screenshot name="pull-from-git" alt="The Import tab with a GitHub server, asking to import 3 files from acme/design-tokens · main" />
 
 A pull from a Git server uses the access token of the server's settings. Reading is enough for it: **Contents: Read** on GitHub, `read_api` and the Reporter role on GitLab. A token that can only read pulls, but can't push; check **Use for pulling only** for it, so **Test connection** doesn't ask for write access. A pull only reads from the server and runs in Figma Design only, not in [Dev Mode](../dev-mode/).
 
