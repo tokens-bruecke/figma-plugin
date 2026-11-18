@@ -158,11 +158,39 @@
 }
 
 // Keeps a click on Pull from opening the server's settings
-.pullButton {
+// Like the kit's IconButton, which takes no label or tooltip
+.pullIconButton {
   display: flex;
-  cursor: default;
-  // Ends with the + above and the full-width button below
-  margin-right: var(--space-extra-small);
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-2);
+  background: none;
+  color: var(--figma-color-icon);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: var(--figma-color-bg-hover);
+  }
+
+  &:disabled {
+    color: var(--figma-color-icon-disabled);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--figma-color-border-selected);
+    outline-offset: -2px;
+  }
+}
+
+// The spinner of the server being pulled stays at full strength
+.pullIconButtonBusy:disabled {
+  color: var(--figma-color-icon);
 }
 
 // Starts with the "Pull from server" heading above it

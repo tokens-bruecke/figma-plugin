@@ -228,7 +228,9 @@ export const scenes = {
         });
       });
       await page.getByText('Import', { exact: true }).first().click();
-      await page.getByText('Pull', { exact: true }).first().click();
+      await page.getByRole('button', { name: 'Pull from GitHub' }).click();
+      // Out of the icon, so its hover doesn't show
+      await page.mouse.move(0, 0);
       await page.getByText(/^Import 3 files/).waitFor();
     },
   },

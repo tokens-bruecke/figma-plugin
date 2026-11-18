@@ -11,6 +11,7 @@ import {
   Input,
   Icon,
   IconButton,
+  LoadingIndicator,
   Text,
   Toggle,
   OverlayList,
@@ -380,6 +381,10 @@ export const SettingsView = (props: ViewProps) => {
 
   const serverLabel = (server: ServerType) =>
     serverList.find((item) => item.id === server)?.label ?? server;
+
+  // Fetching its files, or importing them
+  const isServerBusy = (server: ServerType) =>
+    pullingServer === server || (isImporting && importingServer === server);
 
   const handlePull = async (server: ServerType) => {
     setPendingPull(null);
@@ -1254,22 +1259,33 @@ export const SettingsView = (props: ViewProps) => {
                       )}
                     </Text>
                   </div>
-                  {/* The row opens the server's settings, the button pulls */}
-                  <span
-                    className={styles.pullButton}
-                    onClick={(event) => event.stopPropagation()}
+                  {/* The row opens the server's settings, the icon pulls */}
+                  <button
+                    type="button"
+                    className={[
+                      styles.pullIconButton,
+                      isServerBusy(server.id) && styles.pullIconButtonBusy,
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    title={`Pull from ${getServerPullSource(
+                      server.id,
+                      JSONsettingsConfig.servers[server.id]
+                    )}`}
+                    aria-label={`Pull from ${server.label}`}
+                    aria-busy={isServerBusy(server.id)}
+                    disabled={!!pullingServer || isImporting}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handlePull(server.id);
+                    }}
                   >
-                    <Button
-                      label="Pull"
-                      secondary
-                      onClick={() => handlePull(server.id)}
-                      loading={
-                        pullingServer === server.id ||
-                        (isImporting && importingServer === server.id)
-                      }
-                      disabled={!!pullingServer || isImporting}
-                    />
-                  </span>
+                    {isServerBusy(server.id) ? (
+                      <LoadingIndicator />
+                    ) : (
+                      <Icon name="refresh" size="16" />
+                    )}
+                  </button>
                 </Stack>
               ))}
             </Stack>
