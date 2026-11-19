@@ -34,3 +34,52 @@
 .rowItemText {
   flex: 1;
 }
+
+// The kit's checkbox has its own inset; line its box up with the fields
+// The sections below the fields get the air above the More options
+// heading, whose 32 px row centres its text in 16 px of space
+.section {
+  padding-top: var(--space-medium);
+  padding-bottom: var(--space-medium);
+}
+
+// A full-width line like the one above More options. The checkbox's 32 px
+// row already adds air above its box, so only the bottom needs more
+.onlySection {
+  border-top: 1px solid var(--figma-color-border);
+  padding-bottom: var(--space-medium);
+}
+
+// Without More options in between, no line separates the checkbox from
+// the buttons, so one 16 px gap is enough
+.onlySection + .section {
+  padding-top: 0;
+}
+
+// The last field of More options ends as far from the line as the others
+.moreFields {
+  padding-bottom: var(--space-extra-small);
+}
+
+// Above Remove; the footer below it already has the air. Doubled to win
+// over the Panel's own padding, which isn't in the kit's CSS layer
+.removeSection.removeSection {
+  padding-top: var(--space-medium);
+}
+
+.pullOnly {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pullOnlyCheckbox {
+  margin-left: -2px;
+}
+
+// Lines up with the checkbox label
+.pullOnlyHint {
+  color: var(--figma-color-text-secondary);
+  margin-top: -6px;
+  padding-left: 30px;
+}

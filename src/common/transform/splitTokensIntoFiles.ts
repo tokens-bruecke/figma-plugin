@@ -18,11 +18,11 @@ export interface SplitOptionsI {
   excludedCollections?: string[];
 }
 
-const SINGLE_FILE_NAME = 'design.tokens.json';
+export const SINGLE_FILE_NAME = 'design.tokens.json';
 
 // Figma collection and mode names can contain characters that are illegal in
 // file paths, so they are replaced before being used as a file or folder name.
-const safeName = (name: string) => name.replace(/[/\\?%*:|"<>]/g, '-');
+export const safeName = (name: string) => name.replace(/[/\\?%*:|"<>]/g, '-');
 
 // The leading slash of the first part is kept so absolute paths survive
 const joinPath = (...parts: string[]) =>
@@ -37,7 +37,7 @@ const joinPath = (...parts: string[]) =>
 // When splitting, the target is a folder. Users coming from single file exports
 // may still have a `*.json` file path saved, so that file name is stripped off.
 // Any other name is kept as is, so a folder like `tokens.v2` survives.
-const toFolder = (target: string) => {
+export const toFolder = (target: string) => {
   const trimmed = (target || '').replace(/\/+$/g, '');
 
   if (!trimmed) return '';

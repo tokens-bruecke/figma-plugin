@@ -50,11 +50,18 @@ const testGithub = async (
 
   const repoData = await repoResponse.json();
 
-  if (repoData.permissions && !repoData.permissions.push) {
+  // A pull-only server never writes, so reading is all it needs
+  const isPullOnly = !!(credentials as GithubCredentialsI).pullOnly;
+
+  if (repoData.permissions && !repoData.permissions.push && !isPullOnly) {
     return {
       ok: false,
       fieldId: 'token',
-      message: `The token can read ${name} but not write to it.`,
+      // The plain server can be made pull-only; a PR server exists to push
+      message:
+        branchFieldId === 'branch'
+          ? `The token can read ${name} but not write to it. If you only pull, check Use for pulling only.`
+          : `The token can read ${name} but not write to it: Pull works, Push to server doesn't.`,
     };
   }
 
@@ -94,7 +101,9 @@ const testGitlab = async (
     return {
       ok: false,
       fieldId: 'token',
-      message: `${host} rejected the token. Check that it is complete, not expired and has the api scope.`,
+      message: `${host} rejected the token. Check that it is complete, not expired and has the ${
+        (credentials as GitlabCredentialsI).pullOnly ? 'read_api' : 'api'
+      } scope.`,
     };
   }
 

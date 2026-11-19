@@ -53,6 +53,15 @@
 }
 
 // A configured server: its name and, below it, where it pushes to
+// Near the top of the plugin, so it opens downwards
+.overlayPullServerList {
+  position: absolute;
+  z-index: var(--z-index-2);
+  width: 180px;
+  top: 0;
+  right: 0;
+}
+
 .serverText {
   display: flex;
   flex-direction: column;
@@ -70,8 +79,61 @@
   color: var(--figma-color-text-secondary);
 }
 
-.profileDropdown {
+// Export and Import on the left, the profile menu on the right
+.modeBar {
+  align-items: center;
+}
+
+.modeTabs {
+  display: flex;
   flex: 1;
+  min-width: 0;
+}
+
+.modeTab {
+  height: 32px;
+  padding: 0 var(--space-extra-small);
+  border: none;
+  border-radius: var(--border-radius-2);
+  background: none;
+  font: inherit;
+  font-size: 11px;
+  color: var(--figma-color-text-secondary);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--figma-color-border-selected);
+    outline-offset: -2px;
+  }
+}
+
+.modeTabActive {
+  color: var(--figma-color-text);
+  font-weight: 600;
+}
+
+// Hugs the profile name and cuts a long one off. The menu is wider than the
+// name and opens towards the left
+.profileMenu {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 60%;
+
+  [class*='dropdownMenuContainer__'] {
+    min-width: 0;
+  }
+
+  [class*='dropdown__'] span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  [class*='overlayList__'] {
+    left: auto;
+    right: 0;
+    width: 200px;
+  }
 }
 
 .rowItem {
@@ -86,6 +148,59 @@
 
 .rowItemText {
   flex: 1;
+}
+
+// The question before a pulled import, above its Cancel and Import buttons
+.pullSummary {
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+  padding: 0 var(--space-extra-small);
+}
+
+// Keeps a click on Pull from opening the server's settings
+// Like the kit's IconButton, which takes no label or tooltip
+.pullIconButton {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-2);
+  background: none;
+  color: var(--figma-color-icon);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: var(--figma-color-bg-hover);
+  }
+
+  &:disabled {
+    color: var(--figma-color-icon-disabled);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--figma-color-border-selected);
+    outline-offset: -2px;
+  }
+}
+
+// The spinner of the server being pulled stays at full strength
+.pullIconButtonBusy:disabled {
+  color: var(--figma-color-icon);
+}
+
+// Starts with the "Pull from server" heading above it
+.pullHint {
+  padding: 0 var(--space-extra-small);
+}
+
+.pullActions {
+  justify-content: flex-end;
+  padding-right: var(--space-extra-small);
 }
 
 // Inset like the labels and full-width buttons below, so the text starts

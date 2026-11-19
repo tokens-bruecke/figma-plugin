@@ -6,6 +6,7 @@ import {
   Panel,
   Stack,
   Button,
+  Checkbox,
   Icon,
   Text,
 } from 'react-figma-ui/ui';
@@ -26,6 +27,7 @@ import {
   ConnectionResultI,
 } from '@app/api/servers/testConnection';
 import { track } from '@app/api/analytics';
+import { getServerPullSource } from '@app/api/servers/pullFromServer';
 
 // Fixed event paths, spelled like the push events
 const testConnectionEventNames: Record<ServerType, string> = {
@@ -46,6 +48,8 @@ interface ViewProps {
   server: ServerType;
   showToast?: (params: ToastIPropsI) => void;
   variableCollections?: string[];
+  /** The tab whose server list or + menu opened the form */
+  openedFrom?: 'export' | 'import';
 }
 
 type ConnectionStateT =
@@ -62,6 +66,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     setCurrentView,
     server,
     showToast,
+    openedFrom = 'export',
   } = props;
   const provider = providers[server];
   const stored = (JSONsettingsConfig.servers[server] || {}) as Record<
@@ -69,6 +74,24 @@ export const ServerSettingsView = (props: ViewProps) => {
     string | boolean
   >;
   const isConfigured = !!stored.isEnabled;
+
+  // Any server but a PR or MR server can be pull-only: those exist to push.
+  // Any server can be push-only
+  const canBePullOnly =
+    server !== 'githubPullRequest' && server !== 'gitlabMergeRequest';
+  const isFromImport = openedFrom === 'import';
+  // The form shows the restriction of the tab it was opened from: "Use for
+  // pulling only" on Import, "Use for pushing only" on Export. A new server
+  // added on the Import tab only pulls. Picking a server in the other tab's
+  // + menu lifts its restriction, saved with Save
+  const hasOnlyCheckbox = !isFromImport || canBePullOnly;
+  const [isOnlyChecked, setIsOnlyChecked] = useState(() => {
+    if (!hasOnlyCheckbox) return false;
+    if (!isConfigured) return isFromImport;
+    return isFromImport ? !!stored.pullOnly : !!stored.pushOnly;
+  });
+  const isPullOnly = isFromImport && canBePullOnly && isOnlyChecked;
+  const isPushOnly = !isFromImport && isOnlyChecked;
   // Custom URL has no secret field, so Remove doesn't speak of one
   const secretField = provider.fields.find((field) => field.kind === 'secret');
 
@@ -86,8 +109,12 @@ export const ServerSettingsView = (props: ViewProps) => {
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   const [focusFieldId, setFocusFieldId] = useState<string | null>(null);
 
-  const advancedFields = provider.fields.filter((field) => field.isAdvanced);
-  const mainFields = provider.fields.filter((field) => !field.isAdvanced);
+  // The commit message means nothing to a server that is never pushed to
+  const fields = provider.fields.filter(
+    (field) => !(field.pushOnly && isPullOnly)
+  );
+  const advancedFields = fields.filter((field) => field.isAdvanced);
+  const mainFields = fields.filter((field) => !field.isAdvanced);
   const [isMoreOpen, setIsMoreOpen] = useState(() =>
     advancedFields.some((field) => !!initialValues[field.id])
   );
@@ -97,6 +124,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     splitByCollection: JSONsettingsConfig.splitByCollection,
     splitByMode: JSONsettingsConfig.splitByMode,
     collections: props.variableCollections || [],
+    isPullOnly,
   };
 
   // JSONBin's secret is a "Master key", the others are tokens
@@ -109,7 +137,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     const value = values[field.id] || '';
 
     if (!value.trim()) {
-      return field.required
+      return resolve(field.required, ctx)
         ? `Enter the ${resolve(field.label, ctx).toLowerCase()}.`
         : undefined;
     }
@@ -117,7 +145,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     return field.validate?.(value, ctx);
   };
 
-  const errors = provider.fields.reduce((acc, field) => {
+  const errors = fields.reduce((acc, field) => {
     const error = getError(field);
     return error ? { ...acc, [field.id]: error } : acc;
   }, {} as Record<string, string>);
@@ -135,10 +163,14 @@ export const ServerSettingsView = (props: ViewProps) => {
     return isSubmitted || blurred[field.id] ? errors[field.id] : undefined;
   };
 
-  const isDirty = provider.fields.some(
-    (field) =>
-      (values[field.id] || '').trim() !== (initialValues[field.id] || '').trim()
-  );
+  const isDirty =
+    provider.fields.some(
+      (field) =>
+        (values[field.id] || '').trim() !==
+        (initialValues[field.id] || '').trim()
+    ) ||
+    (isConfigured &&
+      (isPullOnly !== !!stored.pullOnly || isPushOnly !== !!stored.pushOnly));
 
   useEffect(() => {
     if (!focusFieldId) return;
@@ -179,7 +211,7 @@ export const ServerSettingsView = (props: ViewProps) => {
   const checkForm = () => {
     setIsSubmitted(true);
 
-    const firstInvalid = provider.fields.find((field) => errors[field.id]);
+    const firstInvalid = fields.find((field) => errors[field.id]);
     if (!firstInvalid) return true;
 
     if (firstInvalid.isAdvanced) {
@@ -200,6 +232,8 @@ export const ServerSettingsView = (props: ViewProps) => {
       ...stored,
       ...provider.toStorage(values),
       isEnabled: true,
+      pullOnly: isPullOnly,
+      pushOnly: isPushOnly,
     };
 
     setJSONsettingsConfig((prevState) => ({
@@ -212,10 +246,24 @@ export const ServerSettingsView = (props: ViewProps) => {
 
     showToast?.({
       title: `${provider.title} saved`,
-      message: `Push to server sends the tokens to ${getServerSummary(
-        server,
-        nextStored
-      )}.`,
+      // Every server is also where Pull on the Import tab reads from
+      message: isPushOnly
+        ? `Push to server sends the tokens to ${getServerSummary(
+            server,
+            nextStored
+          )}. The Import tab doesn’t list it.`
+        : isPullOnly
+        ? `Pull on the Import tab reads the tokens from ${getServerPullSource(
+            server,
+            nextStored as ServerSettingsI[ServerType]
+          )}. Push to server skips it.`
+        : `Push to server sends the tokens to ${getServerSummary(
+            server,
+            nextStored
+          )}. Pull on the Import tab reads them from ${getServerPullSource(
+            server,
+            nextStored as ServerSettingsI[ServerType]
+          )}.`,
       options: { type: 'success' },
     });
 
@@ -232,6 +280,7 @@ export const ServerSettingsView = (props: ViewProps) => {
     const result = await testConnection(server, {
       ...stored,
       ...provider.toStorage(values),
+      pullOnly: isPullOnly,
     } as unknown as ServerSettingsI[ServerType]);
 
     setConnection({ state: 'done', result });
@@ -286,7 +335,7 @@ export const ServerSettingsView = (props: ViewProps) => {
         key={field.id}
         id={id}
         label={resolve(field.label, ctx)}
-        isOptional={!field.required}
+        isOptional={!resolve(field.required, ctx)}
         link={field.link?.(ctx)}
         hint={hint}
         error={error}
@@ -380,9 +429,51 @@ export const ServerSettingsView = (props: ViewProps) => {
       )}
 
       <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
-        <Text className={styles.description}>{provider.description}</Text>
+        <Text className={styles.description}>
+          {(isPullOnly && provider.pullDescription) ||
+            (isPushOnly && provider.pushDescription) ||
+            provider.description}
+        </Text>
         {mainFields.map(renderField)}
       </Stack>
+
+      {hasOnlyCheckbox && (
+        // Its own section: it says what the server is used for, not where
+        <Stack
+          hasLeftRightPadding
+          hasTopBottomPadding
+          className={styles.onlySection}
+        >
+          <div className={styles.pullOnly}>
+            <Checkbox
+              id="server-only"
+              className={styles.pullOnlyCheckbox}
+              checked={isOnlyChecked}
+              onChang={(checked: boolean) => {
+                setIsOnlyChecked(checked);
+                setConnection({ state: 'idle' });
+              }}
+            >
+              <Text>
+                {isFromImport ? 'Use for pulling only' : 'Use for pushing only'}
+              </Text>
+            </Checkbox>
+            <Text className={styles.pullOnlyHint}>
+              {!isFromImport
+                ? isPushOnly
+                  ? 'The Import tab doesn’t list it.'
+                  : 'The Import tab can pull from it too.'
+                : isPullOnly
+                ? 'Push to server skips it.'
+                : server === 'jsonbin'
+                ? 'Push to server updates this bin.'
+                : server === 'customURL'
+                ? 'Push to server sends the tokens here.'
+                : 'Push to server commits to this branch.'}
+            </Text>
+          </div>
+        </Stack>
+      )}
 
       {advancedFields.length > 0 && (
         // A panel like "Advanced settings" in the main view
@@ -404,14 +495,23 @@ export const ServerSettingsView = (props: ViewProps) => {
             ]}
           />
           {isMoreOpen && (
-            <Stack hasLeftRightPadding gap="var(--space-small)">
+            <Stack
+              hasLeftRightPadding
+              gap="var(--space-small)"
+              className={styles.moreFields}
+            >
               {advancedFields.map(renderField)}
             </Stack>
           )}
         </Panel>
       )}
 
-      <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
+      <Stack
+        hasLeftRightPadding
+        hasTopBottomPadding
+        gap="var(--space-small)"
+        className={styles.section}
+      >
         {connectionStatus}
         <Stack direction="row" gap="var(--space-extra-small)">
           {provider.canTestConnection && (
@@ -428,7 +528,12 @@ export const ServerSettingsView = (props: ViewProps) => {
       </Stack>
 
       {isConfigured && (
-        <Panel topBorder bottomBorder={false} hasLeftRightPadding>
+        <Panel
+          topBorder
+          bottomBorder={false}
+          hasLeftRightPadding
+          className={styles.removeSection}
+        >
           {isConfirmingRemove ? (
             <Stack
               hasLeftRightPadding

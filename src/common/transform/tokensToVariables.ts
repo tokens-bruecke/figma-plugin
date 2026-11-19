@@ -772,12 +772,18 @@ const setVariableValue = (
 };
 
 /**
- * Import design tokens and create Figma variables
+ * Import design tokens and create Figma variables. Takes one tokens document
+ * or the documents of a split export, e.g. every file pulled from a
+ * repository. Documents are imported together, so an alias into another
+ * file resolves whatever order the files come in.
  */
 export const tokensToVariables = async (
-  tokensData: any,
+  tokensData: any | any[],
   resolver: IResolver
 ): Promise<ImportResult> => {
+  const documents: any[] = (
+    Array.isArray(tokensData) ? tokensData : [tokensData]
+  ).filter((document) => typeof document === 'object' && document !== null);
   const result: ImportResult = {
     success: false,
     message: '',
@@ -831,9 +837,9 @@ export const tokensToVariables = async (
 
     // The meta sits at the root of a file, or inside the collection group
     // in the files of a split export
-    const metaOf = (collectionData: any) =>
+    const metaOf = (collectionData: any, document: any) =>
       collectionData?.$extensions?.['tokens-bruecke-meta'] ??
-      tokensData?.$extensions?.['tokens-bruecke-meta'];
+      document?.$extensions?.['tokens-bruecke-meta'];
 
     // The Figma name of a collection whose token name differs
     const toFigmaCollectionName = (tokenName: string, meta: any): string =>
@@ -847,9 +853,17 @@ export const tokensToVariables = async (
           toTokenName(name) === tokenName
       ) ?? tokenName;
 
-    // Remove metadata if present
-    const cleanedData = { ...tokensData };
-    delete cleanedData.$extensions;
+    // Every document without its metadata
+    const cleanedDocuments = documents.map((document) => {
+      const cleaned = { ...document };
+      delete cleaned.$extensions;
+      return cleaned;
+    });
+
+    // Aliases without `$type` look up the type of the token they point at,
+    // which may sit in another document. The files of a split-by-mode
+    // export share collection keys, but their token types are the same.
+    const cleanedData = Object.assign({}, ...cleanedDocuments);
 
     // Values referencing variables that do not exist yet (typically in a
     // collection imported later). They are set once every variable exists.
@@ -861,21 +875,36 @@ export const tokensToVariables = async (
       path: string;
     }> = [];
 
-    // Extract all collections from the tokens
-    const collections: Map<string, any> = new Map();
+    // Extract all collections from the tokens. The same collection is listed
+    // once per split-by-mode file, each holding the values of its own mode.
+    const collections: Array<{
+      collectionName: string;
+      collectionData: any;
+      document: any;
+    }> = [];
 
-    for (const collectionName in cleanedData) {
-      const collectionData = cleanedData[collectionName];
+    cleanedDocuments.forEach((cleaned, index) => {
+      for (const collectionName in cleaned) {
+        const collectionData = cleaned[collectionName];
 
-      if (typeof collectionData === 'object' && collectionData !== null) {
-        collections.set(collectionName, collectionData);
+        if (typeof collectionData === 'object' && collectionData !== null) {
+          collections.push({
+            collectionName,
+            collectionData,
+            document: documents[index],
+          });
+        }
       }
-    }
+    });
+
+    // Collections created by an earlier document are found by later ones,
+    // e.g. the second mode file of a new collection
+    const knownCollections = [...existingCollections];
 
     // Process each collection
-    for (const [collectionName, collectionData] of collections) {
+    for (const { collectionName, collectionData, document } of collections) {
       try {
-        const meta = metaOf(collectionData);
+        const meta = metaOf(collectionData, document);
         const figmaCollectionName = toFigmaCollectionName(collectionName, meta);
         // A file of a split-by-mode export holds the values of this one mode
         const fileModeName: string | undefined =
@@ -884,14 +913,27 @@ export const tokensToVariables = async (
 
         // Check if collection already exists
         let collection =
-          existingCollections.find((c) => c.name === figmaCollectionName) ??
-          existingCollections.find((c) => c.name === collectionName);
+          knownCollections.find((c) => c.name === figmaCollectionName) ??
+          knownCollections.find((c) => c.name === collectionName);
+
+        // A collection an earlier document changed: read its current modes
+        if (
+          collection &&
+          documents.length > 1 &&
+          typeof figma !== 'undefined'
+        ) {
+          collection =
+            (await figma.variables.getVariableCollectionByIdAsync(
+              collection.id
+            )) ?? collection;
+        }
 
         // Create collection if it doesn't exist (only possible in plugin context)
         if (!collection && typeof figma !== 'undefined') {
           try {
             collection =
               figma.variables.createVariableCollection(figmaCollectionName);
+            knownCollections.push(collection);
             result.collectionsCreated++;
             isNewCollection = true;
           } catch (error) {
@@ -1297,7 +1339,7 @@ export const tokensToVariables = async (
     result.success = true;
     const parts: string[] = [];
     if (result.collectionsCreated > 0) {
-      parts.push(`Created ${result.collectionsCreated} collection(s)`);
+      parts.push(`created ${result.collectionsCreated} collection(s)`);
     }
     if (result.variablesCreated > 0) {
       parts.push(`created ${result.variablesCreated} variable(s)`);
@@ -1306,7 +1348,13 @@ export const tokensToVariables = async (
       parts.push(`updated ${result.variablesUpdated} variable(s)`);
     }
 
-    result.message = `Successfully imported tokens. ${parts.join(', ')}.`;
+    // Capitalize whichever part comes first, e.g. "Updated 6 variable(s)."
+    const summary = parts.join(', ');
+    result.message = summary
+      ? `Successfully imported tokens. ${summary[0].toUpperCase()}${summary.slice(
+          1
+        )}.`
+      : 'Successfully imported tokens. No variables changed.';
 
     if (result.composedColorsRejected > 0) {
       result.message += ` ${result.composedColorsRejected} value(s) skipped: this Figma version cannot write color aliases with a separate opacity. Update Figma to the latest version and import again.`;

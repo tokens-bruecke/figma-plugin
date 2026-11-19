@@ -34,6 +34,9 @@ const sharedTargetServerNames: { [S in ServerType]?: string } = {
   gitlabMergeRequest: 'GitLab MR',
 };
 
+// The dragged window height doesn't go below this
+const minFrameHeight = 360;
+
 const Container = () => {
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
   // Lives here rather than in a view: an import from the empty view switches
@@ -339,6 +342,22 @@ const Container = () => {
   // HANDLE FUNCTIONS //
   //////////////////////
 
+  // Sends one tokens document, or several, to the controller for import.
+  // The result arrives as `importResult`
+  const importTokenDocuments = (tokens: any) => {
+    setIsImporting(true);
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: 'importTokens',
+          tokens,
+          role: 'import',
+        } as TokensMessageI,
+      },
+      '*'
+    );
+  };
+
   const handleImportTokens = async () => {
     setIsImporting(true);
 
@@ -347,17 +366,7 @@ const Container = () => {
 
       if (tokensData) {
         track('/import');
-        // Send tokens to figma controller for import
-        parent.postMessage(
-          {
-            pluginMessage: {
-              type: 'importTokens',
-              tokens: tokensData,
-              role: 'import',
-            } as TokensMessageI,
-          },
-          '*'
-        );
+        importTokenDocuments(tokensData);
       } else {
         setIsImporting(false);
       }
@@ -483,32 +492,17 @@ const Container = () => {
     };
   }, []);
 
-  // Check if the view was changed
+  // Track the content height
   useEffect(() => {
     // The Inspect panel can't be resized by the plugin
     if (!environment || isPanel) return;
 
     const resizeObserver = new ResizeObserver((entries) => {
-      const { height } = entries[0].contentRect;
-
       // Don't track content height while preview is open — the flex row
       // includes the preview pane and doesn't represent SettingsView height.
       if (isCodePreviewOpen) return;
 
-      setContentHeight(height);
-      setFrameHeight(height);
-
-      if (manualFrameHeight !== null) return;
-
-      parent.postMessage(
-        {
-          pluginMessage: {
-            type: 'resizeUIHeight',
-            height,
-          },
-        },
-        '*'
-      );
+      setContentHeight(entries[0].contentRect.height);
     });
 
     if (wrapperRef.current) {
@@ -518,36 +512,31 @@ const Container = () => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [isCodePreviewOpen, manualFrameHeight, environment, isPanel]);
+  }, [isCodePreviewOpen, environment, isPanel]);
 
+  // The window fits the content, or keeps the height the user dragged it
+  // to while the content is taller. The dragged height itself is kept, so a
+  // short tab doesn't shrink it for the others
   useEffect(() => {
-    if (manualFrameHeight === null) {
-      return;
-    }
+    if (!environment || isPanel || contentHeight <= 0) return;
+
+    const height = Math.round(
+      manualFrameHeight === null
+        ? contentHeight
+        : Math.min(manualFrameHeight, contentHeight)
+    );
+    setFrameHeight(height);
 
     parent.postMessage(
       {
         pluginMessage: {
           type: 'resizeUIHeight',
-          height: manualFrameHeight,
+          height,
         },
       },
       '*'
     );
-  }, [manualFrameHeight]);
-
-  useEffect(() => {
-    if (manualFrameHeight === null || contentHeight <= 0) {
-      return;
-    }
-
-    const maxHeight = Math.max(360, Math.round(contentHeight));
-
-    if (manualFrameHeight > maxHeight) {
-      setManualFrameHeight(maxHeight);
-      setFrameHeight(maxHeight);
-    }
-  }, [manualFrameHeight, contentHeight]);
+  }, [manualFrameHeight, contentHeight, environment, isPanel]);
 
   // pass changes to figma controller, but never before the stored
   // config has been loaded, otherwise defaults would overwrite it
@@ -574,34 +563,26 @@ const Container = () => {
         pluginMessage: {
           type: 'openCodePreview',
           isCodePreviewOpen,
-          height: manualFrameHeight ?? frameHeight,
+          height: frameHeight,
         },
       },
       '*'
     );
   }, [isCodePreviewOpen]);
 
+  // Dragging can't make the window taller than the content, nor shorter
+  // than 360 px, unless the content itself is shorter
   const handleResizeHeight = (height: number) => {
-    const maxHeight = Math.max(360, Math.round(contentHeight || frameHeight));
-    const nextHeight = Math.round(Math.max(360, Math.min(height, maxHeight)));
-    setManualFrameHeight(nextHeight);
-    setFrameHeight(nextHeight);
+    const maxHeight = Math.round(contentHeight || frameHeight);
+    const minHeight = Math.min(minFrameHeight, maxHeight);
+    setManualFrameHeight(
+      Math.round(Math.max(minHeight, Math.min(height, maxHeight)))
+    );
   };
 
+  // Back to fitting the content
   const handleResetHeight = () => {
-    const nextHeight = Math.max(360, Math.round(contentHeight));
     setManualFrameHeight(null);
-    setFrameHeight(nextHeight);
-
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: 'resizeUIHeight',
-          height: nextHeight,
-        },
-      },
-      '*'
-    );
   };
 
   /////////////////////
@@ -616,15 +597,14 @@ const Container = () => {
     const onImportTokens = canImportTokens(environment)
       ? handleImportTokens
       : undefined;
+    const onImportTokenDocuments = canImportTokens(environment)
+      ? importTokenDocuments
+      : undefined;
 
-    if (!fileHasVariables) {
-      return (
-        <EmptyView
-          setFileHasVariables={setFileHasVariables}
-          onImportTokens={onImportTokens}
-          isImporting={isImporting}
-        />
-      );
+    // Figma Design opens a file without variables on the Import tab. Dev
+    // Mode can't import, so it says so
+    if (!fileHasVariables && !onImportTokens) {
+      return <EmptyView setFileHasVariables={setFileHasVariables} />;
     }
 
     // In the panel the preview replaces the settings instead of sitting
@@ -636,13 +616,15 @@ const Container = () => {
         {...commonProps}
         isHidden={isSettingsHidden}
         onImportTokens={onImportTokens}
+        onImportTokenDocuments={onImportTokenDocuments}
         isImporting={isImporting}
+        hasNoVariables={!fileHasVariables}
         variableCollections={variableCollections}
         isCodePreviewOpen={isCodePreviewOpen}
         setIsCodePreviewOpen={setIsCodePreviewOpen}
         setGeneratedTokens={setGeneratedTokens}
         currentView={currentView}
-        frameHeight={manualFrameHeight ?? frameHeight}
+        frameHeight={frameHeight}
         onResizeHeight={handleResizeHeight}
         onResetHeight={handleResetHeight}
       />

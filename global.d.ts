@@ -26,13 +26,21 @@ interface IncludedStylesI {
 
 interface JsonbinCredentialsI {
   isEnabled: boolean;
+  /** Added on the Export tab with "Use for pushing only": the Import tab doesn't list it */
+  pushOnly?: boolean;
   id?: string;
   name: string;
   secretKey: string;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
 }
 
 interface GithubCredentialsI {
   isEnabled: boolean;
+  /** Added on the Export tab with "Use for pushing only": the Import tab doesn't list it */
+  pushOnly?: boolean;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
   token: string;
   repo: string;
   branch: string;
@@ -43,6 +51,8 @@ interface GithubCredentialsI {
 
 interface GithubPullRequestCredentialsI {
   isEnabled: boolean;
+  /** Added on the Export tab with "Use for pushing only": the Import tab doesn't list it */
+  pushOnly?: boolean;
   token: string;
   repo: string;
   baseBranch: string;
@@ -56,6 +66,10 @@ interface GithubPullRequestCredentialsI {
 
 interface GitlabCredentialsI {
   isEnabled: boolean;
+  /** Added on the Export tab with "Use for pushing only": the Import tab doesn't list it */
+  pushOnly?: boolean;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
   owner: string;
   host: string;
   repo: string;
@@ -67,6 +81,8 @@ interface GitlabCredentialsI {
 
 interface GitlabMergeRequestCredentialsI {
   isEnabled: boolean;
+  /** Added on the Export tab with "Use for pushing only": the Import tab doesn't list it */
+  pushOnly?: boolean;
   owner: string;
   host: string;
   repo: string;
@@ -81,9 +97,13 @@ interface GitlabMergeRequestCredentialsI {
 
 interface CustomURLCredentialsI {
   isEnabled: boolean;
+  /** Added on the Export tab with "Use for pushing only": the Import tab doesn't list it */
+  pushOnly?: boolean;
   url: string;
   method: 'POST' | 'PUT';
   headers: string;
+  /** Added on the Import tab: pulled from, but Push to server skips it */
+  pullOnly?: boolean;
 }
 
 interface ExportSettingsI {

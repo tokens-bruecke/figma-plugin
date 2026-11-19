@@ -178,6 +178,63 @@ export const scenes = {
     },
   },
 
+  // Import mode with a GitHub server. The GitHub API is stubbed: the pull
+  // lists three collection files
+  'pull-from-git': {
+    profiles: {
+      default: profile({
+        splitByCollection: true,
+        servers: only('github'),
+      }),
+    },
+    steps: async (page) => {
+      const collections = ['Primitives', 'Semantic', 'Motion'];
+      const cors = {
+        'access-control-allow-origin': '*',
+        'access-control-allow-headers': '*',
+      };
+      await page.route('https://api.github.com/**', (route) => {
+        const url = route.request().url();
+        const reply = (body) =>
+          route.fulfill({
+            status: 200,
+            headers: cors,
+            contentType: 'application/json',
+            body: JSON.stringify(body),
+          });
+
+        if (route.request().method() === 'OPTIONS') {
+          return route.fulfill({ status: 204, headers: cors });
+        }
+        if (url.includes('/branches/')) {
+          return reply({ commit: { commit: { tree: { sha: 'tree' } } } });
+        }
+        if (url.includes('/git/trees/')) {
+          return reply({
+            truncated: false,
+            tree: collections.map((name) => ({
+              path: `tokens/${name}.tokens.json`,
+              type: 'blob',
+              sha: name,
+            })),
+          });
+        }
+        const name = url.slice(url.lastIndexOf('/') + 1);
+        return reply({
+          encoding: 'base64',
+          content: Buffer.from(JSON.stringify({ [name]: {} })).toString(
+            'base64'
+          ),
+        });
+      });
+      await page.getByText('Import', { exact: true }).first().click();
+      await page.getByRole('button', { name: 'Pull from GitHub' }).click();
+      // Out of the icon, so its hover doesn't show
+      await page.mouse.move(0, 0);
+      await page.getByText(/^Import 3 files/).waitFor();
+    },
+  },
+
   jsonbin: serverScene('jsonbin', 'JSONBin'),
   github: serverScene('github', 'GitHub'),
   'github-pr': serverScene('githubPullRequest', 'GitHub PR'),
@@ -195,15 +252,15 @@ export const scenes = {
     steps: async (page) => {
       await page.getByText('Web', { exact: true }).first().click();
     },
-    crop: ['Web', 'Android', 'Color mode'],
+    crop: ['Web', 'Android', 'Profile settings…', 'Include styles'],
   },
 
   'share-profile': {
     activeProfileId: 'web',
     profiles: { web: profile({ profileName: 'Web' }) },
     steps: async (page) => {
-      // the ⋮ next to the profile dropdown has no text
-      await page.locator('#frame button[class*="iconButton"]').first().click();
+      await page.getByText('Web', { exact: true }).first().click();
+      await page.getByText('Profile settings…', { exact: true }).click();
     },
   },
 
@@ -219,7 +276,7 @@ export const scenes = {
     steps: async (page) => {
       await page.getByText('Web', { exact: true }).first().click();
     },
-    crop: ['Web', 'Design system', 'Color mode'],
+    crop: ['Web', 'Design system', 'Profile settings…', 'Include styles'],
   },
 
   // Has to be the same object in both places: a profile linked to a shared
@@ -233,7 +290,8 @@ export const scenes = {
       'design-system': profile({ profileName: 'Design system', updatedAt: 1 }),
     },
     steps: async (page) => {
-      await page.locator('#frame button[class*="iconButton"]').first().click();
+      await page.getByText('Design system', { exact: true }).first().click();
+      await page.getByText('Profile settings…', { exact: true }).click();
     },
   },
 
@@ -266,5 +324,14 @@ export const scenes = {
   empty: {
     hasVariables: false,
     profiles: { default: profile() },
+  },
+
+  'pull-servers-menu': {
+    hasVariables: false,
+    profiles: { default: profile() },
+    steps: async (page) => {
+      await page.getByText('Pull from server', { exact: true }).click();
+    },
+    crop: ['Pull from server', 'Custom URL', 'Import from JSON file'],
   },
 };
