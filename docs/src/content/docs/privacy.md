@@ -7,7 +7,7 @@ description: "What the plugin and this site collect, and where to report issues.
 
 The plugin counts a few anonymous usage events with [GoatCounter](https://www.goatcounter.com), a privacy-friendly, open-source counter. It helps us see which features are used so we know where to focus.
 
-What is sent: the plugin was opened, and whether in Dev Mode; the file had variables or not; tokens were downloaded, copied from the code preview, imported, or pulled from one of the servers and imported; a connection test or a push to one of the servers (GitHub, GitHub pull request, GitLab, GitLab merge request, JSONBin, custom URL) was started, and whether a Git push left some collections out; a profile was shared in the file, shared again, stopped being shared, added from a shared profile, or updated from one. That is the full list.
+What is sent: the plugin was opened, and whether in Dev Mode; the file had variables or not; tokens were downloaded, copied from the code preview, imported, or pulled from one of the servers and imported; the Import tab was opened; a pull from one of the servers failed; a connection test or a push to one of the servers (GitHub, GitHub pull request, GitLab, GitLab merge request, JSONBin, custom URL) was started, and whether a Git push left some collections out; a profile was shared in the file, shared again, stopped being shared, added from a shared profile, or updated from one. That is the full list.
 
 What is never sent: your tokens, variable or collection names, file names, server URLs, access tokens, or any other data read from your Figma file. GoatCounter sets no cookies and does not track you across sites.
 
