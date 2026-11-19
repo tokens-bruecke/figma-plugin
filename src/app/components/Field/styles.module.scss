@@ -43,14 +43,17 @@
   text-decoration: underline;
 }
 
+// pretty: a wrapped hint doesn't leave one word on its last line
 .hint {
   color: var(--figma-color-text-secondary);
   overflow-wrap: anywhere;
+  text-wrap: pretty;
 }
 
 .error {
   color: var(--figma-color-text-danger);
   overflow-wrap: anywhere;
+  text-wrap: pretty;
 }
 
 .inputRow {

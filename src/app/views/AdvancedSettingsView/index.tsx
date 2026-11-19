@@ -9,6 +9,8 @@ interface ViewProps {
     React.SetStateAction<JSONSettingsConfigI>
   >;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
+  /** The view the back button returns to */
+  backView?: string;
 }
 
 type AdvancedSettingItem = {
@@ -22,6 +24,7 @@ export const AdvancedSettingsView = ({
   JSONsettingsConfig,
   setJSONsettingsConfig,
   setCurrentView,
+  backView = 'main',
 }: ViewProps) => {
   const toggleItems: AdvancedSettingItem[] = [
     {
@@ -127,7 +130,7 @@ export const AdvancedSettingsView = ({
           isActive
           hasBackButton
           onClick={() => {
-            setCurrentView('main');
+            setCurrentView(backView);
           }}
         />
       </Stack>

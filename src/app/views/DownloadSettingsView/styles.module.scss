@@ -1,0 +1,16 @@
+// A link in the hint text that opens another view, so it's a button
+.inlineLink {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--figma-color-text);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid var(--figma-color-border-selected);
+  }
+}

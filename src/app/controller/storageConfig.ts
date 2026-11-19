@@ -29,6 +29,7 @@ const createDefaultJSONSettingsConfig = (): JSONSettingsConfigI => ({
   splitByMode: false,
   omitCollectionNames: false,
   excludedCollections: [],
+  downloadFileName: '',
   servers: {
     jsonbin: {
       isEnabled: false,
@@ -115,6 +116,10 @@ const sanitizeProfileConfig = (
           (name): name is string => typeof name === 'string'
         )
       : [],
+    downloadFileName:
+      typeof safeConfig.downloadFileName === 'string'
+        ? safeConfig.downloadFileName
+        : '',
     servers: {
       ...defaults.servers,
       ...(safeConfig.servers || {}),
