@@ -1,3 +1,15 @@
+## [3.29.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.28.0...v3.29.0) (2026-11-19)
+
+### Features
+
+- **plugin:** a **…** button next to **Download JSON** opens **Download settings**, where **File name** sets the name of the download. `brand` downloads as `brand.json`, and a split export as `brand.zip`, with the files inside keeping their `{Collection}.tokens.json` names. The name is saved in the profile and shared with it; an empty one keeps `design.tokens`. Pushes and the CLI are unchanged ([#159](https://github.com/tokens-bruecke/figma-plugin/issues/159)) ([#165](https://github.com/tokens-bruecke/figma-plugin/pull/165))
+
+### Documentation
+
+- **docs:** the Settings page describes the download file name, with a screenshot of Download settings ([#165](https://github.com/tokens-bruecke/figma-plugin/pull/165))
+
+Thanks to [@eduaugustus](https://github.com/eduaugustus) for asking for a custom file name in [#159](https://github.com/tokens-bruecke/figma-plugin/issues/159).
+
 ## [3.28.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.27.0...v3.28.0) (2026-11-19)
 
 ### Features
