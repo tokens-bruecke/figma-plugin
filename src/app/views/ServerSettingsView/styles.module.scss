@@ -50,6 +50,12 @@
   padding-bottom: var(--space-medium);
 }
 
+// Without More options in between, no line separates the checkbox from
+// the buttons, so one 16 px gap is enough
+.onlySection + .section {
+  padding-top: 0;
+}
+
 // The last field of More options ends as far from the line as the others
 .moreFields {
   padding-bottom: var(--space-extra-small);
