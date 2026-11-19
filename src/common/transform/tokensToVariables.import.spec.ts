@@ -619,6 +619,14 @@ describe('tokensToVariables references and existing variables', () => {
     expect(again.errors).toEqual([]);
     expect(again.variablesUpdated).toBe(2);
     expect(fake._variables).toHaveLength(2);
+
+    // The message starts each sentence with a capital
+    expect(result.message).toBe(
+      'Successfully imported tokens. Created 1 collection(s), created 2 variable(s).'
+    );
+    expect(again.message).toBe(
+      'Successfully imported tokens. Updated 2 variable(s).'
+    );
   });
 
   test('takes the type of a token from its groups', async () => {

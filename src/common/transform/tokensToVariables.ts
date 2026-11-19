@@ -1300,7 +1300,7 @@ export const tokensToVariables = async (
     result.success = true;
     const parts: string[] = [];
     if (result.collectionsCreated > 0) {
-      parts.push(`Created ${result.collectionsCreated} collection(s)`);
+      parts.push(`created ${result.collectionsCreated} collection(s)`);
     }
     if (result.variablesCreated > 0) {
       parts.push(`created ${result.variablesCreated} variable(s)`);
@@ -1309,7 +1309,13 @@ export const tokensToVariables = async (
       parts.push(`updated ${result.variablesUpdated} variable(s)`);
     }
 
-    result.message = `Successfully imported tokens. ${parts.join(', ')}.`;
+    // Capitalize whichever part comes first, e.g. "Updated 6 variable(s)."
+    const summary = parts.join(', ');
+    result.message = summary
+      ? `Successfully imported tokens. ${summary[0].toUpperCase()}${summary.slice(
+          1
+        )}.`
+      : 'Successfully imported tokens. No variables changed.';
 
     if (result.composedColorsRejected > 0) {
       result.message += ` ${result.composedColorsRejected} value(s) skipped: this Figma version cannot write color aliases with a separate opacity. Update Figma to the latest version and import again.`;
