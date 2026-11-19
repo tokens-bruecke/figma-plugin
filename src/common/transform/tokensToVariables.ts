@@ -156,6 +156,23 @@ export const getDefaultScopes = (
   }
 };
 
+const CODE_SYNTAX_PLATFORMS: ReadonlyArray<CodeSyntaxPlatform> = [
+  'WEB',
+  'ANDROID',
+  'iOS',
+];
+
+/**
+ * The code syntax that "Include Figma metadata" exports, or undefined when
+ * the token has none
+ */
+export const getTokenCodeSyntax = (
+  token: any
+): { [P in CodeSyntaxPlatform]?: string } | undefined => {
+  const codeSyntax = token.$extensions?.figma?.codeSyntax;
+  return codeSyntax && typeof codeSyntax === 'object' ? codeSyntax : undefined;
+};
+
 /**
  * Parses a token to extract scopes: the `scopes` key (`includeScopes`), or
  * the `$extensions.figmaScopes` marker that opacity tokens always carry.
@@ -1037,6 +1054,7 @@ export const tokensToVariables = async (
           try {
             let tokenType = getTokenType(token);
             const tokenDescription = getTokenDescription(token);
+            const tokenCodeSyntax = getTokenCodeSyntax(token);
             let tokenScopes = getTokenScopes(token);
 
             if (!tokenType) {
@@ -1107,6 +1125,26 @@ export const tokensToVariables = async (
                 variable.description = tokenDescription;
               }
 
+              // Platforms the token leaves out are cleared, so the variable
+              // ends up with the code syntax of the file
+              if (tokenCodeSyntax) {
+                for (const platform of CODE_SYNTAX_PLATFORMS) {
+                  const value = tokenCodeSyntax[platform];
+
+                  try {
+                    if (typeof value === 'string' && value) {
+                      variable.setVariableCodeSyntax(platform, value);
+                    } else if (variable.codeSyntax?.[platform]) {
+                      variable.removeVariableCodeSyntax(platform);
+                    }
+                  } catch (error) {
+                    result.errors.push(
+                      `Failed to set the ${platform} code syntax of "${path}": ${error.message}`
+                    );
+                  }
+                }
+              }
+
               // Figma rejects scopes on TIMING and EASING variables
               const acceptsScopes =
                 variable.resolvedType !== 'TIMING' &&
@@ -1124,7 +1162,8 @@ export const tokensToVariables = async (
                   );
                 }
                 const validScopes = tokenScopes.filter(isValidVariableScope);
-                if (validScopes.length > 0) {
+                // An empty list hides the variable from every picker
+                if (validScopes.length > 0 || tokenScopes.length === 0) {
                   try {
                     variable.scopes = validScopes;
                   } catch (error) {
