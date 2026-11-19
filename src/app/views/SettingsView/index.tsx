@@ -278,6 +278,11 @@ export const SettingsView = (props: ViewProps) => {
   };
 
   const handleModeChange = (value: string) => {
+    // A file without variables opens on Import; only a click counts
+    if (value === 'import' && mode !== 'import') {
+      track('/import-tab');
+    }
+
     setMode(value as ModeType);
     // The output belongs to the export
     if (value === 'import' && isCodePreviewOpen) {
@@ -407,6 +412,8 @@ export const SettingsView = (props: ViewProps) => {
       setPendingPull({ ...result, server });
     } catch (error) {
       console.error('Pull error:', error);
+      // Only the server type, never the error, which can name the repository
+      track(`/pull-failed/${server}`);
       toastRef.current?.show({
         title: `${serverLabel(server)}: Could not pull tokens`,
         message: error instanceof Error ? error.message : String(error),

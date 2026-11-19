@@ -186,7 +186,7 @@ If the format is `DTCG`:
 
 ## Include Figma metadata
 
-Is `off` by default. Allows you to include Figma metadata like `variableId`, `codeSyntax`, etc. into the generated JSON. It is merged into the existing `$extensions` object alongside `mode`.
+Is `off` by default. Allows you to include Figma metadata like `variableId`, `codeSyntax`, etc. into the generated JSON. It is merged into the existing `$extensions` object alongside `mode`. An [import](../../getting-started/export-and-import/#import-json--variables) reads the code syntax back, so it survives a round trip to another file.
 
 Exported styles get their `styleId` in `$extensions.figma`. Color styles also get every paint of the style in `$extensions.figma.paints`, see [color styles with several paints](../../reference/styles/#color-styles-with-several-paints). Text styles keep their `$extensions.styleId` too, for compatibility.
 
