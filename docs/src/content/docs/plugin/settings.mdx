@@ -80,3 +80,15 @@ Is `on` by default. Aligns the output with the [DTCG 2025.10 specification](http
 :::note
 Values that have no valid DTCG representation stay as strings even with this setting on: percentage-based `lineHeight`/`letterSpacing` (e.g. `"150%"`) and `"auto"` line height. `blur` and `grid` style tokens are exported with non-spec `$type` values as documented in [Styles support](../../reference/styles/).
 :::
+
+## Download file name
+
+<Screenshot name="download-settings-split" alt="Download settings with the file name field" />
+
+The **…** button next to **Download JSON** opens **Download settings**. **File name** is empty by default, which keeps the name `design.tokens.json`. Set it so the file can be committed as it is, or so several exports can sit in one folder without the browser adding `(1)`, `(2)`.
+
+- The extension is optional: `brand` and `brand.json` both download as `brand.json`.
+- When the files are [split by collection or mode](../advanced-settings/#split-collections-into-separate-files), the archive takes the same name, e.g. `brand.zip`. The files inside keep their `{CollectionName}.tokens.json` names.
+- Characters that aren't allowed in file names, such as `/` or `:`, are replaced with `-`.
+
+The name is saved in the [profile](../profiles/) and shared with it. It only applies to downloads: a push writes to the `File name` of each server, and the CLI to `--output`.

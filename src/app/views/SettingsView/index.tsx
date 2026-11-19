@@ -21,6 +21,7 @@ import { config } from '@app/controller/config';
 
 import { Toast, ToastRefI } from '@app/components/Toast';
 import { AdvancedSettingsView } from '@app/views/AdvancedSettingsView';
+import { DownloadSettingsView } from '@app/views/DownloadSettingsView';
 import { CollectionsView } from '@app/views/CollectionsView';
 import { ServerSettingsView } from '@app/views/ServerSettingsView';
 import { getServerSummary } from '@app/views/ServerSettingsView/providers';
@@ -212,6 +213,10 @@ export const SettingsView = (props: ViewProps) => {
   // Dev Mode can't import, so it only has the export
   const isImportMode = !!onImportTokens && mode === 'import';
   const [showServersOverlayList, setShowServersOverlayList] = useState(false);
+  // Advanced settings opens from the main view and from Download settings,
+  // and its back button returns to where it was opened
+  const [advancedSettingsBackView, setAdvancedSettingsBackView] =
+    useState('main');
   const [showPullServersOverlayList, setShowPullServersOverlayList] =
     useState(false);
   // The server whose files are being fetched
@@ -272,6 +277,11 @@ export const SettingsView = (props: ViewProps) => {
   //////////////////////
   // HANDLE FUNCTIONS //
   //////////////////////
+  const openAdvancedSettings = (backView: string) => {
+    setAdvancedSettingsBackView(backView);
+    setCurrentView('advancedSettings');
+  };
+
   const handleShowOutput = () => {
     setIsCodePreviewOpen(!isCodePreviewOpen);
     getTokensPreview();
@@ -490,7 +500,8 @@ export const SettingsView = (props: ViewProps) => {
           downloadTokensFile(
             tokens,
             JSONsettingsConfig.splitByCollection,
-            JSONsettingsConfig.splitByMode
+            JSONsettingsConfig.splitByMode,
+            JSONsettingsConfig.downloadFileName
           );
         }
 
@@ -1072,7 +1083,7 @@ export const SettingsView = (props: ViewProps) => {
         <PanelHeader
           title="Advanced settings"
           onClick={() => {
-            setCurrentView('advancedSettings');
+            openAdvancedSettings('main');
           }}
           iconButtons={[
             {
@@ -1084,7 +1095,7 @@ export const SettingsView = (props: ViewProps) => {
                 />
               ),
               onClick: () => {
-                setCurrentView('advancedSettings');
+                openAdvancedSettings('main');
               },
             },
           ]}
@@ -1186,12 +1197,29 @@ export const SettingsView = (props: ViewProps) => {
 
       <Panel hasLeftRightPadding bottomBorder={false}>
         <Stack hasLeftRightPadding hasTopBottomPadding gap="var(--space-small)">
-          <Button
-            label="Download JSON"
-            onClick={getTokensForDownload}
-            fullWidth
-            secondary
-          />
+          <div className={styles.downloadRow}>
+            <div className={styles.downloadButton}>
+              <Button
+                label="Download JSON"
+                onClick={getTokensForDownload}
+                fullWidth
+                secondary
+              />
+            </div>
+            <button
+              type="button"
+              className={styles.downloadMore}
+              aria-label="Download settings"
+              title="Download settings"
+              onClick={() => setCurrentView('downloadSettings')}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
+                <circle cx="7" cy="12" r="1" fill="currentColor" />
+                <circle cx="12" cy="12" r="1" fill="currentColor" />
+                <circle cx="17" cy="12" r="1" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
           {!onImportTokens && (
             <Text className={styles.hint}>
               Importing tokens into variables needs Figma Design and edit
@@ -1406,6 +1434,18 @@ export const SettingsView = (props: ViewProps) => {
           JSONsettingsConfig={JSONsettingsConfig}
           setJSONsettingsConfig={setJSONsettingsConfig}
           setCurrentView={setCurrentView}
+          backView={advancedSettingsBackView}
+        />
+      );
+    }
+
+    if (currentView === 'downloadSettings') {
+      return (
+        <DownloadSettingsView
+          JSONsettingsConfig={JSONsettingsConfig}
+          setJSONsettingsConfig={setJSONsettingsConfig}
+          setCurrentView={setCurrentView}
+          openAdvancedSettings={() => openAdvancedSettings('downloadSettings')}
         />
       );
     }

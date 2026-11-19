@@ -188,6 +188,43 @@
   }
 }
 
+// Download JSON and, at its end, the "…" that opens its settings
+.downloadRow {
+  display: flex;
+  gap: var(--space-extra-small);
+}
+
+.downloadButton {
+  flex: 1;
+  min-width: 0;
+}
+
+// Looks like the kit's IconButton, which can't take the aria-label this
+// icon-only button needs
+.downloadMore {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-2);
+  background: none;
+  color: var(--figma-color-icon);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--figma-color-bg-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--figma-color-border-selected);
+    outline-offset: -2px;
+  }
+}
+
 // The spinner of the server being pulled stays at full strength
 .pullIconButtonBusy:disabled {
   color: var(--figma-color-icon);

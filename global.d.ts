@@ -137,6 +137,11 @@ type JSONSettingsConfigI = ExportSettingsI & {
    * split. A list of exclusions, so new collections are pushed by default.
    */
   excludedCollections?: string[];
+  /**
+   * Name Download JSON saves under, with or without `.json`. A split export
+   * downloads as `<name>.zip`. Empty means `design.tokens`.
+   */
+  downloadFileName?: string;
 };
 
 type ProfileId = string;

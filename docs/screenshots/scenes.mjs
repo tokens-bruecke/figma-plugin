@@ -118,6 +118,27 @@ export const scenes = {
     },
   },
 
+  // Download JSON and the "…" that opens Download settings
+  'download-button': {
+    profiles: { default: profile({ servers: only('github') }) },
+    crop: ['Download JSON'],
+  },
+
+  'download-settings': {
+    profiles: { default: profile({ downloadFileName: 'brand.tokens' }) },
+    steps: async (page) => {
+      await page.getByRole('button', { name: 'Download settings' }).click();
+    },
+  },
+
+  // A split export downloads a .zip, and the hint links to the split setting
+  'download-settings-split': {
+    profiles: { default: profile({ splitByCollection: true }) },
+    steps: async (page) => {
+      await page.getByRole('button', { name: 'Download settings' }).click();
+    },
+  },
+
   'rename-styles': {
     profiles: { default: profile({ includedStyles: styles(['text', 'effects']) }) },
     crop: ['Include styles', 'Color-styles'],

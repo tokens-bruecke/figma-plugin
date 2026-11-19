@@ -49,4 +49,25 @@ describe('parseStoredConfig', () => {
     expect(config.profiles.default.excludedCollections).toEqual(['Spacing']);
     expect(config.profiles.legacy.excludedCollections).toEqual([]);
   });
+
+  it('keeps the download file name and defaults it for older profiles', () => {
+    const config = parseStoredConfig(
+      JSON.stringify({
+        activeProfileId: 'default',
+        profiles: {
+          default: {
+            profileName: 'Default profile',
+            updatedAt: 1,
+            downloadFileName: 'brand.tokens',
+          },
+          broken: { profileName: 'Broken', updatedAt: 1, downloadFileName: 4 },
+          legacy: { profileName: 'Legacy', updatedAt: 1 },
+        },
+      })
+    );
+
+    expect(config.profiles.default.downloadFileName).toBe('brand.tokens');
+    expect(config.profiles.broken.downloadFileName).toBe('');
+    expect(config.profiles.legacy.downloadFileName).toBe('');
+  });
 });

@@ -3,6 +3,7 @@
 
 import JSZip from 'jszip';
 import { splitTokensIntoFiles } from '../../common/transform/splitTokensIntoFiles';
+import { getDownloadFileNames } from './downloadFileName';
 
 const triggerDownload = (blob: Blob, fileName: string) => {
   const url = URL.createObjectURL(blob);
@@ -18,8 +19,10 @@ const triggerDownload = (blob: Blob, fileName: string) => {
 export const downloadTokensFile = async (
   objectToSave: Record<string, any>,
   splitByCollection = false,
-  splitByMode = false
+  splitByMode = false,
+  fileName = ''
 ) => {
+  const names = getDownloadFileNames(fileName);
   const files = splitTokensIntoFiles(objectToSave, {
     splitByCollection,
     splitByMode,
@@ -27,7 +30,7 @@ export const downloadTokensFile = async (
 
   if (files.length === 1 && !splitByCollection && !splitByMode) {
     const blob = new Blob([files[0].content], { type: 'application/json' });
-    triggerDownload(blob, files[0].path);
+    triggerDownload(blob, names.json);
     return;
   }
 
@@ -36,5 +39,5 @@ export const downloadTokensFile = async (
   files.forEach((file) => zip.file(file.path, file.content));
 
   const blob = await zip.generateAsync({ type: 'blob' });
-  triggerDownload(blob, 'design.tokens.zip');
+  triggerDownload(blob, names.zip);
 };
