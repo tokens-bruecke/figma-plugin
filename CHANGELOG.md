@@ -1,3 +1,25 @@
+## [3.28.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.27.0...v3.28.0) (2026-11-19)
+
+### Features
+
+- **plugin:** the main view has **Export** and **Import** tabs. Under **Pull from server**, the Import tab lists the servers of the profile, and the ↻ button of a server reads the tokens a push writes and imports them into the variables, after a confirmation that names the files and collections. GitHub and GitLab read every file of a split export in one import, so aliases between files resolve in any order; JSONBin and custom URLs read their JSON. Collections unchecked in the collection picker aren't read. **Import from JSON file** moved to the same tab. Pulls run in Figma Design only, not in Dev Mode ([#158](https://github.com/tokens-bruecke/figma-plugin/issues/158)) ([#161](https://github.com/tokens-bruecke/figma-plugin/pull/161))
+- **plugin:** a server can be set to **Use for pulling only** or **Use for pushing only**. A server added on the Import tab only pulls, so a read-only access token or a URL that only serves JSON works without failing pushes ([#161](https://github.com/tokens-bruecke/figma-plugin/pull/161))
+
+### Bug fixes
+
+- **import:** tokens exported with **Include Figma metadata** bring back the code syntax of each platform, and empty `scopes` hide the variable from every picker again, so a file round-trips to another file unchanged ([#162](https://github.com/tokens-bruecke/figma-plugin/pull/162))
+- **plugin:** a window height set with the resizer stays when you switch tabs, and a view shorter than it fits its content instead of leaving empty space below ([#161](https://github.com/tokens-bruecke/figma-plugin/pull/161))
+
+### Behaviour changes
+
+- **plugin:** the anonymous usage counts also note pulls and failed pulls by server type, and opening the Import tab. The privacy page lists every event ([#161](https://github.com/tokens-bruecke/figma-plugin/pull/161)) ([#163](https://github.com/tokens-bruecke/figma-plugin/pull/163))
+
+### Documentation
+
+- **docs:** the Push to server page describes pulling, with screenshots of the Import tab. The import, Figma metadata and window height sections are updated ([#161](https://github.com/tokens-bruecke/figma-plugin/pull/161)) ([#163](https://github.com/tokens-bruecke/figma-plugin/pull/163))
+
+Thanks to [@eduaugustus](https://github.com/eduaugustus) for asking for pulls in [#158](https://github.com/tokens-bruecke/figma-plugin/issues/158) and testing the preview build against GitLab.
+
 ## [3.27.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.26.0...v3.27.0) (2026-11-16)
 
 ### Features
