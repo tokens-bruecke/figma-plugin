@@ -13,6 +13,7 @@ import {
   codeFolding,
   foldKeymap,
   foldedRanges,
+  syntaxTree,
   unfoldEffect,
   syntaxHighlighting,
   HighlightStyle,
@@ -32,6 +33,7 @@ import { tags } from '@lezer/highlight';
 import { Icon } from 'react-figma-ui/ui';
 
 import styles from './styles.module.scss';
+import { collapseAllEffects, expandAllEffects, getFoldStatus } from './folding';
 
 interface JsonViewerProps {
   code: string;
@@ -119,23 +121,6 @@ const hiddenSearchPanel = () => {
   return { dom };
 };
 
-// react-figma-ui has no close/cross icon,
-// so it's drawn in the same style as the Figma icon set
-const CloseIcon = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5"
-      stroke="currentColor"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
 const getMatches = (state: EditorState, query: string) => {
   const matches: { from: number; to: number }[] = [];
 
@@ -166,6 +151,21 @@ export const JsonViewer = ({ code }: JsonViewerProps) => {
   const [matchCount, setMatchCount] = React.useState<number>(0);
   const [currentMatch, setCurrentMatch] = React.useState<number>(0);
   const [isSearchOpen, setIsSearchOpen] = React.useState<boolean>(false);
+  // a button is disabled when clicking it would change nothing
+  const [foldStatus, setFoldStatus] = React.useState({
+    canCollapse: false,
+    canExpand: false,
+  });
+
+  const syncFoldStatus = (state: EditorState) => {
+    const next = getFoldStatus(state);
+
+    setFoldStatus((prev) =>
+      prev.canCollapse === next.canCollapse && prev.canExpand === next.canExpand
+        ? prev
+        : next
+    );
+  };
 
   const openSearch = () => {
     setIsSearchOpen(true);
@@ -212,6 +212,18 @@ export const JsonViewer = ({ code }: JsonViewerProps) => {
         EditorState.readOnly.of(true),
         figmaTheme,
         syntaxHighlighting(figmaHighlightStyle),
+        // folds change through the buttons, the gutter, the keyboard,
+        // search, and a new document. The tree is checked too, as a large
+        // document may still be parsing when it's first shown
+        EditorView.updateListener.of((update) => {
+          if (
+            update.docChanged ||
+            foldedRanges(update.state) !== foldedRanges(update.startState) ||
+            syntaxTree(update.state) !== syntaxTree(update.startState)
+          ) {
+            syncFoldStatus(update.state);
+          }
+        }),
       ],
     });
 
@@ -224,6 +236,7 @@ export const JsonViewer = ({ code }: JsonViewerProps) => {
     openSearchPanel(view);
 
     viewRef.current = view;
+    syncFoldStatus(view.state);
 
     return () => {
       view.destroy();
@@ -332,6 +345,28 @@ export const JsonViewer = ({ code }: JsonViewerProps) => {
     requestAnimationFrame(centerMatch);
   };
 
+  const collapseAll = () => {
+    const view = viewRef.current;
+
+    if (!view) {
+      return;
+    }
+
+    view.dispatch({ effects: collapseAllEffects(view.state) });
+    // the content shrinks, so start from the top of the index
+    view.scrollDOM.scrollTop = 0;
+  };
+
+  const expandAll = () => {
+    const view = viewRef.current;
+
+    if (!view) {
+      return;
+    }
+
+    view.dispatch({ effects: expandAllEffects(view.state) });
+  };
+
   const handleInputKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -352,55 +387,74 @@ export const JsonViewer = ({ code }: JsonViewerProps) => {
 
   return (
     <div className={styles.jsonViewer}>
-      <div className={styles.searchBar}>
-        {isSearchOpen ? (
-          <>
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Search…"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={handleInputKeyDown}
-              onBlur={handleInputBlur}
-              spellCheck={false}
-            />
-
-            {query && (
-              <span className={styles.matchCount}>
-                {currentMatch > 0
-                  ? `${currentMatch}/${matchCount}`
-                  : matchCount}
-              </span>
-            )}
-
-            <button
-              onClick={() => goToMatch(-1)}
-              disabled={matchCount === 0}
-              title="Previous match (Shift+Enter)"
-            >
-              <Icon name="arrow-up" size="16" />
-            </button>
-            <button
-              onClick={() => goToMatch(1)}
-              disabled={matchCount === 0}
-              title="Next match (Enter)"
-            >
-              <Icon name="arrow-down" size="16" />
-            </button>
-            <button onClick={closeSearch} title="Close search (Esc)">
-              <CloseIcon />
-            </button>
-          </>
-        ) : (
+      <div className={styles.toolbar}>
+        <div className={`${styles.toolbarBox} ${styles.foldBox}`}>
           <button
-            className={styles.searchTrigger}
-            onClick={openSearch}
-            title="Search (⌘F)"
+            onClick={collapseAll}
+            disabled={!foldStatus.canCollapse}
+            title="Collapse all"
           >
-            <Icon name="search" size="16" />
+            <Icon name="collapse-all" size="16" />
           </button>
-        )}
+          <button
+            onClick={expandAll}
+            disabled={!foldStatus.canExpand}
+            title="Expand all"
+          >
+            <Icon name="expand-all" size="16" />
+          </button>
+        </div>
+
+        <div className={styles.toolbarBox}>
+          {isSearchOpen ? (
+            <>
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Search…"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={handleInputKeyDown}
+                onBlur={handleInputBlur}
+                spellCheck={false}
+              />
+
+              {query && (
+                <span className={styles.matchCount}>
+                  {currentMatch > 0
+                    ? `${currentMatch}/${matchCount}`
+                    : matchCount}
+                </span>
+              )}
+
+              <button
+                onClick={() => goToMatch(-1)}
+                disabled={matchCount === 0}
+                title="Previous match (Shift+Enter)"
+              >
+                <Icon name="arrow-up" size="16" />
+              </button>
+              <button
+                onClick={() => goToMatch(1)}
+                disabled={matchCount === 0}
+                title="Next match (Enter)"
+              >
+                <Icon name="arrow-down" size="16" />
+              </button>
+              <button onClick={closeSearch} title="Close search (Esc)">
+                <Icon name="cross" size="16" />
+              </button>
+            </>
+          ) : (
+            <button
+              className={styles.searchTrigger}
+              onClick={openSearch}
+              title="Search (⌘F)"
+            >
+              <Icon name="search" size="16" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div ref={containerRef} className={styles.editor} />
