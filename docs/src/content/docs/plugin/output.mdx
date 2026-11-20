@@ -20,6 +20,15 @@ The output doesn't update automatically, in order to optimize the performance. S
 
 <Screenshot name="overview" alt="The code preview next to the settings" />
 
+## Only the collections a push commits
+
+When a Git server leaves some collections out of the push (see [Collections to push](../push-to-server/#collections-to-push)), the toolbar shows a switch with two options:
+
+- **All**, the default: the whole export, as **Download JSON**, JSONBin, custom servers and the CLI receive it.
+- **To push**, e.g. `To push 2/3`: only the checked collections, with every mode of each when splitting by mode. The stats and `Copy` cover only them too.
+
+When every collection is pushed again, or the tokens are no longer split, the switch disappears and the output shows everything. The switch follows the current settings, so click `Update` after changing the split settings.
+
 ## Plugin window height
 
 The plugin window auto-fits the height of its content, but you can adjust it manually using the resizer handle at the bottom of the settings view.
