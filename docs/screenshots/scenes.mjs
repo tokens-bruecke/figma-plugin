@@ -72,6 +72,22 @@ const profile = (overrides = {}) => ({
   ...overrides,
 });
 
+// The preview is 100vh tall, which in Figma is the plugin window. Here the
+// window is a div on a taller page, so the preview's bottom toolbar would
+// fall below it: size the preview to the window instead
+const fitPreview = async (page) => {
+  // the preview renders once the tokens arrive
+  await page.getByRole('button', { name: 'Update', exact: true }).waitFor();
+  await page.evaluate(() => {
+    const frame = document.getElementById('frame');
+    const update = [...frame.querySelectorAll('button')].find(
+      (button) => button.textContent.trim() === 'Update'
+    );
+    const preview = update.closest('section').parentElement.closest('section');
+    preview.style.height = `${frame.offsetHeight}px`;
+  });
+};
+
 const only = (...ids) =>
   Object.fromEntries(ids.map((id) => [id, servers[id]]));
 
@@ -331,6 +347,41 @@ export const scenes = {
     environment: { editorType: 'dev', mode: 'inspect', isVSCode: false },
     profiles: {
       default: profile({ includedStyles: styles(['text']), servers: only('github') }),
+    },
+  },
+
+  // The output after Collapse all: the collections as an index
+  'output-collapse-all': {
+    profiles: {
+      default: profile({
+        includedStyles: styles(['text', 'effects']),
+        servers: only('github'),
+      }),
+    },
+    previewHeight: 640,
+    steps: async (page) => {
+      await page.getByText('Show output', { exact: true }).click();
+      await fitPreview(page);
+      await page.getByTitle('Collapse all').click();
+    },
+  },
+
+  // The output of a push that leaves Spacing out, switched to To push
+  'output-to-push': {
+    profiles: {
+      default: profile({
+        splitByCollection: true,
+        excludedCollections: ['Spacing'],
+        servers: only('github'),
+      }),
+    },
+    previewHeight: 640,
+    steps: async (page) => {
+      await page.getByText('Show output', { exact: true }).click();
+      await fitPreview(page);
+      await page.getByRole('radio', { name: /To push/ }).click();
+      // the index shows that only Core and Theme are left
+      await page.getByTitle('Collapse all').click();
     },
   },
 
