@@ -1,3 +1,9 @@
+## [3.32.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.31.0...v3.32.0) (2026-11-20)
+
+### Features
+
+- count output and Graph tab opens ([239947c](https://github.com/tokens-bruecke/figma-plugin/commit/239947c6220f6d6aa1ba359285efc7197211ef29))
+
 ## [3.31.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.30.0...v3.31.0) (2026-11-20)
 
 ### Features
