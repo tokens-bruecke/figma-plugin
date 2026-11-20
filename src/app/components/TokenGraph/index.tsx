@@ -26,6 +26,14 @@ interface ViewI {
   k: number;
 }
 
+/** A region of the canvas, in canvas coordinates */
+interface RectI {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
 /**
  * Level of detail: zooming out drops the value, then all text,
  * until each token is a block of its own color
@@ -136,7 +144,9 @@ const getColumnLabel = (depth: number) => {
   return `${depth} levels deep`;
 };
 
-type NodeStateT = 'idle' | 'focus' | 'chain' | 'dim';
+// dimming comes from a class on the canvas, so a hover re-renders only
+// the cards on the chain, not every card
+type NodeStateT = 'idle' | 'focus' | 'chain';
 
 interface GraphNodeProps {
   node: TokenGraphNodeI;
@@ -228,6 +238,31 @@ const getChain = (graph: ReturnType<typeof buildTokenGraph>, id: string) => {
 
   return chain;
 };
+
+interface EdgePathI {
+  from: string;
+  to: string;
+  d: string;
+  box: RectI;
+}
+
+const EdgePaths = React.memo(
+  ({ edges, className }: { edges: EdgePathI[]; className: string }) => (
+    <>
+      {edges.map(({ from, to, d }) => (
+        <path
+          key={`${from}>${to}`}
+          d={d}
+          vectorEffect="non-scaling-stroke"
+          className={className}
+        />
+      ))}
+    </>
+  )
+);
+
+const intersects = (a: RectI, b: RectI) =>
+  a.x1 >= b.x0 && a.x0 <= b.x1 && a.y1 >= b.y0 && a.y0 <= b.y1;
 
 const LINK_LIST_LIMIT = 8;
 
@@ -327,22 +362,121 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
     return counts;
   }, [graph, visibleIds]);
 
-  const [view, setView] = React.useState<ViewI>({
+  // Pan and zoom write straight to the DOM, without a React render; React
+  // renders only when the detail level changes or the view nears the edge
+  // of the cards it has rendered (see `cull`)
+  const viewRef = React.useRef<ViewI>({
     x: PADDING,
     y: PADDING + LABEL_SPACE,
     k: 1,
   });
-  const viewRef = React.useRef(view);
-  viewRef.current = view;
+  const canvasRef = React.useRef<HTMLDivElement>(null);
+  const zoomLabelRef = React.useRef<HTMLSpanElement>(null);
+  const [lod, setLod] = React.useState<LodT>('full');
+  // the region whose cards are rendered: what's in view and a margin
+  // around it, so a pan renders again only every half a pane or so
+  const [cull, setCull] = React.useState<RectI | null>(null);
+  const cullRef = React.useRef<RectI | null>(null);
 
-  // eases programmatic moves (fit, jump to a token), never wheel or drag
-  const [isAnimated, setIsAnimated] = React.useState(false);
-  const animate = () => {
-    setIsAnimated(true);
-    window.setTimeout(() => setIsAnimated(false), 250);
+  const paintView = () => {
+    const { x, y, k } = viewRef.current;
+    const canvas = canvasRef.current;
+    const viewport = viewportRef.current;
+
+    if (canvas) {
+      canvas.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+      canvas.style.setProperty('--k', String(k));
+    }
+    if (viewport) {
+      // the dot grid moves and scales with the canvas, gone when too dense
+      const gridSize = 24 * k;
+      viewport.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+      viewport.style.backgroundPosition = `${x}px ${y}px`;
+      viewport.style.backgroundImage = gridSize < 10 ? 'none' : '';
+    }
+    if (zoomLabelRef.current) {
+      zoomLabelRef.current.textContent = `${Math.round(k * 100)}%`;
+    }
   };
 
-  const [isPanning, setIsPanning] = React.useState(false);
+  const updateCull = () => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const { x, y, k } = viewRef.current;
+    const width = viewport.clientWidth / k;
+    const height = viewport.clientHeight / k;
+    const seen = {
+      x0: -x / k,
+      y0: -y / k,
+      x1: -x / k + width,
+      y1: -y / k + height,
+    };
+    const current = cullRef.current;
+
+    // keep it while the view is inside and it isn't far bigger than
+    // needed, as after zooming in from far out
+    if (
+      current &&
+      seen.x0 >= current.x0 &&
+      seen.y0 >= current.y0 &&
+      seen.x1 <= current.x1 &&
+      seen.y1 <= current.y1 &&
+      current.x1 - current.x0 <= width * 3 &&
+      current.y1 - current.y0 <= height * 3
+    ) {
+      return;
+    }
+
+    const next = {
+      x0: seen.x0 - width / 2,
+      y0: seen.y0 - height / 2,
+      x1: seen.x1 + width / 2,
+      y1: seen.y1 + height / 2,
+    };
+    cullRef.current = next;
+    setCull(next);
+  };
+
+  const setView = (next: ViewI | ((prev: ViewI) => ViewI)) => {
+    viewRef.current = typeof next === 'function' ? next(viewRef.current) : next;
+    paintView();
+    setLod(getLod(viewRef.current.k));
+    updateCull();
+  };
+
+  // React re-renders the toolbar and may remount the canvas: paint again
+  React.useLayoutEffect(paintView);
+
+  // a resized pane shows more of the canvas
+  React.useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+    const observer = new ResizeObserver(() => updateCull());
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, []);
+
+  // eases programmatic moves (fit, jump to a token), never wheel or drag.
+  // An inline style, as React owns the canvas's classes
+  const animateTimerRef = React.useRef(0);
+  const animate = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+    canvas.style.transition = 'transform 0.25s ease-out';
+    window.clearTimeout(animateTimerRef.current);
+    animateTimerRef.current = window.setTimeout(() => {
+      canvas.style.transition = '';
+    }, 250);
+  };
+
+  const isPanningRef = React.useRef(false);
   const didDragRef = React.useRef(false);
 
   const [hoveredId, setHoveredId] = React.useState<string | null>(null);
@@ -513,8 +647,12 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
         return;
       }
 
+      if (!isPanningRef.current) {
+        isPanningRef.current = true;
+        viewportRef.current?.classList.add(styles.panning);
+        setHoveredId(null);
+      }
       didDragRef.current = true;
-      setIsPanning(true);
       setView((prev) => ({
         ...prev,
         x: start.viewX + dx,
@@ -523,7 +661,8 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
     };
 
     const handleUp = () => {
-      setIsPanning(false);
+      isPanningRef.current = false;
+      viewportRef.current?.classList.remove(styles.panning);
       window.removeEventListener('pointermove', handleMove);
       window.removeEventListener('pointerup', handleUp);
     };
@@ -543,14 +682,11 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
     }
   };
 
-  const handleHover = React.useCallback(
-    (id: string | null) => {
-      if (!isPanning) {
-        setHoveredId(id);
-      }
-    },
-    [isPanning]
-  );
+  const handleHover = React.useCallback((id: string | null) => {
+    if (!isPanningRef.current) {
+      setHoveredId(id);
+    }
+  }, []);
 
   const handleSelect = React.useCallback((id: string) => {
     if (!didDragRef.current) {
@@ -660,18 +796,8 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
     [graph, focusId]
   );
 
-  const getNodeState = (id: string): NodeStateT => {
-    if (id === focusId) {
-      return 'focus';
-    }
-    if (chain) {
-      return chain.has(id) ? 'chain' : 'dim';
-    }
-    if (matchSet && !matchSet.has(id)) {
-      return 'dim';
-    }
-    return 'idle';
-  };
+  const getNodeState = (id: string): NodeStateT =>
+    id === focusId ? 'focus' : chain?.has(id) ? 'chain' : 'idle';
 
   const edgePaths = React.useMemo(
     () =>
@@ -693,17 +819,51 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
             from,
             to,
             d: `M${x1} ${y1} C${x1 + dx} ${y1} ${x2 - dx} ${y2} ${x2} ${y2}`,
+            box: {
+              x0: x1,
+              x1: x2,
+              y0: Math.min(y1, y2),
+              y1: Math.max(y1, y2),
+            },
           };
         })
-        .filter(Boolean) as { from: string; to: string; d: string }[],
+        .filter(Boolean) as EdgePathI[],
     [graph, layout]
   );
 
-  const lod = getLod(view.k);
-  const selectedNode = selectedId ? graph.nodes.get(selectedId) : null;
+  // only what's near the view is in the DOM
+  const culledIds = React.useMemo(
+    () =>
+      cull
+        ? visibleIds.filter((id) => {
+            const { x, y } = layout.positions.get(id)!;
+            return intersects(
+              {
+                x0: x,
+                y0: y,
+                x1: x + GRAPH_NODE_WIDTH,
+                y1: y + GRAPH_NODE_HEIGHT,
+              },
+              cull
+            );
+          })
+        : [],
+    [visibleIds, layout, cull]
+  );
+  const culledEdges = React.useMemo(
+    () => (cull ? edgePaths.filter(({ box }) => intersects(box, cull)) : []),
+    [edgePaths, cull]
+  );
+  // the highlighted chain, drawn again on top of the rest
+  const activeEdges = React.useMemo(
+    () =>
+      chain
+        ? edgePaths.filter(({ from, to }) => chain.has(from) && chain.has(to))
+        : [],
+    [edgePaths, chain]
+  );
 
-  // the dot grid moves and scales with the canvas, and fades when too dense
-  const gridSize = 24 * view.k;
+  const selectedNode = selectedId ? graph.nodes.get(selectedId) : null;
 
   const toolbar = (
     <div
@@ -848,7 +1008,7 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
           onClick={resetZoom}
           title="Zoom to 100% (Shift+0)"
         >
-          {Math.round(view.k * 100)}%
+          <span ref={zoomLabelRef} />
         </button>
         <button
           className={styles.zoomStep}
@@ -897,12 +1057,7 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
   return (
     <div
       ref={viewportRef}
-      className={`${styles.viewport} ${isPanning ? styles.panning : ''}`}
-      style={{
-        backgroundSize: `${gridSize}px ${gridSize}px`,
-        backgroundPosition: `${view.x}px ${view.y}px`,
-        backgroundImage: gridSize < 10 ? 'none' : undefined,
-      }}
+      className={styles.viewport}
       onPointerDown={handlePointerDown}
       onClick={handleCanvasClick}
     >
@@ -918,23 +1073,24 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
         </div>
       ) : (
         <div
-          className={`${styles.canvas} ${isAnimated ? styles.animated : ''}`}
+          ref={canvasRef}
+          className={[
+            styles.canvas,
+            chain ? styles.hasChain : matchSet ? styles.hasMatches : '',
+          ].join(' ')}
           data-lod={lod}
-          style={{
-            transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})`,
-          }}
         >
           {layout.columns.map(({ depth, x }) => (
             <div
               key={depth}
               className={styles.columnLabel}
               style={{
-                transform: `translate(${x}px, 0) scale(${
-                  1 / view.k
-                }) translateY(-100%)`,
+                transform: `translate(${x}px, 0) scale(calc(1 / var(--k))) translateY(-100%)`,
                 // screen pixels, so zoomed out it shortens instead of
                 // running into the next column's label
-                maxWidth: (GRAPH_NODE_WIDTH + GRAPH_COLUMN_GAP - 12) * view.k,
+                maxWidth: `calc(${
+                  GRAPH_NODE_WIDTH + GRAPH_COLUMN_GAP - 12
+                }px * var(--k))`,
               }}
             >
               <span className={styles.columnName}>{getColumnLabel(depth)}</span>
@@ -949,33 +1105,14 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
             width={Math.max(layout.width, 1)}
             height={Math.max(layout.height, 1)}
           >
-            {/* the highlighted chain draws last, on top */}
-            {[...edgePaths]
-              .sort(
-                (a, b) =>
-                  Number(!!chain?.has(a.from) && chain.has(a.to)) -
-                  Number(!!chain?.has(b.from) && chain.has(b.to))
-              )
-              .map(({ from, to, d }) => {
-                const isActive = !!chain?.has(from) && chain.has(to);
-                return (
-                  <path
-                    key={`${from}>${to}`}
-                    d={d}
-                    vectorEffect="non-scaling-stroke"
-                    className={[
-                      styles.edge,
-                      isActive ? styles.activeEdge : '',
-                      (chain && !isActive) || (!chain && matchSet)
-                        ? styles.dimEdge
-                        : '',
-                    ].join(' ')}
-                  />
-                );
-              })}
+            <EdgePaths edges={culledEdges} className={styles.edge} />
+            <EdgePaths
+              edges={activeEdges}
+              className={`${styles.edge} ${styles.activeEdge}`}
+            />
           </svg>
 
-          {visibleIds.map((id) => {
+          {culledIds.map((id) => {
             const position = layout.positions.get(id)!;
             return (
               <GraphNode

@@ -30,10 +30,6 @@
   will-change: transform;
 }
 
-.animated {
-  transition: transform 0.25s ease-out;
-}
-
 .empty {
   display: flex;
   align-items: center;
@@ -80,16 +76,11 @@
   fill: none;
   stroke: var(--figma-color-border-strong);
   stroke-width: 1;
-  transition: opacity 0.12s ease-out;
 }
 
 .activeEdge {
   stroke: var(--figma-color-border-selected);
   stroke-width: 2;
-}
-
-.dimEdge {
-  opacity: 0.25;
 }
 
 // a token card: swatch or type letter, name, value
@@ -108,7 +99,6 @@
   background-color: var(--figma-color-bg);
   border: 1px solid var(--figma-color-border);
   cursor: pointer;
-  transition: opacity 0.12s ease-out, border-color 0.12s ease-out;
 
   &:hover {
     border-color: var(--figma-color-border-strong);
@@ -126,8 +116,17 @@
   border-color: var(--figma-color-border-selected);
 }
 
-.dim {
+// A hovered or picked token dims everything off its chain; a search,
+// everything that doesn't match. Set on the canvas, so only the cards
+// that change state re-render
+.hasChain .node:not(.focus):not(.chain),
+.hasMatches .node:not(.match) {
   opacity: 0.3;
+}
+
+.hasChain .edge:not(.activeEdge),
+.hasMatches .edge {
+  opacity: 0.25;
 }
 
 .match {
@@ -154,8 +153,7 @@
 
 // the color over a checkerboard, so transparency shows
 .swatch {
-  background:
-    linear-gradient(var(--swatch), var(--swatch)),
+  background: linear-gradient(var(--swatch), var(--swatch)),
     repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 8px 8px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
@@ -244,7 +242,8 @@
     box-shadow: 0 0 0 10px var(--figma-color-border-selected);
   }
 
-  .dim {
+  &.hasChain .node:not(.focus):not(.chain),
+  &.hasMatches .node:not(.match) {
     opacity: 0.15;
   }
 }
