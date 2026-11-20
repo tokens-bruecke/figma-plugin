@@ -11,11 +11,12 @@ If you want to see the generated JSON, you can enable the `Show output` option. 
 
 - Syntax highlighting that matches the Figma theme
 - Line numbers and code folding for collapsing groups
+- `Collapse all` and `Expand all` buttons. `Collapse all` keeps the root open and folds each top-level key (a collection, or a `Collection/Mode` key with `Split modes`), so the JSON reads like an index. `Expand all` opens every fold. A button is disabled when it would change nothing: `Collapse all` while the index already shows, `Expand all` while nothing is folded
 - Search with match highlighting
 - A `Copy` button to copy the whole JSON to the clipboard
 - A stats bar showing the number of tokens, groups, lines, and the file size
 
-The output doesn't update automatically, in order to optimize the performance. So, if you want to see the updated JSON, you need to click the `Update` button.
+The output doesn't update automatically, in order to optimize the performance. So, if you want to see the updated JSON, you need to click the `Update` button. When the update changes the JSON, all folded groups open again. Otherwise they stay folded.
 
 <Screenshot name="overview" alt="The code preview next to the settings" />
 
