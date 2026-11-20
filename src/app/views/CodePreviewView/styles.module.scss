@@ -43,6 +43,8 @@
   left: 0;
   right: 0;
   bottom: 20px;
+  // keeps the pills off the edges of the pane
+  padding: 0 12px;
   opacity: 0;
   transform: translateY(10px);
 
@@ -64,8 +66,36 @@
     display: none;
   }
 
-  .previewToolbarSecondButton {
+  .previewToolbarSecondButton,
+  .previewToolbarFilter {
     margin-right: 0;
+  }
+}
+
+// The All / To push switch takes about 100px more, so while it shows the
+// meta goes earlier, and on the narrowest panes Update keeps only its icon
+@container (max-width: 600px) {
+  .hasFilter .previewToolbarStat:not(:last-child) {
+    display: none;
+  }
+}
+
+@container (max-width: 360px) {
+  .hasFilter {
+    .previewToolbarStat {
+      display: none;
+    }
+
+    .previewToolbarSecondButton,
+    .previewToolbarFilter {
+      margin-right: 0;
+    }
+  }
+}
+
+@container (max-width: 270px) {
+  .hasFilter .previewToolbarButton span {
+    display: none;
   }
 }
 
@@ -124,8 +154,26 @@
   background-color: var(--figma-color-bg);
 }
 
-.previewToolbarSecondButton {
+// a backstop between the breakpoints: a stat gives way, cut with an ellipsis,
+// instead of the toolbar spilling over the edges
+.previewToolbarStat {
+  flex-shrink: 1;
+  min-width: 0;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.previewToolbarSecondButton,
+.previewToolbarFilter {
   margin-right: 10px;
+}
+
+// All / To push (react-figma-ui's SegmentedControl) keeps its width
+.previewToolbarFilter {
+  flex-shrink: 0;
 }
 
 .widthResizer {

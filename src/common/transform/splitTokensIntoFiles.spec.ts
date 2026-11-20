@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { getSplitOptions, splitTokensIntoFiles } from './splitTokensIntoFiles';
+import {
+  filterExcludedCollections,
+  getSplitOptions,
+  splitTokensIntoFiles,
+} from './splitTokensIntoFiles';
 
 const tokens = {
   Colors: { red: { $value: '#f00' } },
@@ -187,5 +191,50 @@ describe('getSplitOptions', () => {
     expect(
       getSplitOptions({ ...config, splitByCollection: false })
     ).not.toHaveProperty('excludedCollections');
+  });
+});
+
+describe('filterExcludedCollections', () => {
+  it('keeps the same keys a split push writes', () => {
+    const options = {
+      splitByCollection: true,
+      excludedCollections: ['Spacing'],
+    };
+    const filtered = filterExcludedCollections(tokens, options);
+
+    expect(filtered).toEqual({ Colors: tokens.Colors });
+    // the files of the filtered tokens are the files of the push
+    expect(splitTokensIntoFiles(filtered, options, 'tokens')).toEqual(
+      splitTokensIntoFiles(tokens, options, 'tokens')
+    );
+  });
+
+  it('drops every mode key of an excluded collection', () => {
+    expect(
+      filterExcludedCollections(
+        { ...byMode, Spacing: tokens.Spacing },
+        { splitByMode: true, excludedCollections: ['Colors'] }
+      )
+    ).toEqual({ Spacing: tokens.Spacing });
+  });
+
+  it('matches collections by their Figma name', () => {
+    expect(
+      Object.keys(
+        filterExcludedCollections(
+          { '1- Primitives': {}, Spacing: tokens.Spacing },
+          { splitByCollection: true, excludedCollections: ['1. Primitives'] }
+        )
+      )
+    ).toEqual(['Spacing']);
+  });
+
+  it('returns the tokens as they are when nothing is split or excluded', () => {
+    expect(
+      filterExcludedCollections(tokens, { excludedCollections: ['Spacing'] })
+    ).toBe(tokens);
+    expect(filterExcludedCollections(tokens, { splitByCollection: true })).toBe(
+      tokens
+    );
   });
 });
