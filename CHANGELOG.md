@@ -1,3 +1,17 @@
+## [3.31.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.30.0...v3.31.0) (2026-11-20)
+
+### Features
+
+- Graph tab with a zoomable token alias graph ([c2e827c](https://github.com/tokens-bruecke/figma-plugin/commit/c2e827c6886ad87a86735a401863ff8972742b80))
+
+### Bug Fixes
+
+- zoom to fit leaves room for the output's Update bar ([88dba5a](https://github.com/tokens-bruecke/figma-plugin/commit/88dba5a15f62cacb1e00f490b2075b2932360029))
+
+### Performance Improvements
+
+- pan, zoom and hover the graph without re-rendering every card ([22e8ffe](https://github.com/tokens-bruecke/figma-plugin/commit/22e8ffef9cdf8a591c9af9b9658d6dbc3e69d0dc))
+
 ## [3.30.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.29.0...v3.30.0) (2026-11-20)
 
 ### Features
