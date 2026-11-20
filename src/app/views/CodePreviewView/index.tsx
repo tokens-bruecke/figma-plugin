@@ -10,7 +10,7 @@ import {
 import { JsonViewer } from '@app/components/JsonViewer';
 import { track } from '@app/api/analytics';
 
-import { Text, Icon, PanelHeader } from 'react-figma-ui/ui';
+import { Text, Icon, PanelHeader, SegmentedControl } from 'react-figma-ui/ui';
 
 /** Set while a Git push leaves some collections out */
 export interface PushSelectionI {
@@ -150,7 +150,11 @@ export const CodePreviewView = ({
         <PanelHeader title="Output" isActive hasBackButton onClick={onClose} />
       )}
 
-      <section className={styles.previewToolbar}>
+      <section
+        className={`${styles.previewToolbar} ${
+          pushSelection ? styles.hasFilter : ''
+        }`}
+      >
         <button
           className={`${styles.toolbarItem} ${styles.previewToolbarButton} ${
             isUpdateButtonAnimated ? styles.successUpdateAnimation : ''
@@ -170,32 +174,24 @@ export const CodePreviewView = ({
 
         {/* Only while a Git push leaves collections out */}
         {pushSelection && (
-          <div
-            className={`${styles.toolbarItem} ${styles.previewToolbarFilter}`}
-            role="radiogroup"
+          <SegmentedControl
+            className={styles.previewToolbarFilter}
             aria-label="Collections shown"
-          >
-            <button
-              role="radio"
-              aria-checked={!isPushedOnly}
-              className={!isPushedOnly ? styles.filterOptionActive : ''}
-              onClick={() => setIsPushedOnly(false)}
-              title="Show the whole export, as Download JSON saves it"
-            >
-              <Text>All</Text>
-            </button>
-            <button
-              role="radio"
-              aria-checked={isPushedOnly}
-              className={isPushedOnly ? styles.filterOptionActive : ''}
-              onClick={() => setIsPushedOnly(true)}
-              title={`Show only the ${pushSelection.pushedCount} of ${pushSelection.totalCount} collections a push commits`}
-            >
-              <Text>
-                To push {pushSelection.pushedCount}/{pushSelection.totalCount}
-              </Text>
-            </button>
-          </div>
+            value={isPushedOnly ? 'push' : 'all'}
+            onChange={(value) => setIsPushedOnly(value === 'push')}
+            options={[
+              {
+                value: 'all',
+                label: 'All',
+                title: 'Show the whole export, as Download JSON saves it',
+              },
+              {
+                value: 'push',
+                label: `To push ${pushSelection.pushedCount}/${pushSelection.totalCount}`,
+                title: `Show only the ${pushSelection.pushedCount} of ${pushSelection.totalCount} collections a push commits`,
+              },
+            ]}
+          />
         )}
 
         <div className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}>
