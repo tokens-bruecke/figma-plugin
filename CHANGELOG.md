@@ -1,3 +1,11 @@
+## [3.30.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.29.0...v3.30.0) (2026-11-20)
+
+### Features
+
+- **plugin:** All / To push as react-figma-ui's SegmentedControl ([4036c0c](https://github.com/tokens-bruecke/figma-plugin/commit/4036c0c89174c6c626cdea021ca4905045c19fcf))
+- **plugin:** collapse all / expand all in the Output preview ([1200296](https://github.com/tokens-bruecke/figma-plugin/commit/1200296bb039592c4752157cc77db3721895d96f)), closes [#160](https://github.com/tokens-bruecke/figma-plugin/issues/160)
+- **plugin:** show only the collections a push commits in the Output preview ([425753c](https://github.com/tokens-bruecke/figma-plugin/commit/425753c5ac56aede74a7e93b24eb1d2d258710d0)), closes [#160](https://github.com/tokens-bruecke/figma-plugin/issues/160)
+
 ## [3.29.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.28.0...v3.29.0) (2026-11-19)
 
 ### Features
