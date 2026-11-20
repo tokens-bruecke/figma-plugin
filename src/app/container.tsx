@@ -6,7 +6,7 @@ import { LoadingView } from './views/LoadingView';
 import { EmptyView } from './views/EmptyView';
 import { SettingsView } from './views/SettingsView';
 
-import { CodePreviewView } from './views/CodePreviewView';
+import { CodePreviewView, PushSelectionI } from './views/CodePreviewView';
 import { Toast, ToastRefI } from './components/Toast';
 import { COMPOSED_COLOR_ISSUE_URL } from '@common/transform/tokensToVariables';
 import { importTokensFile } from './api/importTokensFile';
@@ -44,6 +44,10 @@ const Container = () => {
   const toastRef = React.useRef<ToastRefI>(null);
 
   const [generatedTokens, setGeneratedTokens] = useState({});
+  // Set by the settings while a Git push leaves collections out
+  const [pushSelection, setPushSelection] = useState<PushSelectionI | null>(
+    null
+  );
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -623,6 +627,7 @@ const Container = () => {
         isCodePreviewOpen={isCodePreviewOpen}
         setIsCodePreviewOpen={setIsCodePreviewOpen}
         setGeneratedTokens={setGeneratedTokens}
+        onPushSelectionChange={setPushSelection}
         currentView={currentView}
         frameHeight={frameHeight}
         onResizeHeight={handleResizeHeight}
@@ -663,6 +668,7 @@ const Container = () => {
         {isCodePreviewOpen && (
           <CodePreviewView
             generatedTokens={generatedTokens}
+            pushSelection={pushSelection}
             onClose={isPanel ? () => setIsCodePreviewOpen(false) : undefined}
           />
         )}

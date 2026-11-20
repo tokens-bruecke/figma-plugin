@@ -91,6 +91,40 @@ const splitModeKey = (
 };
 
 /**
+ * The tokens without the top-level keys of the excluded collections: the
+ * same keys `splitTokensIntoFiles` leaves out, so the Output preview can
+ * show what a push commits. With `splitByMode` a key is "Collection/Mode".
+ * Nothing is removed when nothing is split.
+ */
+export const filterExcludedCollections = (
+  tokens: Record<string, any>,
+  {
+    splitByCollection = false,
+    splitByMode = false,
+    excludedCollections = [],
+  }: SplitOptionsI = {}
+): Record<string, any> => {
+  if ((!splitByCollection && !splitByMode) || !excludedCollections.length) {
+    return tokens;
+  }
+
+  // The keys use the token names of the collections
+  const excluded = new Set(excludedCollections.map(toTokenName));
+
+  return Object.keys(tokens).reduce<Record<string, any>>((result, key) => {
+    const collectionName = splitByMode
+      ? splitModeKey(key, tokens[key])[0]
+      : key;
+
+    if (!excluded.has(collectionName)) {
+      result[key] = tokens[key];
+    }
+
+    return result;
+  }, {});
+};
+
+/**
  * Turns the generated tokens object into the list of files that should be
  * written, downloaded or committed.
  *
@@ -125,21 +159,22 @@ export const splitTokensIntoFiles = (
     ? target.replace(/\/+$/g, '')
     : toFolder(target).replace(/^\/+/, '');
 
-  // The keys use the token names of the collections
-  const excluded = new Set(excludedCollections.map(toTokenName));
+  const pushed = filterExcludedCollections(tokens, {
+    splitByCollection,
+    splitByMode,
+    excludedCollections,
+  });
 
   if (splitByMode) {
     // Keys are "CollectionName/ModeName" — write as {CollectionName}/{ModeName}.tokens.json
-    return Object.keys(tokens).flatMap((key) => {
-      const [collectionName, modeName] = splitModeKey(key, tokens[key]);
-
-      if (excluded.has(collectionName)) return [];
+    return Object.keys(pushed).flatMap((key) => {
+      const [collectionName, modeName] = splitModeKey(key, pushed[key]);
 
       if (modeName === undefined) {
         return [
           {
             path: joinPath(folder, `${safeName(key)}.tokens.json`),
-            content: stringify({ [key]: tokens[key] }),
+            content: stringify({ [key]: pushed[key] }),
           },
         ];
       }
@@ -151,18 +186,16 @@ export const splitTokensIntoFiles = (
             safeName(collectionName),
             `${safeName(modeName)}.tokens.json`
           ),
-          content: stringify({ [collectionName]: tokens[key] }),
+          content: stringify({ [collectionName]: pushed[key] }),
         },
       ];
     });
   }
 
-  return Object.keys(tokens)
-    .filter((collectionName) => !excluded.has(collectionName))
-    .map((collectionName) => ({
-      path: joinPath(folder, `${safeName(collectionName)}.tokens.json`),
-      content: stringify({ [collectionName]: tokens[collectionName] }),
-    }));
+  return Object.keys(pushed).map((collectionName) => ({
+    path: joinPath(folder, `${safeName(collectionName)}.tokens.json`),
+    content: stringify({ [collectionName]: pushed[collectionName] }),
+  }));
 };
 
 /**

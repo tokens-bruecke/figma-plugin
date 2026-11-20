@@ -3,13 +3,25 @@ import React from 'react';
 import styles from './styles.module.scss';
 
 import { getTokensStat } from '@common/transform/getTokensStat';
+import {
+  filterExcludedCollections,
+  SplitOptionsI,
+} from '@common/transform/splitTokensIntoFiles';
 import { JsonViewer } from '@app/components/JsonViewer';
 import { track } from '@app/api/analytics';
 
 import { Text, Icon, PanelHeader } from 'react-figma-ui/ui';
 
+/** Set while a Git push leaves some collections out */
+export interface PushSelectionI {
+  splitOptions: SplitOptionsI;
+  pushedCount: number;
+  totalCount: number;
+}
+
 interface CodePreviewViewProps {
   generatedTokens: any;
+  pushSelection?: PushSelectionI | null;
   /** Set in Dev Mode, where the preview fills the panel and needs a way back */
   onClose?: () => void;
 }
@@ -18,8 +30,20 @@ const copy = require('clipboard-copy');
 
 export const CodePreviewView = ({
   generatedTokens,
+  pushSelection = null,
   onClose,
 }: CodePreviewViewProps) => {
+  // All by default: Download JSON and the other servers export everything
+  const [isPushedOnly, setIsPushedOnly] = React.useState<boolean>(false);
+  const isFiltered = !!pushSelection && isPushedOnly;
+  // What the preview shows, copies and counts
+  const shownTokens = React.useMemo(
+    () =>
+      isFiltered && generatedTokens
+        ? filterExcludedCollections(generatedTokens, pushSelection.splitOptions)
+        : generatedTokens,
+    [generatedTokens, isFiltered, pushSelection]
+  );
   const isPanel = !!onClose;
   const [isUpdateButtonAnimated, setIsUpdateButtonAnimated] =
     React.useState<boolean>(false);
@@ -97,7 +121,7 @@ export const CodePreviewView = ({
   const copyCode = () => {
     track('/copy');
     // copy code to clipboard
-    copy(JSON.stringify(generatedTokens, null, 2));
+    copy(JSON.stringify(shownTokens, null, 2));
     setIsCodeCopied(true);
 
     // stop animation
@@ -107,10 +131,10 @@ export const CodePreviewView = ({
   };
 
   React.useEffect(() => {
-    if (generatedTokens) {
-      setTokensStat(getTokensStat(generatedTokens));
+    if (shownTokens) {
+      setTokensStat(getTokensStat(shownTokens));
     }
-  }, [generatedTokens]);
+  }, [shownTokens]);
 
   if (!tokensStat || !generatedTokens) {
     return null;
@@ -144,6 +168,36 @@ export const CodePreviewView = ({
           <Text>{isCodeCopied ? 'Copied!' : 'Copy'}</Text>
         </button>
 
+        {/* Only while a Git push leaves collections out */}
+        {pushSelection && (
+          <div
+            className={`${styles.toolbarItem} ${styles.previewToolbarFilter}`}
+            role="radiogroup"
+            aria-label="Collections shown"
+          >
+            <button
+              role="radio"
+              aria-checked={!isPushedOnly}
+              className={!isPushedOnly ? styles.filterOptionActive : ''}
+              onClick={() => setIsPushedOnly(false)}
+              title="Show the whole export, as Download JSON saves it"
+            >
+              <Text>All</Text>
+            </button>
+            <button
+              role="radio"
+              aria-checked={isPushedOnly}
+              className={isPushedOnly ? styles.filterOptionActive : ''}
+              onClick={() => setIsPushedOnly(true)}
+              title={`Show only the ${pushSelection.pushedCount} of ${pushSelection.totalCount} collections a push commits`}
+            >
+              <Text>
+                To push {pushSelection.pushedCount}/{pushSelection.totalCount}
+              </Text>
+            </button>
+          </div>
+        )}
+
         <div className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}>
           <Text>
             {tokensStat.tokensCount} tokens, {tokensStat.groupsCount} groups,{' '}
@@ -157,7 +211,7 @@ export const CodePreviewView = ({
       </section>
 
       <div className={styles.viewer}>
-        <JsonViewer code={JSON.stringify(generatedTokens, null, 2)} />
+        <JsonViewer code={JSON.stringify(shownTokens, null, 2)} />
       </div>
 
       {!isPanel && (

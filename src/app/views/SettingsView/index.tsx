@@ -47,6 +47,7 @@ import {
 
 import { downloadTokensFile } from '@app/api/downloadTokensFile';
 import { getSplitOptions } from '@common/transform/splitTokensIntoFiles';
+import type { PushSelectionI } from '@app/views/CodePreviewView';
 import { track } from '@app/api/analytics';
 import { isPanelLayout, usePluginEnvironment } from '@app/pluginEnvironment';
 
@@ -70,6 +71,8 @@ interface ViewProps {
   isCodePreviewOpen: boolean;
   setIsCodePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setGeneratedTokens: React.Dispatch<React.SetStateAction<object>>;
+  /** Tells the Output preview which collections a push leaves out */
+  onPushSelectionChange?: (selection: PushSelectionI | null) => void;
   currentView: string;
   frameHeight: number;
   onResizeHeight: (height: number) => void;
@@ -183,6 +186,7 @@ export const SettingsView = (props: ViewProps) => {
     isCodePreviewOpen,
     setIsCodePreviewOpen,
     setGeneratedTokens,
+    onPushSelectionChange,
     currentView,
     setCurrentView,
     multiTenantConfig,
@@ -720,6 +724,32 @@ export const SettingsView = (props: ViewProps) => {
   const pushLabel = isPartialPush
     ? `Push ${pushedCollections.length} of ${variableCollections.length} collections`
     : 'Push to server';
+
+  // The Output preview can then show only what a push commits. A string key,
+  // so the effect runs when the selection changes, not on every render
+  const pushSelectionKey = isPartialPush
+    ? JSON.stringify([
+        getSplitOptions(JSONsettingsConfig),
+        pushedCollections.length,
+        variableCollections.length,
+      ])
+    : '';
+
+  useEffect(() => {
+    if (!onPushSelectionChange) return;
+
+    if (!pushSelectionKey) {
+      onPushSelectionChange(null);
+      return;
+    }
+
+    const [splitOptions, pushedCount, totalCount] =
+      JSON.parse(pushSelectionKey);
+    onPushSelectionChange({ splitOptions, pushedCount, totalCount });
+  }, [pushSelectionKey]);
+
+  // Without the settings there's no selection to follow
+  useEffect(() => () => onPushSelectionChange?.(null), []);
 
   // A pull-only server is offered too: its form then turns pushing on
   const dynamicServerList = serverList.filter(

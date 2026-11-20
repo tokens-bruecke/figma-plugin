@@ -64,7 +64,8 @@
     display: none;
   }
 
-  .previewToolbarSecondButton {
+  .previewToolbarSecondButton,
+  .previewToolbarFilter {
     margin-right: 0;
   }
 }
@@ -124,8 +125,44 @@
   background-color: var(--figma-color-bg);
 }
 
-.previewToolbarSecondButton {
+.previewToolbarSecondButton,
+.previewToolbarFilter {
   margin-right: 10px;
+}
+
+// All / To push: a two-option switch, the active option filled
+.previewToolbarFilter {
+  gap: 2px;
+  padding: 2px;
+  background-color: var(--figma-color-bg);
+
+  button {
+    display: flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 6px;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-4, 4px);
+    cursor: pointer;
+
+    span {
+      color: var(--figma-color-text-secondary);
+    }
+
+    &:hover:not(.filterOptionActive) {
+      background-color: var(--figma-color-bg-hover);
+    }
+  }
+
+  .filterOptionActive {
+    background-color: var(--figma-color-bg-selected);
+    cursor: default;
+
+    span {
+      color: var(--figma-color-text);
+    }
+  }
 }
 
 .widthResizer {
