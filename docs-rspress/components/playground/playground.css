@@ -46,8 +46,27 @@
   cursor: pointer;
   white-space: nowrap;
 }
+/* Drawn by hand: with accent-color the browser picks a dark tick on the
+   light brand blue */
 .tb-pg-toggle input {
-  accent-color: var(--rp-c-brand);
+  appearance: none;
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  border: 1px solid var(--rp-c-divider);
+  border-radius: 4px;
+  background: var(--rp-c-bg) center / 0.75rem no-repeat;
+  cursor: pointer;
+}
+.tb-pg-toggle input:checked {
+  border-color: var(--rp-c-brand-dark);
+  background-color: var(--rp-c-brand-dark);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 6.2 5 8.5l4.5-5'/%3E%3C/svg%3E");
+}
+.tb-pg-toggle input:focus-visible {
+  outline: 2px solid var(--rp-c-brand);
+  outline-offset: 2px;
 }
 
 .tb-pg-panes {
