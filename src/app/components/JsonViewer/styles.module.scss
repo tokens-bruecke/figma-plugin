@@ -3,13 +3,25 @@
   height: 100%;
 }
 
-.searchBar {
+// the fold buttons and the search, each in its own box
+.toolbar {
   display: flex;
   align-items: center;
+  gap: 4px;
   position: absolute;
   top: 8px;
   right: 12px;
   z-index: 10;
+}
+
+// a bit of air between Collapse all and Expand all
+.foldBox {
+  gap: 4px;
+}
+
+.toolbarBox {
+  display: flex;
+  align-items: center;
   padding: 4px;
   border-radius: var(--border-radius-6);
   background-color: var(--figma-color-bg);
@@ -38,6 +50,8 @@
     justify-content: center;
     width: 20px;
     height: 20px;
+    // the default side padding would squeeze a 16px icon
+    padding: 0;
     font-size: 11px;
     color: var(--figma-color-icon);
     background: none;
