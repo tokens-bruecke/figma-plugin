@@ -1,0 +1,44 @@
+/* Accent taken from the plugin's own brand blue (--figma-color-bg-brand) */
+:root {
+  --rp-c-brand: #0d99ff;
+  --rp-c-brand-light: #3dadff;
+  --rp-c-brand-lighter: #bde3ff;
+  --rp-c-brand-dark: #007be5;
+  --rp-c-brand-darker: #004fa8;
+  --rp-c-brand-tint: #0d99ff29;
+}
+
+/* Screenshots come in a light and a dark copy */
+.tb-screenshot {
+  margin-block: 1.5rem;
+}
+.tb-screenshot img {
+  vertical-align: top;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--rp-c-divider-light);
+}
+html.rp-dark .tb-light,
+html:not(.rp-dark) .tb-dark {
+  display: none;
+}
+
+/* The hero screenshot is wide; let it take its room */
+.rp-home-hero__image img,
+[class*='hero'] img[src*='/screenshots/'] {
+  border-radius: 0.75rem;
+  border: 1px solid var(--rp-c-divider-light);
+}
+
+/* "How to use" after the features on the home page */
+.tb-home {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 4rem;
+}
+.tb-home a {
+  color: var(--rp-c-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

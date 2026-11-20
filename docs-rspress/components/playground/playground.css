@@ -1,0 +1,205 @@
+.tb-pg {
+  --tb-pg-height: min(68vh, 640px);
+  margin-block: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.tb-pg button,
+.tb-pg select {
+  font: inherit;
+  color: var(--rp-c-text-1);
+  background: var(--rp-c-bg-soft);
+  border: 1px solid var(--rp-c-divider-light);
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+}
+.tb-pg button:hover:not(:disabled) {
+  border-color: var(--rp-c-brand);
+}
+.tb-pg button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.tb-pg-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--rp-c-divider-light);
+  border-radius: 0.75rem;
+  background: var(--rp-c-bg-soft);
+}
+.tb-pg-select {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-weight: 600;
+}
+.tb-pg-toggle {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tb-pg-toggle input {
+  accent-color: var(--rp-c-brand);
+}
+
+.tb-pg-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+@media (max-width: 900px) {
+  .tb-pg-panes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.tb-pg-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--rp-c-divider-light);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--rp-c-bg);
+}
+.tb-pg-pane > header,
+.tb-pg-pane > footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--rp-c-bg-soft);
+}
+.tb-pg-pane > header {
+  border-bottom: 1px solid var(--rp-c-divider-light);
+}
+.tb-pg-pane > footer {
+  border-top: 1px solid var(--rp-c-divider-light);
+  color: var(--rp-c-text-2);
+  font-size: 0.8rem;
+  gap: 0.25rem 1rem;
+}
+.tb-pg-spacer {
+  flex: 1;
+}
+
+.tb-pg-tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+.tb-pg .tb-pg-tabs button {
+  border-color: transparent;
+  background: none;
+  font-weight: 600;
+  color: var(--rp-c-text-2);
+}
+.tb-pg .tb-pg-tabs button[aria-selected='true'] {
+  color: var(--rp-c-text-1);
+  background: var(--rp-c-bg);
+  border-color: var(--rp-c-divider-light);
+}
+
+.tb-pg-files {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--rp-c-divider-light);
+}
+.tb-pg .tb-pg-files button {
+  font-family: var(--rp-font-family-mono, monospace);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  background: none;
+}
+.tb-pg .tb-pg-files button[aria-pressed='true'] {
+  border-color: var(--rp-c-brand);
+  background: var(--rp-c-brand-tint);
+}
+
+.tb-pg textarea,
+.tb-pg-code {
+  height: var(--tb-pg-height);
+  margin: 0;
+  padding: 0.75rem 1rem;
+  font-family: var(--rp-font-family-mono, monospace);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  tab-size: 2;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--rp-c-text-1);
+}
+.tb-pg textarea {
+  width: 100%;
+  resize: none;
+  outline: none;
+}
+.tb-pg-code code {
+  font: inherit;
+  background: none;
+  padding: 0;
+  white-space: pre;
+}
+
+/* JSON colors, from the plugin's own preview */
+.tb-pg-code .tb-k {
+  color: #8250df;
+}
+.tb-pg-code .tb-s {
+  color: #0a7d3e;
+}
+.tb-pg-code .tb-r {
+  color: #007be5;
+  font-weight: 600;
+}
+.tb-pg-code .tb-n {
+  color: #c4520a;
+}
+.tb-pg-code .tb-b {
+  color: #cf222e;
+}
+html.rp-dark .tb-pg-code .tb-k {
+  color: #d2a8ff;
+}
+html.rp-dark .tb-pg-code .tb-s {
+  color: #7ee2a8;
+}
+html.rp-dark .tb-pg-code .tb-r {
+  color: #6cc2ff;
+}
+html.rp-dark .tb-pg-code .tb-n {
+  color: #ffa657;
+}
+html.rp-dark .tb-pg-code .tb-b {
+  color: #ff7b72;
+}
+
+.tb-pg-error {
+  height: var(--tb-pg-height);
+  padding: 1rem;
+  color: var(--rp-c-danger, #d93025);
+  white-space: pre-wrap;
+  font-family: var(--rp-font-family-mono, monospace);
+  font-size: 0.8rem;
+}
+
+.tb-pg-warnings summary {
+  cursor: pointer;
+  color: var(--rp-c-warning, #b26b00);
+}
+.tb-pg-warnings ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+}

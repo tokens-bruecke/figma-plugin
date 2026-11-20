@@ -1,0 +1,48 @@
+---
+pageType: home
+title: Figma variables to design tokens
+description: Export Figma variables and styles as DTCG 2025.10 design tokens — from the Figma plugin, the CLI or the library.
+hero:
+  name: TokensBrücke
+  tagline: Export Figma variables and styles as design tokens compatible with the DTCG 2025.10 specification, and import tokens back into Figma.
+  image:
+    src:
+      light: /screenshots/overview-light.webp
+      dark: /screenshots/overview-dark.webp
+    alt: The plugin with the code preview next to the settings
+  actions:
+    - text: Install the plugin
+      link: https://www.figma.com/community/plugin/1254538877056388290
+      theme: brand
+    - text: Try it in the browser
+      link: /playground
+      theme: alt
+    - text: Read the docs
+      link: /getting-started/export-and-import
+      theme: alt
+features:
+  - title: Figma plugin
+    icon: 🧩
+    details: Pick a color format, include styles, preview the output and download it or push it to GitHub, GitLab, JSONBin or your own server.
+    link: /plugin/settings
+  - title: CLI
+    icon: ⌨️
+    details: Export from the Figma REST API or a local snapshot in CI. Pure JSON on stdout for scripts and agents.
+    link: /cli/overview
+  - title: Library
+    icon: 📦
+    details: Call fetchTokens and convertTokens from your own build pipeline, with no child process and no files on disk.
+    link: /library
+  - title: Import
+    icon: ⬇️
+    details: Bring DTCG tokens back into Figma as variable collections, modes and aliases.
+    link: /getting-started/export-and-import#import-json--variables
+  - title: Shared profiles
+    icon: 👥
+    details: Share your export settings in the Figma file, so developers export with them, without your credentials.
+    link: /plugin/profiles#shared-profiles
+  - title: Dev Mode
+    icon: 🛠️
+    details: Let developers export tokens from Dev Mode and VS Code.
+    link: /plugin/dev-mode
+---
