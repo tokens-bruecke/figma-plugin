@@ -385,6 +385,39 @@ export const scenes = {
     },
   },
 
+  // The Graph tab, linked tokens only, with an alias and its chain picked
+  'output-graph': {
+    profiles: {
+      default: profile({ servers: only('github') }),
+    },
+    previewHeight: 640,
+    steps: async (page) => {
+      await page.getByText('Show output', { exact: true }).click();
+      await fitPreview(page);
+      await page.getByText('Graph', { exact: true }).click();
+      await page.getByTitle('Hide tokens that neither alias nor are aliased').click();
+      await page.waitForTimeout(400);
+      await page.locator('[data-node][title$="accent.default"]').click();
+    },
+  },
+
+  // The Graph tab zoomed out: every token a block of its own color
+  'output-graph-overview': {
+    profiles: {
+      default: profile({
+        includedStyles: styles(['text', 'effects']),
+        servers: only('github'),
+      }),
+    },
+    previewHeight: 640,
+    steps: async (page) => {
+      await page.getByText('Show output', { exact: true }).click();
+      await fitPreview(page);
+      await page.getByText('Graph', { exact: true }).click();
+      await page.getByTitle('Zoom to fit (Shift+1)').click();
+    },
+  },
+
   'dev-mode-output': {
     environment: { editorType: 'dev', mode: 'inspect', isVSCode: false },
     profiles: { default: profile({ servers: only('github') }) },
