@@ -8,9 +8,18 @@ import {
   SplitOptionsI,
 } from '@common/transform/splitTokensIntoFiles';
 import { JsonViewer } from '@app/components/JsonViewer';
+import { TokenGraph } from '@app/components/TokenGraph';
 import { track } from '@app/api/analytics';
 
-import { Text, Icon, PanelHeader, SegmentedControl } from 'react-figma-ui/ui';
+import {
+  Text,
+  Icon,
+  PanelHeader,
+  SegmentedControl,
+  Tabs,
+} from 'react-figma-ui/ui';
+
+type OutputTabT = 'json' | 'graph';
 
 /** Set while a Git push leaves some collections out */
 export interface PushSelectionI {
@@ -24,7 +33,46 @@ interface CodePreviewViewProps {
   pushSelection?: PushSelectionI | null;
   /** Set in Dev Mode, where the preview fills the panel and needs a way back */
   onClose?: () => void;
+  /** The export for this opening is still running: show a skeleton */
+  isLoading?: boolean;
 }
+
+// The JSON view's layout with square bars for text: same font, line
+// height and gutters. A fixed pattern of indents and widths, repeated
+const SKELETON_PATTERN: [indent: number, width: number][] = [
+  [1, 10],
+  [2, 14],
+  [3, 18],
+  [3, 12],
+  [3, 26],
+  [2, 16],
+  [3, 18],
+  [3, 10],
+  [3, 22],
+];
+const SKELETON_ROWS = Array.from({ length: 6 }, () => SKELETON_PATTERN).flat();
+
+const OutputSkeleton = () => (
+  <div className={styles.skeleton} role="status" aria-label="Exporting tokens">
+    {SKELETON_ROWS.map(([indent, width], index) => (
+      <div key={index} className={styles.skeletonRow}>
+        <span className={styles.skeletonNumber}>
+          <span className={styles.skeletonBar} style={{ width: '2ch' }} />
+        </span>
+        <span className={styles.skeletonFold} />
+        <span
+          className={styles.skeletonCode}
+          style={{ paddingLeft: `calc(6px + ${indent * 2}ch)` }}
+        >
+          <span
+            className={styles.skeletonBar}
+            style={{ width: `${width}ch` }}
+          />
+        </span>
+      </div>
+    ))}
+  </div>
+);
 
 const copy = require('clipboard-copy');
 
@@ -32,6 +80,7 @@ export const CodePreviewView = ({
   generatedTokens,
   pushSelection = null,
   onClose,
+  isLoading = false,
 }: CodePreviewViewProps) => {
   // All by default: Download JSON and the other servers export everything
   const [isPushedOnly, setIsPushedOnly] = React.useState<boolean>(false);
@@ -45,9 +94,13 @@ export const CodePreviewView = ({
     [generatedTokens, isFiltered, pushSelection]
   );
   const isPanel = !!onClose;
+  const [activeTab, setActiveTab] = React.useState<OutputTabT>('json');
+  // each view renders its own tools (fold, search, zoom) into the header
+  const [headerTools, setHeaderTools] = React.useState<HTMLDivElement | null>(
+    null
+  );
   const [isUpdateButtonAnimated, setIsUpdateButtonAnimated] =
     React.useState<boolean>(false);
-  const [tokensStat, setTokensStat] = React.useState<any>(null);
   const [isCodeCopied, setIsCodeCopied] = React.useState<boolean>(false);
   const isResizingRef = React.useRef(false);
 
@@ -130,15 +183,15 @@ export const CodePreviewView = ({
     }, 2000);
   };
 
-  React.useEffect(() => {
-    if (shownTokens) {
-      setTokensStat(getTokensStat(shownTokens));
-    }
-  }, [shownTokens]);
-
-  if (!tokensStat || !generatedTokens) {
-    return null;
-  }
+  // computed while rendering, so the pane shows on its first frame
+  const tokensStat = React.useMemo(
+    () => (shownTokens ? getTokensStat(shownTokens) : null),
+    [shownTokens]
+  );
+  const code = React.useMemo(
+    () => JSON.stringify(shownTokens, null, 2),
+    [shownTokens]
+  );
 
   return (
     <section
@@ -150,65 +203,98 @@ export const CodePreviewView = ({
         <PanelHeader title="Output" isActive hasBackButton onClick={onClose} />
       )}
 
-      <section
-        className={`${styles.previewToolbar} ${
-          pushSelection ? styles.hasFilter : ''
-        }`}
-      >
-        <button
-          className={`${styles.toolbarItem} ${styles.previewToolbarButton} ${
-            isUpdateButtonAnimated ? styles.successUpdateAnimation : ''
-          }`}
-          onClick={getTokensPreview}
-        >
-          <Icon name="refresh" size="16" />
-          <Text>Update</Text>
-        </button>
+      <header className={styles.tabsHeader}>
+        <Tabs
+          className={styles.tabs}
+          value={activeTab}
+          onChange={(value) => setActiveTab(value as OutputTabT)}
+          options={[
+            { value: 'json', label: 'JSON' },
+            { value: 'graph', label: 'Graph' },
+          ]}
+        />
+        <div ref={setHeaderTools} className={styles.headerTools} />
+      </header>
 
-        <button
-          className={`${styles.toolbarItem} ${styles.previewToolbarSecondButton}`}
-          onClick={copyCode}
-        >
-          <Text>{isCodeCopied ? 'Copied!' : 'Copy'}</Text>
-        </button>
+      {isLoading || !tokensStat ? (
+        <OutputSkeleton />
+      ) : (
+        <>
+          <section
+            className={`${styles.previewToolbar} ${
+              pushSelection ? styles.hasFilter : ''
+            }`}
+          >
+            <button
+              className={`${styles.toolbarItem} ${
+                styles.previewToolbarButton
+              } ${isUpdateButtonAnimated ? styles.successUpdateAnimation : ''}`}
+              onClick={getTokensPreview}
+            >
+              <Icon name="refresh" size="16" />
+              <Text>Update</Text>
+            </button>
 
-        {/* Only while a Git push leaves collections out */}
-        {pushSelection && (
-          <SegmentedControl
-            className={styles.previewToolbarFilter}
-            aria-label="Collections shown"
-            value={isPushedOnly ? 'push' : 'all'}
-            onChange={(value) => setIsPushedOnly(value === 'push')}
-            options={[
-              {
-                value: 'all',
-                label: 'All',
-                title: 'Show the whole export, as Download JSON saves it',
-              },
-              {
-                value: 'push',
-                label: `To push ${pushSelection.pushedCount}/${pushSelection.totalCount}`,
-                title: `Show only the ${pushSelection.pushedCount} of ${pushSelection.totalCount} collections a push commits`,
-              },
-            ]}
-          />
-        )}
+            <button
+              className={`${styles.toolbarItem} ${styles.previewToolbarSecondButton}`}
+              onClick={copyCode}
+            >
+              <Text>{isCodeCopied ? 'Copied!' : 'Copy'}</Text>
+            </button>
 
-        <div className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}>
-          <Text>
-            {tokensStat.tokensCount} tokens, {tokensStat.groupsCount} groups,{' '}
-            {tokensStat.codeLines} lines
-          </Text>
-        </div>
+            {/* Only while a Git push leaves collections out */}
+            {pushSelection && (
+              <SegmentedControl
+                className={styles.previewToolbarFilter}
+                aria-label="Collections shown"
+                value={isPushedOnly ? 'push' : 'all'}
+                onChange={(value) => setIsPushedOnly(value === 'push')}
+                options={[
+                  {
+                    value: 'all',
+                    label: 'All',
+                    title: 'Show the whole export, as Download JSON saves it',
+                  },
+                  {
+                    value: 'push',
+                    label: `To push ${pushSelection.pushedCount}/${pushSelection.totalCount}`,
+                    title: `Show only the ${pushSelection.pushedCount} of ${pushSelection.totalCount} collections a push commits`,
+                  },
+                ]}
+              />
+            )}
 
-        <div className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}>
-          <Text>{tokensStat.size / 1000} KB</Text>
-        </div>
-      </section>
+            <div
+              className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}
+            >
+              <Text>
+                {tokensStat.tokensCount} tokens, {tokensStat.groupsCount}{' '}
+                groups, {tokensStat.codeLines} lines
+              </Text>
+            </div>
 
-      <div className={styles.viewer}>
-        <JsonViewer code={JSON.stringify(shownTokens, null, 2)} />
-      </div>
+            <div
+              className={`${styles.toolbarItem} ${styles.previewToolbarStat}`}
+            >
+              <Text>{tokensStat.size / 1000} KB</Text>
+            </div>
+          </section>
+
+          {/* JSON stays mounted, so its folds and scroll survive a tab switch */}
+          <div className={styles.viewer} hidden={activeTab !== 'json'}>
+            <JsonViewer
+              code={code}
+              toolbarTarget={activeTab === 'json' ? headerTools : null}
+            />
+          </div>
+
+          {activeTab === 'graph' && (
+            <div className={styles.viewer}>
+              <TokenGraph tokens={shownTokens} toolbarTarget={headerTools} />
+            </div>
+          )}
+        </>
+      )}
 
       {!isPanel && (
         <div

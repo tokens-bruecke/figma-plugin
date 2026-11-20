@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 import { EditorState, EditorSelection, StateEffect } from '@codemirror/state';
 import {
@@ -37,6 +38,8 @@ import { collapseAllEffects, expandAllEffects, getFoldStatus } from './folding';
 
 interface JsonViewerProps {
   code: string;
+  /** Where the fold and search tools render, the output header. None while hidden */
+  toolbarTarget?: HTMLElement | null;
 }
 
 const figmaHighlightStyle = HighlightStyle.define([
@@ -142,7 +145,7 @@ const getMatches = (state: EditorState, query: string) => {
   return matches;
 };
 
-export const JsonViewer = ({ code }: JsonViewerProps) => {
+export const JsonViewer = ({ code, toolbarTarget }: JsonViewerProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const viewRef = React.useRef<EditorView | null>(null);
@@ -385,78 +388,89 @@ export const JsonViewer = ({ code }: JsonViewerProps) => {
     }
   };
 
-  return (
-    <div className={styles.jsonViewer}>
-      <div className={styles.toolbar}>
-        <div className={`${styles.toolbarBox} ${styles.foldBox}`}>
-          <button
-            onClick={collapseAll}
-            disabled={!foldStatus.canCollapse}
-            title="Collapse all"
-          >
-            <Icon name="collapse-all" size="16" />
-          </button>
-          <button
-            onClick={expandAll}
-            disabled={!foldStatus.canExpand}
-            title="Expand all"
-          >
-            <Icon name="expand-all" size="16" />
-          </button>
-        </div>
-
-        <div className={styles.toolbarBox}>
-          {isSearchOpen ? (
-            <>
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Search…"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                onKeyDown={handleInputKeyDown}
-                onBlur={handleInputBlur}
-                spellCheck={false}
-              />
-
-              {query && (
-                <span className={styles.matchCount}>
-                  {currentMatch > 0
-                    ? `${currentMatch}/${matchCount}`
-                    : matchCount}
-                </span>
-              )}
-
-              <button
-                onClick={() => goToMatch(-1)}
-                disabled={matchCount === 0}
-                title="Previous match (Shift+Enter)"
-              >
-                <Icon name="arrow-up" size="16" />
-              </button>
-              <button
-                onClick={() => goToMatch(1)}
-                disabled={matchCount === 0}
-                title="Next match (Enter)"
-              >
-                <Icon name="arrow-down" size="16" />
-              </button>
-              <button onClick={closeSearch} title="Close search (Esc)">
-                <Icon name="cross" size="16" />
-              </button>
-            </>
-          ) : (
-            <button
-              className={styles.searchTrigger}
-              onClick={openSearch}
-              title="Search (⌘F)"
-            >
-              <Icon name="search" size="16" />
-            </button>
-          )}
-        </div>
+  const toolbar = (
+    <div
+      className={`${styles.toolbar} ${isSearchOpen ? styles.isSearching : ''}`}
+    >
+      <div className={`${styles.toolbarBox} ${styles.foldBox}`}>
+        <button
+          onClick={collapseAll}
+          disabled={!foldStatus.canCollapse}
+          title="Collapse all"
+        >
+          <Icon name="collapse-all" size="16" />
+        </button>
+        <button
+          onClick={expandAll}
+          disabled={!foldStatus.canExpand}
+          title="Expand all"
+        >
+          <Icon name="expand-all" size="16" />
+        </button>
       </div>
 
+      <div
+        className={`${styles.toolbarBox} ${
+          isSearchOpen ? styles.searchBox : ''
+        }`}
+      >
+        {isSearchOpen ? (
+          <>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Search…"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={handleInputKeyDown}
+              onBlur={handleInputBlur}
+              spellCheck={false}
+            />
+
+            {query && (
+              <span className={styles.matchCount}>
+                {currentMatch > 0
+                  ? `${currentMatch}/${matchCount}`
+                  : matchCount}
+              </span>
+            )}
+
+            <button
+              className={styles.matchStep}
+              onClick={() => goToMatch(-1)}
+              disabled={matchCount === 0}
+              title="Previous match (Shift+Enter)"
+            >
+              <Icon name="arrow-up" size="16" />
+            </button>
+            <button
+              className={styles.matchStep}
+              onClick={() => goToMatch(1)}
+              disabled={matchCount === 0}
+              title="Next match (Enter)"
+            >
+              <Icon name="arrow-down" size="16" />
+            </button>
+            <button onClick={closeSearch} title="Close search (Esc)">
+              <Icon name="cross" size="16" />
+            </button>
+          </>
+        ) : (
+          <button
+            className={styles.searchTrigger}
+            onClick={openSearch}
+            title="Search (⌘F)"
+          >
+            <Icon name="search" size="16" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className={styles.jsonViewer}>
+      {toolbarTarget && createPortal(toolbar, toolbarTarget)}
       <div ref={containerRef} className={styles.editor} />
     </div>
   );

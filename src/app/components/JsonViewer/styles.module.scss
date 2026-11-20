@@ -3,15 +3,11 @@
   height: 100%;
 }
 
-// the fold buttons and the search, each in its own box
+// the fold buttons and the search, in the output header
 .toolbar {
   display: flex;
   align-items: center;
   gap: 4px;
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  z-index: 10;
 }
 
 // a bit of air between Collapse all and Expand all
@@ -22,11 +18,9 @@
 .toolbarBox {
   display: flex;
   align-items: center;
-  padding: 4px;
+  padding: 2px;
   border-radius: var(--border-radius-6);
-  background-color: var(--figma-color-bg);
-  border: 1px solid var(--figma-color-border);
-  // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: 1px solid transparent;
 
   input {
     width: 120px;
@@ -48,8 +42,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     // the default side padding would squeeze a 16px icon
     padding: 0;
     font-size: 11px;
@@ -76,6 +70,14 @@
       }
     }
   }
+}
+
+// On a narrow output pane an open search takes the room of the fold
+// buttons, then drops its arrows (Enter and Shift+Enter still step)
+
+// the open search reads as a field
+.searchBox {
+  border-color: var(--figma-color-border);
 }
 
 .matchCount {
@@ -113,5 +115,24 @@
         background-color: var(--figma-color-icon-secondary);
       }
     }
+  }
+}
+
+// On a narrow output pane an open search takes the room of the fold
+// buttons, then drops its arrows (Enter and Shift+Enter still step).
+// Prefixed with .toolbar to outrank `.toolbarBox button`
+@container (max-width: 420px) {
+  .toolbar.isSearching .foldBox {
+    display: none;
+  }
+}
+
+@container (max-width: 360px) {
+  .toolbar.isSearching .matchStep {
+    display: none;
+  }
+
+  .toolbar.isSearching input {
+    width: 72px;
   }
 }

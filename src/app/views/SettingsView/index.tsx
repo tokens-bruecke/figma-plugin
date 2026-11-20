@@ -286,9 +286,9 @@ export const SettingsView = (props: ViewProps) => {
     setCurrentView('advancedSettings');
   };
 
+  // the container opens the pane first and only then asks for the tokens
   const handleShowOutput = () => {
     setIsCodePreviewOpen(!isCodePreviewOpen);
-    getTokensPreview();
   };
 
   const handleModeChange = (value: string) => {
@@ -348,19 +348,6 @@ export const SettingsView = (props: ViewProps) => {
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
-  };
-
-  const getTokensPreview = () => {
-    // send command to figma controller
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: 'getTokens',
-          role: 'preview',
-        } as TokensMessageI,
-      },
-      '*'
-    );
   };
 
   const getTokensForDownload = () => {

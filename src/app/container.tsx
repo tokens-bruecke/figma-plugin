@@ -57,6 +57,8 @@ const Container = () => {
     null
   );
   const [isCodePreviewOpen, setIsCodePreviewOpen] = useState(false);
+  // from opening the output until its tokens arrive: the pane shows a skeleton
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const [currentView, setCurrentView] = useState('main');
   const [fileHasVariables, setFileHasVariables] = useState(false);
@@ -469,6 +471,14 @@ const Container = () => {
       }
 
       // check if file has variables
+      // the export for the output arrived, or failed (the toast says why)
+      if (
+        (type === 'setTokens' && message.role === 'preview') ||
+        type === 'tokensError'
+      ) {
+        setIsPreviewLoading(false);
+      }
+
       if (type === 'checkForVariables') {
         setFileHasVariables(hasVariables);
         setIsLoading(false);
@@ -558,20 +568,35 @@ const Container = () => {
     );
   }, [multiTenantConfig, isStorageLoaded]);
 
-  // handle code preview
+  // Open the output, then ask for its tokens. In this order, as the
+  // controller handles one message at a time and an export can take a
+  // moment: the window widens at once and shows a skeleton meanwhile
   useDidUpdate(() => {
-    if (isPanel) return;
-
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: 'openCodePreview',
-          isCodePreviewOpen,
-          height: frameHeight,
+    if (!isPanel) {
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: 'openCodePreview',
+            isCodePreviewOpen,
+            height: frameHeight,
+          },
         },
-      },
-      '*'
-    );
+        '*'
+      );
+    }
+
+    if (isCodePreviewOpen) {
+      setIsPreviewLoading(true);
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: 'getTokens',
+            role: 'preview',
+          } as TokensMessageI,
+        },
+        '*'
+      );
+    }
   }, [isCodePreviewOpen]);
 
   // Dragging can't make the window taller than the content, nor shorter
@@ -669,6 +694,7 @@ const Container = () => {
           <CodePreviewView
             generatedTokens={generatedTokens}
             pushSelection={pushSelection}
+            isLoading={isPreviewLoading}
             onClose={isPanel ? () => setIsCodePreviewOpen(false) : undefined}
           />
         )}
