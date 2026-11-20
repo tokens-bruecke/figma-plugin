@@ -1,0 +1,534 @@
+// the canvas: drag or wheel to pan, pinch or ⌘ + wheel to zoom
+.viewport {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  cursor: default;
+  user-select: none;
+  touch-action: none;
+  // a dot grid that pans and zooms with the content, like Figma's canvas
+  background-image: radial-gradient(
+    circle,
+    var(--figma-color-border) 1px,
+    transparent 1px
+  );
+}
+
+.panning {
+  cursor: grabbing;
+
+  .node {
+    cursor: grabbing;
+  }
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 11px;
+  color: var(--figma-color-text-secondary);
+}
+
+// stays the same size on screen at any zoom
+.columnLabel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 6px;
+  padding-bottom: 8px;
+  transform-origin: 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--figma-color-text);
+}
+
+.columnName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.columnCount {
+  font-weight: 400;
+  color: var(--figma-color-text-tertiary);
+}
+
+.edges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.edge {
+  fill: none;
+  stroke: var(--figma-color-border-strong);
+  stroke-width: 1;
+}
+
+.activeEdge {
+  stroke: var(--figma-color-border-selected);
+  stroke-width: 2;
+}
+
+// a token card: swatch or type letter, name, value
+.node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 220px;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background-color: var(--figma-color-bg);
+  border: 1px solid var(--figma-color-border);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--figma-color-border-strong);
+  }
+}
+
+.focus,
+.selected,
+.selected:hover {
+  border-color: var(--figma-color-border-selected);
+  box-shadow: 0 0 0 1px var(--figma-color-border-selected);
+}
+
+.chain {
+  border-color: var(--figma-color-border-selected);
+}
+
+// A hovered or picked token dims everything off its chain; a search,
+// everything that doesn't match. Set on the canvas, so only the cards
+// that change state re-render
+.hasChain .node:not(.focus):not(.chain),
+.hasMatches .node:not(.match) {
+  opacity: 0.3;
+}
+
+.hasChain .edge:not(.activeEdge),
+.hasMatches .edge {
+  opacity: 0.25;
+}
+
+.match {
+  background-color: var(--figma-color-bg-warning-tertiary);
+}
+
+.missing {
+  border-style: dashed;
+  background-color: transparent;
+
+  .nodeValue {
+    font-family: Inter, sans-serif;
+    font-style: italic;
+  }
+}
+
+.swatch,
+.typeGlyph {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+// the color over a checkerboard, so transparency shows
+.swatch {
+  background: linear-gradient(var(--swatch), var(--swatch)),
+    repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 8px 8px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.typeGlyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--figma-color-text-secondary);
+  background-color: var(--figma-color-bg-secondary);
+}
+
+.nodeText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.nodeName,
+.nodeValue {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.nodeName {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--figma-color-text);
+}
+
+.nodeParent {
+  font-weight: 400;
+  color: var(--figma-color-text-secondary);
+}
+
+.nodeValue {
+  font-size: 10px;
+  font-family: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, monospace;
+  color: var(--figma-color-text-secondary);
+}
+
+// Mid zoom: the name alone, larger, so it stays legible
+.canvas[data-lod='compact'] {
+  .nodeValue {
+    display: none;
+  }
+
+  .nodeName {
+    font-size: 20px;
+  }
+
+  .swatch,
+  .typeGlyph {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+// Far out: each token is a block of its own color, links stay
+.canvas[data-lod='overview'] {
+  .node {
+    padding: 0;
+    border-width: 2px;
+    background: var(--swatch, var(--figma-color-bg-tertiary));
+  }
+
+  .nodeText,
+  .swatch,
+  .typeGlyph {
+    display: none;
+  }
+
+  .missing {
+    background: transparent;
+  }
+
+  // a thick ring, as a border would shrink to nothing this far out
+  .focus,
+  .chain,
+  .selected {
+    box-shadow: 0 0 0 10px var(--figma-color-border-selected);
+  }
+
+  &.hasChain .node:not(.focus):not(.chain),
+  &.hasMatches .node:not(.match) {
+    opacity: 0.15;
+  }
+}
+
+// header tools, matching the JSON tab's
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbarBox {
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: var(--border-radius-6);
+  border: 1px solid transparent;
+
+  input {
+    width: 120px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-family: Inter, sans-serif;
+    color: var(--figma-color-text);
+    background-color: transparent;
+    border: none;
+    outline: none;
+
+    &::placeholder {
+      color: var(--figma-color-text-tertiary);
+    }
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 13px;
+    font-family: Inter, sans-serif;
+    color: var(--figma-color-icon);
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-4, 4px);
+    cursor: pointer;
+
+    svg {
+      fill: var(--figma-color-icon);
+    }
+
+    &:hover:not(:disabled) {
+      background-color: var(--figma-color-bg-hover);
+    }
+
+    &:disabled {
+      color: var(--figma-color-icon-disabled);
+      cursor: default;
+
+      svg {
+        fill: var(--figma-color-icon-disabled);
+      }
+    }
+  }
+}
+
+.searchBox {
+  border-color: var(--figma-color-border);
+}
+
+.toolbarBox .textButton {
+  padding: 0 6px;
+  font-size: 11px;
+  color: var(--figma-color-text);
+}
+
+.toolbarBox .pressed {
+  background-color: var(--figma-color-bg-selected);
+
+  &:hover:not(:disabled) {
+    background-color: var(--figma-color-bg-selected-hover);
+  }
+}
+
+// All types / color / 2 types, with the menu below it
+.typeFilter {
+  position: relative;
+
+  .textButton {
+    gap: 6px;
+    padding: 0 8px;
+  }
+}
+
+.chevron {
+  flex: none;
+}
+
+// a picked type can be long, like fontFamily or strokeStyle
+.typeLabel {
+  display: block;
+  overflow: hidden;
+  max-width: 88px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.typeMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 30;
+  width: 180px;
+}
+
+.zoomValue {
+  min-width: 40px;
+  font-variant-numeric: tabular-nums;
+}
+
+// The tools give way as the output pane narrows (it's the size
+// container, 240px at its narrowest), so they never run under the
+// JSON / Graph tabs. An open search takes over first; Linked only moves
+// into the types menu; zoom keeps pinch, ⌘ + wheel and Shift+1 / Shift+0.
+// Prefixed with .toolbar to outrank `.toolbarBox button` above
+// (measured: all tools take ~300px, ~470px with the search open,
+// next to ~110px of tabs)
+@container (max-width: 600px) {
+  .toolbar.isSearching .zoomStep {
+    display: none;
+  }
+}
+
+@container (max-width: 550px) {
+  .toolbar.isSearching .filterGroup {
+    display: none;
+  }
+}
+
+@container (max-width: 440px) {
+  .toolbar .zoomStep,
+  .toolbar .linkedGroup {
+    display: none;
+  }
+}
+
+@container (max-width: 420px) {
+  .toolbar.isSearching .zoomGroup {
+    display: none;
+  }
+
+  .toolbar .typeLabel {
+    max-width: 56px;
+  }
+}
+
+@container (max-width: 360px) {
+  .toolbar .zoomGroup,
+  .toolbar.isSearching .matchStep {
+    display: none;
+  }
+
+  .toolbar.isSearching input {
+    width: 72px;
+  }
+}
+
+.matchCount {
+  font-size: 10px;
+  font-family: Inter, sans-serif;
+  color: var(--figma-color-text-secondary);
+  white-space: nowrap;
+  padding: 0 2px;
+  margin-right: 4px;
+}
+
+// the selected token: what it points to and what uses it
+.details {
+  position: absolute;
+  top: 12px;
+  // the right side, as the raw values people click first sit on the left
+  right: 12px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 260px;
+  max-height: calc(100% - 90px);
+  overflow-y: auto;
+  padding: 10px 12px 12px;
+  border-radius: var(--border-radius-6, 6px);
+  background-color: var(--figma-color-bg);
+  border: 1px solid var(--figma-color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  font-size: 11px;
+  cursor: default;
+  user-select: text;
+
+  button {
+    font-family: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.detailHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  .swatch {
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+  }
+
+  button {
+    display: flex;
+    flex-shrink: 0;
+    margin: -4px -6px 0 auto;
+    padding: 4px;
+    border-radius: 4px;
+
+    svg {
+      fill: var(--figma-color-icon);
+    }
+
+    &:hover {
+      background-color: var(--figma-color-bg-hover);
+    }
+  }
+}
+
+.detailPath {
+  font-weight: 600;
+  line-height: 18px;
+  word-break: break-all;
+  color: var(--figma-color-text);
+}
+
+.detailMeta {
+  display: flex;
+  gap: 8px;
+  color: var(--figma-color-text-secondary);
+}
+
+.detailValue {
+  font-family: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, monospace;
+  font-size: 10px;
+  line-height: 16px;
+  word-break: break-all;
+  color: var(--figma-color-text);
+}
+
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detailLabel {
+  margin-bottom: 2px;
+  color: var(--figma-color-text-secondary);
+}
+
+.detailLink {
+  overflow: hidden;
+  margin: 0 -4px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--figma-color-text-brand);
+
+  &:hover {
+    background-color: var(--figma-color-bg-hover);
+  }
+}
+
+.detailMore {
+  color: var(--figma-color-text-tertiary);
+}

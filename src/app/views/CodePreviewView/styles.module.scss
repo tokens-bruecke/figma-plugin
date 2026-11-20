@@ -1,6 +1,8 @@
 .codePreview {
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
   flex: 1;
   height: 100vh;
   background-color: var(--figma-color-bg-secondary);
@@ -9,20 +11,50 @@
 }
 
 .viewer {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// JSON / Graph on the left, the active view's tools on the right
+.tabsHeader {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  // level with the settings header beside it
+  height: 49px;
+  padding-right: 8px;
+  background-color: var(--figma-color-bg);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+// nested, to outrank the library panel's width: 100%
+.tabsHeader .tabs {
+  flex: none;
+  width: auto;
+}
+
+// takes what the tabs leave. The tools sit at its right edge; if they're
+// ever too wide, they run off the pane's right side, never over the tabs
+.headerTools {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+
+  > * {
+    flex: none;
+    margin-left: auto;
+  }
 }
 
 // Dev Mode: the preview takes the whole Inspect panel, below a back header
 .panelCodePreview {
-  display: flex;
-  flex-direction: column;
   width: 100%;
   border-left: none;
-
-  .viewer {
-    flex: 1;
-    min-height: 0;
-  }
 }
 
 .codePreviewOpen {
@@ -189,4 +221,65 @@
 .resizingCursor {
   cursor: ew-resize;
   user-select: none;
+}
+
+// While the export runs: the JSON view's layout, with square bars
+// for its text. The numbers mirror JsonViewer's CodeMirror setup
+.skeleton {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  // CodeMirror's content padding
+  padding-top: 4px;
+  font-family: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, Monaco,
+    monospace;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  height: 1.6em;
+}
+
+// line numbers: right-aligned, 5px before and 3px after
+.skeletonNumber {
+  display: flex;
+  justify-content: flex-end;
+  flex: none;
+  box-sizing: content-box;
+  // room for three digits; a longer export shifts a few pixels, which is fine
+  width: 3ch;
+  padding: 0 3px 0 5px;
+}
+
+// the fold arrows' column
+.skeletonFold {
+  flex: none;
+  width: 22px;
+}
+
+.skeletonCode {
+  display: flex;
+  gap: 1ch;
+}
+
+.skeletonBar {
+  flex: none;
+  height: 8px;
+  background-color: var(--figma-color-bg-tertiary);
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonBar {
+    animation: none;
+  }
 }
