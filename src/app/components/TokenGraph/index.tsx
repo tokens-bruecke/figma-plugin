@@ -37,6 +37,8 @@ const MAX_ZOOM = 2;
 const PADDING = 40;
 // room above the columns for their labels, in screen pixels
 const LABEL_SPACE = 28;
+// room below for the output's floating Update / Copy bar
+const BOTTOM_SPACE = 72;
 // the zoom a jump to a token lands on, when the view is further out
 const READABLE_ZOOM = 1;
 
@@ -373,7 +375,8 @@ export const TokenGraph = ({ tokens, toolbarTarget }: TokenGraphProps) => {
         Math.min(
           1,
           (width - PADDING * 2) / Math.max(layout.width, 1),
-          (height - PADDING * 2 - LABEL_SPACE) / Math.max(layout.height, 1)
+          (height - PADDING - LABEL_SPACE - BOTTOM_SPACE) /
+            Math.max(layout.height, 1)
         )
       );
       const k = isInitial ? Math.max(fitK, 0.5) : fitK;
