@@ -95,6 +95,19 @@ export const CodePreviewView = ({
   );
   const isPanel = !!onClose;
   const [activeTab, setActiveTab] = React.useState<OutputTabT>('json');
+
+  // Counted once per opening: the output, which shows JSON first, and
+  // whether that opening reached the Graph tab
+  React.useEffect(() => {
+    track('/output');
+  }, []);
+  const isGraphTrackedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (activeTab === 'graph' && !isGraphTrackedRef.current) {
+      isGraphTrackedRef.current = true;
+      track('/output/graph');
+    }
+  }, [activeTab]);
   // each view renders its own tools (fold, search, zoom) into the header
   const [headerTools, setHeaderTools] = React.useState<HTMLDivElement | null>(
     null
