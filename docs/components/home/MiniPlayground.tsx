@@ -44,6 +44,8 @@ const snapshot = (scopes: Scope[]) => {
   });
   const variables = [
     variable('color/focus', 'COLOR', { r: 13 / 255, g: 153 / 255, b: 1, a: 0.5 }, 'ALL_SCOPES'),
+    // An alias stays a reference whatever the color format
+    variable('color/focus-ring', 'COLOR', { type: 'VARIABLE_ALIAS', id: 'V:color/focus' }, 'ALL_SCOPES'),
     ...NUMBERS.map((n, i) => variable(n.name, 'FLOAT', n.value, scopes[i])),
   ];
   return JSON.stringify({
@@ -127,6 +129,7 @@ export default function MiniPlayground() {
   const [stats, setStats] = useState<{ tokens: number; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const previous = useRef<Map<string, unknown> | null>(null);
+  const code = useRef<HTMLPreElement>(null);
 
   const options = useMemo<ExportOptions>(() => {
     const o: ExportOptions = {};
@@ -168,6 +171,23 @@ export default function MiniPlayground() {
       cancelled = true;
     };
   }, [scopes, options]);
+
+  // The JSON scrolls inside its card, so bring the first change into view
+  useEffect(() => {
+    const pane = code.current;
+    const first = pane?.querySelector<HTMLElement>('.tb-mp-line[data-changed]');
+    if (!pane || !first) return;
+    const top = first.offsetTop;
+    const visible = top >= pane.scrollTop && top + first.offsetHeight <= pane.scrollTop + pane.clientHeight;
+    if (!visible) pane.scrollTo({ top: Math.max(0, top - 44), behavior: 'smooth' });
+  }, [changed]);
+
+  // The highlight is a flash: it shows what the last click changed, then fades
+  useEffect(() => {
+    if (!changed.size) return;
+    const timer = setTimeout(() => setChanged(new Map()), 2400);
+    return () => clearTimeout(timer);
+  }, [changed]);
 
   // The "was dimension" note goes on the type line of a changed token (or its
   // only line, when the token fits on one)
@@ -216,12 +236,27 @@ export default function MiniPlayground() {
             <span className="tb-mp-col-value">Value</span>
             <span className="tb-mp-col-scope">Scope</span>
           </div>
-          <div className="tb-mp-row">
+          <div className="tb-mp-row" data-changed={changed.has('Core.color.focus') ? '' : undefined}>
             <span className="tb-mp-name">
               color/focus <i>COLOR</i>
             </span>
             <span className="tb-mp-col-value">
               <span className="tb-mp-swatch" /> 50%
+            </span>
+            <span className="tb-mp-col-scope">
+              <span className="tb-mp-chip is-static">
+                <span>All scopes</span>
+              </span>
+            </span>
+          </div>
+          <div className="tb-mp-row" data-changed={changed.has('Core.color.focus-ring') ? '' : undefined}>
+            <span className="tb-mp-name">
+              color/focus-ring <i>COLOR</i>
+            </span>
+            <span className="tb-mp-col-value">
+              <span className="tb-mp-alias" title="Alias of color/focus">
+                → focus
+              </span>
             </span>
             <span className="tb-mp-col-scope">
               <span className="tb-mp-chip is-static">
@@ -260,12 +295,18 @@ export default function MiniPlayground() {
         <section className="tb-mp-card tb-mp-out" aria-label="Tokens JSON" aria-live="polite">
           <div className="tb-mp-head">
             <span>design.tokens.json</span>
-            <span className="tb-mp-dim">empty fields hidden</span>
+            {changed.size ? (
+              <span className="tb-mp-changed">
+                {changed.size} {changed.size === 1 ? 'token' : 'tokens'} changed
+              </span>
+            ) : (
+              <span className="tb-mp-dim">empty fields hidden</span>
+            )}
           </div>
           {error ? (
             <p className="tb-mp-error">{error}</p>
           ) : (
-            <pre className="tb-mp-code">
+            <pre className="tb-mp-code" ref={code}>
               {lines.map((line, i) => (
                 <div
                   key={i}

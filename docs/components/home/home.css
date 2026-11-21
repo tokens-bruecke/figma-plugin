@@ -636,7 +636,7 @@ html.rp-dark .tb-home-e {
   border-top: 1px solid var(--tb-line);
   border-radius: 0;
   font: 14px/1.4 var(--tb-mono);
-  transition: background 0.3s;
+  transition: background 0.6s;
 }
 .tb-mp-row[data-changed] {
   border-radius: 10px;
@@ -645,6 +645,15 @@ html.rp-dark .tb-home-e {
 }
 .tb-mp-row[data-changed] + .tb-mp-row {
   border-top-color: transparent;
+}
+/* Neighbouring changed rows read as one block, not a stack of pills */
+.tb-mp-row[data-changed]:has(+ .tb-mp-row[data-changed]) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.tb-mp-row[data-changed] + .tb-mp-row[data-changed] {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 .tb-mp-name {
   display: flex;
@@ -672,6 +681,10 @@ html.rp-dark .tb-home-e {
   border-radius: 4px;
   background: rgb(13 153 255 / 0.5);
   box-shadow: 0 0 0 1px var(--tb-line-strong);
+}
+.tb-mp-alias {
+  color: var(--tb-blue-text);
+  white-space: nowrap;
 }
 .tb-mp-scope {
   position: relative;
@@ -746,11 +759,20 @@ html.rp-dark .tb-home-e {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
     center / 10px no-repeat;
 }
+/* The key sits at the bottom of the card, which stretches to the height of
+   the JSON next to it */
+.tb-mp-vars {
+  display: flex;
+  flex-direction: column;
+}
+.tb-mp-row:has(+ .tb-mp-key) {
+  margin-bottom: 16px;
+}
 .tb-mp-key {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 16px;
+  margin-top: auto;
   padding: 14px 10px 0;
   border-top: 1px solid var(--tb-line);
   font-size: 13px;
@@ -778,10 +800,37 @@ html.rp-dark .tb-home-e {
   font-family: var(--tb-mono);
 }
 
+/* The JSON never makes the playground taller than the window: it scrolls
+   inside its card, and the card follows the variables next to it */
+.tb-mp-out {
+  display: flex;
+  flex-direction: column;
+  max-height: max(360px, calc(100dvh - 240px));
+  /* The code scrolls right up to the card's edges, so its padding lives
+     inside the scrolling area and the scrollbar runs along the edge */
+  padding-right: 0;
+  padding-bottom: 0;
+}
+.tb-mp-out .tb-mp-head {
+  padding-right: 30px;
+  padding-bottom: 0;
+}
+/* Keeps the scrollbar clear of the rounded corners (and wins over the
+   page-wide pre reset) */
+.tb-mp-out .tb-mp-code {
+  margin: 0 4px 6px 0;
+}
 .tb-mp-code {
-  margin: 0;
-  padding: 0;
-  overflow-x: auto;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 10px 16px 14px 0;
+  /* Lines fade into the edges as they scroll, instead of being sliced; the
+     padding keeps the first and last lines clear of the fade at rest */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10px, #000 calc(100% - 14px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 10px, #000 calc(100% - 14px), transparent);
+  overflow: auto;
+  overscroll-behavior: contain;
   background: none;
   font: 14px/22px var(--tb-mono);
 }
@@ -790,9 +839,9 @@ html.rp-dark .tb-home-e {
   justify-content: space-between;
   gap: 16px;
   padding: 0 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   white-space: pre;
-  transition: background 0.3s;
+  transition: background 0.6s;
 }
 .tb-mp-line code {
   font: inherit;
@@ -802,6 +851,18 @@ html.rp-dark .tb-home-e {
 }
 .tb-mp-line[data-changed] {
   background: var(--tb-blue-tint);
+}
+/* Consecutive changed lines form one block */
+.tb-mp-line[data-changed]:has(+ .tb-mp-line[data-changed]) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.tb-mp-line[data-changed] + .tb-mp-line[data-changed] {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.tb-mp-changed {
+  color: var(--tb-blue-text);
 }
 .tb-mp-line[data-changed] .tb-mp-s,
 .tb-mp-line[data-changed] .tb-mp-n {
@@ -939,6 +1000,16 @@ html.rp-dark .tb-home-e {
   }
   .tb-mp-card {
     padding: 2px 10px 12px;
+  }
+  .tb-mp-out {
+    padding-right: 0;
+    padding-bottom: 0;
+  }
+  .tb-mp-out .tb-mp-head {
+    padding-right: 20px;
+  }
+  .tb-mp-code {
+    padding: 0 6px 6px 0;
   }
   .tb-mp-head .tb-mp-col-value,
   .tb-mp-head .tb-mp-col-scope {
