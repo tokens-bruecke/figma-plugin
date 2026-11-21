@@ -123,10 +123,11 @@ html.rp-dark .tb-home-e {
 }
 .tb-cmd {
   display: inline-flex;
-  align-items: center;
+  /* Mono command and sans hint: line them up on the text, not the boxes */
+  align-items: baseline;
   gap: 16px;
   max-width: 100%;
-  padding: 11px 14px;
+  padding: 12px 14px 10px;
   border: 1px solid var(--tb-line);
   border-radius: 10px;
   background: var(--tb-raised);
@@ -212,7 +213,7 @@ html.rp-dark .tb-home-e {
 .tb-index a {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 16px;
   padding: 12px 0;
   border-top: 1px solid var(--tb-line);
@@ -307,6 +308,7 @@ html.rp-dark .tb-home-e {
 }
 .tb-topbar-current {
   display: flex;
+  align-items: baseline;
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
