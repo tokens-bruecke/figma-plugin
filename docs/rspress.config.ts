@@ -54,8 +54,11 @@ const sidebar = [
 ];
 
 export default defineConfig({
-  root: path.join(__dirname, 'docs'),
+  root: path.join(__dirname, 'content'),
   outDir: 'dist',
+  // /cli/options rather than /cli/options.html. Old /cli/options/ links are
+  // redirected by scripts/legacy-urls.mjs
+  route: { cleanUrls: true },
   base: '/',
   siteOrigin: 'https://tokensbruecke.com',
   title: 'TokensBrücke',
@@ -140,7 +143,7 @@ export default defineConfig({
 
   themeConfig: {
     socialLinks: [{ icon: 'github', mode: 'link', content: repo }],
-    editLink: { docRepoBaseUrl: `${repo}/edit/main/docs-rspress/docs/` },
+    editLink: { docRepoBaseUrl: `${repo}/edit/main/docs/content/` },
     lastUpdated: true,
     // "Copy Markdown" and "Open in ChatGPT / Claude" under each page title
     llmsUI: {},
@@ -161,16 +164,6 @@ export default defineConfig({
         '@app': path.join(repoRoot, 'src/app'),
         '@root': repoRoot,
       },
-    },
-    // Screenshots stay in the Starlight site's folder, so `pnpm shots` there
-    // still updates both
-    output: {
-      copy: [
-        {
-          from: path.join(repoRoot, 'docs/src/assets/screenshots'),
-          to: 'screenshots',
-        },
-      ],
     },
   },
 });

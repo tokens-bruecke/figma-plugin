@@ -1,6 +1,5 @@
 // A plugin screenshot in the theme the reader has picked. The files live in
-// ../docs/src/assets/screenshots (regenerate them there with `pnpm shots`)
-// and are copied to /screenshots/ by the build.
+// content/public/screenshots; regenerate them with `pnpm shots`.
 import { withBase } from '@rspress/core/runtime';
 
 interface Props {

@@ -1,5 +1,5 @@
 // Captures every scene in scenes.mjs, in light and dark, into
-// src/assets/screenshots/<scene>-<theme>.webp.
+// content/public/screenshots/<scene>-<theme>.webp.
 //
 //   pnpm shots            all scenes
 //   pnpm shots github     only the scenes named
@@ -16,7 +16,7 @@ import { scenes } from './scenes.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
-const outDir = path.resolve(here, '../src/assets/screenshots');
+const outDir = path.resolve(here, '../content/public/screenshots');
 const themes = ['light', 'dark'];
 const FRAME_MS = 80;
 

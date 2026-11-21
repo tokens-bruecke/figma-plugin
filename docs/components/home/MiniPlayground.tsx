@@ -202,7 +202,7 @@ export default function MiniPlayground() {
         <label className="tb-mp-toggle">
           <input type="checkbox" checked={dtcg} onChange={(e) => setDtcg(e.target.checked)} />
           <span className="tb-mp-switch" aria-hidden="true" />
-          DTCG 2025.10
+          <span>DTCG 2025.10</span>
         </label>
         <span className="tb-mp-stats">
           {stats ? `${stats.tokens} tokens · ${Math.max(1, Math.round(stats.ms))} ms` : 'Converting…'}

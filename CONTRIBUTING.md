@@ -38,21 +38,26 @@ pnpm test:watch   # watch mode
 | `src/app/`    | Figma plugin UI (React)                              |
 | `src/cli/`    | CLI entry point                                      |
 | `src/common/` | Shared transform logic (used by both plugin and CLI) |
-| `docs/`       | Documentation site ([Astro Starlight](https://starlight.astro.build)) |
+| `docs/`       | Documentation site ([Rspress](https://rspress.rs)) |
 
 ---
 
 ## Documentation
 
-The docs are published to [tokensbruecke.com](https://tokensbruecke.com/) on every push to `main` that touches `docs/`. Pages are Markdown in `docs/src/content/docs/`.
+The docs are published to [tokensbruecke.com](https://tokensbruecke.com/) on every push to `main` that touches `docs/` or `src/`. Pages are Markdown in `docs/content/`; the home page is `docs/components/home/`.
+
+The playground runs the plugin's converter from `src/` in the browser, so install the repo root too:
 
 ```bash
+pnpm install      # in the repo root
 cd docs
 pnpm install
-pnpm dev          # http://localhost:4321/figma-plugin/
+pnpm dev          # http://localhost:3000
 ```
 
-**Screenshots** are rendered from the real plugin UI with demo data, in light and dark. Regenerate them after a UI change (needs `pnpm install` in the repo root too):
+`pnpm build` also writes redirects from the old Starlight URLs (`/cli/options/` → `/cli/options`) and the old `llms-small.txt` and `_llms-txt/` files; see `docs/scripts/legacy-urls.mjs`.
+
+**Screenshots** are rendered from the real plugin UI with demo data, in light and dark, into `docs/content/public/screenshots/`. Regenerate them after a UI change:
 
 ```bash
 cd docs

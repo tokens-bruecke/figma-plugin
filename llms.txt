@@ -26,6 +26,6 @@ No REST API / no Enterprise plan — transform a snapshot dumped from the Figma 
 
 ## Optional
 
-- [Docs llms.txt](https://tokensbruecke.com/llms.txt): index of the documentation site, with a [compact version](https://tokensbruecke.com/llms-small.txt) and per-section files
+- [Docs llms.txt](https://tokensbruecke.com/llms.txt): index of the documentation site, in sidebar order, with a Markdown copy of every page
 - [Documentation site](https://tokensbruecke.com/): the same docs as HTML pages
 - [CHANGELOG](CHANGELOG.md): release history
