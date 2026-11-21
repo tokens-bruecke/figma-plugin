@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ColorMode, ExportOptions } from '../../../api';
-import { demoSnapshot } from '../../../docs/screenshots/demoSnapshot';
+import { demoSnapshot } from '../../screenshots/demoSnapshot';
 import { convertSnapshot, type Result } from './convert';
 import './playground.css';
 

@@ -4,10 +4,18 @@ on:
       - main
     paths:
       - 'docs/**'
+      # The playground runs the converter from src/ in the browser
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/docs.yml'
   pull_request:
     paths:
       - 'docs/**'
+      # The playground runs the converter from src/ in the browser
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 name: docs
@@ -28,7 +36,6 @@ jobs:
       - uses: pnpm/action-setup@v6
         name: Install pnpm
         with:
-          package_json_file: docs/package.json
           run_install: false
 
       - name: Install Node.js
@@ -36,13 +43,19 @@ jobs:
         with:
           node-version: 'lts/*'
           cache: 'pnpm'
-          cache-dependency-path: docs/pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            docs/pnpm-lock.yaml
 
-      - name: Build docs
-        working-directory: docs
+      # src/ imports its own dependencies (decimal.js and others), which live
+      # in the root package, so both installs are needed
+      - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
-          pnpm run build
+          pnpm --dir docs install --frozen-lockfile
+
+      - name: Build docs
+        run: pnpm --dir docs run build
 
       - name: Upload site
         if: github.event_name != 'pull_request'

@@ -239,7 +239,7 @@ export default function Home() {
 
         <section id="library" className="tb-sec tb-split">
           <SectionHead index={3} title="Call it from your build">
-            fetchTokens and convertTokens, with no child process and no files on disk.{' '}
+            <code>fetchTokens</code> and <code>convertTokens</code>, with no child process and no files on disk.{' '}
             <a href={withBase('/library')}>Library docs</a>
           </SectionHead>
           <pre className="tb-codeblock">

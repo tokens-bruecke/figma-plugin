@@ -83,6 +83,7 @@ html.rp-dark .tb-home-e {
 .tb-mp-chip > span,
 .tb-mp-seg button > span,
 .tb-mp-menu button > span,
+.tb-mp-toggle > span:not(.tb-mp-switch),
 .tb-version {
   line-height: 1;
   text-box: trim-both cap alphabetic;
@@ -95,7 +96,9 @@ html.rp-dark .tb-home-e {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 17px 22px;
+  /* One height for every button and the command box, icon or not */
+  height: 44px;
+  padding: 0 22px;
   border-radius: 999px;
   background: var(--tb-ink);
   color: var(--tb-bg) !important;
@@ -112,7 +115,8 @@ html.rp-dark .tb-home-e {
   box-shadow: inset 0 0 0 1px var(--tb-line-strong);
 }
 .tb-btn-sm {
-  padding: 11px 14px;
+  height: 34px;
+  padding: 0 14px;
   font-size: 13px;
 }
 .tb-actions {
@@ -127,6 +131,7 @@ html.rp-dark .tb-home-e {
   align-items: baseline;
   gap: 16px;
   max-width: 100%;
+  height: 44px;
   padding: 12px 14px 10px;
   border: 1px solid var(--tb-line);
   border-radius: 10px;
@@ -290,6 +295,8 @@ html.rp-dark .tb-home-e {
 
 .tb-right {
   min-width: 0;
+  /* Sections stack when the column is too narrow for code beside text */
+  container-type: inline-size;
   padding: 0 56px 64px;
 }
 .tb-topbar {
@@ -351,6 +358,13 @@ html.rp-dark .tb-home-e {
   border: 0;
   padding: 0;
 }
+.tb-sec-head p code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--tb-chip);
+  color: var(--tb-ink);
+  font: 0.9em/1 var(--tb-mono);
+}
 .tb-sec-head p {
   color: var(--tb-muted);
   font-size: 16px;
@@ -375,6 +389,13 @@ html.rp-dark .tb-home-e {
   grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
   align-items: center;
   gap: 40px;
+}
+@container (max-width: 800px) {
+  .tb-split {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
 }
 .tb-shot {
   overflow: hidden;
@@ -459,6 +480,21 @@ html.rp-dark .tb-home-e {
 }
 .tb-mfoot {
   display: none;
+}
+
+/* Code that still has to scroll gets a thin bar in the page's colors */
+.tb-term,
+.tb-codeblock,
+.tb-mp-code,
+.tb-chips {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tb-line-strong) transparent;
+}
+.tb-term {
+  scrollbar-color: rgb(255 255 255 / 0.22) transparent;
+}
+.tb-chips {
+  scrollbar-width: none;
 }
 
 /* ---------- Mini playground ---------- */
@@ -728,6 +764,8 @@ html.rp-dark .tb-home-e {
 .tb-mp-key dl {
   display: grid;
   grid-template-columns: 1fr auto;
+  /* Whyte terms next to monospace types: line them up on the text */
+  align-items: baseline;
   gap: 6px;
   margin: 4px 0 0;
 }

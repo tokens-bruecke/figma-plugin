@@ -345,7 +345,7 @@ const toOpacityPercent = (value: any): number => {
  * A color value exported from a Figma color alias with its own opacity:
  * `{ components: "{color.brand}", alpha: 0.5 }` or a color object whose
  * `alpha` / `a` is a reference. See "Color aliases with opacity" in
- * https://tokensbruecke.com/reference/aliases/
+ * https://tokensbruecke.com/reference/aliases
  */
 export const isComposedColorToken = (value: any): boolean =>
   typeof value === 'object' &&
