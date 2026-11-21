@@ -1,0 +1,65 @@
+# Builds the Rspress prototype of the docs, so a broken page, a dead link or a
+# converter change that breaks the playground fails here. It doesn't deploy:
+# the live site is still docs/ (see docs.yml).
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs-rspress/**'
+      # The playground runs the converter from src/ in the browser
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      # The sample snapshot and the screenshots are read from docs/
+      - 'docs/screenshots/**'
+      - 'docs/src/assets/screenshots/**'
+      - '.github/workflows/docs-rspress.yml'
+  pull_request:
+    paths:
+      - 'docs-rspress/**'
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'docs/screenshots/**'
+      - 'docs/src/assets/screenshots/**'
+      - '.github/workflows/docs-rspress.yml'
+  workflow_dispatch:
+name: docs-rspress
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-rspress-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            docs-rspress/pnpm-lock.yaml
+
+      # src/ imports its own dependencies (decimal.js and others), which live
+      # in the root package, so both installs are needed
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --dir docs-rspress install --frozen-lockfile
+
+      - name: Build docs
+        run: pnpm --dir docs-rspress run build

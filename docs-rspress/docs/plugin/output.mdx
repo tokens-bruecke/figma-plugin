@@ -1,0 +1,85 @@
+---
+title: "Output and window"
+description: "Preview the generated JSON next to the settings, and set the height of the plugin window."
+---
+
+## Show output
+
+If you want to see the generated JSON, you can enable the `Show output` option. The output opens right away and fills in once the export is ready. It has two tabs: **JSON**, the code itself, and **[Graph](#graph)**, a map of which tokens alias which. The JSON tab shows the code with:
+
+- Syntax highlighting that matches the Figma theme
+- Line numbers and code folding for collapsing groups
+- `Collapse all` and `Expand all` buttons. `Collapse all` keeps the root open and folds each top-level key (a collection, or a `Collection/Mode` key with `Split modes`), so the JSON reads like an index. `Expand all` opens every fold. A button is disabled when it would change nothing: `Collapse all` while the index already shows, `Expand all` while nothing is folded
+- Search with match highlighting
+- A `Copy` button to copy the whole JSON to the clipboard
+- A stats bar showing the number of tokens, groups, lines, and the file size
+
+The output doesn't update automatically, in order to optimize the performance. So, if you want to see the updated JSON, you need to click the `Update` button. When the update changes the JSON, all folded groups open again. Otherwise they stay folded.
+
+<Screenshot name="overview" alt="The code preview next to the settings" />
+
+<Screenshot name="output-collapse-all" alt="The output after Collapse all: Core, Theme, Spacing, Typography-styles, Effect-styles and $extensions, each folded to one line" />
+
+## Only the collections a push commits
+
+When a Git server leaves some collections out of the push (see [Collections to push](/plugin/push-to-server#collections-to-push)), the toolbar shows a switch with two options:
+
+- **All**, the default: the whole export, as **Download JSON**, JSONBin, custom servers and the CLI receive it.
+- **To push**, e.g. `To push 2/3`: only the checked collections, with every mode of each when splitting by mode. The stats and `Copy` cover only them too.
+
+When every collection is pushed again, or the tokens are no longer split, the switch disappears and the output shows everything. The switch follows the current settings, so click `Update` after changing the split settings.
+
+<Screenshot name="output-to-push" alt="The output on To push 2/3 with Spacing left out of the push: only Core and Theme are listed" />
+
+## Graph
+
+The **Graph** tab lays the same tokens out by alias depth, so you can see what each token is built on and what would change with it:
+
+- **Values**: tokens with a value of their own, like `#0d99ff` or `16px`
+- **Aliases**: tokens that point to a value, like `{color.blue.40}`
+- **Aliases of aliases**, and further columns for deeper chains
+
+A line links each alias to the tokens it references, and each alias sits level with them. A reference inside a composite value, like the color of a shadow, counts too. A token referenced but left out of the export, for example from a collection that isn't exported, shows as a dashed card that says *Not in this export*.
+
+<Screenshot name="output-graph" alt="The Graph tab with Linked only on: colors on the left, theme aliases on the right, and accent/default picked, its link to blue/40 highlighted and its details in a card" />
+
+### Moving around
+
+- **Drag** or **scroll** to pan.
+- **Pinch**, or scroll with `⌘` (`Ctrl` on Windows) held, to zoom toward the pointer. The `−` and `+` buttons zoom from the center.
+- Click the percentage, or press `Shift+0`, for 100%. Click the target icon, or press `Shift+1`, to fit the whole graph.
+
+The further out you zoom, the less each card shows: the name and value up close, then the name alone in larger type, and from below 30% a block of the token's own color, gray for tokens that aren't colors. The links stay, so a zoomed-out graph still shows how a palette is used.
+
+<Screenshot name="output-graph-overview" alt="The whole graph zoomed out to fit: each token a block of its own color, with the aliases linked to their values" />
+
+### Following a chain
+
+Hover a token to highlight its whole chain: what it points to, all the way down to a value, and everything that uses it. The rest of the graph dims. Click it to keep the chain highlighted and open a card with:
+
+- The token's type and value. For an alias, the value at the end of its chain.
+- **Points to** and **Used by**, the tokens it references and the ones that reference it. Click one to jump to it.
+
+Press `Esc`, or click an empty part of the canvas, to close the card.
+
+### Search and filters
+
+- **Search** (`⌘F`) finds tokens by path, like `accent` or `color.blue`, and dims the rest. `Enter` and `Shift+Enter` jump to the next and previous match.
+- **All types** filters by token type, with the number of tokens of each. Pick one type, then add others to show several. A link in the details card to a type you've hidden shows that type again.
+- **Linked only** hides tokens that neither alias another token nor are aliased, such as a value nothing uses.
+
+In a narrow output pane, some buttons hide to make room: **Linked only** is still in the types menu, and zoom still works with a pinch, `⌘` + scroll and the shortcuts.
+
+The graph shows what the JSON tab shows: it follows the **All** / **To push** switch, and it updates when you click `Update`.
+
+## Plugin window height
+
+The plugin window auto-fits the height of its content, but you can adjust it manually using the resizer handle at the bottom of the settings view.
+
+- **Drag** the handle up or down to set a custom height. The minimum is `360px` and the maximum is the current content height — you can't grow the window beyond what's actually there.
+- A custom height stays when you switch between the Export and Import tabs. A view shorter than it, like the Import tab, fits its content instead, so there's no empty space below it.
+- **Double-click** the handle to reset back to auto-fit. The window snaps to match the content height again.
+- Your manual height is preserved while the output preview is open, so you can resize both with and without the preview showing.
+
+In [Dev Mode](/plugin/dev-mode) the plugin fills the Inspect panel instead, so there is no resizer.
+
