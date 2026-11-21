@@ -70,6 +70,16 @@ export default defineConfig({
   // plugin's events. count.js skips localhost, so local previews aren't counted
   head: [
     '<script data-goatcounter="https://tokens-bruecke-docs.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>',
+    // Link previews. Rspress adds og:title, og:description and og:type per
+    // page; the image is the same everywhere. docs/public/og.png is exported
+    // from the "OG 1 — Headline" frame in the tokensbruecke 2.0 Figma file
+    '<meta property="og:image" content="https://tokensbruecke.com/og.png">',
+    '<meta property="og:image:width" content="1200">',
+    '<meta property="og:image:height" content="630">',
+    '<meta property="og:image:alt" content="TokensBrücke: Figma variables, shipped as design tokens.">',
+    '<meta property="og:site_name" content="TokensBrücke">',
+    '<meta name="twitter:card" content="summary_large_image">',
+    '<meta name="twitter:image" content="https://tokensbruecke.com/og.png">',
   ],
 
   markdown: {
