@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ColorMode, ExportOptions } from '../../../api';
 import { demoSnapshot } from '../../screenshots/demoSnapshot';
+import CodeView from './CodeView';
 import { convertSnapshot, type Result } from './convert';
 import './playground.css';
 
@@ -86,25 +87,6 @@ const toOptions = (state: State): ExportOptions => {
   return options;
 };
 
-const escape = (text: string) =>
-  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-// Enough highlighting to tell keys, strings, numbers and references apart
-const highlight = (json: string) =>
-  escape(json).replace(
-    /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)/gi,
-    (match, string, colon, keyword, number) => {
-      if (string && colon) return `<span class="tb-k">${string}</span>${colon}`;
-      if (string) {
-        const cls = /^"\{[^}]+\}"$/.test(string) ? 'tb-r' : 'tb-s';
-        return `<span class="${cls}">${string}</span>`;
-      }
-      if (keyword) return `<span class="tb-b">${keyword}</span>`;
-      if (number) return `<span class="tb-n">${number}</span>`;
-      return match;
-    }
-  );
-
 const countTokens = (node: unknown): number => {
   if (!node || typeof node !== 'object') return 0;
   if ('$value' in node || 'value' in node) return 1;
@@ -137,6 +119,9 @@ export default function Playground() {
   const [view, setView] = useState<'tokens' | 'config'>('tokens');
   const [copied, setCopied] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  // The headers hold each pane's Collapse all and Expand all
+  const [inputTools, setInputTools] = useState<HTMLSpanElement | null>(null);
+  const [outputTools, setOutputTools] = useState<HTMLSpanElement | null>(null);
 
   const options = useMemo(() => toOptions(state), [state]);
 
@@ -170,7 +155,6 @@ export default function Playground() {
     () => files.reduce((sum, [, tree]) => sum + countTokens(tree), 0),
     [result]
   );
-  const html = useMemo(() => highlight(shown), [shown]);
 
   const set = (key: string, value: boolean | ColorMode) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -224,6 +208,7 @@ export default function Playground() {
         >
           <header>
             <strong>Snapshot</strong>
+            <span ref={setInputTools} />
             <span className="tb-pg-spacer" />
             <button type="button" onClick={() => fileInput.current?.click()}>
               Open file…
@@ -243,11 +228,11 @@ export default function Playground() {
               onChange={(e) => openFile(e.target.files?.[0])}
             />
           </header>
-          <textarea
+          <CodeView
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            spellCheck={false}
-            aria-label="Snapshot JSON"
+            onChange={setInput}
+            label="Snapshot JSON"
+            toolsTarget={inputTools}
           />
         </section>
 
@@ -271,6 +256,7 @@ export default function Playground() {
                 CLI config
               </button>
             </div>
+            <span ref={setOutputTools} />
             <span className="tb-pg-spacer" />
             <button type="button" onClick={copy} disabled={!shown}>
               {copied ? 'Copied' : 'Copy'}
@@ -309,9 +295,12 @@ export default function Playground() {
               {result.error}
             </div>
           ) : (
-            <pre className="tb-pg-code">
-              <code dangerouslySetInnerHTML={{ __html: html }} />
-            </pre>
+            <CodeView
+              key={view === 'config' ? 'config' : current?.[0]}
+              value={shown}
+              label={view === 'config' ? 'CLI config' : 'Tokens JSON'}
+              toolsTarget={outputTools}
+            />
           )}
 
           <footer>

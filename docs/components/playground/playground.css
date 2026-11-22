@@ -145,63 +145,167 @@
   background: var(--rp-c-brand-tint);
 }
 
-.tb-pg textarea,
-.tb-pg-code {
+.tb-pg-cm {
   height: var(--tb-pg-height);
-  margin: 0;
-  padding: 0.75rem 1rem;
-  font-family: var(--rp-font-family-mono, monospace);
-  font-size: 0.8rem;
-  line-height: 1.55;
-  tab-size: 2;
-  overflow: auto;
-  border: 0;
-  border-radius: 0;
+  min-width: 0;
+}
+.tb-pg .tb-pg-cm .cm-editor {
+  height: 100%;
   background: transparent;
   color: var(--rp-c-text-1);
 }
-.tb-pg textarea {
-  width: 100%;
-  resize: none;
+.tb-pg .tb-pg-cm .cm-editor.cm-focused {
   outline: none;
 }
-.tb-pg-code code {
-  font: inherit;
-  background: none;
-  padding: 0;
-  white-space: pre;
+.tb-pg .tb-pg-cm .cm-scroller {
+  font-family: var(--rp-font-family-mono, monospace);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  padding-block: 0.5rem;
+}
+.tb-pg .tb-pg-cm .cm-content {
+  caret-color: var(--rp-c-text-1);
+}
+.tb-pg .tb-pg-cm .cm-gutters {
+  background: var(--rp-c-bg);
+  color: var(--rp-c-text-3, #8b8f96);
+  border: 0;
+}
+.tb-pg .tb-pg-cm .cm-lineNumbers .cm-gutterElement {
+  padding: 0 0.25rem 0 0.75rem;
+}
+.tb-pg .tb-pg-cm .cm-foldGutter .cm-gutterElement {
+  padding: 0 0.35rem 0 0.15rem;
+  cursor: pointer;
+  color: var(--rp-c-text-2);
+}
+.tb-pg .tb-pg-cm .cm-foldGutter .cm-gutterElement:hover {
+  color: var(--rp-c-text-1);
+}
+.tb-pg .tb-pg-cm .cm-foldPlaceholder {
+  margin: 0 0.25rem;
+  padding: 0 0.4rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--rp-c-brand-tint);
+  color: var(--rp-c-text-1);
+}
+.tb-pg .tb-pg-cm .cm-selectionBackground,
+.tb-pg .tb-pg-cm .cm-editor.cm-focused .cm-selectionBackground {
+  background: var(--rp-c-brand-tint);
+}
+.tb-pg .tb-pg-cm .cm-matchingBracket {
+  background: var(--rp-c-bg-mute, rgba(127, 127, 127, 0.18));
+  outline: none;
+}
+.tb-pg .tb-pg-cm .cm-selectionMatch,
+.tb-pg .tb-pg-cm .cm-searchMatch {
+  background: rgba(255, 196, 0, 0.28);
+  outline: none;
+}
+.tb-pg .tb-pg-cm .cm-searchMatch-selected {
+  background: rgba(255, 166, 0, 0.6);
 }
 
-/* JSON colors, from the plugin's own preview */
-.tb-pg-code .tb-k {
+/* Find, on Cmd/Ctrl+F inside a pane */
+.tb-pg .tb-pg-cm .cm-panels {
+  background: var(--rp-c-bg-soft);
+  color: var(--rp-c-text-1);
+  border-color: var(--rp-c-divider-light);
+}
+.tb-pg .tb-pg-cm .cm-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  padding: 0.4rem 2rem 0.4rem 0.75rem;
+  font-size: 0.75rem;
+}
+.tb-pg .tb-pg-cm .cm-search br {
+  display: none;
+}
+.tb-pg .tb-pg-cm .cm-search label {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+.tb-pg .tb-pg-cm .cm-search .cm-textfield {
+  font: inherit;
+  margin: 0;
+  padding: 0.15rem 0.4rem;
+  color: var(--rp-c-text-1);
+  background: var(--rp-c-bg);
+  border: 1px solid var(--rp-c-divider);
+  border-radius: 6px;
+}
+.tb-pg .tb-pg-cm .cm-search button {
+  margin: 0;
+  padding: 0.1rem 0.5rem;
+  background-image: none;
+  text-transform: none;
+}
+.tb-pg .tb-pg-cm .cm-search button[name='close'] {
+  padding: 0 0.4rem;
+  border: 0;
+  background: none;
+}
+
+.tb-pg-folds {
+  display: flex;
+  gap: 0.15rem;
+}
+.tb-pg .tb-pg-folds button {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border-color: transparent;
+  background: none;
+  color: var(--rp-c-text-2);
+}
+.tb-pg .tb-pg-folds button:hover:not(:disabled) {
+  border-color: var(--rp-c-divider-light);
+  color: var(--rp-c-text-1);
+}
+.tb-pg-folds svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* JSON colors */
+.tb-pg-cm .tb-k {
   color: #8250df;
 }
-.tb-pg-code .tb-s {
+.tb-pg-cm .tb-s {
   color: #0a7d3e;
 }
-.tb-pg-code .tb-r {
+.tb-pg-cm .tb-r {
   color: #007be5;
   font-weight: 600;
 }
-.tb-pg-code .tb-n {
+.tb-pg-cm .tb-n {
   color: #c4520a;
 }
-.tb-pg-code .tb-b {
+.tb-pg-cm .tb-b {
   color: #cf222e;
 }
-html.rp-dark .tb-pg-code .tb-k {
+html.rp-dark .tb-pg-cm .tb-k {
   color: #d2a8ff;
 }
-html.rp-dark .tb-pg-code .tb-s {
+html.rp-dark .tb-pg-cm .tb-s {
   color: #7ee2a8;
 }
-html.rp-dark .tb-pg-code .tb-r {
+html.rp-dark .tb-pg-cm .tb-r {
   color: #6cc2ff;
 }
-html.rp-dark .tb-pg-code .tb-n {
+html.rp-dark .tb-pg-cm .tb-n {
   color: #ffa657;
 }
-html.rp-dark .tb-pg-code .tb-b {
+html.rp-dark .tb-pg-cm .tb-b {
   color: #ff7b72;
 }
 
