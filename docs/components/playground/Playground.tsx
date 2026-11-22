@@ -119,9 +119,6 @@ export default function Playground() {
   const [view, setView] = useState<'tokens' | 'config'>('tokens');
   const [copied, setCopied] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
-  // The headers hold each pane's Collapse all and Expand all
-  const [inputTools, setInputTools] = useState<HTMLSpanElement | null>(null);
-  const [outputTools, setOutputTools] = useState<HTMLSpanElement | null>(null);
 
   const options = useMemo(() => toOptions(state), [state]);
 
@@ -208,7 +205,6 @@ export default function Playground() {
         >
           <header>
             <strong>Snapshot</strong>
-            <span ref={setInputTools} />
             <span className="tb-pg-spacer" />
             <button type="button" onClick={() => fileInput.current?.click()}>
               Open file…
@@ -232,7 +228,6 @@ export default function Playground() {
             value={input}
             onChange={setInput}
             label="Snapshot JSON"
-            toolsTarget={inputTools}
           />
         </section>
 
@@ -256,7 +251,6 @@ export default function Playground() {
                 CLI config
               </button>
             </div>
-            <span ref={setOutputTools} />
             <span className="tb-pg-spacer" />
             <button type="button" onClick={copy} disabled={!shown}>
               {copied ? 'Copied' : 'Copy'}
@@ -299,7 +293,6 @@ export default function Playground() {
               key={view === 'config' ? 'config' : current?.[0]}
               value={shown}
               label={view === 'config' ? 'CLI config' : 'Tokens JSON'}
-              toolsTarget={outputTools}
             />
           )}
 
