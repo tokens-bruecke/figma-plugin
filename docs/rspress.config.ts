@@ -164,6 +164,9 @@ export default defineConfig({
         '@app': path.join(repoRoot, 'src/app'),
         '@root': repoRoot,
       },
+      // The plugin's folding helpers in ../src import CodeMirror too. One copy
+      // keeps its state and extensions compatible with the playground's
+      dedupe: ['@codemirror/state', '@codemirror/view', '@codemirror/language'],
     },
   },
 });

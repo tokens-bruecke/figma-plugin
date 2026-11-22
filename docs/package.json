@@ -9,6 +9,13 @@
     "shots": "node screenshots/capture.mjs"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.10.4",
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/search": "^6.7.1",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.6",
+    "@lezer/highlight": "^1.2.3",
     "@rspress/core": "2.1.4",
     "@rspress/plugin-llms": "2.1.4",
     "react": "^19.0.0",
@@ -16,9 +23,9 @@
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
-    "typescript": "^5.6.0",
     "playwright": "1.58.2",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "typescript": "^5.6.0"
   },
   "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
 }
