@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { ColorMode, ExportOptions } from '../../../api';
 import type { Result } from '../playground/convert';
 import { collectTokens, highlight, toLines, tokenType, trim, type Line } from './json';
@@ -128,6 +128,8 @@ export default function MiniPlayground() {
   const [changed, setChanged] = useState<Map<string, string | undefined>>(new Map());
   const [stats, setStats] = useState<{ tokens: number; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Folded blocks by path, so they stay folded when the output changes
+  const [folded, setFolded] = useState<Set<string>>(new Set());
   const previous = useRef<Map<string, unknown> | null>(null);
   const code = useRef<HTMLPreElement>(null);
 
@@ -198,6 +200,72 @@ export default function MiniPlayground() {
     const onlyLine = first && lines[i + 1]?.token !== line.token;
     if (onlyLine || /^\s*"\$?type":/.test(line.text)) noteLine.add(i);
   });
+
+  const toggle = (id: string) =>
+    setFolded((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+
+  const colored = (text: string) =>
+    highlight(text).map((p, j) =>
+      p.cls ? (
+        <span key={j} className={`tb-mp-${p.cls}`}>
+          {p.text}
+        </span>
+      ) : (
+        p.text
+      )
+    );
+
+  // A folded block shows as one line, "key": {…}, and lights up when
+  // anything inside it changed
+  const rows: ReactNode[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const closed = Boolean(line.fold && folded.has(line.fold.id));
+    const end = closed ? line.fold!.end : i;
+    const inside = lines.slice(i, end + 1);
+    const isChanged = inside.some((l) => l.token && changed.has(l.token));
+    let note: string | undefined;
+    for (let j = i; j <= end && !note; j++) if (noteLine.has(j)) note = changed.get(lines[j].token!);
+    rows.push(
+      <div key={i} className="tb-mp-line" data-changed={isChanged ? '' : undefined}>
+        {line.fold && (
+          <button
+            type="button"
+            className="tb-mp-fold"
+            aria-expanded={!closed}
+            aria-label={closed ? 'Unfold' : 'Fold'}
+            onClick={() => toggle(line.fold!.id)}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="m2 3.5 3 3 3-3" />
+            </svg>
+          </button>
+        )}
+        <code>
+          {colored(line.text)}
+          {closed && (
+            <>
+              <button
+                type="button"
+                className="tb-mp-folded"
+                aria-label="Unfold"
+                onClick={() => toggle(line.fold!.id)}
+              >
+                …
+              </button>
+              {colored(lines[end].text.trim())}
+            </>
+          )}
+        </code>
+        {note && <span className="tb-mp-was">was {note}</span>}
+      </div>
+    );
+    i = end;
+  }
 
   return (
     <div className="tb-mp">
@@ -307,28 +375,7 @@ export default function MiniPlayground() {
             <p className="tb-mp-error">{error}</p>
           ) : (
             <pre className="tb-mp-code" ref={code}>
-              {lines.map((line, i) => (
-                <div
-                  key={i}
-                  className="tb-mp-line"
-                  data-changed={line.token && changed.has(line.token) ? '' : undefined}
-                >
-                  <code>
-                    {highlight(line.text).map((p, j) =>
-                      p.cls ? (
-                        <span key={j} className={`tb-mp-${p.cls}`}>
-                          {p.text}
-                        </span>
-                      ) : (
-                        p.text
-                      )
-                    )}
-                  </code>
-                  {noteLine.has(i) && (
-                    <span className="tb-mp-was">was {changed.get(line.token!)}</span>
-                  )}
-                </div>
-              ))}
+              {rows}
             </pre>
           )}
         </section>

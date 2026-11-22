@@ -832,7 +832,8 @@ html.rp-dark .tb-home-e {
   overflow: auto;
   overscroll-behavior: contain;
   background: none;
-  font: 14px/22px var(--tb-mono);
+  /* The full playground's type, so the two read as one tool */
+  font: 0.8rem/1.55 var(--rp-font-family-mono, monospace);
 }
 .tb-mp-line {
   display: flex;
@@ -848,6 +849,53 @@ html.rp-dark .tb-home-e {
   background: none;
   padding: 0;
   color: var(--tb-ink);
+}
+/* Fold arrows sit in the line's left padding, like the playground's gutter */
+.tb-mp-line {
+  position: relative;
+  padding-left: 22px;
+}
+.tb-mp-fold {
+  position: absolute;
+  inset-block: 0;
+  left: 4px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--tb-faint);
+  cursor: pointer;
+}
+.tb-mp-fold:hover {
+  color: var(--tb-ink);
+}
+.tb-mp-fold svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.15s;
+}
+.tb-mp-fold[aria-expanded='false'] svg {
+  transform: rotate(-90deg);
+}
+.tb-mp-folded {
+  margin: 0 2px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--tb-blue-tint);
+  color: var(--tb-ink);
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+.tb-mp-folded:hover {
+  color: var(--tb-blue-text);
 }
 .tb-mp-line[data-changed] {
   background: var(--tb-blue-tint);
@@ -865,7 +913,8 @@ html.rp-dark .tb-home-e {
   color: var(--tb-blue-text);
 }
 .tb-mp-line[data-changed] .tb-mp-s,
-.tb-mp-line[data-changed] .tb-mp-n {
+.tb-mp-line[data-changed] .tb-mp-n,
+.tb-mp-line[data-changed] .tb-mp-b {
   color: var(--tb-blue-text);
 }
 .tb-mp-was {
@@ -873,15 +922,37 @@ html.rp-dark .tb-home-e {
   font-size: 12px;
   opacity: 0.85;
 }
-.tb-mp-k2 {
-  color: var(--tb-faint);
+/* JSON colors, the same as the full playground's */
+.tb-mp-k {
+  color: #8250df;
 }
-.tb-mp-s,
-.tb-mp-n {
-  color: var(--tb-green);
+.tb-mp-s {
+  color: #0a7d3e;
 }
 .tb-mp-r {
-  color: var(--tb-blue-text);
+  color: #007be5;
+  font-weight: 600;
+}
+.tb-mp-n {
+  color: #c4520a;
+}
+.tb-mp-b {
+  color: #cf222e;
+}
+html.rp-dark .tb-home-e .tb-mp-k {
+  color: #d2a8ff;
+}
+html.rp-dark .tb-home-e .tb-mp-s {
+  color: #7ee2a8;
+}
+html.rp-dark .tb-home-e .tb-mp-r {
+  color: #6cc2ff;
+}
+html.rp-dark .tb-home-e .tb-mp-n {
+  color: #ffa657;
+}
+html.rp-dark .tb-home-e .tb-mp-b {
+  color: #ff7b72;
 }
 .tb-mp-error {
   color: #d93025;
@@ -1035,9 +1106,13 @@ html.rp-dark .tb-home-e {
     width: auto;
     margin-left: auto;
   }
-  .tb-mp-code {
-    font-size: 12px;
-    line-height: 20px;
+  .tb-mp-line {
+    padding-left: 16px;
+    padding-right: 4px;
+  }
+  .tb-mp-fold {
+    left: 0;
+    width: 14px;
   }
 }
 

@@ -1,7 +1,10 @@
 // Pretty-prints a token tree line by line, remembering which token each line
 // belongs to, so the mini playground can highlight only the tokens that changed.
 
-export type Line = { text: string; token?: string };
+// An object or array spread over several lines can fold: its first line
+// carries a stable id (its path, so a fold survives new output) and the index
+// of its closing line
+export type Line = { text: string; token?: string; fold?: { id: string; end: number } };
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
@@ -39,6 +42,7 @@ export function toLines(tree: Json): Line[] {
     key: string | null,
     last: boolean,
     path: string[],
+    id: string,
     token?: string
   ) => {
     const pad = '  '.repeat(depth);
@@ -50,16 +54,24 @@ export function toLines(tree: Json): Line[] {
       return;
     }
     const [open, close] = Array.isArray(value) ? ['[', ']'] : ['{', '}'];
-    lines.push({ text: `${prefix}${open}`, token: own });
+    const first = lines.push({ text: `${prefix}${open}`, token: own }) - 1;
     const entries: [string | null, Json][] = Array.isArray(value)
       ? value.map((v) => [null, v])
       : Object.entries(value as { [key: string]: Json });
     entries.forEach(([k, v], i) =>
-      walk(v, depth + 1, k, i === entries.length - 1, k === null ? path : [...path, k], own)
+      walk(
+        v,
+        depth + 1,
+        k,
+        i === entries.length - 1,
+        k === null ? path : [...path, k],
+        `${id}/${k ?? i}`,
+        own
+      )
     );
-    lines.push({ text: `${pad}${close}${comma}`, token: own });
+    lines[first].fold = { id, end: lines.push({ text: `${pad}${close}${comma}`, token: own }) - 1 };
   };
-  walk(tree, 0, null, true, []);
+  walk(tree, 0, null, true, [], '');
   return lines;
 }
 
@@ -93,7 +105,8 @@ export function trim(tree: Json): Json {
 
 export type Piece = { text: string; cls?: string };
 
-// Keys, $-keys, strings, numbers and {references} apart; enough for a glance
+// Keys, strings, numbers, booleans and {references} apart, as the full
+// playground colors them
 export function highlight(text: string): Piece[] {
   const pieces: Piece[] = [];
   const re = /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)/gi;
@@ -103,11 +116,11 @@ export function highlight(text: string): Piece[] {
     if (m.index > last) pieces.push({ text: text.slice(last, m.index) });
     const [match, string, colon, keyword, number] = m;
     if (string && colon) {
-      pieces.push({ text: string, cls: string.startsWith('"$') ? 'k2' : 'k' });
+      pieces.push({ text: string, cls: 'k' });
       pieces.push({ text: colon });
     } else if (string) {
       pieces.push({ text: string, cls: /^"\{[^}]+\}"$/.test(string) ? 'r' : 's' });
-    } else if (keyword) pieces.push({ text: keyword, cls: 'n' });
+    } else if (keyword) pieces.push({ text: keyword, cls: 'b' });
     else if (number) pieces.push({ text: number, cls: 'n' });
     else pieces.push({ text: match });
     last = m.index + match.length;
