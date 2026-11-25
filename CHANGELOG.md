@@ -1,3 +1,9 @@
+## [3.32.1](https://github.com/tokens-bruecke/figma-plugin/compare/v3.32.0...v3.32.1) (2026-11-25)
+
+### Bug Fixes
+
+- export font weights scoped with FONT_VARIATIONS as fontWeight ([53dd9cf](https://github.com/tokens-bruecke/figma-plugin/commit/53dd9cfb047656cc07c800de9051131aceea9dfd)), closes [#180](https://github.com/tokens-bruecke/figma-plugin/issues/180)
+
 ## [3.32.0](https://github.com/tokens-bruecke/figma-plugin/compare/v3.31.0...v3.32.0) (2026-11-20)
 
 ### Features
