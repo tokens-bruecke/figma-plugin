@@ -2,6 +2,7 @@ import Decimal from 'decimal.js';
 import { IResolver } from '@common/resolver';
 import { convertRGBA } from './color/convertRGBA';
 import { isComposedColor, normalizeComposedColor } from './color/composeColor';
+import { isFontWeightScope } from './fontWeightScopes';
 import { isOpacityScope } from './opacityScopes';
 import { getAliasVariableName } from './getAliasVariableName';
 import { makeDimension } from './makeDimension';
@@ -78,7 +79,7 @@ export const normalizeValue = async (props: PropsI, resolver: IResolver) => {
   }
 
   if (variableType === 'FLOAT') {
-    if (variableScope.length === 1 && variableScope[0] === 'FONT_WEIGHT') {
+    if (isFontWeightScope(variableScope)) {
       return Number(variableValue);
     } else if (isOpacityScope(variableScope)) {
       if (usePercentageOpacity) {

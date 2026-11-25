@@ -56,6 +56,24 @@ describe('getFontStyleAndWeight', () => {
       )
     ).toBe(600);
   });
+
+  // #180: not `{ value: 500, unit: 'px' }`
+  test('Numeric font weight with FONT_VARIATIONS', async () => {
+    expect(
+      await normalizeValue(
+        {
+          variableValue: 500,
+          variableType: 'FLOAT',
+          variableScope: ['FONT_WEIGHT', 'FONT_VARIATIONS' as VariableScope],
+          colorMode: 'hex',
+          useDTCG: true,
+          includeValueStringKeyToAlias: true,
+          usePercentageOpacity: false,
+        },
+        resolver
+      )
+    ).toBe(500);
+  });
 });
 
 describe('getColor', () => {

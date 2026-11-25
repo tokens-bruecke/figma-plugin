@@ -1,4 +1,5 @@
 import { normalizeEasing } from './motion';
+import { isFontWeightScope } from './fontWeightScopes';
 import { isOpacityScope } from './opacityScopes';
 
 export const normalizeType = (
@@ -14,7 +15,7 @@ export const normalizeType = (
     case 'COLOR':
       return 'color';
     case 'FLOAT':
-      if (variableScopes.length === 1 && variableScopes[0] === 'FONT_WEIGHT') {
+      if (isFontWeightScope(variableScopes)) {
         return 'fontWeight';
       }
       if (isOpacityScope(variableScopes)) {
@@ -22,13 +23,11 @@ export const normalizeType = (
       }
       return 'dimension';
     case 'STRING':
-      if (variableScopes.length === 1) {
-        if (variableScopes[0] === 'FONT_WEIGHT') {
-          return 'fontWeight';
-        }
-        if (variableScopes[0] === 'FONT_FAMILY') {
-          return 'fontFamily';
-        }
+      if (isFontWeightScope(variableScopes)) {
+        return 'fontWeight';
+      }
+      if (variableScopes.length === 1 && variableScopes[0] === 'FONT_FAMILY') {
+        return 'fontFamily';
       }
       return 'string';
     case 'BOOLEAN':

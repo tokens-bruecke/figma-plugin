@@ -61,6 +61,7 @@ describe('isValidVariableScope', () => {
     expect(isValidVariableScope('OPACITY')).toBe(true);
     expect(isValidVariableScope('FONT_SIZE')).toBe(true);
     expect(isValidVariableScope('PARAGRAPH_INDENT')).toBe(true);
+    expect(isValidVariableScope('FONT_VARIATIONS')).toBe(true);
   });
 
   test('returns false for invalid scope strings', () => {
