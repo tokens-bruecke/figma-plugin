@@ -9,6 +9,25 @@ describe('getFontStyleAndWeight', () => {
   test('Numeric font weight', async () => {
     expect(normalizeType('FLOAT', ['FONT_WEIGHT'])).toBe('fontWeight');
   });
+  // #180: Figma reports a number scoped to font weight with both scopes
+  test('Numeric font weight with FONT_VARIATIONS', () => {
+    expect(
+      normalizeType('FLOAT', [
+        'FONT_WEIGHT',
+        'FONT_VARIATIONS' as VariableScope,
+      ])
+    ).toBe('fontWeight');
+  });
+  test('FONT_VARIATIONS alone stays a dimension', () => {
+    expect(normalizeType('FLOAT', ['FONT_VARIATIONS' as VariableScope])).toBe(
+      'dimension'
+    );
+  });
+  test('font weight mixed with other scopes stays a dimension', () => {
+    expect(normalizeType('FLOAT', ['FONT_WEIGHT', 'WIDTH_HEIGHT'])).toBe(
+      'dimension'
+    );
+  });
 });
 
 describe('font family scope', () => {

@@ -6,6 +6,7 @@ import {
   toComposedColorExpression,
   toComposedColorObject,
 } from './color/composeColor';
+import { FONT_VARIATIONS_SCOPE } from './fontWeightScopes';
 import { isOpacityScope } from './opacityScopes';
 import { ROOT_TOKEN_KEY } from './rootTokens';
 import { toTokenName } from './tokenName';
@@ -127,6 +128,7 @@ const VALID_VARIABLE_SCOPES: ReadonlyArray<VariableScope> = [
   'FONT_FAMILY',
   'FONT_STYLE',
   'FONT_WEIGHT',
+  FONT_VARIATIONS_SCOPE,
   'FONT_SIZE',
   'LINE_HEIGHT',
   'LETTER_SPACING',
