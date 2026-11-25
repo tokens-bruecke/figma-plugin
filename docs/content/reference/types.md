@@ -11,17 +11,17 @@ Unlike design tokens, Figma variables [support only 6 types](https://www.figma.c
 | ---------- | ----------------------- | ------------------------------------------------------------------------------------------------ |
 | COLOR      | —                       | [color](https://www.designtokens.org/tr/2025.10/format/#color)                                   |
 | BOOLEAN    | —                       | _boolean_ \*                                                                                     |
-| FLOAT      | only `FONT_WEIGHT`      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight)                        |
+| FLOAT      | font weight scopes      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight)                        |
 | FLOAT      | opacity scopes (no %)   | _number_ \*                                                                                      |
 | FLOAT      | opacity scopes (with %) | _string_ (e.g. `"10%"`) \*                                                                       |
 | FLOAT      | all other scopes        | [dimension](https://www.designtokens.org/tr/2025.10/format/#dimension) \*\*                      |
-| STRING     | only `FONT_WEIGHT`      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight)                        |
+| STRING     | font weight scopes      | [fontWeight](https://www.designtokens.org/tr/2025.10/format/#font-weight)                        |
 | STRING     | only `FONT_FAMILY`      | [fontFamily](https://www.designtokens.org/tr/2025.10/format/#font-family)                        |
 | STRING     | all other scopes        | _string_ \*                                                                                      |
 | TIMING     | —                       | [duration](https://www.designtokens.org/tr/2025.10/format/#duration) \*\*\*                      |
 | EASING     | —                       | [cubicBezier](https://www.designtokens.org/tr/2025.10/format/#cubic-bezier) or _string_ \*\*\*\* |
 
-\* native JSON types — not part of the closed DTCG 2025.10 type set. The plugin still writes them as the token's `$type`. "Opacity scopes" means every scope of the variable is `OPACITY` or `COLOR_OPACITY`, see [Scopes limitations](#scopes-limitations). Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
+\* native JSON types — not part of the closed DTCG 2025.10 type set. The plugin still writes them as the token's `$type`. "Font weight scopes" means `FONT_WEIGHT`, alone or with `FONT_VARIATIONS`. "Opacity scopes" means every scope of the variable is `OPACITY` or `COLOR_OPACITY`, see [Scopes limitations](#scopes-limitations). Also see [this issue](https://github.com/design-tokens/community-group/issues/120#issuecomment-1279527414).
 
 \*\* Figma currently supports only `FLOAT` for numeric values used as dimensions, which map to `px` units. With the DTCG 2025.10 format on, dimensions are exported as `{ "value": 6, "unit": "px" }` objects; otherwise the plugin appends `px` to the number.
 
@@ -58,6 +58,6 @@ In order to validate types, the plugin uses the [Design Tokens types](https://gi
 
 Figma variables have no font weight, font family or opacity type, so the plugin reads the variable's scopes to pick the token type:
 
-- A number or string variable whose only scope is `FONT_WEIGHT` becomes a `fontWeight` token. With any other scope next to it, it stays a `dimension` or `string`.
+- A number or string variable with font weight scopes becomes a `fontWeight` token. That means `FONT_WEIGHT` on its own, or next to `FONT_VARIATIONS`, which Figma adds when a number variable is scoped to font weight. With any other scope next to them, it stays a `dimension` or `string`.
 - A string variable whose only scope is `FONT_FAMILY` becomes a `fontFamily` token. With any other scope next to it, it stays a `string`.
 - A number variable whose scopes are all `OPACITY` or `COLOR_OPACITY` (the opacity of a color variable) becomes a `number` token, or a `string` with `%` if [Use percentage for opacity](/plugin/advanced-settings#use-percentage-for-opacity) is enabled. With any other scope next to them, it is exported as a `dimension`. Unless [scopes are included](/plugin/advanced-settings#include-variable-scopes), such a token carries its scopes in `$extensions.figmaScopes`, so the [import](/getting-started/export-and-import#import-json--variables) recreates an opacity variable (50, not 0.5).
